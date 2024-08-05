@@ -1,0 +1,6 @@
+node_modules
+.dccache
+.env
+package-lock.json
+/build
+/public/build
