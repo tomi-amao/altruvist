@@ -23,6 +23,7 @@ jobs:
         uses: anothrNick/github-tag-action@v1 
         env:
           WITH_V: true
+          DRY_RUN: true
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
