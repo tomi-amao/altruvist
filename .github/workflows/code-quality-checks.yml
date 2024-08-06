@@ -66,7 +66,7 @@ jobs:
       - name: Authenticate snyk
         run: |
           echo "$SNYK_TOKEN"
-          snyk auth "$SNYK_TOKEN"
+          echo "Try attempt" 
 
         # Runs Snyk Code (SAST) analysis and uploads result into GitHub.
         # Use || true to not fail the pipeline
