@@ -61,14 +61,10 @@ jobs:
 
 
       - name: Authenticate snyk
-        run: |
-          echo "$SNYK_TOKEN"
-          echo "Try attempt" 
-          echo "$TEST_SECRET"
+        run: snyk auth "$SNYK_TOKEN"
         env:
           # This is where you will need to introduce the Snyk API token created with your Snyk account
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-          TEST_SECRET: ${{ secrets.SUPER_SECRET }}
         # Runs Snyk Code (SAST) analysis and uploads result into GitHub.
         # Use || true to not fail the pipeline
       - name: Snyk Code test
