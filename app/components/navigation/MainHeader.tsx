@@ -1,9 +1,4 @@
-import {
-  Form,
-  Link,
-  useNavigate,
-  useSubmit,
-} from "@remix-run/react";
+import { Form, Link, useNavigate, useSubmit } from "@remix-run/react";
 import * as Switch from "@radix-ui/react-switch";
 import { ExitIcon, MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import { useState } from "react";

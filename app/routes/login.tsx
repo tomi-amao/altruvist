@@ -10,11 +10,7 @@ import MainHeader from "~/components/navigation/MainHeader";
 import { FormField } from "~/components/utils/FormField";
 import { logout } from "../services/session.server";
 import { authenticator } from "~/services/auth.server";
-import {
-  authError,
-  createUserSession,
-  register,
-} from "~/models/user.server";
+import { authError, createUserSession, register } from "~/models/user.server";
 import {
   validateEmail,
   validateFirstName,
@@ -22,15 +18,12 @@ import {
   validatePassword,
 } from "~/services/validators.server";
 
-
-
 export default function Login() {
-
   const [registerView, setRegisterView] = useState(false);
 
   const handleInputChange = (
     event: React.ChangeEvent<HTMLInputElement>,
-    field: string
+    field: string,
   ) => {
     setFormData((form) => ({ ...form, [field]: event.target.value }));
   };
@@ -60,8 +53,6 @@ export default function Login() {
       setFormData(newState);
     }
   }, []);
-
-
 
   useEffect(() => {
     firstLoad.current = false;
@@ -166,7 +157,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const userCreds = Object.fromEntries(formData);
   console.log(`Action: ${userCreds._action}`);
-  
+
   //validate formdata
   const emailValidation = validateEmail(userCreds.email as string);
   const passwordValidation = validatePassword(userCreds.password as string);
@@ -186,8 +177,8 @@ export async function action({ request }: ActionFunctionArgs) {
   if (!passwordValidation.success) {
     errors.password = passwordValidation.error.issues[0].message;
   }
-  // only perform name validation checks if user creates an account 
-  if (userCreds._action === "createAccount"){
+  // only perform name validation checks if user creates an account
+  if (userCreds._action === "createAccount") {
     if (!firstNameValidation.success) {
       errors.firstName = firstNameValidation.error.issues[0].message;
     }
@@ -195,8 +186,6 @@ export async function action({ request }: ActionFunctionArgs) {
       errors.lastName = lastNameValidation.error.issues[0].message;
     }
   }
-
-  
 
   switch (userCreds._action as string) {
     case "logout": {
@@ -206,44 +195,33 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     case "signinUser": {
-
-      
-
       if (Object.values(errors).some(Boolean)) {
         return json({ errors });
       }
 
-
       const headers = await createUserSession(request, formData);
-      
-      return redirect("/feed", { headers });
 
-    } 
+      return redirect("/feed", { headers });
+    }
     case "createAccount": {
       if (Object.values(errors).some(Boolean)) {
         return json({ errors });
       }
-      
+
       const registerResponse = await register(userCreds, request, formData);
-      const validateRegister = await registerResponse.json()
+      const validateRegister = await registerResponse.json();
 
       if (validateRegister.error) {
-        errors.email = validateRegister.error
+        errors.email = validateRegister.error;
         console.log(validateRegister.error);
-                
+
         return json({ errors });
-
       }
-      const session = registerResponse.headers
-      
-      
-      return redirect("/feed", {headers: session});
+      const session = registerResponse.headers;
 
-
+      return redirect("/feed", { headers: session });
     }
   }
-
- 
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {

@@ -4,3 +4,5 @@ coverage
 app/root.tsx
 app/entry.server.tsx
 app/entry.client.tsx
+tailwind.config.ts
+postcss.config.js

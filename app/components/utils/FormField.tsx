@@ -1,4 +1,10 @@
-import { useEffect, useState, Dispatch, SetStateAction, ReactNode } from "react";
+import {
+  useEffect,
+  useState,
+  Dispatch,
+  SetStateAction,
+  ReactNode,
+} from "react";
 
 interface FormFieldProps {
   htmlFor: string;
@@ -124,11 +130,10 @@ export default function FormOptions({
   setShowOptions: Dispatch<SetStateAction<boolean>>;
   showOptions: boolean;
 
-  dropDownOptions: ReactNode
-  selected: { option: string; id: number; }
-  setSelected: Dispatch<SetStateAction<{ option: string; id: number; }>>
+  dropDownOptions: ReactNode;
+  selected: { option: string; id: number };
+  setSelected: Dispatch<SetStateAction<{ option: string; id: number }>>;
 }) {
-  
   return (
     <>
       <div className="flex items-center">
@@ -139,7 +144,6 @@ export default function FormOptions({
             showOptions={showOptions}
           />
           <div className={showOptions ? "block" : "hidden"}>
-
             {dropDownOptions}
           </div>
         </div>
@@ -192,5 +196,3 @@ function Selected({
     </button>
   );
 }
-
-

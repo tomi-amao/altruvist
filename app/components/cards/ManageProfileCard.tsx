@@ -6,7 +6,6 @@ import { Form } from "@remix-run/react";
 import { FormField } from "../utils/FormField";
 import { SecondaryButton } from "../utils/BasicButton";
 
-
 interface props {
   setShowProfileManage: Dispatch<SetStateAction<boolean>>;
   returnTo: string;
@@ -23,8 +22,11 @@ interface props {
   };
 }
 
-export default function ManageProfile({ setShowProfileManage, user, returnTo }: props) {
-
+export default function ManageProfile({
+  setShowProfileManage,
+  user,
+  returnTo,
+}: props) {
   return (
     <Modal
       returnTo={returnTo}
@@ -152,16 +154,23 @@ export default function ManageProfile({ setShowProfileManage, user, returnTo }: 
                 Two-step Verification <SecondaryButton text="Enable" />
               </h2>
             </div>
-            <form method="post" onSubmit={e => !confirm('Are you sure?') ? e.preventDefault() : true}>
-
-            <div className="pt-8  px-4  w-full"> 
-              <h2 className="flex w-full justify-between">
-                Danger Zone <SecondaryButton text="Delete account" name="action" value="delete" />
-              </h2>
-            
-            </div>
+            <form
+              method="post"
+              onSubmit={(e) =>
+                !confirm("Are you sure?") ? e.preventDefault() : true
+              }
+            >
+              <div className="pt-8  px-4  w-full">
+                <h2 className="flex w-full justify-between">
+                  Danger Zone{" "}
+                  <SecondaryButton
+                    text="Delete account"
+                    name="action"
+                    value="delete"
+                  />
+                </h2>
+              </div>
             </form>
-
           </Tabs.Content>
           <Tabs.Content value="settings">
             <p>settings</p>

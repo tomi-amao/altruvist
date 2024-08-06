@@ -1,7 +1,7 @@
 import { writeAsyncIterableToWritable } from "@remix-run/node";
 import cloudinary from "cloudinary";
 
-// configure and authenticate into cloudinary environment 
+// configure and authenticate into cloudinary environment
 cloudinary.v2.config({
   cloud_name: process.env.CLOUD_NAME,
   api_key: process.env.API_KEY,
@@ -9,14 +9,13 @@ cloudinary.v2.config({
 });
 
 export async function uploadImage(data: AsyncIterable<Uint8Array>) {
-    //create a promise to handle asynchronous upload of data use upload_stream
+  //create a promise to handle asynchronous upload of data use upload_stream
   const uploadPromise = new Promise(async (resolve, reject) => {
     const uploadStream = cloudinary.v2.uploader.upload_stream(
-        // specify options for uploaded image to cloudinary
+      // specify options for uploaded image to cloudinary
       {
         folder: "remix",
-        transformation: ["transform-avatar"]
-        
+        transformation: ["transform-avatar"],
       },
       (error, result) => {
         if (error) {
@@ -26,16 +25,14 @@ export async function uploadImage(data: AsyncIterable<Uint8Array>) {
         resolve(result);
       },
     );
-    
-    await writeAsyncIterableToWritable(data, uploadStream);
 
+    await writeAsyncIterableToWritable(data, uploadStream);
   });
 
   return uploadPromise;
 }
 
 export async function getUserAvatar(id: string) {
-    const avatarId = await cloudinary.v2.api.resources_by_asset_ids(id, {})
-    return avatarId
-    
+  const avatarId = await cloudinary.v2.api.resources_by_asset_ids(id, {});
+  return avatarId;
 }

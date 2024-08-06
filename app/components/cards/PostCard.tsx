@@ -29,8 +29,8 @@ export default function PostCard({ post }: { post: post }) {
     const days = Math.floor(hours / 24);
 
     if (days > 7) {
-      setPostAge(postDate.toLocaleDateString())
-      return ""
+      setPostAge(postDate.toLocaleDateString());
+      return "";
     } else if (days > 0) {
       const daysOld = `${days} day${days > 1 ? "s" : ""} ago`;
       setPostAge(daysOld);
@@ -55,9 +55,15 @@ export default function PostCard({ post }: { post: post }) {
         <div className="w-[45px] h-[45px] rounded-full bg-bgprimary m-2 row-span-2 "></div>
         <div className="flex items-center pt-2 ">
           <div className="flex flex-col">
-            <h2 className="text-base h-fit">{post.author.profile.username ? post.author.profile.username : post.author.profile.firstName }</h2>
+            <h2 className="text-base h-fit">
+              {post.author.profile.username
+                ? post.author.profile.username
+                : post.author.profile.firstName}
+            </h2>
             <h3 className="text-sm h-fit text-altMidGrey">
-              {post.type && post.type?.charAt(0).toUpperCase() + post.type?.slice(1)} · {postAge}
+              {post.type &&
+                post.type?.charAt(0).toUpperCase() + post.type?.slice(1)}{" "}
+              · {postAge}
             </h3>
           </div>
         </div>
@@ -65,13 +71,15 @@ export default function PostCard({ post }: { post: post }) {
           <div className="flex items-baseline">
             <h2 className="text-base h-fit pr-4">{post.title} </h2>
             <ul className="flex gap-2 text-xs rounded-md ">
-              {post.tags.map((tag, index) => <li key={index} className="bg-darkGrey rounded-md p-1 px-2"> {tag} </li>)}
-
+              {post.tags.map((tag, index) => (
+                <li key={index} className="bg-darkGrey rounded-md p-1 px-2">
+                  {" "}
+                  {tag}{" "}
+                </li>
+              ))}
             </ul>
           </div>
-          <p className="text-base text-altMidGrey h-fit">
-            {post.content}
-          </p>
+          <p className="text-base text-altMidGrey h-fit">{post.content}</p>
         </div>
       </div>
     </>

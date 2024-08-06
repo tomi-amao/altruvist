@@ -8,9 +8,9 @@ type SessionFlashData = {
   error: string;
 };
 
-const sessionSecret = process.env.SESSION_SECRET
+const sessionSecret = process.env.SESSION_SECRET;
 if (!sessionSecret) {
-  throw new Error('SESSION_SECRET must be set')
+  throw new Error("SESSION_SECRET must be set");
 }
 
 // export the whole sessionStorage object
@@ -23,7 +23,7 @@ export const sessionStorage = createCookieSessionStorage<
     sameSite: "lax", // this helps with CSRF
     path: "/",
     httpOnly: true,
-    secrets: [sessionSecret], 
+    secrets: [sessionSecret],
     // secure: process.env.NODE_ENV === "production"
   },
 });
@@ -31,15 +31,12 @@ export const sessionStorage = createCookieSessionStorage<
 export async function getSession(request: Request) {
   const cookie = request.headers.get("Cookie");
 
-  
-  
-  
   return sessionStorage.getSession(cookie);
 }
 
 export async function logout(request: Request) {
   const session = await getSession(request);
-    
+
   return redirect("/", {
     headers: {
       "Set-Cookie": await sessionStorage.destroySession(session),
@@ -47,6 +44,4 @@ export async function logout(request: Request) {
   });
 }
 
-
-
-export const {commitSession} = sessionStorage
+export const { commitSession } = sessionStorage;

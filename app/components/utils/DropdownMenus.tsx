@@ -1,6 +1,5 @@
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 
-
 import { DisplayPicture } from "./DisplayPicture";
 
 export interface MenuProps {
@@ -26,7 +25,6 @@ export const DropdownMenus = ({
   userDetails,
   menuItems2,
 }: MenuProps) => {
-
   //create a new object extracting the first key-pair in the object, seperating the action and the dropdown menu item
   const dropdownItems = menuItems.map((option) => {
     const [key, value] = Object.entries(option)[0];

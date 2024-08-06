@@ -13,9 +13,8 @@ import { Prisma } from "@prisma/client";
 export const getUserById = async (userId: string, query: Prisma.UserSelect) => {
   if (!userId) {
     console.log("No user id found");
-    
   }
-  
+
   return await prisma.user.findUnique({
     where: { id: userId },
     select: { ...query },
@@ -46,31 +45,30 @@ export const deleteUserByEmail = () => {};
 
 //function creating a user
 export const createUser = async (user: RegisterForm) => {
-    // hashes the password provided in the registration
-    const passwordHash = await argon2.hash(user.password);
-    // store the new User document using Prisma.
-    const newUser = await prisma.user.create({
-      data: {
-        email: user.email,
-        password: passwordHash,
-        profile: {
-          firstName: user.firstName,
-          lastName: user.lastName,
-        },
+  // hashes the password provided in the registration
+  const passwordHash = await argon2.hash(user.password);
+  // store the new User document using Prisma.
+  const newUser = await prisma.user.create({
+    data: {
+      email: user.email,
+      password: passwordHash,
+      profile: {
+        firstName: user.firstName,
+        lastName: user.lastName,
       },
-    });
-    // return the id and email of the new user.
-    console.log("New User successfully created");
+    },
+  });
+  // return the id and email of the new user.
+  console.log("New User successfully created");
 
-    return { id: newUser.id, email: user.email };
-
+  return { id: newUser.id, email: user.email };
 };
 
 // function registering and logging in a user
 export const register = async (
   user: RegisterForm,
   request: Request,
-  formData: FormData
+  formData: FormData,
 ) => {
   // check if email inputted by user exists
   const userExists = await prisma.user.count({ where: { email: user.email } });
@@ -78,7 +76,7 @@ export const register = async (
   if (userExists === 1) {
     return json(
       { error: "User already exists with that email" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -91,7 +89,7 @@ export const register = async (
         error: "Something went wrong trying to create a user",
         fields: { email: user.email, password: user.password },
       },
-      { status: 400 }
+      { status: 400 },
     );
   }
   // create a session based on user input
@@ -100,29 +98,28 @@ export const register = async (
     {
       message: "Successfully created user",
     },
-    { status: 200, headers: session }
+    { status: 200, headers: session },
   );
 };
 
 // check user inputted credentials
 export const verifyLogin = async (email: string, password: string) => {
   // query for a user with a matching email.
-    const user = await prisma.user.findUnique({ where: { email: email } });
+  const user = await prisma.user.findUnique({ where: { email: email } });
 
-    const verifyPassword = await argon2.verify(user!.password, password);
+  const verifyPassword = await argon2.verify(user!.password, password);
 
-    if (!user || !verifyPassword) {
-      throw new Error("Incorrect Login");
-    }
+  if (!user || !verifyPassword) {
+    throw new Error("Incorrect Login");
+  }
 
-    return { user };
-
+  return { user };
 };
 
 // create user session based on request and user input
 export const createUserSession = async (
   request: Request,
-  formData: FormData
+  formData: FormData,
 ) => {
   // create a session with a cookie, handled by remix-auth
   const user = await authenticator.authenticate("user-pass", request, {
@@ -142,23 +139,21 @@ export const createUserSession = async (
   return headers;
 };
 
-export const requireUserId = async (
-  request: Request,
-) => {
+export const requireUserId = async (request: Request) => {
   const session = await getSession(request);
   const userId = session.get("userId")?.toString();
-  
+
   return userId;
 };
 
 export const authError = async (
   request: Request,
-  redirectTo: string = new URL(request.url).pathname
+  redirectTo: string = new URL(request.url).pathname,
 ) => {
   const session = await getSession(request);
   const authError = session.get("error");
   console.log(redirectTo);
-  
+
   return authError;
 };
 

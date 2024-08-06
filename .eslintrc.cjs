@@ -7,7 +7,7 @@
 /** @type {import('eslint').Linter.Config} */
 module.exports = {
   rules: {
-    "no-async-promise-executor" : "warn"
+    "no-async-promise-executor": "warn",
   },
   root: true,
   parserOptions: {
