@@ -1,0 +1,18 @@
+name: Main
+
+on:
+  pull_request:
+    types:
+      - closed
+      - opened
+    branches: ["main"]
+
+jobs:
+  release:
+    # if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Release
+        uses: softprops/action-gh-release@v2
