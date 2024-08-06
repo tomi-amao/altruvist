@@ -4,11 +4,9 @@ const emailSchema = z
   .string()
   .min(5)
   .email({ message: "Please input a valid email" });
-const passwordSchema = z
-  .string()
-  .min(8, {
-    message: "Please enter a password that is minimum of 8 characters",
-  });
+const passwordSchema = z.string().min(8, {
+  message: "Please enter a password that is minimum of 8 characters",
+});
 const firstNameSchema = z
   .string()
   .min(2, { message: "Please enter a valid first name" });

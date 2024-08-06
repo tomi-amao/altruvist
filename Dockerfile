@@ -12,8 +12,8 @@ FROM base as deps
 
 WORKDIR /myapp
 
-ADD package.json ./
-RUN npm install --include=dev
+ADD package.json package-lock.json ./
+RUN npm ci --include=dev
 
 # Setup production node_modules
 
