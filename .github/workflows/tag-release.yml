@@ -9,7 +9,7 @@ on:
     branches: ["main"]
 
 env:
-  IMAGE_NAME: ${{ github.repository }}/skillanthropy
+  IMAGE_NAME: theignorantview/${{ github.repository }}
   
 permissions:
   contents: write
@@ -57,8 +57,6 @@ jobs:
       matrix:
         platform:
           - linux/amd64
-          - linux/arm/v6
-          - linux/arm/v7
           - linux/arm64
         registry:
           - ghcr.io
@@ -96,8 +94,8 @@ jobs:
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
           images: |
-            theignorantview/skillanthropy:${{ needs.release.outputs.new_tag }}
-            ghcr.io/skillanthropy:${{ needs.release.outputs.new_tag }}
+            theignorantview/${{ github.repository }}:${{ needs.release.outputs.new_tag }}
+            ghcr.io/${{ github.repository }}:${{ needs.release.outputs.new_tag }}
       
       - name: Build and push Docker images
         id: push
@@ -107,8 +105,8 @@ jobs:
           push: true
           platforms: ${{ matrix.platform }}
           tags: |
-            theignorantview/skillanthropy:${{ needs.release.outputs.new_tag }}
-            ghcr.io/skillanthropy:${{ needs.release.outputs.new_tag }}
+            theignorantview/${{ github.repository }}:${{ needs.release.outputs.new_tag }}
+            ghcr.io/${{ github.repository }}:${{ needs.release.outputs.new_tag }}
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Generate artifact attestation

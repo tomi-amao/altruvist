@@ -1,4 +1,4 @@
-FROM node:20 as base
+FROM node:22.6-bookworm-slim as base
 
 # set for base and all layer that inherit from it
 ENV NODE_ENV production
