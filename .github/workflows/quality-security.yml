@@ -9,7 +9,7 @@ on:
 
 jobs:
   labeler:
-    name: Add label to PR
+    name: Add label to PR 
     permissions:
       contents: read
       pull-requests: write
