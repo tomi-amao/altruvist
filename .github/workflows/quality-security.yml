@@ -9,7 +9,7 @@ on:
 
 jobs:
   eslint-prettier:
-    name: Format and Lint
+    name: Check Format and Lint
     runs-on: ubuntu-latest
     permissions:
       contents: read
