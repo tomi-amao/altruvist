@@ -1,4 +1,4 @@
-name: Release and Publish
+# name: Release and Publish
 
 
 on:
@@ -24,10 +24,10 @@ jobs:
     steps:
     - uses: actions/labeler@v5
   release:
+    name: Tag and Release 
     needs: labeler
     outputs:
       new_tag: ${{ steps.tag_version.outputs.new_tag }}
-    name: Tag and Release
     # if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
@@ -51,7 +51,7 @@ jobs:
         continue-on-error: true
   push_to_registries:
     needs: release
-    name: Push Docker image to multiple registries
+    name: Build and Push Image
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -104,8 +104,10 @@ jobs:
           platforms: ${{ matrix.platform }}
           tags: |
             theignorantview/skillanthropy:${{ needs.release.outputs.new_tag }}
+            theignorantview/skillanthropy:latest
             ghcr.io/${{ github.repository }}:${{ needs.release.outputs.new_tag }}
-          labels: ${{ steps.meta.outputs.labels }}
+            ghcr.io/${{ github.repository }}:latest
+          labels: ${{ matrix.platform }}
 
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v1
