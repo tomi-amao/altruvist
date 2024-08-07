@@ -24,6 +24,8 @@ jobs:
     - uses: actions/labeler@v5
   release:
     needs: labeler
+    outputs:
+      new_tag: ${{ steps.tag_version.outputs.new_tag }}
     name: Tag and Release
     # if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
@@ -83,7 +85,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Log in to the Container registry
-        uses: docker/login-action@vf4ef78c080cd8ba55a85445d5b36e214a81df20a
+        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -91,15 +93,15 @@ jobs:
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@v9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
           images: |
-            theignorantview/skillanthropy:${{ steps.tag_version.outputs.new_tag }}
+            theignorantview/skillanthropy:${{ needs.release.outputs.new_tag }}
             ghcr.io/skillanthropy:${{ steps.tag_version.outputs.new_tag }}
       
       - name: Build and push Docker images
         id: push
-        uses: docker/build-push-action@v3b5e8027fcad23fda98b2e3ac259d8d67585f671
+        uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
         with:
           context: .
           push: true
