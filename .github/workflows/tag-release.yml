@@ -5,6 +5,7 @@ on:
   pull_request:
     types:
       - closed
+      - opened
     branches: ["main"]
 
 env:
@@ -24,7 +25,7 @@ jobs:
   release:
     needs: labeler
     name: Tag and Release
-    if: github.event.pull_request.merged == true
+    # if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -44,6 +45,7 @@ jobs:
           tag_name: ${{ steps.tag_version.outputs.new_tag }}
           generate_release_notes: true
           make_latest: "true"
+        continue-on-error: true
   push_to_registries:
     needs: release
     name: Push Docker image to multiple registries
