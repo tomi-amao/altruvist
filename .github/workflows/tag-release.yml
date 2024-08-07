@@ -97,7 +97,7 @@ jobs:
         with:
           images: |
             theignorantview/skillanthropy:${{ needs.release.outputs.new_tag }}
-            ghcr.io/skillanthropy:${{ steps.tag_version.outputs.new_tag }}
+            ghcr.io/skillanthropy:${{ needs.release.outputs.new_tag }}
       
       - name: Build and push Docker images
         id: push
@@ -106,7 +106,9 @@ jobs:
           context: .
           push: true
           platforms: ${{ matrix.platform }}
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: |
+            theignorantview/skillanthropy:${{ needs.release.outputs.new_tag }}
+            ghcr.io/skillanthropy:${{ needs.release.outputs.new_tag }}
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Generate artifact attestation
