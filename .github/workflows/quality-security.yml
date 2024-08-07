@@ -1,4 +1,4 @@
-name: Format, Lint and Security Scans
+name: Code Quality & Security
 
 on:
   push:

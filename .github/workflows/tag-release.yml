@@ -1,4 +1,4 @@
-name: Tag and Release
+name: Release and Publish
 
 
 on:
@@ -9,7 +9,8 @@ on:
     branches: ["main"]
 
 env:
-  IMAGE_NAME: theignorantview/${{ github.repository }}
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
   
 permissions:
   contents: write
@@ -58,9 +59,6 @@ jobs:
         platform:
           - linux/amd64
           - linux/arm64
-        registry:
-          - ghcr.io
-          - theignorantview
     permissions:
       packages: write
       contents: read
@@ -94,7 +92,7 @@ jobs:
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
           images: |
-            theignorantview/${{ github.repository }}:${{ needs.release.outputs.new_tag }}
+            theignorantview/skillanthropy:${{ needs.release.outputs.new_tag }}
             ghcr.io/${{ github.repository }}:${{ needs.release.outputs.new_tag }}
       
       - name: Build and push Docker images
@@ -105,14 +103,14 @@ jobs:
           push: true
           platforms: ${{ matrix.platform }}
           tags: |
-            theignorantview/${{ github.repository }}:${{ needs.release.outputs.new_tag }}
+            theignorantview/skillanthropy:${{ needs.release.outputs.new_tag }}
             ghcr.io/${{ github.repository }}:${{ needs.release.outputs.new_tag }}
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v1
         with:
-          subject-name: ${{ matrix.platform }}/${{ env.IMAGE_NAME}}
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}          
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
           
