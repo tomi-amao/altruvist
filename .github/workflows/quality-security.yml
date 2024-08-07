@@ -72,7 +72,7 @@ jobs:
 
         # Runs Snyk Open Source (SCA) analysis and uploads result to Snyk.
       - name: Snyk Open Source monitor
-        run:  |
+        run: |
           npm ci
           snyk monitor --org=ignorant-view
         continue-on-error: true

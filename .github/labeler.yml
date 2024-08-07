@@ -1,16 +1,16 @@
 # Add 'feature' label to any PR where the head branch name starts with `feature` or has a `feature` section in the name
 feature:
- - head-branch: ['^feature', 'feature']
+  - head-branch: ["^feature", "feature"]
 
 # Add 'release' label to any PR that is opened against the `main` branch
 release:
- - base-branch: 'main'
+  - base-branch: "main"
 
 hotfix:
- - head-branch: ['^hotfix', 'hotfix']
+  - head-branch: ["^hotfix", "hotfix"]
 
 bug:
- - head-branch: ['^bug', 'bug']
+  - head-branch: ["^bug", "bug"]
 
 documentation:
- - head-branch: ['^docs', 'docs']
+  - head-branch: ["^docs", "docs"]
