@@ -76,7 +76,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Log in to the Container registry
-        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+        uses: docker/login-action@f3.3.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -89,18 +89,19 @@ jobs:
           images: |
             theignorantview/skillanthropy
             ghcr.io/${{ github.repository }}
-          tags: type=semver,pattern={{raw}},value=${{ needs.release.outputs.new_tag }}
+          tags: type=semver,pattern={{raw}},value=${{ needs.release.outputs.new_tag }} #use semver value created from bump action
 
       - name: Build and push Docker images
         id: push
-        uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
           platforms: ${{ matrix.platform }}
           tags: ${{ steps.meta.outputs.tags }}
           annotations: ${{ steps.meta.outputs.annotations }} #needed for multi-arch images
-          provenance: mode=max
+          attests: type=provenance
+          provenance: mode=max #create attestation for docker image
           cache-from: type=gha
           cache-to: type=gha,mode=max
         
