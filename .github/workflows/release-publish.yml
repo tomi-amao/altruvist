@@ -89,7 +89,7 @@ jobs:
           images: |
             theignorantview/skillanthropy
             ghcr.io/${{ github.repository }}
-          tags: type=ref,enable=true,event=pr,value=${{ needs.release.outputs.new_tag }}
+          tags: type=semver,pattern={{raw}},value=${{ needs.release.outputs.new_tag }}
 
       - name: Build and push Docker images
         id: push
@@ -99,16 +99,12 @@ jobs:
           push: true
           platforms: ${{ matrix.platform }}
           tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          annotations: ${{ steps.meta.outputs.annotations }} #needed for multi-arch images
           provenance: mode=max
           cache-from: type=gha
           cache-to: type=gha,mode=max
         
-      - name: Run Docker Summary
-        run: |
-          echo "### Image Summary :rocket:\n **Digest:** ${{ steps.push.outputs.digest }}\n **Imageid:** ${{ steps.push.outputs.imageid }} **Labels:** ${{ steps.meta.outputs.labels }} " >> $GITHUB_STEP_SUMMARY
 
-## Image Summary
 
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v1
