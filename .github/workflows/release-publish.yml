@@ -87,9 +87,9 @@ jobs:
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
           images: |
-            theignorantview/skillanthropy:${{ needs.release.outputs.new_tag }}
-            ghcr.io/${{ github.repository }}:${{ needs.release.outputs.new_tag }}
-          tags: type=ref,enable=true,priority=600,prefix=,suffix=,event=pr
+            theignorantview/skillanthropy
+            ghcr.io/${{ github.repository }}
+          tags: type=ref,enable=true,event=pr,value=${{ needs.release.outputs.new_tag }}
 
       - name: Build and push Docker images
         id: push
@@ -98,14 +98,17 @@ jobs:
           context: .
           push: true
           platforms: ${{ matrix.platform }}
-          tags: |
-            theignorantview/skillanthropy:${{ needs.release.outputs.new_tag }}
-            theignorantview/skillanthropy:latest
-            ghcr.io/${{ github.repository }}:${{ needs.release.outputs.new_tag }}
-            ghcr.io/${{ github.repository }}:latest
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          provenance: mode=max
           cache-from: type=gha
           cache-to: type=gha,mode=max
+        
+      - name: Run Docker Summary
+        run: |
+          echo "### Image Summary :rocket:\n **Digest:** ${{ steps.push.outputs.digest }}\n **Imageid:** ${{ steps.push.outputs.imageid }} **Labels:** ${{ steps.meta.outputs.labels }} " >> $GITHUB_STEP_SUMMARY
+
+## Image Summary
 
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v1
