@@ -85,7 +85,11 @@ jobs:
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
-
+        with:
+          images: |
+            theignorantview/skillanthropy:${{ needs.release.outputs.new_tag }}
+            ghcr.io/${{ github.repository }}:${{ needs.release.outputs.new_tag }}
+          tags: type=ref,enable=false,event=pr
 
       - name: Build and push Docker images
         id: push
