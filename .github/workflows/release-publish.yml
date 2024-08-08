@@ -89,7 +89,7 @@ jobs:
           images: |
             theignorantview/skillanthropy:${{ needs.release.outputs.new_tag }}
             ghcr.io/${{ github.repository }}:${{ needs.release.outputs.new_tag }}
-          tags: type=ref,enable=false,event=pr
+          tags: type=ref,enable=true,priority=600,prefix=,suffix=,event=pr
 
       - name: Build and push Docker images
         id: push
@@ -139,6 +139,6 @@ jobs:
             ghcr.io/${{ github.repository }}:${{ needs.push_to_registries.outputs.new_tag }}
             ghcr.io/${{ github.repository }}:latest
           DIGEST: ${{ needs.push_to_registries.outputs.digest }}
-          COSIGN_PASSWORD: "{{ secret.COSIGN_PASSWORD }}"
+          COSIGN_PASSWORD: "{{ secrets.COSIGN_PASSWORD }}"
 
         run: echo "${TAGS}" | xargs -I {} cosign sign --key cosign.key -a "repo=${{ github.repository }}" -a "ref=${{ github.sha }}" --yes {}@${DIGEST}
