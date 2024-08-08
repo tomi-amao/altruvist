@@ -85,10 +85,7 @@ jobs:
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
-        with:
-          images: |
-            theignorantview/skillanthropy:${{ needs.release.outputs.new_tag }}
-            ghcr.io/${{ github.repository }}:${{ needs.release.outputs.new_tag }}
+
 
       - name: Build and push Docker images
         id: push
@@ -103,6 +100,8 @@ jobs:
             ghcr.io/${{ github.repository }}:${{ needs.release.outputs.new_tag }}
             ghcr.io/${{ github.repository }}:latest
           labels: ${{ matrix.platform }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v1
@@ -129,14 +128,13 @@ jobs:
         run: echo "${{ secrets.SIGNING_SECRET }}" > cosign.key
 
       - name: Sign container image
-        run: |
-          cosign sign --key cosign.key \
-            -a "repo=${{ github.repository }}" \
-            -a "ref=${{ github.sha }}" \
-            ${{ env.DOCKER_TAG }}:latest
-          cosign sign --key cosign.key \
-            -a "ref=${{ github.sha }}" \
-            -a "repo=${{ github.repository }}" \
-            ${{ env.DOCKER_TAG }}:${{ needs.push_to_registries.outputs.tag }}
-        env:
-          COSIGN_PASSWORD: ""
+        env: 
+          TAGS: |
+            theignorantview/skillanthropy:${{ needs.push_to_registries.outputs.tag }}
+            theignorantview/skillanthropy:latest
+            ghcr.io/${{ github.repository }}:${{ needs.push_to_registries.outputs.new_tag }}
+            ghcr.io/${{ github.repository }}:latest
+          DIGEST: ${{ needs.push_to_registries.outputs.digest }}
+          COSIGN_PASSWORD: "{{ secret.COSIGN_PASSWORD }}"
+
+        run: echo "${TAGS}" | xargs -I {} cosign sign --key cosign.key -a "repo=${{ github.repository }}" -a "ref=${{ github.sha }}" --yes {}@${DIGEST}
