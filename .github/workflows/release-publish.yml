@@ -103,7 +103,7 @@ jobs:
             theignorantview/skillanthropy:latest
             ghcr.io/${{ github.repository }}:${{ needs.release.outputs.new_tag }}
             ghcr.io/${{ github.repository }}:latest
-          labels: ${{ matrix.platform }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -136,8 +136,6 @@ jobs:
           TAGS: |
             theignorantview/skillanthropy:${{ needs.push_to_registries.outputs.tag }}
             theignorantview/skillanthropy:latest
-            ghcr.io/${{ github.repository }}:${{ needs.push_to_registries.outputs.new_tag }}
-            ghcr.io/${{ github.repository }}:latest
           DIGEST: ${{ needs.push_to_registries.outputs.digest }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
 
