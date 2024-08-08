@@ -135,8 +135,7 @@ jobs:
       - name: Sign container image
         env: 
           TAGS: |
-            theignorantview/skillanthropy:${{ needs.push_to_registries.outputs.tag }}
-            theignorantview/skillanthropy:latest
+            theignorantview/skillanthropy
           DIGEST: ${{ needs.push_to_registries.outputs.digest }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
 
