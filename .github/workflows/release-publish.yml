@@ -104,6 +104,7 @@ jobs:
           provenance: mode=max #create attestation for docker image
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          outputs: type=image,name=target,annotation-index.org.opencontainers.image.description=My multi-arch image
         
 
 
@@ -139,4 +140,4 @@ jobs:
           DIGEST: ${{ needs.push_to_registries.outputs.digest }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
 
-        run: echo "${TAGS}" | xargs -I {} cosign sign --key cosign.key -a "repo=${{ github.repository }}" -a "ref=${{ github.sha }}" --yes {}@${DIGEST}
+        run: echo "${TAGS}" | xargs -I {} cosign sign --key cosign.key -a "repo=${{ github.repository }}" -a "ref=${{ github.sha }}" -a "version=${{ needs.push_to_registries.outputs.tag }}" --yes {}@${DIGEST}
