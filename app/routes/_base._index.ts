@@ -20,7 +20,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export default function Index() {
-  return {}
+  return {};
 }
 
 // export async function action({request} :ActionFunctionArgs) {

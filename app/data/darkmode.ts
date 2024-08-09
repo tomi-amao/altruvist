@@ -24,12 +24,10 @@ export async function getDarkMode(): Promise<string | null> {
 export function darkModeSetLocal(mode: string | boolean) {
   mode = mode.toString();
 
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     // Perform localStorage action
     localStorage.setItem("mode", mode);
-
   }
-
 }
 export function darkModeGetLocal() {
   return localStorage.getItem("mode");

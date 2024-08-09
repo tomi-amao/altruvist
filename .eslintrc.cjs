@@ -7,7 +7,7 @@
 /** @type {import('eslint').Linter.Config} */
 module.exports = {
   rules: {
-    "no-async-promise-executor" : "warn"
+    "no-async-promise-executor": "warn",
   },
   root: true,
   parserOptions: {
@@ -25,7 +25,7 @@ module.exports = {
   ignorePatterns: ["!**/.server", "!**/.client"],
 
   // Base config
-  extends: ["eslint:recommended"],
+  extends: ["eslint:recommended", "prettier"],
 
   overrides: [
     // React

@@ -1,32 +1,35 @@
 import { Form } from "@remix-run/react";
 
-import {  SearchIcon, HamburgerIcon } from "../utils/icons";
+import { SearchIcon, HamburgerIcon } from "../utils/icons";
 import ProfileDropdown from "../utils/ProfileDropdown";
 import { Dispatch, SetStateAction } from "react";
 
 interface props {
-    userId: string;
-    setShowSidebar: Dispatch<SetStateAction<boolean>>;
-    userDetails: {
-      profile: {
-        firstName: string;
-        lastName: string;
-        username: string | null;
-        role: string | null;
-        profilePicture: string;
-        type: string | null;
-      };
-      email: string;
+  userId: string;
+  setShowSidebar: Dispatch<SetStateAction<boolean>>;
+  userDetails: {
+    profile: {
+      firstName: string;
+      lastName: string;
+      username: string | null;
+      role: string | null;
+      profilePicture: string;
+      type: string | null;
     };
+    email: string;
+  };
 }
 
 export default function Header({ userDetails, userId, setShowSidebar }: props) {
-  
-
   return (
     <>
       <nav className="flex w-full items-center border-b-2 border-midGrey">
-        <button className="p-4 cursor-pointer" onClick={() => {setShowSidebar(preValue => !preValue)}}>
+        <button
+          className="p-4 cursor-pointer"
+          onClick={() => {
+            setShowSidebar((preValue) => !preValue);
+          }}
+        >
           <HamburgerIcon />
         </button>
         <Form className="w-full" action="">
@@ -45,11 +48,9 @@ export default function Header({ userDetails, userId, setShowSidebar }: props) {
           </div>
         </Form>
         <div className="p-2">
-            <ProfileDropdown userDetails={userDetails} userId={userId}/>
+          <ProfileDropdown userDetails={userDetails} userId={userId} />
         </div>
       </nav>
     </>
   );
 }
-
-

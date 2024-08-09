@@ -23,7 +23,7 @@ export default function CreatePostCard() {
 
   const [option, setOption] = useState<{ id: number; option: string }>();
   const selectedTags = (
-    selectedOption: SetStateAction<{ id: number; option: string } | undefined>
+    selectedOption: SetStateAction<{ id: number; option: string } | undefined>,
   ) => {
     setOption(selectedOption);
   };
@@ -252,7 +252,7 @@ export function DropdownOptions({
   setShowOptions: Dispatch<SetStateAction<boolean>>;
   setOptionAction?: Dispatch<SetStateAction<string[]>>;
   optionAction: (
-    selectedOption: SetStateAction<{ id: number; option: string } | undefined>
+    selectedOption: SetStateAction<{ id: number; option: string } | undefined>,
   ) => void;
   selected: { option: string; id: number };
 }) {

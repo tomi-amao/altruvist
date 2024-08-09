@@ -1,17 +1,23 @@
-name: Format, Lint and Security Scans
+name: Code Quality & Security
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [ "main" ]
-  schedule:
-    - cron: '35 11 * * 2'
+    branches: ["main"]
 
 jobs:
+  labeler:
+    name: Add label to PR
+    permissions:
+      contents: read
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/labeler@v5
   eslint-prettier:
-    name: Format and Lint
+    name: Check Format and Lint
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -29,7 +35,7 @@ jobs:
       - name: Run Prettier
         run: npx prettier . --check
         continue-on-error: true
-        
+
       - name: Run ESLint
         run: npx eslint .
           --config .eslintrc.cjs
@@ -44,6 +50,7 @@ jobs:
           sarif_file: eslint-results.sarif
           wait-for-processing: true
   snyk:
+    needs: eslint-prettier
     name: Security Scan
     permissions:
       contents: read # for actions/checkout to fetch code
@@ -60,7 +67,6 @@ jobs:
         with:
           node-version: 20
 
-
       - name: Authenticate snyk
         run: snyk auth "$SNYK_TOKEN"
         env:
@@ -71,29 +77,27 @@ jobs:
       - name: Snyk Code test
         run: snyk code test --sarif --org=ignorant-view > snyk-code.sarif # || true
         continue-on-error: true
-        
 
         # Runs Snyk Open Source (SCA) analysis and uploads result to Snyk.
       - name: Snyk Open Source monitor
-        run: snyk monitor --org=ignorant-view
+        run: |
+          npm ci
+          snyk monitor --org=ignorant-view
         continue-on-error: true
-        
 
         # Runs Snyk Infrastructure as Code (IaC) analysis and uploads result to Snyk.
         # Use || true to not fail the pipeline.
       # - name: Snyk IaC test and report
       #   run: snyk iac test --report # || true
-
-        # Build the docker image for testing
+      # Build the docker image for testing
       - name: Build a Docker image
         run: docker build -t theignorantview/skillanthropy .
         continue-on-error: true
-        
+
         # Runs Snyk Container (Container and SCA) analysis and uploads result to Snyk.
       - name: Snyk Container monitor
         run: snyk container monitor theignorantview/skillanthropy --file=Dockerfile --org=ignorant-view
         continue-on-error: true
-        
 
         # Push the Snyk Code results into GitHub Code Scanning tab
       - name: Upload result to GitHub Code Scanning

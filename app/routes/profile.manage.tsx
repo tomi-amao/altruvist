@@ -1,6 +1,5 @@
 import {
   ActionFunctionArgs,
-
   UploadHandler,
   redirect,
   json,
@@ -9,7 +8,7 @@ import {
   unstable_parseMultipartFormData as parseMultipartFormData,
 } from "@remix-run/node";
 
-import { deleteUser,requireUserId, updateUser } from "~/models/user.server";
+import { deleteUser, requireUserId, updateUser } from "~/models/user.server";
 import { uploadImage } from "~/services/fileUpload.server";
 import cloudinary from "cloudinary";
 import { logout } from "~/services/session.server";
@@ -27,23 +26,22 @@ export async function action({ request }: ActionFunctionArgs) {
       console.log(data, filename, contentType, name);
 
       //parse image data to be uploaded asynchronously
-      const uploadedImage: cloudinary.UploadApiResponse = await uploadImage(
-        data
-      );
+      const uploadedImage: cloudinary.UploadApiResponse =
+        await uploadImage(data);
       await updateUser(userId!, { profilePicture: uploadedImage.secure_url });
       return uploadedImage.secure_url;
     },
-    createMemoryUploadHandler()
+    createMemoryUploadHandler(),
   );
   const formData = await parseMultipartFormData(request, uploadHandler);
 
   const role = formData.get("role");
   const username = formData.get("username");
   const avatar = formData.get("avatar");
-  const action = formData.get("_action")
+  const action = formData.get("_action");
   if (action === "delete") {
-    await deleteUser(userId!)
-    return logout(request)
+    await deleteUser(userId!);
+    return logout(request);
   }
 
   if (typeof username !== "string" || typeof role !== "string") {

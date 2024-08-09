@@ -12,8 +12,7 @@ interface props {
   modalWidth?: string;
   modalHeight?: string;
   childrenStyle: string;
-  reloadReturnPage? : string
-
+  reloadReturnPage?: string;
 }
 
 export function Modal({
@@ -23,19 +22,20 @@ export function Modal({
   dialogTitle,
   dialogDescription,
   childrenStyle,
-  reloadReturnPage
+  reloadReturnPage,
 }: props) {
   const navigate = useNavigate();
-  const submit = useSubmit()
+  const submit = useSubmit();
   const modalCloseHandler = (page: string) => {
     setShowProfileManage(false);
-    navigate(page, {replace: true});
+    navigate(page, { replace: true });
 
     if (reloadReturnPage) {
-      
-      submit({ post: reloadReturnPage ? reloadReturnPage : ""}, { method: "POST", action: reloadReturnPage, replace: true});
-  
-  }
+      submit(
+        { post: reloadReturnPage ? reloadReturnPage : "" },
+        { method: "POST", action: reloadReturnPage, replace: true },
+      );
+    }
   };
 
   const contentStyle = ` data-[state=open]:animate-contentShow fixed top-[50%] left-[50%] flex flex-col items-baseline max-h-[85vh] w-[50vw]  translate-x-[-50%] translate-y-[-50%] rounded-[6px] p-[25px] focus:outline-none`;
@@ -51,12 +51,17 @@ export function Modal({
               modalCloseHandler(returnTo);
             }}
           >
-            {dialogDescription && <>  <Dialog.Title className="text-jade9 m-0 text-[17px] font-medium">
-              {dialogTitle}
-            </Dialog.Title>
-            <Dialog.Description className="text-mauve11 mt-[10px] mb-5 text-[15px] leading-normal">
-              {dialogDescription}
-            </Dialog.Description> </>}
+            {dialogDescription && (
+              <>
+                {" "}
+                <Dialog.Title className="text-jade9 m-0 text-[17px] font-medium">
+                  {dialogTitle}
+                </Dialog.Title>
+                <Dialog.Description className="text-mauve11 mt-[10px] mb-5 text-[15px] leading-normal">
+                  {dialogDescription}
+                </Dialog.Description>{" "}
+              </>
+            )}
             <div className={childrenStyle}>{children}</div>
 
             <Dialog.Close

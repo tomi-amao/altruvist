@@ -1,7 +1,7 @@
 name: skillanthropy
 services:
   app:
-    image: theignorantview/skillanthropy:v0.0.1
+    image: theignorantview/skillanthropy:v0.0.2
     build:
       context: ./
       dockerfile: Dockerfile
@@ -9,4 +9,3 @@ services:
       - .env
     ports:
       - 3000:3000
-    

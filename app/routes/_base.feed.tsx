@@ -38,10 +38,7 @@ export default function Feed() {
   const { referer } = useLoaderData<typeof loader>();
   const [index, setIndex] = useState<number>(4);
 
-  const {
-    ref: loaderRef,
-    inView,
-  } = useInView({
+  const { ref: loaderRef, inView } = useInView({
     threshold: 0,
   });
   const location = useLocation();
@@ -60,7 +57,7 @@ export default function Feed() {
       if (location.pathname === "/feed") {
         submit(
           { index },
-          { method: "POST", action: `/feed${location.search}` }
+          { method: "POST", action: `/feed${location.search}` },
         );
       }
     }
@@ -182,9 +179,7 @@ export default function Feed() {
             <SecondaryButton text="clear" action={clearSearchParams} />
           </div>
           <div className="flex flex-col gap-4">
-            {allPosts?.map((post) => (
-              <PostCard key={post.id} post={post} />
-            ))}
+            {allPosts?.map((post) => <PostCard key={post.id} post={post} />)}
           </div>
         </div>
         <div ref={loaderRef} className="flex  m-auto w-fit pt-1 ">

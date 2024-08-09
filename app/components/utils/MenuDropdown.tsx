@@ -1,23 +1,20 @@
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 
-
 import { useSubmit } from "@remix-run/react";
 
 interface MenuProps {
-    userId : string
+  userId: string;
 }
 
-export const DropdownMenuDemo = (props : MenuProps) => {
-    const submit = useSubmit();
-    const deletePostById = async (postId: string) => {
-          submit(
-            { postId, _action: 'deletePost'},
-            { method: "POST", action: "/feed" }
-          );
-          return {};
-        }
-    
-
+export const DropdownMenuDemo = (props: MenuProps) => {
+  const submit = useSubmit();
+  const deletePostById = async (postId: string) => {
+    submit(
+      { postId, _action: "deletePost" },
+      { method: "POST", action: "/feed" },
+    );
+    return {};
+  };
 
   return (
     <DropdownMenu.Root>
@@ -47,7 +44,12 @@ export const DropdownMenuDemo = (props : MenuProps) => {
 
           <DropdownMenu.Separator className="h-[1px] bg-violet6 m-[5px]" />
 
-          <DropdownMenu.Item onClick={async () => {deletePostById(props.userId)}} className="group text-[13px] leading-none text-[#E5484D] rounded-[3px] flex items-center h-[25px] px-[5px] relative pl-[25px] select-none outline-none data-[disabled]:text-mauve8 data-[disabled]:pointer-events-none data-[highlighted]:bg-[#E5484D] data-[highlighted]:text-violet1">
+          <DropdownMenu.Item
+            onClick={async () => {
+              deletePostById(props.userId);
+            }}
+            className="group text-[13px] leading-none text-[#E5484D] rounded-[3px] flex items-center h-[25px] px-[5px] relative pl-[25px] select-none outline-none data-[disabled]:text-mauve8 data-[disabled]:pointer-events-none data-[highlighted]:bg-[#E5484D] data-[highlighted]:text-violet1"
+          >
             Delete
             <div className="ml-auto pl-[20px] text-mauve11 group-data-[highlighted]:text-white group-data-[disabled]:text-mauve8">
               <BinIcon />
@@ -58,8 +60,6 @@ export const DropdownMenuDemo = (props : MenuProps) => {
     </DropdownMenu.Root>
   );
 };
-
-
 
 export const DotsVerticalIcon = () => {
   return (

@@ -14,36 +14,31 @@ export const createPost = async (postData: Posts) => {
     },
   });
   console.log(post);
-  
 };
 
 export const getUserPosts = async (
   userId: string,
   sortFilter: Prisma.PostsOrderByWithRelationInput,
-  whereFilter: Prisma.PostsWhereInput
+  whereFilter: Prisma.PostsWhereInput,
 ) => {
   const userPosts = await prisma.posts.findMany({
     orderBy: { ...sortFilter },
     where: { authorId: userId, ...whereFilter },
   });
 
-
   return userPosts;
 };
 export const getPosts = async (
   sortFilter: Prisma.PostsOrderByWithRelationInput,
   whereFilter: Prisma.PostsWhereInput,
-  numPosts: number | undefined = 4, 
+  numPosts: number | undefined = 4,
 ) => {
-  
   const userPosts = await prisma.posts.findMany({
-    orderBy: { ...sortFilter},
-    where: {...whereFilter},
-    include: {author: {select: {profile: true}}},
-    take: numPosts
+    orderBy: { ...sortFilter },
+    where: { ...whereFilter },
+    include: { author: { select: { profile: true } } },
+    take: numPosts,
   });
-
-
 
   return userPosts;
 };

@@ -1,4 +1,3 @@
-
 export function PrimaryButton() {
   return (
     <>
@@ -11,7 +10,17 @@ export function PrimaryButton() {
     </>
   );
 }
-export function SecondaryButton({text, name, value, action = undefined} : {text:string, name?: string, value?:string, action?: () => Record<string, never> }) {
+export function SecondaryButton({
+  text,
+  name,
+  value,
+  action = undefined,
+}: {
+  text: string;
+  name?: string;
+  value?: string;
+  action?: () => Record<string, never>;
+}) {
   return (
     <>
       <button
