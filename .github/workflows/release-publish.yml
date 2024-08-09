@@ -4,7 +4,6 @@ on:
   pull_request:
     types:
       - closed
-      - opened
     branches: ["main"]
 
 env:
@@ -19,7 +18,7 @@ jobs:
     name: Tag and Release
     outputs:
       new_tag: ${{ steps.tag_version.outputs.new_tag }}
-    # if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -104,9 +103,7 @@ jobs:
           provenance: mode=max #create attestation for docker image
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          outputs: type=image,name=target,annotation-index.org.opencontainers.image.description=My multi-arch image
-        
-
+          outputs: type=image,name=target,${{ steps.meta.outputs.annotations }},${{steps.meta.outputs.labels}}
 
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v1
@@ -133,7 +130,7 @@ jobs:
         run: echo "${{ secrets.SIGNING_SECRET }}" > cosign.key
 
       - name: Sign container image
-        env: 
+        env:
           TAGS: |
             theignorantview/skillanthropy
           DIGEST: ${{ needs.push_to_registries.outputs.digest }}
