@@ -1,8 +1,6 @@
 name: Code Quality & Security
 
 on:
-  push:
-    branches: ["main"]
   pull_request:
     # The branches below must be a subset of the branches above
     branches: ["main"]
@@ -34,7 +32,6 @@ jobs:
 
       - name: Run Prettier
         run: npx prettier . --check
-        continue-on-error: true
 
       - name: Run ESLint
         run: npx eslint .
@@ -70,7 +67,6 @@ jobs:
       - name: Authenticate snyk
         run: snyk auth "$SNYK_TOKEN"
         env:
-          # This is where you will need to introduce the Snyk API token created with your Snyk account
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         # Runs Snyk Code (SAST) analysis and uploads result into GitHub.
         # Use || true to not fail the pipeline
