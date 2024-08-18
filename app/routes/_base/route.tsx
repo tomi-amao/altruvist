@@ -68,7 +68,9 @@ export default function IndexLayout() {
               </nav>
             </div>
           )}
-          <Outlet />
+          <div className="flex w-full">
+            <Outlet />
+          </div>
           <div className="w-[25%]  border-l-2  border-midGrey">
             <h1 className="text-lg text-lightGrey w-full px-4 pt-4">
               {" "}

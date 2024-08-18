@@ -49,3 +49,14 @@ export const deletePost = async (id: string) => {
 
   return deletePost;
 };
+
+export const getPost = async (id: string | undefined) => {
+  console.log(` Specified id : ${id}`);
+
+  if (!id) {
+    return { message: "No post found", status: 400, postData: null };
+  }
+  const postData = await prisma.posts.findFirst({ where: { id } });
+
+  return { message: "Found post", status: 200, postData };
+};

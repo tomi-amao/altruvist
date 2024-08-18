@@ -1,4 +1,5 @@
 import type { Posts } from "@prisma/client";
+import { useNavigate } from "@remix-run/react";
 import { useEffect, useState } from "react";
 
 interface post extends Posts {
@@ -15,6 +16,7 @@ interface post extends Posts {
 }
 
 export default function PostCard({ post }: { post: post }) {
+  const navigate = useNavigate();
   const [postAge, setPostAge] = useState<string>();
   const [dateNow, setDateNow] = useState<Date>();
   const postDate = new Date(post.createdAt);
@@ -51,7 +53,20 @@ export default function PostCard({ post }: { post: post }) {
 
   return (
     <>
-      <div className="w-full h-fit bg-midGrey p-3 rounded-md grid grid-cols-[0.1fr_1fr] ">
+      <div
+        className="w-full h-fit bg-midGrey p-3 rounded-md grid grid-cols-[0.1fr_1fr]  "
+        onClick={() => {
+          navigate(`/posts/${post.id}`);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            navigate(`/posts/${post.id}`);
+          }
+        }}
+        role="button"
+        tabIndex={0}
+      >
         <div className="w-[45px] h-[45px] rounded-full bg-bgprimary m-2 row-span-2 "></div>
         <div className="flex items-center pt-2 ">
           <div className="flex flex-col">
