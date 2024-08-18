@@ -18,15 +18,3 @@ export const loader: LoaderFunction = async ({ request }) => {
     return redirect("/login");
   }
 };
-
-export default function Index() {
-  return {};
-}
-
-// export async function action({request} :ActionFunctionArgs) {
-//   const formData = await request.formData()
-//   const selectedItem =  Object.fromEntries(formData)
-//   console.log(selectedItem);
-//   // console.log('hello');
-
-// }

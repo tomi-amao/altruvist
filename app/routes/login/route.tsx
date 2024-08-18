@@ -8,7 +8,7 @@ import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { useEffect, useRef, useState } from "react";
 import MainHeader from "~/components/navigation/MainHeader";
 import { FormField } from "~/components/utils/FormField";
-import { logout } from "../services/session.server";
+import { logout } from "../../services/session.server";
 import { authenticator } from "~/services/auth.server";
 import { authError, createUserSession, register } from "~/models/user.server";
 import {
