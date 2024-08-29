@@ -6,6 +6,7 @@ import {
   redirect,
 } from "@remix-run/node";
 import {
+  Form,
   Outlet,
   useActionData,
   useLoaderData,
@@ -23,11 +24,13 @@ import {
   filterOptionsConstant,
   sortOptionsConstant,
 } from "~/components/utils/OptionsForDropdowns";
-import { getPosts } from "~/models/posts.server";
+import { getPosts, searchPosts } from "~/models/posts.server";
 import { getUserById, requireUserId } from "~/models/user.server";
 import { SecondaryButton } from "~/components/utils/BasicButton";
 import { Prisma } from "@prisma/client";
 import { useInView } from "react-intersection-observer";
+import { SearchIcon } from "~/components/utils/icons";
+import { getSession } from "~/services/session.server";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Feed" }, { name: "Your feed", content: "List all posts" }];
@@ -42,30 +45,35 @@ export default function Feed() {
     threshold: 0,
   });
   const location = useLocation();
+
   const submit = useSubmit();
   const navigate = useNavigate();
 
   const navigation = useNavigation();
   const isSubmitting = navigation.formAction === `/feed${location.search}`;
+
   const allPosts = getPosts?.allPosts;
 
-  const loadMorePosts = useCallback(() => {
-    if (inView) {
-      setIndex((prevIndex) => prevIndex + 1);
-      console.log("PATHNAME", location.pathname);
+  //submission action for full text search
 
-      if (location.pathname === "/feed") {
-        submit(
-          { index },
-          { method: "POST", action: `/feed${location.search}` },
-        );
+  const loadMorePosts = useCallback(
+    (locationSearch: string) => {
+      if (inView) {
+        setIndex((prevIndex) => prevIndex + 1);
+        console.log("Param", locationSearch);
+
+        if (location.pathname === "/feed") {
+          console.log(locationSearch);
+
+          // submit(
+          //   { index },
+          //   { method: "POST", action: `/feed${locationSearch}` },
+          // );
+        }
       }
-    }
-  }, [inView]);
-
-  useEffect(() => {
-    loadMorePosts();
-  }, [inView, loadMorePosts]);
+    },
+    [inView],
+  );
 
   // get posts after user creates a post
   useEffect(() => {
@@ -77,6 +85,22 @@ export default function Feed() {
   // manage sort dropdown state
   const [showSortOptions, setShowSortOptions] = useState(false);
   const [sortSelected, setSortSelected] = useState({ option: "Sort", id: 0 });
+
+  const [searchQuery, setSearchQuery] = useState({
+    query: "",
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setSearchQuery({
+      ...searchQuery,
+      [name]: value,
+    });
+  };
+
+  useEffect(() => {
+    console.log(searchQuery.query);
+  }, [searchQuery]);
 
   // manage filter dropdown state
   const [showFilterOptions, setShowFilterOptions] = useState(false);
@@ -106,8 +130,8 @@ export default function Feed() {
     }
     if (filterOptionsConstant.includes(selectedOption)) {
       if (!tagFilters.includes(selectedOption.option)) {
-        setTagFilters([...tagFilters, selectedOption.option]);
-        filterRef.current = [...tagFilters, selectedOption.option];
+        setTagFilters([...tagFilters, selectedOption.option]); //create a list for multiple tag searches
+        filterRef.current = [...tagFilters, selectedOption.option]; //track state of the list
       }
 
       const encodedTagFilters = JSON.stringify(filterRef.current);
@@ -115,20 +139,34 @@ export default function Feed() {
       newSearchParams.set("filter", encodedTagFilters);
     }
 
+    setSearchParams(newSearchParams, { preventScrollReset: true }); //commit search params
+  };
+
+  const searchAction = (query: string) => {
+    newSearchParams.set("search", query);
     setSearchParams(newSearchParams, { preventScrollReset: true });
+    // submit post request to retrieve searched results
+    submit({ index }, { method: "POST", action: `/feed?search=${query}` });
   };
 
   const clearSearchParams = () => {
     setSearchParams({}, { preventScrollReset: true });
     setTagFilters([]);
     filterRef.current = [...tagFilters];
+    submit({ index }, { method: "POST", action: `/feed` });
     return {};
   };
 
+  // handle page reloads when submitting queries
   useEffect(() => {
     setShowSortOptions(false);
     setShowFilterOptions(false);
   }, [searchParams]);
+
+  useEffect(() => {
+    console.log("Use effect location", location.search);
+    loadMorePosts(location.search);
+  }, [inView, loadMorePosts, location.search]);
 
   return (
     <>
@@ -177,6 +215,35 @@ export default function Feed() {
               }
             />
             <SecondaryButton text="clear" action={clearSearchParams} />
+            <Form className="w-full" action="">
+              <div className="flex md:w-5/12 h-fit m-auto mt-2 items-center bg-midGrey text-lightGrey rounded-md justify-between">
+                <p className=" p-1 flex gap-4 items-center w-full flex-grow">
+                  <SearchIcon />
+                  <input
+                    type="text"
+                    placeholder="Search posts"
+                    className="w-full flex-grow bg-midGrey"
+                    name="query"
+                    value={searchQuery.query}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        // console.log("Enter value", searchQuery.query);
+                        // console.log(location);
+
+                        searchAction(searchQuery.query);
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    onChange={handleChange}
+                  />
+                </p>
+                <div className="h-fit w-fit rounded-md px-2 mr-2 bg-lightGrey text-[13px] text-darkGrey ">
+                  /
+                </div>
+              </div>
+            </Form>
           </div>
           <div className="flex flex-col gap-4">
             {allPosts?.map((post) => <PostCard key={post.id} post={post} />)}
@@ -229,6 +296,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const sort = url.searchParams.get("sort");
 
   const filter = url.searchParams.get("filter");
+  const search = url.searchParams.get("search");
 
   if (userId) {
     let allPosts = await getPosts({ updatedAt: "desc" }, {});
@@ -266,7 +334,17 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     if (action) {
+      if (search) {
+        const { searchResults: allPosts } = await searchPosts(search);
+        console.log("Searched Posts result", allPosts);
+
+        return json({ allPosts }, { status: 200 });
+      }
       const allPosts = await getPosts({ updatedAt: "desc" }, {}, +action);
+      // console.log(allPosts);
+
+      console.log(allPosts);
+
       return json({ allPosts }, { status: 200 });
     }
 
@@ -279,6 +357,9 @@ export async function action({ request }: ActionFunctionArgs) {
 export async function loader({ request }: LoaderFunctionArgs) {
   await getPosts({ updatedAt: "desc" }, {});
   const headers = new Headers(request.headers);
+  const session = await getSession(request);
+  const user_zitid = session.get("idToken");
+  console.log("User zitid", user_zitid);
 
   const referer = headers.get("referer");
 

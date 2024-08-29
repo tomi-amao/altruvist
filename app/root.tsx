@@ -21,7 +21,6 @@ export const links: LinksFunction = () => {
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const mode = useLoaderData();
-  console.log("Darkmode:", mode);
 
   return (
     <html lang="en" className={mode === "true" ? "" : "dark"}>
