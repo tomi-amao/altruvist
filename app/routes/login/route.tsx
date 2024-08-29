@@ -8,7 +8,7 @@ import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { useEffect, useRef, useState } from "react";
 import MainHeader from "~/components/navigation/MainHeader";
 import { FormField } from "~/components/utils/FormField";
-import { logout } from "../../services/session.server";
+import { getSession, logout } from "../../services/session.server";
 import { authenticator } from "~/services/auth.server";
 import { authError, createUserSession, register } from "~/models/user.server";
 import {
@@ -227,6 +227,9 @@ export async function action({ request }: ActionFunctionArgs) {
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await authenticator.isAuthenticated(request);
   const error = await authError(request);
+  const session = await getSession(request);
+  const user_zitid = session.get("idToken");
+  console.log("User zitid", user_zitid);
   if (error) {
     return json({ error }, { status: 401 });
   }
