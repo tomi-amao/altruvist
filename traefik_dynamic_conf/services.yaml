@@ -1,0 +1,24 @@
+#use this file when not using docker socket dynamic discovery traefik capability
+
+http:
+  routers:
+    zitadel:
+      entryPoints:
+        - "zitadel"
+      service: zitadel
+      rule: "PathPrefix(`/`)"
+    app:
+      entryPoints:
+        - "app"
+      service: app
+      rule: "PathPrefix(`/`)"
+
+  services:
+    zitadel:
+      loadBalancer:
+        servers:
+          - url: "http://zitadel:8080"
+    app:
+      loadBalancer:
+        servers:
+          - url: "http://app:3000"

@@ -1,11 +1,117 @@
 name: skillanthropy
 services:
   app:
-    image: theignorantview/skillanthropy:v0.0.2
+    image: theignorantview/skillanthropy
     build:
       context: ./
       dockerfile: Dockerfile
     env_file:
       - .env
+    # ---- uncomment if runnig without proxy ----
+    # ports:
+    #   - 3000:3000
+    networks:
+      - traefik-net
+    # ----- uncomment to enable traefik docker provider ------
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.app.rule=Host(`app.localhost`)"
+
+  zitadel:
+    restart: "always"
+    container_name: "skillanthropy_zitadel"
+    networks:
+      - zitadel
+      - traefik-net
+    image: "ghcr.io/zitadel/zitadel:latest"
+    command: 'start-from-init --masterkey "MasterkeyNeedsToHave32Characters" --tlsMode disabled'
+    environment:
+      - "ZITADEL_EXTERNALSECURE=false"
+      - "ZITADEL_EXTERNALDOMAIN=127.0.0.1.sslip.io" #Zitadel domain needs to be accessible from the browser and running app container
+      - ZITADEL_EXTERNALPORT=8000
+
+      # Create Machine User
+      # - "ZITADEL_DEFAULTINSTANCE_ORG_MACHINE_MACHINE_USERNAME=MachineAdmin"
+      # - "ZITADEL_DEFAULTINSTANCE_ORG_MACHINE_MACHINE_NAME=MachineAdmin"
+      # - "ZITADEL_DEFAULTINSTANCE_ORG_MACHINE_PAT_EXPIRATIONDATE=2025-01-01T00:00:00Z"
+      # - "ZITADEL_DEFAULTINSTANCE_ORG_NAME=Skillanthropy"
+      # - "ZITADEL_DEFAULTINSTANCE_INSTANCENAME=ZITADEL"
+      # - "ZITADEL_DEFAULTINSTANCE_DEFAULTLANGUAGE=en"
+
+      # database configuration
+      - "ZITADEL_DATABASE_POSTGRES_HOST=zitadel_db"
+      - "ZITADEL_DATABASE_POSTGRES_PORT=5432"
+      - "ZITADEL_DATABASE_POSTGRES_DATABASE=zitadel"
+      - "ZITADEL_DATABASE_POSTGRES_USER_USERNAME=zitadel"
+      - "ZITADEL_DATABASE_POSTGRES_USER_PASSWORD=zitadel"
+      - "ZITADEL_DATABASE_POSTGRES_USER_SSL_MODE=disable"
+      - "ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME=postgres"
+      - "ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD=postgres"
+      - "ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE=disable"
+
+    depends_on:
+      db:
+        condition: "service_healthy"
+    # ----- uncomment if runnig without proxy -----
+    # ports:
+    #   - "8081:8080"
+    healthcheck:
+      test: ["CMD", "/app/zitadel ready"]
+      interval: "10s"
+      timeout: "5s"
+      retries: 5
+      start_period: "10s"
+    # ----- uncomment to enable traefik docker provider -----
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.zitadel.rule=Host(`auth.localhost`)"
+    #   - "traefik.http.services.zitadel.loadbalancer.server.port=8080"
+
+  traefik:
+    image: traefik:v2.5
+    command:
+      - "--api.insecure=true"
+      # configure traefik to use file provider instead of docker provider, manually defining services
+      # -----uncomment for docker provider -----
+      # - "--providers.docker=true"
+      # - "--providers.docker.exposedbydefault=false"
+      - "--providers.file.directory=/etc/traefik/dynamic_conf"
+      - "--providers.file.watch=true" # enable automatic reloading of dynamic configuration files
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.zitadel.address=:8000"
+      - "--entrypoints.app.address=:8001"
     ports:
-      - 3000:3000
+      - "80:80"
+      - "8081:8080" # Traefik dashboard
+      - "8000:8000" # Zitadel
+      - "8001:8001" # Application
+    volumes:
+      - ./traefik_dynamic_conf:/etc/traefik/dynamic_conf # - /var/run/docker.sock:/var/run/docker.sock:ro  --- uncomment for docker provider
+    networks:
+      - traefik-net
+    depends_on:
+      zitadel:
+        condition: "service_healthy"
+
+  zitadel_db:
+    container_name: "skillanthropy_zitadel_db"
+    restart: "always"
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=zitadel
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d zitadel -U postgres"]
+      interval: "10s"
+      timeout: "30s"
+      retries: 5
+      start_period: "20s"
+    networks:
+      - "zitadel"
+      - traefik-net
+
+networks:
+  zitadel:
+  traefik-net:
+    driver: bridge
