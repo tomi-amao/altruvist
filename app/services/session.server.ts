@@ -13,6 +13,7 @@ if (!sessionSecret) {
   throw new Error("SESSION_SECRET must be set");
 }
 
+// create a session to store cookies based on cookie headers
 // export the whole sessionStorage object
 export const sessionStorage = createCookieSessionStorage<
   SessionData,
@@ -44,4 +45,4 @@ export async function logout(request: Request) {
   });
 }
 
-export const { commitSession } = sessionStorage;
+export const { commitSession, destroySession } = sessionStorage;

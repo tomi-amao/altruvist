@@ -13,6 +13,7 @@ export default function PostPage() {
       </div>
     );
   }
+
   const { title, content, type, createdAt, id } = loadedData.postData;
   return (
     <>
@@ -104,8 +105,6 @@ export const PostBannerSummary = ({
 export async function loader({ params }: LoaderFunctionArgs) {
   console.log(params);
   const post = await getPost(params.postId);
-  console.log(post.message);
-  console.log(post);
 
   return post;
 }
