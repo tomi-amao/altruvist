@@ -5,5 +5,6 @@ export function getZitadelVars() {
     REDIRECT_URI: process.env.REDIRECT_URI ?? "",
     LOGOUT_URI: process.env.LOGOUT_URI ?? "",
     STATE: process.env.STATE ?? "",
+    MACHINE_API_KEY: process.env.MACHINE_API_KEY ?? "",
   };
 }
