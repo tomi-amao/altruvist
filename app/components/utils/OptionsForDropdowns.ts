@@ -54,3 +54,31 @@ export const filterOptionsConstant = [
     option: "Network",
   },
 ];
+
+export const taskSortOptions = [
+  {
+    id: 1,
+    option: "Date",
+  },
+  {
+    id: 2,
+    option: "Deadline",
+  },
+];
+
+export const taskCategoryFilterOptions = [
+  "Web Development",
+  "Mobile Development",
+  "Data Analysis",
+  "UX/UI Design",
+];
+
+export const taskCharityFilterOptions = [
+  "Environmental",
+  "Health and Wellbeing",
+  "Humanitarian Aid",
+  "Social services",
+  "Education",
+  "Animal welfare",
+  "Arts and Culture",
+];

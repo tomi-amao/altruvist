@@ -1,4 +1,3 @@
-import { jade , mauve, violet } from '@radix-ui/colors';
 import type { Config } from 'tailwindcss'
 
 
@@ -7,20 +6,26 @@ export default {
   content: ['./app/**/*.{js,jsx,ts,tsx}'],
   theme: {
     colors:{
-      bgprimary: "#222221",
-      bgsecondary: "#2E3130",
+      basePrimary: "#DDDDDD",
+      basePrimaryDark: "#CCCCCC",
+      basePrimaryLight: "#E8E8E8",
+      baseSecondary: "#836953",
+      accentPrimary: "#F5F5DC",
+      dangerPrimary: "#B3261E",
       txtprimary: "#27B08B",
       txtsecondary: "#FFFFFF",
       midGrey: "#2E3130",
       altMidGrey: "#B0B0B0",
       lightGrey: "#D9D9D9",
       darkGrey: "#222221",
-      darkRed: "#8C333A",
-      ...mauve,
-      ...violet,
-      ...jade,
+      darkRed: "#8C333A"
     },
+
     extend: {
+      fontFamily: {
+        header: ['Jomhuria', 'regular'], 
+        primary: ['Inter', 'regular'], 
+      },
       extend: {
 
         keyframes: {

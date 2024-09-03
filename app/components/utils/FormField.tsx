@@ -136,8 +136,8 @@ export default function FormOptions({
 }) {
   return (
     <>
-      <div className="flex items-center">
-        <div className=" mt-2 w-fit pb-2 ">
+      <div className="flex items-center text-baseSecondary font-primary">
+        <div className="  mt-2 w-fit pb-2 ">
           <Selected
             setShowOptions={setShowOptions}
             selected={selected?.option}
@@ -170,14 +170,14 @@ function Selected({
   return (
     <button
       type="button"
-      className="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left shadow-sm ring-1  ring-lightGrey focus:outline-none focus:ring-2 focus:ring-txtprimary sm:text-sm sm:leading-6"
+      className="relative w-full rounded-md  py-1.5 pl-3 pr-10  ring-1 ring-baseSecondary focus:ring-baseSecondary"
       aria-haspopup="listbox"
       aria-expanded="true"
       aria-labelledby="listbox-label"
       onClick={() => setToggle((preState) => !preState)}
     >
       <span className="flex items-center">
-        <span className="ml-3 block text-lightGrey truncate">{selected}</span>
+        <span className="ml-3 block truncate">{selected}</span>
       </span>
       <span className="pointer-events-none absolute inset-y-0 right-0 ml-3 flex items-center pr-2">
         <svg
