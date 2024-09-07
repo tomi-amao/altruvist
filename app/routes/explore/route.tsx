@@ -1,29 +1,20 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { useState } from "react";
 import TaskSummaryCard from "~/components/cards/taskCard";
 import Navbar from "~/components/navigation/Header2";
-import Header from "~/components/navigation/Header2";
-import FormOptions from "~/components/utils/FormField";
 import {
   taskCategoryFilterOptions,
-  taskCharityFilterOptions,
+  taskCharityCategories,
 } from "~/components/utils/OptionsForDropdowns";
 import Dropdown from "~/components/utils/selectDropdown";
 
 export default function Data() {
-  const [showFilterOptions, setShowFilterOptions] = useState(false);
-  const [charityFilterSelected, setCharityFilterSelected] = useState({
-    option: "Charity",
-    id: 0,
-  });
-
   const onSelect = (option: string) => {
     console.log("Selected action", option);
   };
   return (
     <>
       <Navbar />
-      <div className="m-auto w-8/12  p-4 ">
+      <div className="m-auto lg:w-8/12  w-full p-4  ">
         <h1 className="mt-16"> Make a difference </h1>
         <h2> Help charities innovate and make a lasting impact </h2>
         <div className="flex flex-row gap-4  border-b-2 border-b-baseSecondary p-4">
@@ -34,7 +25,7 @@ export default function Data() {
         </div>
         <div className="flex flex-row gap-2">
           <Dropdown
-            options={taskCharityFilterOptions}
+            options={taskCharityCategories}
             placeholder="Charity"
             onSelect={onSelect}
             multipleSelect={true}
@@ -46,7 +37,7 @@ export default function Data() {
             multipleSelect={true}
           />
         </div>
-        <div className="flex flex-row gap-2 flex-wrap">
+        <div className="flex flex-row gap-2 flex-wrap m-auto w-full justify-center">
           <TaskSummaryCard />
           <TaskSummaryCard />
           <TaskSummaryCard />

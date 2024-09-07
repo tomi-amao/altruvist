@@ -4,7 +4,6 @@ import {
   MetaFunction,
   redirect,
 } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
 import { getZitadelVars } from "~/services/env.server";
 import { generateCodeChallenge, generateCodeVerifier } from "~/services/pkce";
 import { getSession, commitSession } from "~/services/session.server";
@@ -19,6 +18,8 @@ export const meta: MetaFunction = () => {
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
   const error = session.get("error");
+  console.log(error);
+
   const zitadel = getZitadelVars();
 
   const codeVerifier = generateCodeVerifier();

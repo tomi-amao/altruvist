@@ -1,6 +1,4 @@
-import React from "react";
 import { CalendarIcon, ClockIcon, PersonIcon } from "@radix-ui/react-icons";
-import { TagIcon, UserGroupIcon } from "../utils/icons";
 
 const TaskSummaryCard = () => {
   const task = {
@@ -31,7 +29,7 @@ const TaskSummaryCard = () => {
   };
 
   return (
-    <div className="max-w-[19rem] rounded-xl overflow-hidden shadow-md bg-white hover:shadow-lg ">
+    <button className="max-w-[19rem] rounded-xl shadow-md overflow-hidden  bg-white hover:shadow-2xl ">
       <div className="px-8 py-6">
         <h2 className="font-semibold py-2 text-base">{task.title}</h2>
         <div className="flex items-center pb-2 gap-2 ">
@@ -43,7 +41,7 @@ const TaskSummaryCard = () => {
             {task.urgency}
           </span>
           <span className="inline-block rounded-full px-4 py-1.5 text-xs font-semibold text-basePrimaryDark bg-baseSecondary">
-            {task.category.replace(/\_/, " ").trim()}
+            {task.category.replace(/_/, " ").trim()}
           </span>
         </div>
 
@@ -63,7 +61,7 @@ const TaskSummaryCard = () => {
           </div>
         </div>
 
-        <div className="pb-4">
+        <div className="pb-4 text-left">
           {" "}
           <p>{task.description}</p>
         </div>
@@ -87,7 +85,7 @@ const TaskSummaryCard = () => {
           ))}
         </div>
       </div>
-    </div>
+    </button>
   );
 };
 

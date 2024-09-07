@@ -73,7 +73,7 @@ export const taskCategoryFilterOptions = [
   "UX/UI Design",
 ];
 
-export const taskCharityFilterOptions = [
+export const taskCharityCategories = [
   "Environmental",
   "Health and Wellbeing",
   "Humanitarian Aid",
@@ -82,3 +82,12 @@ export const taskCharityFilterOptions = [
   "Animal welfare",
   "Arts and Culture",
 ];
+
+export const requiredSkillsOptions = [
+  "Web Development",
+  "Mobile Development",
+  "Data Analysis",
+  "UX/UI Design",
+];
+
+export const urgencyOptions = ["LOW", "MEDIUM", "HIGH"];

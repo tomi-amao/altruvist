@@ -3,7 +3,7 @@ import { CheckIcon } from "./icons";
 
 interface DropdownProps {
   options: string[];
-  onSelect: (option: string) => void;
+  onSelect: (option: string, selected: string) => void;
   placeholder?: string;
   multipleSelect: boolean;
 }
@@ -54,13 +54,12 @@ const Dropdown: React.FC<DropdownProps> = ({
 
   const handleToggle = () => setIsOpen(!isOpen);
 
-  useEffect(() => {
-    console.log(dropDownOptions);
-  }, [dropDownOptions]);
-  const handleSelect = (option: string) => {
+  const handleSelect = (option: string, selected: string) => {
     setSelectedOption(option);
-    onSelect(option);
-    setIsOpen(false);
+    onSelect(option, selected);
+    if (!multipleSelect) {
+      setIsOpen(false);
+    }
     // update dropdown options array based on clicked option by toggling the selected value
     if (multipleSelect) {
       setDropDownOptions((prevOptions) => {
@@ -85,7 +84,7 @@ const Dropdown: React.FC<DropdownProps> = ({
           aria-haspopup="true"
           aria-expanded={isOpen}
         >
-          {placeholder}
+          {multipleSelect ? placeholder : selectedOption || placeholder}
           <svg
             className="-mr-1 ml-2 h-5 w-5"
             xmlns="http://www.w3.org/2000/svg"
@@ -104,18 +103,19 @@ const Dropdown: React.FC<DropdownProps> = ({
 
       {isOpen && (
         <div
-          className="origin-top-right absolute  mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-baseSecondary ring-opacity-5"
+          className="origin-top-right absolute z-50 bg-basePrimary mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-baseSecondary ring-opacity-5"
           role="menu"
           aria-orientation="vertical"
           aria-labelledby="options-menu"
         >
-          <div className="py-1 " role="none">
+          <div className="py-1" role="none">
             {dropDownOptions?.map((option, index) => (
               <button
                 key={index}
-                onClick={() => handleSelect(option.option)}
-                className={`flex flex-row items-center font-primary ${option.selected ? "bg-baseSecondary text-basePrimary" : ""} text-baseSecondary hover:bg-baseSecondary w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-basePrimary`}
+                onClick={() => handleSelect(option.option, option.selected)}
+                className={`flex flex-row items-center font-primary ${option.selected ? "bg-baseSecondary" : ""} ${option.selected ? "text-basePrimary" : "text-baseSecondary"} hover:bg-baseSecondary w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-basePrimary`}
                 role="menuitem"
+                type="button"
               >
                 {option.selected ? <CheckIcon /> : null}
                 {option.option}

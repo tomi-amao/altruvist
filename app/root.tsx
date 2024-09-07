@@ -5,7 +5,6 @@ import {
   Scripts,
   ScrollRestoration,
   redirect,
-  useLoaderData,
 } from "@remix-run/react";
 import type {
   ActionFunctionArgs,
@@ -21,7 +20,6 @@ export const links: LinksFunction = () => {
 };
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const mode = useLoaderData();
 
   return (
     <html lang="en">
