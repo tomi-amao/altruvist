@@ -1,7 +1,11 @@
 import { ActionFunctionArgs } from "@remix-run/node";
+import { useActionData } from "@remix-run/react";
 import CreateTaskForm from "~/components/utils/TaskForm";
 
 export default function TaskCreate() {
+  const actionData = useActionData<typeof action>()
+  console.log(actionData);
+  
   return <CreateTaskForm />;
 }
 
@@ -21,6 +25,7 @@ export async function action({ request }: ActionFunctionArgs) {
     urgency,
     requiredSkills,
     categories,
+    uploadedResources
   } = Object.fromEntries(data);
 
   console.log(
@@ -33,15 +38,22 @@ export async function action({ request }: ActionFunctionArgs) {
     urgency,
     requiredSkills,
     categories,
+    uploadedResources
   );
+
+  // const uploadedItems = JSON.parse(uppyResult as string)
+  // const successItems = uploadedItems.filter((item) => {if (!item.successful.length) {return item}})
+  // console.log(uploadedItems);
+  
+
 
   if (typeof requiredSkills === "string") {
     const taskSkills = requiredSkills.split(",");
-    return { taskSkills };
+    return { taskSkills, };
   }
   if (typeof categories === "string") {
     const taskCategories = categories.split(",");
-    return { taskCategories };
+    return { taskCategories, };
   }
   return {};
 }

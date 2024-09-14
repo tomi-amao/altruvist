@@ -2,7 +2,7 @@ import { Form, Link } from "@remix-run/react";
 import { SearchIcon } from "../utils/icons";
 import { useEffect, useState } from "react";
 
-export default function Navbar() {
+export default function Navbar({altBackground} : {altBackground?: boolean}) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showNavbar, setShowNavbar] = useState(true);
   const [lastScrollPos, setLastScrollPos] = useState(0);
@@ -38,12 +38,12 @@ export default function Navbar() {
       <div
         className={`fixed w-full transition-transform duration-300 ease-in-out z-50 ${
           showNavbar ? "transform translate-y-0" : "transform -translate-y-full"
-        } border-b-[1px] border-b-baseSecondary h-fit bg-basePrimary`}
+        } border-b-[1px] border-b-baseSecondary h-fit ${altBackground && "bg-baseSecondary"}`}
       >
         <div className="flex justify-between h-auto px-2 flex-row items-center gap-4">
-          <h1 className="text-3xl lg:text-5xl">Skillanthropy</h1>
+          <h1 className={`text-3xl lg:text-5xl ${altBackground && "text-accentPrimary"} tracking-wide `}>Skillanthropy</h1>
           <div className="w-fit lg:flex flex-row items-center gap-2 text-baseSecondary hidden">
-            <NavListPages />
+            <NavListPages altBackground={altBackground}/>
           </div>
           <Form className="w-full p-4" action="">
             <div className="flex items-center bg-basePrimaryDark rounded-md">
@@ -51,13 +51,13 @@ export default function Navbar() {
                 <SearchIcon />
                 <input
                   type="text"
-                  placeholder="Search posts, tags, users"
+                  placeholder="Search "
                   className="w-full flex-grow bg-basePrimaryDark text-sm lg:text-base"
                 />
               </div>
-              <div className="h-fit w-fit rounded-md px-2 mr-2 bg-basePrimaryLight text-baseSecondary text-[12px] lg:text-[13px]">
+              {/* <div className="h-fit w-fit rounded-md px-2 mr-2 bg-basePrimaryLight text-baseSecondary text-[12px] lg:text-[13px]">
                 /
-              </div>
+              </div> */}
             </div>
           </Form>
           <button
@@ -68,14 +68,14 @@ export default function Navbar() {
               className="fill-current h-4 w-4 t "
               viewBox="0 0 20 20"
               xmlns="http://www.w3.org/2000/svg"
-              fill="#836953"
+              fill={`${altBackground ? "#F5F5DC" : "#836953" }`}
             >
               <title>Menu</title>
               <path d="M0 3h20v2H0V3zm0 5h20v2H0V8zm0 5h20v2H0v-2z" />
             </svg>
           </button>
           <div className="w-fit min-w-fit lg:flex flex-row items-center gap-4 text-baseSecondary hidden">
-            <NavListAuth />
+            <NavListAuth altBackground={altBackground}/>
           </div>
         </div>
 
@@ -101,17 +101,17 @@ export default function Navbar() {
   );
 }
 
-export const NavListPages = () => {
+export const NavListPages = ({altBackground} : {altBackground?: boolean}) => {
   return (
     <>
       <Link
-        className="hover:border-b-2 border-b-baseSecondary pb-1 pl-2"
+        className={`hover:border-b-2 border-b-baseSecondary pb-1 pl-2 ${altBackground && "text-accentPrimary"}`}
         to={"/explore"}
       >
         Explore
       </Link>
       <Link
-        className="hover:border-b-2 border-b-baseSecondary pb-1 pl-2"
+        className={`hover:border-b-2 border-b-baseSecondary pb-1 pl-2 ${altBackground && "text-accentPrimary"}`}
         to={"/dashboard"}
       >
         Dashboard
@@ -120,12 +120,12 @@ export const NavListPages = () => {
   );
 };
 
-export const NavListAuth = () => {
+export const NavListAuth = ({altBackground} : {altBackground?: boolean}) => {
   return (
     <>
       <Link
         to={"/zitlogin"}
-        className="hover:border-b-2 border-b-baseSecondary pl-2"
+        className={`hover:border-b-2 border-b-baseSecondary pl-2 ${altBackground && "text-accentPrimary"}`}
       >
         Sign in
       </Link>

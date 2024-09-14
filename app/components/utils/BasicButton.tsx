@@ -4,6 +4,38 @@ export function PrimaryButton({
   value,
   action = undefined,
   ariaLabel,
+  form = undefined
+}: {
+  text: string;
+  name?: string;
+  value?: string;
+  action?: () => Record<string, never>;
+  ariaLabel: string;
+  form?:string
+}) {
+  return (
+    <>
+      <button
+        className="flex bg-accentPrimary rounded-md p-2 px-4 font-primary text-baseSecondary"
+        aria-label={ariaLabel}
+        type="submit"
+        name={name}
+        value={value}
+        onClick={action}
+        form={form}
+      >
+        {text}
+      </button>
+    </>
+  );
+}
+
+export function SecondaryButton({
+  text,
+  name,
+  value,
+  action = undefined,
+  ariaLabel,
 }: {
   text: string;
   name?: string;
@@ -14,7 +46,7 @@ export function PrimaryButton({
   return (
     <>
       <button
-        className="flex bg-accentPrimary rounded-md p-2 px-4 font-primary text-baseSecondary"
+        className="flex bg-baseSecondary rounded-md p-2 px-4 font-primary w-fit text-basePrimary hover:bg-accentPrimary hover:text-baseSecondary"
         aria-label={ariaLabel}
         type="submit"
         name={name}
