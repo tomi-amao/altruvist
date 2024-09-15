@@ -1,4 +1,3 @@
-// app/routes/dashboard.tsx
 import { json, LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { getZitadelVars } from "~/services/env.server";

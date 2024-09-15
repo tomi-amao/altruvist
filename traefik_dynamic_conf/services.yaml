@@ -12,6 +12,11 @@ http:
         - "app"
       service: app
       rule: "PathPrefix(`/`)"
+    tusd:
+      entryPoints:
+        - "tusd"
+      service: tusd
+      rule: "PathPrefix(`/`)"
 
   services:
     zitadel:
@@ -22,3 +27,7 @@ http:
       loadBalancer:
         servers:
           - url: "http://app:3000"
+    tusd:
+      loadBalancer:
+        servers:
+          - url: "http://tusd:8080"

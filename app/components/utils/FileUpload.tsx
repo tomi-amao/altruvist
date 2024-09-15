@@ -55,10 +55,10 @@ const FileUpload = ({
       },
     })
       .use(Compressor)
-      .use(Form, {
-        target: formTarget,
-        triggerUploadOnSubmit: true,
-      })
+      // .use(Form, {
+      //   target: formTarget,
+      //   triggerUploadOnSubmit: true,
+      // })
       .use(GoogleDrive, {
         companionUrl: "http://localhost:3020",
       })
@@ -77,7 +77,7 @@ const FileUpload = ({
         hideAfterFinish: false,
       })
       .use(Tus, {
-        endpoint: "http://localhost:3021/files/",
+        endpoint: "http://localhost:8004/files/",
         retryDelays: [0, 1000, 3000, 5000],
       });
 
@@ -88,59 +88,7 @@ const FileUpload = ({
       console.log("Url:", response.uploadURL);
       console.log(file?.extension);
 
-      const img = new Image();
-      img.alt = file!.id;
-
-      const container = document.createElement('div');
-      container.style.display = 'flex';
-      container.style.flexWrap = 'wrap'
-      container.style.flexDirection = 'column';
-      container.style.alignItems = 'center';
-
-      const fileName = document.createElement('span');
-      fileName.style.overflowWrap = 'break-word'
-      fileName.style.maxWidth = '15rem'
-      fileName.style.textOverflow = 'ellipsis'
-
-      fileName.textContent = file?.name!;
-      switch (file?.extension) {
-        case "docx":
-        case "doc":
-          img.width = 100;
-          img.src = "/doc.png";
-          img.title = file.name!
-          break;
-        case "pdf":
-          img.width = 100;
-          img.src = "/pdf.png";
-          break;
-        case "xls":
-          img.width = 100;
-          img.src = "/xlsx.png";
-          break;
-          
-        case "xlsx":
-          img.width = 100;
-          img.src = "/xlsx.png";
-          break;
-
-        case "ppt":
-          img.width = 100;
-          img.src = "/ppt.png";
-          break;
-
-        default:
-          img.width = 200;
-          img.src = response.uploadURL!;
-          img.style.borderRadius = "5px";
-          img.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
-    
-          break;
-      }
-
-      const targetDiv = document.querySelector("div#uploaded-files");
-      container.appendChild(img);
-      container.appendChild(fileName);
+      
 
     });
 
@@ -177,7 +125,7 @@ const FileUpload = ({
       uppy={uppyInstance}
       plugins={["GoogleDrive", "ImageEditor"]}
       theme="light"
-      hideUploadButton
+      // hideUploadButton
       height={"250px"}
       width={"400px"}
     />

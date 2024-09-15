@@ -73,8 +73,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
     const userInfo: zitadelUserInfo = await userInfoResponse.json();
     const newUser = await createUser(userInfo);
-    console.log("Created mongodb user", newUser);
+    console.log("Mongodb user", newUser);
 
+    // if new user, redirect to new user set up journey
+    if (newUser.status === 200) {
+      return redirect("/newuser", {
+        headers: {
+          "Set-Cookie": await commitSession(session),
+        },
+      });
+    }
     return redirect("/dashboard", {
       headers: {
         "Set-Cookie": await commitSession(session),

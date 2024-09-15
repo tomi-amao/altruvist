@@ -16,7 +16,7 @@ export const createUser = async (user: zitadelUserInfo) => {
       newUser: null,
       error: null,
       status: 202,
-      statusText: "User already exists",
+      statusText: "user exists",
     };
   }
   try {
@@ -44,11 +44,7 @@ export const createUser = async (user: zitadelUserInfo) => {
   }
 };
 
-export const getZitadelUserInfo = async (
-  request: Request,
-): Promise<GetUserResponse> => {
-  const session = await getSession(request);
-  const accessToken = session.get("accessToken");
+export const getUserInfo = async (accessToken: string) => {
   const zitadel = getZitadelVars();
 
   try {
@@ -65,14 +61,45 @@ export const getZitadelUserInfo = async (
       throw new Error("Failed to fetch user info");
     }
 
-    const userInfo: zitadelUserInfo = await userInfoResponse.json();
-
-    return { userInfo, error: null };
+    const zitUserInfo: zitadelUserInfo = await userInfoResponse.json();
+    const userInfo = await prisma.users.findFirst({
+      where: { zitadelId: zitUserInfo.sub },
+    });
+    return { userInfo, error: null, zitUserInfo };
   } catch (error) {
     console.error("Error fetching user info:", error);
     return {
       error: `Failed to fetch user info: ${error}`,
       userInfo: null,
+      zitUserInfo: null,
     };
+  }
+};
+
+export const updateUserInfo = async (userId: string, role: string) => {
+
+
+  try {
+
+    const user = await prisma.users.findUnique({
+      where: { id: userId },
+      select: { roles: true },
+    });
+
+    if (!user) {
+      return {message: "No user Found"}
+    }
+    if (user.roles.includes(role)) {
+      return { message: "Role already exists",  status: 400 }
+    }
+    const updatedUserInfo = await prisma.users.update({
+      where: { id: userId },
+      data: { roles: { push: role } },
+    });
+
+    return { updatedUserInfo, status: 200, error: null };
+  } catch (error) {
+    console.error(error);
+    return { updatedUserInfo: null, status: 500, error: null };
   }
 };
