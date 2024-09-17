@@ -38,7 +38,7 @@ export default function Navbar({altBackground} : {altBackground?: boolean}) {
       <div
         className={`fixed w-full transition-transform duration-300 ease-in-out z-50 ${
           showNavbar ? "transform translate-y-0" : "transform -translate-y-full"
-        } border-b-[1px] border-b-baseSecondary h-fit ${altBackground && "bg-baseSecondary"}`}
+        } border-b-[1px] border-b-baseSecondary h-fit ${altBackground && "bg-baseSecondary"}  bg-basePrimary`}
       >
         <div className="flex justify-between h-auto px-2 flex-row items-center gap-4">
           <h1 className={`text-3xl lg:text-5xl ${altBackground && "text-accentPrimary"} tracking-wide `}>Skillanthropy</h1>
@@ -46,13 +46,13 @@ export default function Navbar({altBackground} : {altBackground?: boolean}) {
             <NavListPages altBackground={altBackground}/>
           </div>
           <Form className="w-full p-4" action="">
-            <div className="flex items-center bg-basePrimaryDark rounded-md">
-              <div className="p-1 flex gap-4 items-center flex-grow">
+            <div className="flex items-center bg-basePrimaryDark lg:max-w-96 m-auto -ml-2 rounded-md">
+              <div className="p-1 flex gap-4 items-center  flex-grow ">
                 <SearchIcon />
                 <input
                   type="text"
                   placeholder="Search "
-                  className="w-full flex-grow bg-basePrimaryDark text-sm lg:text-base"
+                  className="w-full flex-grow bg-basePrimaryDark  text-sm lg:text-base"
                 />
               </div>
               {/* <div className="h-fit w-fit rounded-md px-2 mr-2 bg-basePrimaryLight text-baseSecondary text-[12px] lg:text-[13px]">

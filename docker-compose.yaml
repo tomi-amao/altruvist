@@ -1,21 +1,21 @@
 name: skillanthropy
 services:
-  app:
-    image: theignorantview/skillanthropy
-    build:
-      context: ./
-      dockerfile: Dockerfile
-    env_file:
-      - .env
-    # ---- uncomment if runnig without proxy ----
-    # ports:
-    #   - 3000:3000
-    networks:
-      - traefik-net
-    # ----- uncomment to enable traefik docker provider ------
-    # labels:
-    #   - "traefik.enable=true"
-    #   - "traefik.http.routers.app.rule=Host(`app.localhost`)"
+  # app:
+  #   image: theignorantview/skillanthropy
+  #   build:
+  #     context: ./
+  #     dockerfile: Dockerfile
+  #   env_file:
+  #     - .env
+  #   # ---- uncomment if runnig without proxy ----
+  #   # ports:
+  #   #   - 3000:3000
+  #   networks:
+  #     - traefik-net
+  #   # ----- uncomment to enable traefik docker provider ------
+  #   # labels:
+  #   #   - "traefik.enable=true"
+  #   #   - "traefik.http.routers.app.rule=Host(`app.localhost`)"
 
   zitadel:
     restart: "always"
@@ -80,11 +80,13 @@ services:
       - "--entrypoints.web.address=:80"
       - "--entrypoints.zitadel.address=:8000"
       - "--entrypoints.app.address=:8001"
+      - "--entrypoints.tusd.address=:8004"
     ports:
       - "80:80"
       - "8081:8080" # Traefik dashboard
       - "8000:8000" # Zitadel
       - "8001:8001" # Application
+      - "8004:8004" # Tusd
     volumes:
       - ./traefik_dynamic_conf:/etc/traefik/dynamic_conf # - /var/run/docker.sock:/var/run/docker.sock:ro  --- uncomment for docker provider
     networks:
@@ -107,6 +109,14 @@ services:
       timeout: "30s"
       retries: 5
       start_period: "20s"
+    networks:
+      - "zitadel"
+      - traefik-net
+  # run local file upload server using tusd protocol, a resumbale file upload protocol
+  tusd:
+    container_name: "skillanthropy_tusd"
+    restart: "always"
+    image: tusproject/tusd
     networks:
       - "zitadel"
       - traefik-net

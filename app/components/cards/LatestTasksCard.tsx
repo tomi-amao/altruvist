@@ -1,6 +1,6 @@
 export default function LatestTasks() {
   return (
-    <div className="bg-basePrimaryDark rounded-md p-2 m-2">
+    <div className="bg-basePrimaryDark rounded-md p-2 m-2 shadow-lg">
       <div className="p-4 flex flex-row justify-between border-y-baseSecondary border-b-[1px] items-center">
         <span>Latest Post</span>
         <span className="text-midGrey text-xs">See more</span>

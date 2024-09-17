@@ -56,6 +56,7 @@ export const requiredSkillsOptions = [
 ];
 
 export const urgencyOptions = ["LOW", "MEDIUM", "HIGH"];
+export const statusOptions = ["NOT STARTED", "IN PROGRESS", "COMPLETED"];
 export const techSkills = [
   "JavaScript",
   "Python",

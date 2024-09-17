@@ -1,6 +1,8 @@
-import { ActionFunctionArgs } from "@remix-run/node";
+import { ActionFunctionArgs, redirect } from "@remix-run/node";
 import { useActionData } from "@remix-run/react";
 import CreateTaskForm from "~/components/utils/TaskForm";
+import { getUserInfo } from "~/models/user2.server";
+import { getSession } from "~/services/session.server";
 
 export default function TaskCreate() {
   const actionData = useActionData<typeof action>()
@@ -15,6 +17,14 @@ export async function loader() {
 
 export async function action({ request }: ActionFunctionArgs) {
   const data = await request.formData();
+  const session = await getSession(request);
+  const accessToken = session.get("accessToken"); //retrieve access token from session to be used as bearer token
+
+  if (!accessToken) {
+    return redirect("/login");
+  }
+  const { userInfo, error } = await getUserInfo(accessToken);
+
   const {
     title,
     description,
@@ -29,6 +39,7 @@ export async function action({ request }: ActionFunctionArgs) {
   } = Object.fromEntries(data);
 
   console.log(
+    userInfo?.id,
     title,
     description,
     deadline,
