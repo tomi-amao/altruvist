@@ -56,7 +56,7 @@ export const requiredSkillsOptions = [
 ];
 
 export const urgencyOptions = ["LOW", "MEDIUM", "HIGH"];
-export const statusOptions = ["NOT STARTED", "IN PROGRESS", "COMPLETED"];
+export const statusOptions = ["INCOMPLETE", "IN_PROGRESS", "COMPLETED"];
 export const techSkills = [
   "JavaScript",
   "Python",
@@ -82,7 +82,7 @@ export const techSkills = [
   "Mobile Development",
 ];
 
-const charityTags = [
+export const charityTags = [
   // Health and Medical
   "Healthcare",
   "Medical Research",
@@ -91,7 +91,7 @@ const charityTags = [
   "Disease Prevention",
   "Hospice Care",
   "Children's Health",
-  
+
   // Environmental and Conservation
   "Environmental Conservation",
   "Wildlife Protection",
@@ -100,7 +100,7 @@ const charityTags = [
   "Ocean Conservation",
   "Forest Preservation",
   "Clean Energy",
-  
+
   // Education and Learning
   "Education",
   "Adult Education",
@@ -109,7 +109,7 @@ const charityTags = [
   "STEM Education",
   "Scholarships",
   "School Supplies",
-  
+
   // Poverty and Hunger Relief
   "Poverty Alleviation",
   "Homelessness",
@@ -118,7 +118,7 @@ const charityTags = [
   "Refugee Support",
   "Hunger Relief",
   "Shelter",
-  
+
   // Animal Welfare
   "Animal Rights",
   "Animal Shelters",
@@ -126,7 +126,7 @@ const charityTags = [
   "Veterinary Services",
   "Animal Rescue",
   "Wildlife Rehabilitation",
-  
+
   // Human Rights and Advocacy
   "Human Rights",
   "Women's Rights",
@@ -135,7 +135,7 @@ const charityTags = [
   "Social Justice",
   "Anti-Human Trafficking",
   "Immigrant Support",
-  
+
   // Arts and Culture
   "Performing Arts",
   "Cultural Preservation",
@@ -144,7 +144,7 @@ const charityTags = [
   "Community Arts",
   "Theater",
   "Music Education",
-  
+
   // Community Development
   "Community Development",
   "Local Charities",
@@ -153,7 +153,7 @@ const charityTags = [
   "Job Training",
   "Youth Development",
   "Public Safety",
-  
+
   // International Aid
   "International Development",
   "Global Health",
@@ -162,7 +162,7 @@ const charityTags = [
   "Hunger Relief",
   "Microfinance",
   "Humanitarian Aid",
-  
+
   // Veterans and Military
   "Veteran Support",
   "Military Families",
@@ -170,7 +170,7 @@ const charityTags = [
   "Rehabilitation Services",
   "Veterans' Education",
   "Military Transition Programs",
-  
+
   // Children and Youth
   "Child Protection",
   "Orphanages",
@@ -178,28 +178,28 @@ const charityTags = [
   "Youth Mentoring",
   "Child Advocacy",
   "Education for Children",
-  
+
   // Senior Support
   "Senior Care",
   "Elderly Support",
   "Alzheimer's Research",
   "Aging Services",
   "Retirement Support",
-  
+
   // Faith-Based Charities
   "Faith-Based",
   "Religious Organizations",
   "Missionary Work",
   "Church Outreach",
   "Faith-Based Education",
-  
+
   // Sports and Recreation
   "Sports for Youth",
   "Disabled Sports",
   "Recreational Programs",
   "Physical Education",
   "Youth Sports Leagues",
-  
+
   // Technology and Innovation
   "Tech for Good",
   "Access to Technology",
@@ -207,7 +207,7 @@ const charityTags = [
   "Open Source Projects",
   "Tech Education",
   "Internet Access",
-  
+
   // Miscellaneous
   "Public Policy",
   "Legal Aid",
@@ -215,9 +215,8 @@ const charityTags = [
   "Crisis Intervention",
   "Addiction Support",
   "Mental Health Awareness",
-  "Volunteerism"
+  "Volunteerism",
 ];
-
 
 export const getTags = (type: string) => {
   switch (type) {

@@ -1,8 +1,17 @@
 import { Form, Link } from "@remix-run/react";
 import { SearchIcon } from "../utils/icons";
 import { useEffect, useState } from "react";
+import { LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { getSession } from "~/services/session.server";
+import { getUserInfo } from "~/models/user2.server";
 
-export default function Navbar({altBackground} : {altBackground?: boolean}) {
+export default function Navbar({
+  altBackground,
+  isLoggedIn,
+}: {
+  altBackground?: boolean;
+  isLoggedIn: boolean;
+}) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showNavbar, setShowNavbar] = useState(true);
   const [lastScrollPos, setLastScrollPos] = useState(0);
@@ -41,9 +50,14 @@ export default function Navbar({altBackground} : {altBackground?: boolean}) {
         } border-b-[1px] border-b-baseSecondary h-fit ${altBackground && "bg-baseSecondary"}  bg-basePrimary`}
       >
         <div className="flex justify-between h-auto px-2 flex-row items-center gap-4">
-          <h1 className={`text-3xl lg:text-5xl ${altBackground && "text-accentPrimary"} tracking-wide `}>Skillanthropy</h1>
+          <Link
+            to={"/"}
+            className={`text-3xl lg:text-5xl ${altBackground ? "text-accentPrimary" : "text-baseSecondary"} tracking-wide  font-header `}
+          >
+            Skillanthropy
+          </Link>
           <div className="w-fit lg:flex flex-row items-center gap-2 text-baseSecondary hidden">
-            <NavListPages altBackground={altBackground}/>
+            <NavListPages altBackground={altBackground} />
           </div>
           <Form className="w-full p-4" action="">
             <div className="flex items-center bg-basePrimaryDark lg:max-w-96 m-auto -ml-2 rounded-md">
@@ -68,14 +82,17 @@ export default function Navbar({altBackground} : {altBackground?: boolean}) {
               className="fill-current h-4 w-4 t "
               viewBox="0 0 20 20"
               xmlns="http://www.w3.org/2000/svg"
-              fill={`${altBackground ? "#F5F5DC" : "#836953" }`}
+              fill={`${altBackground ? "#F5F5DC" : "#836953"}`}
             >
               <title>Menu</title>
               <path d="M0 3h20v2H0V3zm0 5h20v2H0V8zm0 5h20v2H0v-2z" />
             </svg>
           </button>
           <div className="w-fit min-w-fit lg:flex flex-row items-center gap-4 text-baseSecondary hidden">
-            <NavListAuth altBackground={altBackground}/>
+            <NavListAuth
+              altBackground={altBackground}
+              isLoggedIn={isLoggedIn}
+            />
           </div>
         </div>
 
@@ -86,14 +103,14 @@ export default function Navbar({altBackground} : {altBackground?: boolean}) {
         >
           <div className="flex flex-col p-4 gap-2 text-baseSecondary">
             <NavListPages />
-            <NavListAuth />
+            <NavListAuth isLoggedIn />
           </div>
 
           <button
             className="absolute top-3 right-4 text-baseSecondary"
             onClick={toggleDropdown}
           >
-            Close
+            x
           </button>
         </div>
       </div>
@@ -101,7 +118,11 @@ export default function Navbar({altBackground} : {altBackground?: boolean}) {
   );
 }
 
-export const NavListPages = ({altBackground} : {altBackground?: boolean}) => {
+export const NavListPages = ({
+  altBackground,
+}: {
+  altBackground?: boolean;
+}) => {
   return (
     <>
       <Link
@@ -120,21 +141,41 @@ export const NavListPages = ({altBackground} : {altBackground?: boolean}) => {
   );
 };
 
-export const NavListAuth = ({altBackground} : {altBackground?: boolean}) => {
+export const NavListAuth = ({
+  altBackground,
+  isLoggedIn,
+}: {
+  altBackground?: boolean;
+  isLoggedIn: boolean;
+}) => {
   return (
     <>
-      <Link
-        to={"/zitlogin"}
-        className={`hover:border-b-2 border-b-baseSecondary pl-2 ${altBackground && "text-accentPrimary"}`}
-      >
-        Sign in
-      </Link>
-      <Link
-        to={"/zitlogin"}
-        className="bg-accentPrimary text-baseSecondary p-1 rounded-md px-3 "
-      >
-        Join
-      </Link>
+      {isLoggedIn ? (
+        <>
+          <Link
+            to={"/account/settings"}
+            className=" text-baseSecondary  rounded-md px-2 "
+          >
+            {" "}
+            Profile
+          </Link>
+        </>
+      ) : (
+        <>
+          <Link
+            to={"/zitlogin"}
+            className={`hover:border-b-2 border-b-baseSecondary pl-2 ${altBackground && "text-accentPrimary"}`}
+          >
+            Sign in
+          </Link>
+          <Link
+            to={"/zitlogin"}
+            className="bg-accentPrimary text-baseSecondary p-1 rounded-md px-3 "
+          >
+            Join
+          </Link>
+        </>
+      )}
     </>
   );
 };

@@ -1,5 +1,3 @@
-
-
 interface BannerSummaryTiles {
   tile1: string;
   tile2: string;
@@ -63,41 +61,41 @@ export const DashboardBanner2 = ({
 };
 
 export interface BannerItem {
-  title: string,
-  value: string
+  title: string;
+  value: string;
 }
 export interface DashboardBanner {
-  date?: string,
-  bannerItems: BannerItem[]
+  date?: string;
+  bannerItems: BannerItem[];
 }
-export const DashboardBanner = ({ 
-  date, 
-  bannerItems
-}: DashboardBanner ) => {
+export const DashboardBanner = ({ date, bannerItems }: DashboardBanner) => {
   return (
     <div className=" m-auto w-fit rounded-lg shadow-lg text-baseSecondary border-[1px] border-baseSecondary">
       <div className="container mx-auto flex justify-between items-center gap-4">
         {date && <div className="font-primary pl-2 ">{date}</div>}
         <div className="flex space-x-6">
-          {bannerItems.map((item, index) => <BannerItem key={index} title={item.title} value={item.value}/>)}
+          {bannerItems.map((item, index) => (
+            <BannerItem key={index} title={item.title} value={item.value} />
+          ))}
         </div>
       </div>
     </div>
   );
 };
 
+export const BannerItem = ({
+  title,
+  value,
+}: {
+  title: string;
+  value: string;
+}) => (
+  <div className="relative p-2 lg:px-4 flex items-start flex-col">
+    <div className="absolute left-0 top-2 bottom-2 w-[1px] bg-baseSecondary "></div>
 
-export const BannerItem = ({ title, value }: {title: string, value: string}) => (
-<div className="relative p-2 lg:px-4 flex items-start flex-col">
-  {/* Border Element */}
-  <div className="absolute left-0 top-2 bottom-2 w-[1px] bg-baseSecondary"></div>
-
-  {/* Content */}
-  <div className="text-sm opacity-80">{title}</div>
-  <div className="lg:text-lg font-semibold">{value}</div>
-</div>
-
+    <div className="text-sm opacity-80">{title}</div>
+    <div className="lg:text-lg font-semibold overflow-hidden ">{value}</div>
+  </div>
 );
 
 export default DashboardBanner;
-

@@ -77,20 +77,17 @@ export const getUserInfo = async (accessToken: string) => {
 };
 
 export const updateUserInfo = async (userId: string, role: string) => {
-
-
   try {
-
     const user = await prisma.users.findUnique({
       where: { id: userId },
       select: { roles: true },
     });
 
     if (!user) {
-      return {message: "No user Found"}
+      return { message: "No user Found" };
     }
     if (user.roles.includes(role)) {
-      return { message: "Role already exists",  status: 400 }
+      return { message: "Role already exists", status: 400 };
     }
     const updatedUserInfo = await prisma.users.update({
       where: { id: userId },

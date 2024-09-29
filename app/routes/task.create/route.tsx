@@ -1,18 +1,12 @@
+import { tasks, TaskUrgency } from "@prisma/client";
 import { ActionFunctionArgs, redirect } from "@remix-run/node";
-import { useActionData } from "@remix-run/react";
-import CreateTaskForm from "~/components/utils/TaskForm";
+import { Meta, UppyFile } from "@uppy/core";
+import { createTask } from "~/models/tasks.server";
 import { getUserInfo } from "~/models/user2.server";
 import { getSession } from "~/services/session.server";
 
-export default function TaskCreate() {
-  const actionData = useActionData<typeof action>()
-  console.log(actionData);
-  
-  return <CreateTaskForm />;
-}
-
 export async function loader() {
-  return {};
+  return redirect("/dashboard/tasks");
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -24,47 +18,76 @@ export async function action({ request }: ActionFunctionArgs) {
     return redirect("/login");
   }
   const { userInfo, error } = await getUserInfo(accessToken);
-
-  const {
-    title,
-    description,
-    impact,
-    volunteers,
-    deliverables,
-    deadline,
-    urgency,
-    requiredSkills,
-    categories,
-    uploadedResources
-  } = Object.fromEntries(data);
-
-  console.log(
-    userInfo?.id,
-    title,
-    description,
-    deadline,
-    impact,
-    volunteers,
-    deliverables,
-    urgency,
-    requiredSkills,
-    categories,
-    uploadedResources
-  );
-
-  // const uploadedItems = JSON.parse(uppyResult as string)
-  // const successItems = uploadedItems.filter((item) => {if (!item.successful.length) {return item}})
-  // console.log(uploadedItems);
-  
-
-
-  if (typeof requiredSkills === "string") {
-    const taskSkills = requiredSkills.split(",");
-    return { taskSkills, };
+  if (!userInfo?.charityId || !userInfo.id) {
+    return redirect("/login");
   }
-  if (typeof categories === "string") {
-    const taskCategories = categories.split(",");
-    return { taskCategories, };
-  }
-  return {};
+
+  const newTask: Partial<tasks> = JSON.parse(data.get("formData") as string);
+  console.log("Task data submitted", newTask);
+
+  const rawResources = newTask.resources as unknown as UppyFile<
+    Meta,
+    Record<string, never>
+  >[];
+  const resources = rawResources.map((upload) => {
+    return {
+      name: upload.name || null,
+      extension: upload.extension || null,
+      type: upload.type || null,
+      size: upload.size || null,
+      uploadURL: upload.uploadURL || null,
+    };
+  });
+
+  console.log(resources);
+
+  // const {
+  //   title,
+  //   description,
+  //   impact,
+  //   volunteers,
+  //   deliverables,
+  //   deadline,
+  //   urgency,
+  //   requiredSkills,
+  //   categories,
+  //   uploadedResources
+  // } = Object.fromEntries(data);
+
+  // console.log(
+  //   userInfo?.id,
+  //   title,
+  //   description,
+  //   deadline,
+  //   impact,
+  //   volunteers,
+  //   deliverables,
+  //   urgency,
+  //   requiredSkills,
+  //   categories,
+  //   uploadedResources
+  // );
+
+  // const attachments = JSON.parse(uploadedResources as string)
+  // const attachmentsUrls = attachments.map((item) => item.uploadURL) ?? [""]
+  // console.log(attachmentsUrls);
+
+  // console.log(attachments[0].uploadURL);
+
+  const taskData: Partial<tasks> = {
+    title: newTask.title,
+    category: newTask.category,
+    impact: newTask.impact,
+    deadline: new Date(newTask.deadline as Date),
+    urgency: newTask.urgency,
+    deliverables: newTask.deliverables,
+    description: newTask.description,
+    volunteersNeeded: newTask.volunteersNeeded,
+    resources: resources,
+    requiredSkills: newTask.requiredSkills,
+  };
+  const task = await createTask(taskData, userInfo.charityId, userInfo?.id);
+  console.log("New task created", task);
+
+  return redirect("/dashboard/tasks");
 }

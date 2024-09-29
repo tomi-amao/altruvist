@@ -12,6 +12,7 @@ datasource db {
 
 model users {
   id               String             @id @default(auto()) @map("_id") @db.ObjectId
+  techTitle        String?
   zitadelId        String             @unique
   email            String
   name             String
@@ -25,7 +26,8 @@ model users {
   roles            String[]
   permissions      String[]
   charity          charities?         @relation(fields: [charityId], references: [id])
-  charityId        String?             @db.ObjectId
+  charityId        String?            @db.ObjectId
+  tasks            tasks[]
 }
 
 model charities {
@@ -39,31 +41,33 @@ model charities {
   updatedAt     DateTime @updatedAt
   tasks         tasks[]
   users         users[]
+  tags          String[]
+
+  taskApplications taskApplications[]
 }
 
 model tasks {
-  id                      String                   @id @default(auto()) @map("_id") @db.ObjectId
-  title                   String
-  description             String
-  requiredSkills          String[]
-  estimatedHours          Int?
-  deadline                DateTime
-  category                TaskCategory
-  experienceLevel         ExperienceLevel?
-  volunteersNeeded        Int
-  urgency                 TaskUrgency?
-  deliverables            String
-  communicationPreference CommunicationPreference?
-  resourcesProvided       String?
-  additionalRequirements  String?
-  charity                 charities                @relation(fields: [charityId], references: [id])
-  charityId               String                   @db.ObjectId
-  status                  TaskStatus
-  location                TaskLocation?
-  tags                    String[]
-  createdAt               DateTime                 @default(now())
-  updatedAt               DateTime                 @updatedAt
-  taskApplications        taskApplications[]
+  id               String             @id @default(auto()) @map("_id") @db.ObjectId
+  title            String
+  description      String
+  impact           String
+  requiredSkills   String[]
+  estimatedHours   Int?
+  category         String[]
+  urgency          TaskUrgency?
+  volunteersNeeded Int
+  deliverables     String[]
+  deadline         DateTime
+  resources        resource[]
+  charity          charities?         @relation(fields: [charityId], references: [id])
+  charityId        String?            @db.ObjectId
+  createdBy        users              @relation(fields: [userId], references: [id])
+  userId           String             @db.ObjectId
+  status           TaskStatus?
+  location         TaskLocation?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  taskApplications taskApplications[]
 }
 
 model taskApplications {
@@ -72,10 +76,29 @@ model taskApplications {
   taskId    String            @db.ObjectId
   user      users             @relation(fields: [userId], references: [id])
   userId    String            @db.ObjectId
+  charity   charities?        @relation(fields: [charityId], references: [id])
+  charityId String?           @db.ObjectId
   status    ApplicationStatus
   message   String?
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
+}
+
+// type taskApplications {
+//   status    ApplicationStatus
+//   message   String?
+//   userId    String?           @db.ObjectId
+//   taskId    String?           @db.ObjectId
+//   createdAt DateTime          @default(now())
+//   updatedAt DateTime
+// }
+
+type resource {
+  name      String?
+  extension String?
+  type      String?
+  size      Int?
+  uploadURL String?
 }
 
 enum TaskCategory {
@@ -99,7 +122,7 @@ enum TaskUrgency {
 }
 
 enum TaskStatus {
-  OPEN
+  INCOMPLETE
   IN_PROGRESS
   COMPLETED
   CANCELLED

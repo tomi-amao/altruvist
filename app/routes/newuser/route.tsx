@@ -16,6 +16,7 @@ import { getSession } from "~/services/session.server";
 import { getUserInfo } from "~/models/user2.server";
 import {
   FormFieldFloating,
+  FormTextarea,
   RadioOption,
   StyledTextarea,
 } from "~/components/utils/FormField";
@@ -24,14 +25,16 @@ import { getTags } from "~/components/utils/OptionsForDropdowns";
 import FileUpload from "~/components/utils/FileUpload";
 import { Meta, UppyFile } from "@uppy/core";
 import { SecondaryButton } from "~/components/utils/BasicButton";
+import { newUserForm } from "~/models/types.server";
+import { createCharity } from "~/models/charities.server";
+import { charities } from "@prisma/client";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
   const accessToken = session.get("accessToken"); //retrieve access token from session to be used as bearer token
-  const zitadel = getZitadelVars();
 
   if (!accessToken) {
-    return redirect("/login");
+    return redirect("/zitlogin");
   }
   const { userInfo, error } = await getUserInfo(accessToken);
 
@@ -123,7 +126,7 @@ const DescriptionStep: React.FC<StepProps> = ({ updateFields, formData }) => {
           : "Describe your charity"}
       </h1>
 
-      <StyledTextarea
+      <FormTextarea
         autocomplete="off"
         htmlFor={formData.bio}
         maxLength={100}
@@ -247,8 +250,11 @@ export const TagsStep: React.FC<StepProps> = ({ updateFields, formData }) => {
 
   return (
     <>
-      <h1 className="text-5xl mb-6">{formData.role === "techie"
-            ? "List your tech skills" : "List your charity's categories"}</h1>
+      <h1 className="text-5xl mb-6">
+        {formData.role === "techie"
+          ? "List your tech skills"
+          : "List your charity's categories"}
+      </h1>
       <div className="space-y-4">
         <div className="relative">
           <div className="flex">
@@ -260,8 +266,11 @@ export const TagsStep: React.FC<StepProps> = ({ updateFields, formData }) => {
               onKeyDown={handleKeyDown}
               onFocus={() => setIsDropdownVisible(true)}
               className="block text-baseSecondary px-2.5 pb-2.5 pt-3 w-full text-sm bg-basePrimaryLight rounded-l-md border-[1px] focus:outline-none focus:border-baseSecondary peer transition-all duration-300"
-              placeholder={formData.role === "techie"
-                ? "Choose a skill": "Choose a category"}
+              placeholder={
+                formData.role === "techie"
+                  ? "Choose a skill"
+                  : "Choose a category"
+              }
             />
 
             <button
@@ -385,11 +394,11 @@ export default function NewUserForm() {
           },
           { id: "title", title: "Job Title", component: TitleStep },
           {
-              id: "bioDescription",
-              title: "Bio Description",
-              component: DescriptionStep,
-            },
-            { id: "picture", title: "Picture", component: PictureStep },
+            id: "bioDescription",
+            title: "Bio Description",
+            component: DescriptionStep,
+          },
+          { id: "picture", title: "Picture", component: PictureStep },
           { id: "tags", title: "tags", component: TagsStep },
         ]
       : [
@@ -521,12 +530,6 @@ export default function NewUserForm() {
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const userId = formData.get("userId");
-  const newRole = formData.get("role");
-  const role = formData.get("role");
-  const title = formData.get("title");
-  const tags = formData.getAll("tags");
-  const picture = formData.get("picture");
-  const bio = formData.get("bio");
   const newUserInfo = formData.get("newUserInfo");
   const action = formData.get("_action");
   console.log(action);
@@ -537,8 +540,20 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     return { error: null };
   }
   console.log("Action", userId, newUserInfo);
-  const all = JSON.parse(newUserInfo as string);
-  console.log(all);
+  const data: newUserForm = JSON.parse(newUserInfo as string);
+  if (!data) {
+    return { message: "No data found", error: "400" };
+  }
+  if (data.role === "charity") {
+    const charityData: Partial<charities> = {
+      name: data.title,
+      description: data.bio,
+      website: data.charityWebsite,
+      tags: data.tags,
+    };
+    const charity = await createCharity(charityData, userId as string);
+    console.log(charity);
+  }
 
   //   if (typeof userId !== "string" || typeof role !== "string") {
   //     return { error: "Invalid input", status: 400 };

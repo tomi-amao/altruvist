@@ -21,11 +21,11 @@ export function LatestTaskSummary() {
       </p>
       <div className="flex flex-row justify-between items-center py-2 text-xs ">
         <div className="flex flex-row gap-2 items-center">
-        <span className="relative flex h-2 w-2">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-txtprimary opacity-25"></span>
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-txtprimary "></span>
-        </span>
-        <span className="text-midGrey font-primary ">Task</span>
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-txtprimary opacity-25"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-txtprimary "></span>
+          </span>
+          <span className="text-midGrey font-primary ">Task</span>
         </div>
         <span> 4 minutes</span>
       </div>

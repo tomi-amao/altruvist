@@ -1,3 +1,5 @@
+import { useFetcher } from "@remix-run/react";
+
 export function PrimaryButton({
   text,
   name,
@@ -5,15 +7,15 @@ export function PrimaryButton({
   action = undefined,
   ariaLabel,
   form = undefined,
-  type = "submit"
+  type = "submit",
 }: {
   text: string;
   name?: string;
   value?: string;
   action?: () => Record<string, never>;
   ariaLabel: string;
-  form?:string
-  type? : "submit" | "reset" | "button" | undefined;
+  form?: string;
+  type?: "submit" | "reset" | "button" | undefined;
 }) {
   return (
     <>
@@ -38,15 +40,14 @@ export function SecondaryButton({
   value,
   action = undefined,
   ariaLabel,
-  type
+  type,
 }: {
   text: string;
   name?: string;
   value?: string;
   action?: () => void;
   ariaLabel: string;
-  type? : "submit" | "reset" | "button" | undefined;
-
+  type?: "submit" | "reset" | "button" | undefined;
 }) {
   return (
     <>
