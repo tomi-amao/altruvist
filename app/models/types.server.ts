@@ -1,4 +1,5 @@
 import type { User } from "@prisma/client";
+import { Meta, UppyFile } from "@uppy/core";
 
 export type RegisterForm = {
   email: User["email"];
@@ -19,4 +20,17 @@ export interface newUserForm {
   picture: string;
   bio: string;
   charityWebsite?: string;
+}
+
+export interface NewTaskFormData {
+  title: string;
+  description: string;
+  requiredSkills: string[];
+  impact: string;
+  resources: UppyFile<Meta, Record<string, never>>[];
+  category: string[];
+  deadline: string;
+  volunteersNeeded: number | null;
+  urgency: string;
+  deliverables: string[];
 }

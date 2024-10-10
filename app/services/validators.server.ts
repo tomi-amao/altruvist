@@ -36,11 +36,9 @@ const charitySchema = z.object({
   name: z
     .string()
     .min(2, { message: "Charity name must be at least 2 characters long" }),
-  description: z
-    .string()
-    .min(10, {
-      message: "Charity description must be at least 10 characters long",
-    }),
+  description: z.string().min(10, {
+    message: "Charity description must be at least 10 characters long",
+  }),
   website: z.string().url({ message: "Please enter a valid URL" }).optional(),
   contactEmail: z
     .string()

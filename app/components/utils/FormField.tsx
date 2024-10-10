@@ -10,6 +10,7 @@ interface FormFieldProps {
   error?: string;
   placeholder: string;
   backgroundColour?: string;
+  defaultValue?: string;
 }
 interface FormTextareaProps {
   htmlFor: string;
@@ -22,6 +23,7 @@ interface FormTextareaProps {
   placeholder: string;
   backgroundColour?: string;
   maxLength: number | null;
+  defaultValue?: string;
 }
 
 export function FormField({
@@ -78,6 +80,7 @@ export function FormFieldFloating({
   onChange = () => {},
   label,
   backgroundColour = "bg-basePrimaryDark",
+  defaultValue,
 }: FormFieldProps) {
   const [isFocused, setIsFocused] = useState(false);
   const [hasValue, setHasValue] = useState(false);
@@ -104,6 +107,7 @@ export function FormFieldFloating({
         onFocus={handleFocus}
         onBlur={handleBlur}
         required
+        defaultValue={defaultValue}
       />
       <label
         htmlFor={htmlFor}
@@ -125,6 +129,7 @@ export const FormTextarea = ({
   maxLength,
   label,
   backgroundColour = "bg-basePrimaryDark",
+  defaultValue = "Test",
 }: FormTextareaProps) => {
   const [isFocused, setIsFocused] = useState(false);
   const [hasValue, setHasValue] = useState(false);
@@ -156,6 +161,7 @@ export const FormTextarea = ({
         onFocus={handleFocus}
         onBlur={handleBlur}
         required
+        defaultValue={defaultValue}
       />
       <label
         htmlFor={htmlFor}

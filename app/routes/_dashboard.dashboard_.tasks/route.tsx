@@ -15,6 +15,7 @@ import {
 import {
   FilePreviewButton,
   FormFieldFloating,
+  FormTextarea,
 } from "~/components/utils/FormField";
 import CreateTaskForm from "~/components/utils/TaskForm";
 import {
@@ -34,6 +35,8 @@ import { charities, tasks, TaskStatus, users } from "@prisma/client";
 import { getUrgencyColor } from "~/components/cards/taskCard";
 import { getCharity } from "~/models/charities.server";
 import type { Prisma } from "@prisma/client";
+import { NewTaskFormData } from "~/models/types.server";
+import { title } from "process";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
@@ -88,6 +91,18 @@ export default function TaskList() {
   const [editTask, setEditTask] = useState(false);
   const [status, setStatus] = useState<string>();
   const submit = useSubmit();
+  const [formData, setFormData] = useState<NewTaskFormData>({
+    title: "",
+    description: "",
+    resources: [],
+    requiredSkills: [],
+    impact: "",
+    urgency: "",
+    category: [],
+    deadline: "",
+    volunteersNeeded: null,
+    deliverables: [],
+  });
 
   const handleTaskClick = (
     task: Partial<tasks>,
@@ -126,6 +141,18 @@ export default function TaskList() {
       { method: "POST", action: "/dashboard/tasks" },
     );
     setStatus(option);
+  };
+
+  const handleChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = event.target;
+    console.log(formData);
+
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
   };
 
   return (
@@ -192,25 +219,96 @@ export default function TaskList() {
           <div className="">
             <DashboardBanner
               bannerItems={[
-                { title: "Title", value: selectedTask.title! },
-                {
-                  title: "Deadline",
-                  value: new Date(selectedTask.deadline!).toLocaleDateString(),
-                },
-                {
-                  title: "Category",
-                  value: selectedTask.category![0],
-                },
+                ...(editTask
+                  ? []
+                  : [
+                      { title: "Title", value: selectedTask.title! },
+                      {
+                        title: "Deadline",
+                        value: new Date(
+                          selectedTask.deadline!,
+                        ).toLocaleDateString(),
+                      },
+                      {
+                        title: "Category",
+                        value: selectedTask.category![0],
+                      },
+                    ]),
+
                 ...(selectedCharity?.id
                   ? [{ title: "Charity", value: selectedCharity.name! }]
                   : [{ title: "Creator", value: selectedTaskCreator?.name! }]),
               ]}
             />
 
+            {editTask && (
+              <>
+                <h1 className="text-base font-primary font-semibold py-4 lg:mt-7">
+                  Title
+                </h1>
+                <FormFieldFloating
+                  htmlFor="title"
+                  placeholder={selectedTask.title!}
+                  type="string"
+                  label="Title"
+                  backgroundColour="bg-basePrimary"
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      title: e.target.value,
+                    })
+                  }
+                  value={formData.title}
+                  defaultValue={selectedTask.title?.toString()}
+                />
+              </>
+            )}
+
             <h1 className="text-base font-primary font-semibold py-4 lg:mt-7">
               Description
             </h1>
-            {/* {editTask ? <p> F</p>: <p className=" ">{selectedTask.description}</p> } */}
+            {editTask ? (
+              <FormTextarea
+                autocomplete="off"
+                htmlFor="description"
+                maxLength={100}
+                placeholder={selectedTask.description!}
+                label="Description"
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    description: e.target.value,
+                  })
+                }
+                defaultValue={selectedTask.description?.toString()}
+                value={formData.description}
+                backgroundColour="bg-basePrimary"
+              />
+            ) : (
+              <p className=" ">{selectedTask.description}</p>
+            )}
+
+            {editTask && (
+              <>
+                <h1 className="text-base font-primary font-semibold py-4 lg:mt-7">
+                  Deadline
+                </h1>
+                <FormFieldFloating
+                  htmlFor="deadline"
+                  placeholder={new Date(
+                    selectedTask.deadline!,
+                  ).toLocaleDateString()}
+                  type="date"
+                  label="Deadline"
+                  backgroundColour="bg-basePrimary"
+                  onChange={handleChange}
+                  value={formData.deadline}
+                  defaultValue={new Date(
+                    selectedTask.deadline!,
+                  ).toLocaleDateString()}
+                />
+              </>
+            )}
             <h1 className="text-base font-primary mt-2 font-semibold py-2 ">
               Impact
             </h1>
@@ -282,7 +380,7 @@ export default function TaskList() {
               {userRole.includes("charity") && (
                 <SecondaryButton
                   ariaLabel="edit current task"
-                  text="Edit Task"
+                  text={editTask ? "Save Task" : "Edit Task"}
                   action={() => setEditTask((preValue) => !preValue)}
                 />
               )}
@@ -327,8 +425,23 @@ export const MessageSection = () => {
   );
 };
 
-export const EditTask = () => {
-  return <div></div>;
+export const EditTitle = (
+  formData: any,
+  handleChange: any,
+  defaultValue: any,
+) => {
+  return (
+    <FormFieldFloating
+      htmlFor="title"
+      placeholder={defaultValue}
+      type="string"
+      label=""
+      backgroundColour="bg-basePrimary"
+      onChange={handleChange}
+      value={formData.title}
+      defaultValue={defaultValue}
+    />
+  );
 };
 
 export async function action({ request }: ActionFunctionArgs) {

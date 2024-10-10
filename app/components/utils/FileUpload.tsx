@@ -87,9 +87,6 @@ const FileUpload = ({
       console.log("Files uploaded:", file?.name);
       console.log("Url:", response.uploadURL);
       console.log(file?.extension);
-
-      
-
     });
 
     uppy.on("file-added", (file) => {

@@ -49,6 +49,7 @@ export default function Dashboard() {
     "Messages",
     "Feeds",
     "Explore",
+    "Logout",
   ];
   const params = useSearchParams();
   const navigation = useNavigation();
@@ -79,7 +80,7 @@ export default function Dashboard() {
               name={userInfo?.name}
               techTitle={userInfo?.techTitle}
             />
-            <nav>
+            <nav className=" flex flex-col justify-between">
               <ul className=" flex flex-col h-screen gap-1 ">
                 {sideBarMenu.map((link, index) => (
                   <Link
@@ -90,6 +91,7 @@ export default function Dashboard() {
                     {link}
                   </Link>
                 ))}
+                <Link to={"/zitlogout"}>Logout</Link>
               </ul>
             </nav>
           </div>

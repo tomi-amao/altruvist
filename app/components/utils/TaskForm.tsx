@@ -18,6 +18,7 @@ import { useEffect, useState } from "react";
 import FileUpload from "./FileUpload";
 import { log } from "console";
 import { Meta, UppyFile } from "@uppy/core";
+import { NewTaskFormData } from "~/models/types.server";
 
 export default function CreateTaskForm() {
   const [requiredSkills, setRequiredSkills] = useState<string[]>([]);
@@ -30,18 +31,7 @@ export default function CreateTaskForm() {
   const navigation = useNavigation();
   const submit = useSubmit();
   const isSubmitting = navigation.state === "submitting";
-  interface NewTaskFormData {
-    title: string;
-    description: string;
-    requiredSkills: string[];
-    impact: string;
-    resources: UppyFile<Meta, Record<string, never>>[];
-    category: string[];
-    deadline: string;
-    volunteersNeeded: number | null;
-    urgency: string;
-    deliverables: string[];
-  }
+
   const [formData, setFormData] = useState<NewTaskFormData>({
     title: "",
     description: "",
