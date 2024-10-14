@@ -26,7 +26,7 @@
     "@radix-ui/react-tooltip": "^1.0.7",
     "@remix-run/node": "^2.8.1",
     "@remix-run/react": "^2.8.1",
-    "@remix-run/serve": "^2.8.1",
+    "@remix-run/serve": "^2.13.0",
     "@zitadel/react": "^1.0.3",
     "argon2": "^0.40.1",
     "cloudinary": "^2.2.0",
