@@ -11,11 +11,13 @@ import {
   statusOptions,
   taskCategoryFilterOptions,
   taskCharityCategories,
+  charityTags,
 } from "~/components/utils/OptionsForDropdowns";
 import {
   FilePreviewButton,
   FormFieldFloating,
   FormTextarea,
+  ListInput,
 } from "~/components/utils/FormField";
 import CreateTaskForm from "~/components/utils/TaskForm";
 import {
@@ -110,7 +112,7 @@ export default function TaskList() {
     requiredSkills: [],
     impact: "",
     urgency: selectedTask?.urgency || "LOW",
-    category: [],
+    category: selectedTask?.category || [],
     deadline: "",
     volunteersNeeded: null,
     deliverables: [],
@@ -185,16 +187,40 @@ export default function TaskList() {
         description: selectedTask.description || "",
         urgency: selectedTask.urgency || "LOW",
         deadline: selectedTask.deadline?.toString() || "",
+        category: selectedTask.category || [],
       }));
     }
   }, [selectedTask]); //  run when selectedTask changes
 
-  const formatDateForInput = (date) => {
+  const formatDateForInput = (date: string) => {
     const d = new Date(date);
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, "0"); // Ensure two digits
     const day = String(d.getDate()).padStart(2, "0"); // Ensure two digits
     return `${year}-${month}-${day}`;
+  };
+
+  const handleRemoveItem = (inputField: string, input: string) => {
+    switch (inputField) {
+      case "skills":
+        setFormData({
+          ...formData,
+          requiredSkills: formData.requiredSkills.filter(
+            (item) => item !== input,
+          ),
+        });
+
+        break;
+      case "categories":
+        setFormData({
+          ...formData,
+          category: formData.category.filter((item) => item !== input),
+        });
+
+        break;
+      default:
+        break;
+    }
   };
 
   return (
@@ -335,15 +361,48 @@ export default function TaskList() {
                 </h1>
                 <FormFieldFloating
                   htmlFor="deadline"
-                  placeholder={new Date(
-                    selectedTask.deadline!,
-                  ).toLocaleDateString()}
                   type="date"
                   label="Deadline"
                   backgroundColour="bg-basePrimary"
                   onChange={handleChange}
                   value={formatDateForInput(formData.deadline)}
                 />
+                <h1 className="text-base font-primary font-semibold py-4 lg:mt-7">
+                  Category
+                </h1>
+                <div className="flex-col flex w-full">
+                  <ListInput
+                    inputtedList={formData.category}
+                    onInputsChange={(inputs) => {
+                      setFormData({
+                        ...formData,
+                        category: inputs,
+                      });
+                      console.log(formData.category);
+                    }}
+                    placeholder="Enter the charitable category of the task"
+                    availableOptions={charityTags}
+                    allowCustomOptions={false}
+                    useDefaultListStyling={false}
+                  />
+                </div>
+                <div className=" max-w-3xl flex-wrap mt-2 ">
+                  {formData.category && (
+                    <ul className="flex flex-row gap-4 flex-wrap">
+                      {formData.category.map((category, index) => (
+                        <button
+                          className="bg-basePrimaryDark p-2 font-primary rounded-md text-sm hover:bg-dangerPrimary hover:text-basePrimaryLight text-baseSecondary"
+                          key={index}
+                          onClick={() => {
+                            handleRemoveItem("categories", category);
+                          }}
+                        >
+                          {category}
+                        </button>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </>
             )}
             <h1 className="text-base font-primary mt-2 font-semibold py-2 ">

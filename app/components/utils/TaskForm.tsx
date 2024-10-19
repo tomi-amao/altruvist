@@ -16,7 +16,6 @@ import {
 import { CancelButton, PrimaryButton, SecondaryButton } from "./BasicButton";
 import { useEffect, useState } from "react";
 import FileUpload from "./FileUpload";
-import { log } from "console";
 import { Meta, UppyFile } from "@uppy/core";
 import { NewTaskFormData } from "~/models/types.server";
 

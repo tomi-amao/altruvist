@@ -8,7 +8,7 @@ interface FormFieldProps {
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   autocomplete?: string;
   error?: string;
-  placeholder: string;
+  placeholder?: string;
   backgroundColour?: string;
   defaultValue?: string;
 }
