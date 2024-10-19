@@ -107,7 +107,6 @@ export function FormFieldFloating({
         onFocus={handleFocus}
         onBlur={handleBlur}
         required
-        defaultValue={defaultValue}
       />
       <label
         htmlFor={htmlFor}
@@ -129,7 +128,6 @@ export const FormTextarea = ({
   maxLength,
   label,
   backgroundColour = "bg-basePrimaryDark",
-  defaultValue = "Test",
 }: FormTextareaProps) => {
   const [isFocused, setIsFocused] = useState(false);
   const [hasValue, setHasValue] = useState(false);
@@ -143,7 +141,7 @@ export const FormTextarea = ({
   const handleFocus = () => setIsFocused(true);
   const handleBlur = () => setIsFocused(false);
   const handleChange = (e) => {
-    const newValue = e.target.value.slice(0, maxLength);
+    const newValue = e.target.value.slice(0, maxLength!);
     onChange({ target: { value: newValue } });
   };
 
@@ -161,7 +159,6 @@ export const FormTextarea = ({
         onFocus={handleFocus}
         onBlur={handleBlur}
         required
-        defaultValue={defaultValue}
       />
       <label
         htmlFor={htmlFor}

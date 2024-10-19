@@ -26,19 +26,6 @@ services:
     image: "ghcr.io/zitadel/zitadel:latest"
     command: 'start-from-init --masterkey "MasterkeyNeedsToHave32Characters" --tlsMode disabled'
     environment:
-      - "ZITADEL_EXTERNALSECURE=false"
-      - "ZITADEL_EXTERNALDOMAIN=127.0.0.1.sslip.io" #Zitadel domain needs to be accessible from the browser and running app container
-      - ZITADEL_EXTERNALPORT=8000
-
-      # Create Machine User
-      # - "ZITADEL_DEFAULTINSTANCE_ORG_MACHINE_MACHINE_USERNAME=MachineAdmin"
-      # - "ZITADEL_DEFAULTINSTANCE_ORG_MACHINE_MACHINE_NAME=MachineAdmin"
-      # - "ZITADEL_DEFAULTINSTANCE_ORG_MACHINE_PAT_EXPIRATIONDATE=2025-01-01T00:00:00Z"
-      # - "ZITADEL_DEFAULTINSTANCE_ORG_NAME=Skillanthropy"
-      # - "ZITADEL_DEFAULTINSTANCE_INSTANCENAME=ZITADEL"
-      # - "ZITADEL_DEFAULTINSTANCE_DEFAULTLANGUAGE=en"
-
-      # database configuration
       - "ZITADEL_DATABASE_POSTGRES_HOST=zitadel_db"
       - "ZITADEL_DATABASE_POSTGRES_PORT=5432"
       - "ZITADEL_DATABASE_POSTGRES_DATABASE=zitadel"
@@ -48,19 +35,29 @@ services:
       - "ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME=postgres"
       - "ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD=postgres"
       - "ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE=disable"
+      - "ZITADEL_EXTERNALSECURE=false"
+      - "ZITADEL_FIRSTINSTANCE_MACHINEKEYPATH=/machinekey/zitadel-admin-sa.json"
+      - "ZITADEL_FIRSTINSTANCE_ORG_MACHINE_MACHINE_USERNAME=zitadel-admin-sa"
+      - "ZITADEL_FIRSTINSTANCE_ORG_MACHINE_MACHINE_NAME=Admin"
+      - "ZITADEL_FIRSTINSTANCE_ORG_MACHINE_MACHINEKEY_TYPE=1"
+
+      - "ZITADEL_EXTERNALDOMAIN=127.0.0.1.sslip.io" #Zitadel domain needs to be accessible from the browser and running app container
+
+    volumes:
+      - ./machinekey:/machinekey
 
     depends_on:
-      db:
+      zitadel_db:
         condition: "service_healthy"
     # ----- uncomment if runnig without proxy -----
     # ports:
     #   - "8081:8080"
-    healthcheck:
-      test: ["CMD", "/app/zitadel ready"]
-      interval: "10s"
-      timeout: "5s"
-      retries: 5
-      start_period: "10s"
+    # healthcheck:
+    #   test: ["CMD", "/app/zitadel ready"]
+    #   interval: "10s"
+    #   timeout: "5s"
+    #   retries: 5
+    #   start_period: "10s"
     # ----- uncomment to enable traefik docker provider -----
     # labels:
     #   - "traefik.enable=true"
@@ -91,9 +88,6 @@ services:
       - ./traefik_dynamic_conf:/etc/traefik/dynamic_conf # - /var/run/docker.sock:/var/run/docker.sock:ro  --- uncomment for docker provider
     networks:
       - traefik-net
-    depends_on:
-      zitadel:
-        condition: "service_healthy"
 
   zitadel_db:
     container_name: "skillanthropy_zitadel_db"

@@ -1,4 +1,4 @@
-import type { User } from "@prisma/client";
+import type { TaskUrgency, User } from "@prisma/client";
 import { Meta, UppyFile } from "@uppy/core";
 
 export type RegisterForm = {
@@ -31,6 +31,6 @@ export interface NewTaskFormData {
   category: string[];
   deadline: string;
   volunteersNeeded: number | null;
-  urgency: string;
+  urgency: TaskUrgency;
   deliverables: string[];
 }

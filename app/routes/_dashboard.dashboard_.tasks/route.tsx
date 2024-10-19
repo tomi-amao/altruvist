@@ -31,12 +31,19 @@ import {
   updateTask,
 } from "~/models/tasks.server";
 import { useLoaderData, useSubmit } from "@remix-run/react";
-import { charities, tasks, TaskStatus, users } from "@prisma/client";
+import {
+  charities,
+  tasks,
+  TaskStatus,
+  TaskUrgency,
+  users,
+} from "@prisma/client";
 import { getUrgencyColor } from "~/components/cards/taskCard";
 import { getCharity } from "~/models/charities.server";
 import type { Prisma } from "@prisma/client";
 import { NewTaskFormData } from "~/models/types.server";
-import { title } from "process";
+import { transformUserTaskApplications } from "~/components/utils/DataTransformation";
+import { useEffect } from "react";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
@@ -53,16 +60,21 @@ export async function loader({ request }: LoaderFunctionArgs) {
   // const userRole = userInfo.roles
   const { id: userId, roles: userRole, charityId } = userInfo;
 
-  // console.log(userId);
+  console.log("user id", userId, "charity id", charityId);
   if (userRole.includes("charity")) {
     // console.log("This is user is a charity", charityId);
-    const { tasks, error } = await getCharityTasks(charityId || "");
+    const { tasks, error, message, status } = await getCharityTasks(
+      charityId || "",
+    );
     // console.log(tasks);
+    // console.log("Returned tasks", tasks, message, status);
 
     return { tasks, error, userRole };
   } else if (userRole.includes("techie")) {
     // console.log("This is user is a techie ");
-    const { tasks, error } = await getUserTasks(userId);
+    let { tasks, error } = await getUserTasks(userId);
+
+    tasks = transformUserTaskApplications(tasks);
     return { tasks, error, userRole };
   }
   // console.log(tasks);
@@ -92,12 +104,12 @@ export default function TaskList() {
   const [status, setStatus] = useState<string>();
   const submit = useSubmit();
   const [formData, setFormData] = useState<NewTaskFormData>({
-    title: "",
-    description: "",
+    title: selectedTask?.title || "",
+    description: selectedTask?.description || "",
     resources: [],
     requiredSkills: [],
     impact: "",
-    urgency: "",
+    urgency: selectedTask?.urgency || "LOW",
     category: [],
     deadline: "",
     volunteersNeeded: null,
@@ -134,25 +146,55 @@ export default function TaskList() {
     updateTaskData: Prisma.tasksUpdateInput,
     option?: string,
   ) => {
-    const JsonUpdateTaskData = JSON.stringify(updateTaskData);
+    const jsonUpdateTaskData = JSON.stringify(updateTaskData);
 
     submit(
-      { taskId, updateTaskData: JsonUpdateTaskData, _action: "updateTask" },
+      { taskId, updateTaskData: jsonUpdateTaskData, _action: "updateTask" },
       { method: "POST", action: "/dashboard/tasks" },
     );
     setStatus(option);
+  };
+
+  const handleUpdateTaskDetails = (
+    taskId: string,
+    updateTaskData: Prisma.tasksUpdateInput,
+  ) => {
+    const jsonUpdateTaskData = JSON.stringify(updateTaskData);
+    console.log(updateTaskData, taskId);
+    setEditTask((preValue) => !preValue);
   };
 
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = event.target;
-    console.log(formData);
+    // console.log(formData);
 
     setFormData({
       ...formData,
       [name]: value,
     });
+  };
+
+  // if selectedTask changes update formData
+  useEffect(() => {
+    if (selectedTask) {
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        title: selectedTask.title || "",
+        description: selectedTask.description || "",
+        urgency: selectedTask.urgency || "LOW",
+        deadline: selectedTask.deadline?.toString() || "",
+      }));
+    }
+  }, [selectedTask]); //  run when selectedTask changes
+
+  const formatDateForInput = (date) => {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0"); // Ensure two digits
+    const day = String(d.getDate()).padStart(2, "0"); // Ensure two digits
+    return `${year}-${month}-${day}`;
   };
 
   return (
@@ -189,22 +231,22 @@ export default function TaskList() {
         <ul className=" lg:space-y-0">
           {tasks?.map((task) => (
             <li
-              key={task?.task.id}
+              key={task?.id}
               className={` p-4 lg:p-2 border-b-[1px] hover:bg-baseSecondary hover:text-basePrimary rounded cursor-pointer lg:border-dashed ${
-                selectedTask?.id?.toString() === task?.task.id
+                selectedTask?.id?.toString() === task?.id
                   ? "bg-baseSecondary text-basePrimaryDark font-semibold"
                   : ""
               }`}
               onClick={() =>
                 handleTaskClick(
-                  task?.task as unknown as Partial<tasks>,
+                  task as unknown as Partial<tasks>,
                   task?.charity as unknown as Partial<charities>,
-                  task?.task.createdBy as unknown as Partial<users>,
+                  task?.createdBy as unknown as Partial<users>,
                 )
               }
             >
-              <div className="text-lg font-primary ">{task?.task.title}</div>
-              <div className="text-sm">{`Due: ${new Date(task?.task.deadline ? task?.task.deadline : "").toLocaleDateString()}`}</div>
+              <div className="text-lg font-primary ">{task?.title}</div>
+              <div className="text-sm">{`Due: ${new Date(task?.deadline ? task?.deadline : "").toLocaleDateString()}`}</div>
             </li>
           ))}
         </ul>
@@ -248,7 +290,7 @@ export default function TaskList() {
                 </h1>
                 <FormFieldFloating
                   htmlFor="title"
-                  placeholder={selectedTask.title!}
+                  placeholder={"Title the task"}
                   type="string"
                   label="Title"
                   backgroundColour="bg-basePrimary"
@@ -259,7 +301,6 @@ export default function TaskList() {
                     })
                   }
                   value={formData.title}
-                  defaultValue={selectedTask.title?.toString()}
                 />
               </>
             )}
@@ -272,7 +313,7 @@ export default function TaskList() {
                 autocomplete="off"
                 htmlFor="description"
                 maxLength={100}
-                placeholder={selectedTask.description!}
+                placeholder={"Describe the task"}
                 label="Description"
                 onChange={(e) =>
                   setFormData({
@@ -280,7 +321,6 @@ export default function TaskList() {
                     description: e.target.value,
                   })
                 }
-                defaultValue={selectedTask.description?.toString()}
                 value={formData.description}
                 backgroundColour="bg-basePrimary"
               />
@@ -302,10 +342,7 @@ export default function TaskList() {
                   label="Deadline"
                   backgroundColour="bg-basePrimary"
                   onChange={handleChange}
-                  value={formData.deadline}
-                  defaultValue={new Date(
-                    selectedTask.deadline!,
-                  ).toLocaleDateString()}
+                  value={formatDateForInput(formData.deadline)}
                 />
               </>
             )}
@@ -343,19 +380,23 @@ export default function TaskList() {
               </span>
             ))}
 
-            <div className="">
-              <h1 className="font-primary text-base pt-4 font-semibold">
-                Attachments
-              </h1>
-              <div className="flex gap-4 mt-2">
-                <FilePreviewButton
-                  fileName={"test file"}
-                  fileSize={124123}
-                  fileUrl={""}
-                  fileExtension={"pdf"}
-                />
+            {selectedTask.resources && (
+              <div className="">
+                <h1 className="font-primary text-base pt-4 font-semibold">
+                  Attachments
+                </h1>
+                <div className="flex gap-4 mt-2">
+                  {selectedTask.resources.map((resource) => (
+                    <FilePreviewButton
+                      fileName={resource.name}
+                      fileSize={resource.size}
+                      fileUrl={resource.uploadURL}
+                      fileExtension={resource.extension}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="">
               <h1 className="font-primary text-base pt-4 font-semibold">
@@ -381,9 +422,17 @@ export default function TaskList() {
                 <SecondaryButton
                   ariaLabel="edit current task"
                   text={editTask ? "Save Task" : "Edit Task"}
-                  action={() => setEditTask((preValue) => !preValue)}
+                  action={
+                    editTask
+                      ? () =>
+                          handleUpdateTaskDetails(selectedTask.id!, formData)
+                      : () => {
+                          setEditTask((preValue) => !preValue);
+                        }
+                  }
                 />
               )}
+
               <SecondaryButton
                 ariaLabel="message volunteer"
                 text={
@@ -391,7 +440,6 @@ export default function TaskList() {
                 }
                 action={handleShowMessageSection}
               />
-
               <button className="px-4 py-2 bg-dangerPrimary text-basePrimaryDark rounded">
                 {userRole.includes("charity")
                   ? "Cancel task"

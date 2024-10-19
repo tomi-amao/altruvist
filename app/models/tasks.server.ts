@@ -106,10 +106,11 @@ export const getCharityTasks = async (charityId: string) => {
     };
   }
   try {
-    const tasks = await prisma.taskApplications.findMany({
-      where: { charityId },
-      include: { task: { include: { createdBy: true } }, charity: true },
+    const tasks = await prisma.tasks.findMany({
+      where: { charityId: charityId },
+      include: { taskApplications: true, charity: true, createdBy: true },
     });
+    console.log("returned", tasks);
 
     return {
       tasks,

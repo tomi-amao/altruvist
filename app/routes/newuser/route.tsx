@@ -3,7 +3,9 @@ import {
   useActionData,
   useNavigation,
   useSubmit,
- Link, useLoaderData } from "@remix-run/react";
+  Link,
+  useLoaderData,
+} from "@remix-run/react";
 import {
   ActionFunctionArgs,
   json,
@@ -12,7 +14,7 @@ import {
 } from "@remix-run/node";
 import { getZitadelVars } from "~/services/env.server";
 import { getSession } from "~/services/session.server";
-import { getUserInfo } from "~/models/user2.server";
+import { getUserInfo, updateUserInfo } from "~/models/user2.server";
 import {
   FormFieldFloating,
   FormTextarea,
@@ -26,7 +28,7 @@ import { Meta, UppyFile } from "@uppy/core";
 import { SecondaryButton } from "~/components/utils/BasicButton";
 import { newUserForm } from "~/models/types.server";
 import { createCharity } from "~/models/charities.server";
-import { charities } from "@prisma/client";
+import { charities, users } from "@prisma/client";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
@@ -529,9 +531,14 @@ export default function NewUserForm() {
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const userId = formData.get("userId");
+
   const newUserInfo = formData.get("newUserInfo");
   const action = formData.get("_action");
   console.log(action);
+
+  if (!userId) {
+    return redirect("/zitlogin");
+  }
 
   if (action !== "submit") {
     console.log(action);
@@ -552,14 +559,24 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     };
     const charity = await createCharity(charityData, userId as string);
     console.log(charity);
+  } else if (data.role === "techie") {
+    const techieData: Partial<users> = {
+      techTitle: data.title,
+      bio: data.bio,
+      skills: data.tags,
+    };
+    const addNewUserInfo = await updateUserInfo(userId.toString(), techieData);
+    console.log(addNewUserInfo);
   }
 
   //   if (typeof userId !== "string" || typeof role !== "string") {
   //     return { error: "Invalid input", status: 400 };
   //   }
 
-  //   const updatedUser = await updateUserInfo(userId, newRole);
-  //   console.log(updatedUser);
+  const updatedUser = await updateUserInfo(userId?.toString(), {
+    roles: [data.role],
+  });
+  console.log(updatedUser);
 
   return redirect("/dashboard");
 };

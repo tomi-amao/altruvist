@@ -3,6 +3,7 @@ import { prisma } from "~/services/db.server";
 import { getSession } from "~/services/session.server";
 import { getZitadelVars } from "~/services/env.server";
 import type { GetUserResponse, zitadelUserInfo } from "~/types/zitadelUser";
+import type { Prisma } from "@prisma/client";
 
 // create a mongodb user document if user from zitadel directory does not exist
 export const createUser = async (user: zitadelUserInfo) => {
@@ -76,7 +77,10 @@ export const getUserInfo = async (accessToken: string) => {
   }
 };
 
-export const updateUserInfo = async (userId: string, role: string) => {
+export const updateUserInfo = async (
+  userId: string,
+  updateUserData: Prisma.usersUpdateInput,
+) => {
   try {
     const user = await prisma.users.findUnique({
       where: { id: userId },
@@ -86,12 +90,15 @@ export const updateUserInfo = async (userId: string, role: string) => {
     if (!user) {
       return { message: "No user Found" };
     }
-    if (user.roles.includes(role)) {
-      return { message: "Role already exists", status: 400 };
-    }
+    const role = updateUserData.roles;
+    console.log(role, typeof role);
+
+    // if (user.roles.includes(role)) {
+    //   return { message: "Role already exists", status: 400 };
+    // }
     const updatedUserInfo = await prisma.users.update({
       where: { id: userId },
-      data: { roles: { push: role } },
+      data: updateUserData,
     });
 
     return { updatedUserInfo, status: 200, error: null };
