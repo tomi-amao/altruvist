@@ -12,6 +12,8 @@ import {
   taskCategoryFilterOptions,
   taskCharityCategories,
   charityTags,
+  urgencyOptions,
+  techSkills,
 } from "~/components/utils/OptionsForDropdowns";
 import {
   FilePreviewButton,
@@ -46,6 +48,7 @@ import type { Prisma } from "@prisma/client";
 import { NewTaskFormData } from "~/models/types.server";
 import { transformUserTaskApplications } from "~/components/utils/DataTransformation";
 import { useEffect } from "react";
+import { UploadFilesComponent } from "~/components/utils/FileUpload";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
@@ -74,9 +77,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return { tasks, error, userRole };
   } else if (userRole.includes("techie")) {
     // console.log("This is user is a techie ");
-    let { tasks, error } = await getUserTasks(userId);
+    const { tasks: rawTasks, error } = await getUserTasks(userId);
 
-    tasks = transformUserTaskApplications(tasks);
+    const tasks = transformUserTaskApplications(rawTasks);
     return { tasks, error, userRole };
   }
   // console.log(tasks);
@@ -188,6 +191,10 @@ export default function TaskList() {
         urgency: selectedTask.urgency || "LOW",
         deadline: selectedTask.deadline?.toString() || "",
         category: selectedTask.category || [],
+        impact: selectedTask.impact || "",
+        requiredSkills: selectedTask.requiredSkills || [],
+        deliverables: selectedTask.deliverables || [],
+        resources: selectedTask.resources || [],
       }));
     }
   }, [selectedTask]); //  run when selectedTask changes
@@ -405,39 +412,145 @@ export default function TaskList() {
                 </div>
               </>
             )}
-            <h1 className="text-base font-primary mt-2 font-semibold py-2 ">
+            <h1 className="text-base font-primary font-semibold py-4 lg:mt-2">
               Impact
             </h1>
-            <p className=" font-primary  ">{selectedTask.impact}</p>
+            {editTask ? (
+              <>
+                <FormFieldFloating
+                  htmlFor="impact"
+                  placeholder={"Task impact"}
+                  type="string"
+                  label="Impact"
+                  backgroundColour="bg-basePrimary"
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      impact: e.target.value,
+                    })
+                  }
+                  value={formData.impact}
+                />
+              </>
+            ) : (
+              <>
+                <p className=" font-primary  ">{selectedTask.impact}</p>
+              </>
+            )}
             <h1 className="text-base font-primary font-semibold mt-2 py-2 ">
               Key Deliverables
             </h1>
-            <p className=" font-primary px-3 ">
-              {selectedTask?.deliverables?.map((item) => <li> {item}</li>)}
-            </p>
+            {editTask ? (
+              <>
+                {" "}
+                <div className="flex-col flex w-full">
+                  <ListInput
+                    inputtedList={formData.deliverables}
+                    onInputsChange={(inputs) => {
+                      setFormData({
+                        ...formData,
+                        deliverables: inputs,
+                      });
+                      console.log(formData.deliverables);
+                    }}
+                    placeholder="Add a key deliverable that will reach the outcome of the task"
+                    allowCustomOptions={true}
+                    useDefaultListStyling={true}
+                  />
+                </div>
+              </>
+            ) : (
+              <>
+                {" "}
+                <p className=" font-primary px-3 ">
+                  {selectedTask?.deliverables?.map((item) => <li> {item}</li>)}
+                </p>
+              </>
+            )}
+
             <h1 className="text-base font-primary font-semibold mt-2 py-2 ">
               Urgency
             </h1>
-            <span
-              className={`inline-block rounded-full px-4 py-1.5 text-xs font-semibold ${getUrgencyColor(
-                selectedTask.urgency || "LOW",
-              )}`}
-            >
-              {" "}
-              {selectedTask.urgency || "LOW"}
-            </span>
-
+            {editTask ? (
+              <>
+                {" "}
+                <Dropdown
+                  multipleSelect={false}
+                  placeholder={selectedTask.urgency as string}
+                  options={urgencyOptions}
+                  onSelect={(option) => {
+                    setFormData({
+                      ...formData,
+                      urgency: option as TaskUrgency,
+                    });
+                  }}
+                />{" "}
+              </>
+            ) : (
+              <>
+                {" "}
+                <span
+                  className={`inline-block rounded-full px-4 py-1.5 text-xs font-semibold ${getUrgencyColor(
+                    selectedTask.urgency || "LOW",
+                  )}`}
+                >
+                  {" "}
+                  {selectedTask.urgency || "LOW"}
+                </span>
+              </>
+            )}
             <h1 className="text-base font-primary font-semibold py-2 mt-2 ">
               Required Skills
             </h1>
-            {selectedTask?.requiredSkills?.map((skill, index) => (
-              <span
-                key={index}
-                className="inline-block bg-basePrimaryDark rounded-full px-3 py-1 text-xs font-semibold text-baseSecondary mr-2 mb-2"
-              >
-                {skill}
-              </span>
-            ))}
+            {editTask ? (
+              <>
+                <div className="flex-col flex w-full">
+                  <ListInput
+                    inputtedList={formData.requiredSkills}
+                    onInputsChange={(inputs) => {
+                      setFormData({
+                        ...formData,
+                        requiredSkills: inputs,
+                      });
+                      console.log(formData.requiredSkills);
+                    }}
+                    placeholder="Add a skill relevant to completing the project"
+                    availableOptions={techSkills}
+                    allowCustomOptions={false}
+                    useDefaultListStyling={false}
+                  />
+                </div>
+                <div className=" max-w-3xl flex-wrap mt-2 ">
+                  {formData.requiredSkills && (
+                    <ul className="flex flex-row gap-4 flex-wrap">
+                      {formData.requiredSkills.map((skill, index) => (
+                        <button
+                          className="bg-basePrimaryDark p-2 font-primary rounded-md text-sm hover:bg-dangerPrimary hover:text-basePrimaryLight text-baseSecondary"
+                          key={index}
+                          onClick={() => {
+                            handleRemoveItem("skills", skill);
+                          }}
+                        >
+                          {skill}
+                        </button>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </>
+            ) : (
+              <>
+                {" "}
+                {selectedTask?.requiredSkills?.map((skill, index) => (
+                  <span
+                    key={index}
+                    className="inline-block bg-basePrimaryDark rounded-full px-3 py-1 text-xs font-semibold text-baseSecondary mr-2 mb-2"
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </>
+            )}
 
             {selectedTask.resources && (
               <div className="">
@@ -445,15 +558,26 @@ export default function TaskList() {
                   Attachments
                 </h1>
                 <div className="flex gap-4 mt-2">
-                  {selectedTask.resources.map((resource) => (
-                    <FilePreviewButton
-                      fileName={resource.name}
-                      fileSize={resource.size}
-                      fileUrl={resource.uploadURL}
-                      fileExtension={resource.extension}
-                    />
-                  ))}
+                  {!editTask && (
+                    <>
+                      {" "}
+                      {selectedTask.resources.map((resource) => (
+                        <FilePreviewButton
+                          fileName={resource.name}
+                          fileSize={resource.size}
+                          fileUrl={resource.uploadURL}
+                          fileExtension={resource.extension}
+                        />
+                      ))}
+                    </>
+                  )}
                 </div>
+                {editTask && (
+                  <UploadFilesComponent
+                    formData={formData}
+                    setFormData={setFormData}
+                  />
+                )}
               </div>
             )}
 

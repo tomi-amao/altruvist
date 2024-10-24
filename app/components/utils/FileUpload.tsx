@@ -14,6 +14,8 @@ import "@uppy/dashboard/dist/style.css";
 import "@uppy/image-editor/dist/style.css";
 import "@uppy/progress-bar/dist/style.css";
 import Form from "@uppy/form";
+import { NewTaskFormData } from "~/models/types.server";
+import { FilePreviewButton } from "./FormField";
 
 const FileUpload = ({
   formTarget,
@@ -126,6 +128,67 @@ const FileUpload = ({
       height={"250px"}
       width={"400px"}
     />
+  );
+};
+export const UploadFilesComponent: React.FC<{
+  setFormData: React.Dispatch<React.SetStateAction<NewTaskFormData>>;
+  formData: NewTaskFormData;
+}>  = ({ setFormData, formData }) => {
+  const [uploadedResources, setUploadedResources] = useState<
+    UppyFile<Meta, Record<string, never>>[]
+  >([]);
+
+  const [showUploadButton, setShowUploadButton] = useState<boolean>(false);
+
+  const handleUploadedResourcesUrls = (
+    successfullFiles: UppyFile<Meta, Record<string, never>>[],
+  ) => {
+    setUploadedResources((prevUploads) => [
+      ...prevUploads,
+      ...successfullFiles,
+    ]);
+  };
+
+  useEffect(() => {
+    setUploadedResources(() => [
+      ...formData.resources
+    ])
+  }, [])
+
+  useEffect(() => {
+    console.log("Client Side Files uploaded", uploadedResources);
+    setFormData({ ...formData, resources: uploadedResources });
+  }, [uploadedResources]);
+  return (
+    <>
+      <FileUpload
+        formTarget="#uploadResources"
+        uppyId="uploadResourceTask"
+        onUploadedFile={(
+          successfullFiles: UppyFile<Meta, Record<string, never>>[],
+        ) => handleUploadedResourcesUrls(successfullFiles)}
+        toggleUploadBtn={(toggle: boolean) => setShowUploadButton(toggle)}
+      />
+      {uploadedResources.length > 0 && (
+        <div className="pt-8">
+          <div
+            id="uploaded-files"
+            className="flex-row flex-wrap flex gap-4 items-center "
+          >
+            {uploadedResources.map((upload, index) => {
+              return (
+                <FilePreviewButton
+                  fileName={upload.name}
+                  fileSize={upload.size}
+                  fileUrl={upload.uploadURL}
+                  fileExtension={upload.extension}
+                />
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
