@@ -422,7 +422,7 @@ export const FilePreviewButton: React.FC<{
 
   return (
     <button
-      className="w-full md:max-w-72 flex border-2 border-basePrimaryDark rounded-md"
+      className="w-full md:max-w-72 flex border-2 border-basePrimaryDark rounded-md bg-basePrimaryDark"
       onClick={handleFilePreview}
     >
       <span className="w-fit text-lg h-full bg-baseSecondary rounded-l-md text-basePrimaryDark p-2 border-r-2 border-y-basePrimaryDark items-center flex">

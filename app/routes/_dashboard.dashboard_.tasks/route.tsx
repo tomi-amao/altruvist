@@ -49,6 +49,8 @@ import { NewTaskFormData } from "~/models/types.server";
 import { transformUserTaskApplications } from "~/components/utils/DataTransformation";
 import { useEffect } from "react";
 import { UploadFilesComponent } from "~/components/utils/FileUpload";
+import { AddIcon } from "~/components/utils/icons";
+import { Modal } from "~/components/utils/Modal2";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
@@ -120,6 +122,11 @@ export default function TaskList() {
     volunteersNeeded: null,
     deliverables: [],
   });
+
+  const [showModal, setShowModal] = useState(false);
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
 
   const handleTaskClick = (
     task: Partial<tasks>,
@@ -318,7 +325,7 @@ export default function TaskList() {
 
             {editTask && (
               <>
-                <h1 className="text-base font-primary font-semibold py-4 lg:mt-7">
+                <h1 className="text-base font-primary font-semibold py-4">
                   Title
                 </h1>
                 <FormFieldFloating
@@ -338,7 +345,7 @@ export default function TaskList() {
               </>
             )}
 
-            <h1 className="text-base font-primary font-semibold py-4 lg:mt-7">
+            <h1 className="text-base font-primary font-semibold py-4">
               Description
             </h1>
             {editTask ? (
@@ -363,7 +370,7 @@ export default function TaskList() {
 
             {editTask && (
               <>
-                <h1 className="text-base font-primary font-semibold py-4 lg:mt-7">
+                <h1 className="text-base font-primary font-semibold py-4">
                   Deadline
                 </h1>
                 <FormFieldFloating
@@ -374,7 +381,7 @@ export default function TaskList() {
                   onChange={handleChange}
                   value={formatDateForInput(formData.deadline)}
                 />
-                <h1 className="text-base font-primary font-semibold py-4 lg:mt-7">
+                <h1 className="text-base font-primary font-semibold py-4">
                   Category
                 </h1>
                 <div className="flex-col flex w-full">
@@ -412,7 +419,7 @@ export default function TaskList() {
                 </div>
               </>
             )}
-            <h1 className="text-base font-primary font-semibold py-4 lg:mt-2">
+            <h1 className="text-base font-primary font-semibold py-4">
               Impact
             </h1>
             {editTask ? (
@@ -437,13 +444,14 @@ export default function TaskList() {
                 <p className=" font-primary  ">{selectedTask.impact}</p>
               </>
             )}
-            <h1 className="text-base font-primary font-semibold mt-2 py-2 ">
-              Key Deliverables
-            </h1>
+            {selectedTask.deliverables?.length!  > 0 ? (
+              <h1 className="text-base font-primary font-semibold py-2 mb ">
+                Key Deliverables
+              </h1>
+            ): <div className="mb-4"></div> }
             {editTask ? (
               <>
-                {" "}
-                <div className="flex-col flex w-full">
+                <div className="flex-col flex w-full my-2">
                   <ListInput
                     inputtedList={formData.deliverables}
                     onInputsChange={(inputs) => {
@@ -461,19 +469,15 @@ export default function TaskList() {
               </>
             ) : (
               <>
-                {" "}
                 <p className=" font-primary px-3 ">
                   {selectedTask?.deliverables?.map((item) => <li> {item}</li>)}
                 </p>
               </>
             )}
 
-            <h1 className="text-base font-primary font-semibold mt-2 py-2 ">
-              Urgency
-            </h1>
+            <h1 className="text-base font-primary font-semibold ">Urgency</h1>
             {editTask ? (
               <>
-                {" "}
                 <Dropdown
                   multipleSelect={false}
                   placeholder={selectedTask.urgency as string}
@@ -484,17 +488,15 @@ export default function TaskList() {
                       urgency: option as TaskUrgency,
                     });
                   }}
-                />{" "}
+                />
               </>
             ) : (
               <>
-                {" "}
                 <span
-                  className={`inline-block rounded-full px-4 py-1.5 text-xs font-semibold ${getUrgencyColor(
+                  className={`inline-block rounded-full px-4 py-1.5 text-xs font-semibold mt-4 ${getUrgencyColor(
                     selectedTask.urgency || "LOW",
                   )}`}
                 >
-                  {" "}
                   {selectedTask.urgency || "LOW"}
                 </span>
               </>
@@ -540,11 +542,10 @@ export default function TaskList() {
               </>
             ) : (
               <>
-                {" "}
                 {selectedTask?.requiredSkills?.map((skill, index) => (
                   <span
                     key={index}
-                    className="inline-block bg-basePrimaryDark rounded-full px-3 py-1 text-xs font-semibold text-baseSecondary mr-2 mb-2"
+                    className="inline-block bg-basePrimaryDark rounded-full px-3 py-1 text-xs font-semibold text-baseSecondary mr-2 mb-2 mt-2"
                   >
                     {skill}
                   </span>
@@ -554,14 +555,13 @@ export default function TaskList() {
 
             {selectedTask.resources && (
               <div className="">
-                <h1 className="font-primary text-base pt-4 font-semibold">
+                <h1 className="font-primary text-base pt-2 font-semibold">
                   Attachments
                 </h1>
-                <div className="flex gap-4 mt-2">
+                <div className="flex gap-4 mt-2 flex-wrap">
                   {!editTask && (
                     <>
-                      {" "}
-                      {selectedTask.resources.map((resource) => (
+                      {formData.resources.map((resource) => (
                         <FilePreviewButton
                           fileName={resource.name}
                           fileSize={resource.size}
@@ -569,14 +569,42 @@ export default function TaskList() {
                           fileExtension={resource.extension}
                         />
                       ))}
+                      <button
+                        onClick={() => {
+                          setShowModal(true);
+                        }}
+                        className=""
+                      >
+                        <AddIcon />
+                      </button>
                     </>
                   )}
                 </div>
-                {editTask && (
-                  <UploadFilesComponent
-                    formData={formData}
-                    setFormData={setFormData}
-                  />
+
+                {editTask ? (
+                  <>
+                    <UploadFilesComponent
+                      formData={formData}
+                      setFormData={setFormData}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <Modal isOpen={showModal} onClose={handleCloseModal}>
+                      <div className="w-max-1 items-center justify-center flex flex-col">
+                        <UploadFilesComponent
+                          formData={formData}
+                          setFormData={setFormData}
+                        />
+                        <span className="flex w-full flex-row-reverse mt-2">
+                          <SecondaryButton
+                            text="Save"
+                            action={handleCloseModal}
+                          />
+                        </span>
+                      </div>
+                    </Modal>
+                  </>
                 )}
               </div>
             )}
@@ -633,7 +661,7 @@ export default function TaskList() {
         </div>
       )}
       <div className="hidden relative lg:flex items-center px-1">
-        <div className="h-screen w-[1px] bg-baseSecondary"></div>{" "}
+        <div className="h-screen w-[1px] bg-baseSecondary"></div>
       </div>
       {showMessageSection && <MessageSection />}
     </div>
