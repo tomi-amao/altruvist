@@ -77,7 +77,7 @@ export const getUserTasks = async (userId: string) => {
   try {
     const tasks = await prisma.taskApplications.findMany({
       where: { userId },
-      include: { task: { include: { createdBy: true } }, charity: true },
+      include: { task: { include: { createdBy: true, taskApplications: true } }, charity: true },
     });
 
     return {

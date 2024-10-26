@@ -107,3 +107,22 @@ export const updateUserInfo = async (
     return { updatedUserInfo: null, status: 500, error: null };
   }
 };
+
+export const listUsers = async (userIds: string[]) => {
+  
+  try {
+
+    const users = await prisma.users.findMany({
+      where: {
+        id: {
+          in: userIds,
+        },
+      },
+    });
+    
+    return users; 
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return []; 
+  }
+};

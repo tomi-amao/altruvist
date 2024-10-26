@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   PrimaryButton,
   SecondaryButton,
@@ -28,7 +28,7 @@ import {
   redirect,
 } from "@remix-run/node";
 import { getSession } from "~/services/session.server";
-import { getUserInfo } from "~/models/user2.server";
+import { getUserInfo, listUsers } from "~/models/user2.server";
 import {
   getCharityTasks,
   getUserTasks,
@@ -44,10 +44,9 @@ import {
 } from "@prisma/client";
 import { getUrgencyColor } from "~/components/cards/taskCard";
 import { getCharity } from "~/models/charities.server";
-import type { Prisma } from "@prisma/client";
+import type { Prisma, taskApplications } from "@prisma/client";
 import { NewTaskFormData } from "~/models/types.server";
 import { transformUserTaskApplications } from "~/components/utils/DataTransformation";
-import { useEffect } from "react";
 import { UploadFilesComponent } from "~/components/utils/FileUpload";
 import { AddIcon } from "~/components/utils/icons";
 import { Modal } from "~/components/utils/Modal2";
@@ -111,12 +110,15 @@ export default function TaskList() {
     useState<Partial<charities> | null>();
   const [selectedTaskCreator, setSelectedTaskCreator] =
     useState<Partial<users> | null>();
+  const [selectedTaskApplications, setSelectedTaskApplications] = useState<
+    Partial<taskApplications>[] | null
+  >();
   const [showMessageSection, setShowMessageSection] = useState(false);
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [editTask, setEditTask] = useState(false);
   const [status, setStatus] = useState<string>();
   const submit = useSubmit();
-  const fetcher: { state: "idle" | "submitting" | "loading"; data?: FetcherData } = useFetcher();
+  const fetcher = useFetcher();
   const [formData, setFormData] = useState<NewTaskFormData>({
     title: selectedTask?.title || "",
     description: selectedTask?.description || "",
@@ -129,24 +131,35 @@ export default function TaskList() {
     volunteersNeeded: 0,
     deliverables: [],
   });
-  
+
   useEffect(() => {
     setTasks(initialTasks);
   }, [initialTasks]);
 
-  const [showModal, setShowModal] = useState(false);
-  const handleCloseModal = () => {
-    setShowModal(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const handleCloseUploadModal = () => {
+    setShowUploadModal(false);
+  };
+  const [showApplicantsModal, setShowApplicantsModal] = useState(false);
+  const handleCloseApplicantModal = () => {
+    setShowApplicantsModal(false);
   };
 
   const handleShowSelectedTask = (
     task: Partial<tasks>,
     charity: Partial<charities>,
     taskCreator: Partial<users>,
+    taskApplications: Partial<taskApplications>[],
   ) => {
     setSelectedTask(task);
     setSelectedCharity(charity);
     setSelectedTaskCreator(taskCreator);
+    setSelectedTaskApplications(taskApplications);
+    console.log(
+      "task applications",
+      selectedTaskApplications?.map((applicant) => applicant),
+    );
+
     setShowTaskForm(false);
   };
   const onSelect = (option: string) => {
@@ -167,40 +180,39 @@ export default function TaskList() {
   const handleUpdateTaskStatus = (
     taskId: string,
     updateTaskData: Prisma.tasksUpdateInput,
-    option?: string
+    option?: string,
   ) => {
     // optimistically update the UI
     const updatedTasks = tasks?.map((task) =>
-      task?.id === taskId ? { ...task, ...updateTaskData } : task
+      task?.id === taskId ? { ...task, ...updateTaskData } : task,
     );
     setTasks(updatedTasks);
-  
+
     // update selectedTask if applicable
     if (selectedTask?.id === taskId) {
       setSelectedTask({ ...selectedTask, ...updateTaskData });
     }
-  
+
     const jsonUpdateTaskData = JSON.stringify(updateTaskData);
-  
+
     // submit the update
     submit(
       { taskId, updateTaskData: jsonUpdateTaskData, _action: "updateTask" },
-      { method: "POST", action: "/dashboard/tasks" }
+      { method: "POST", action: "/dashboard/tasks" },
     );
-  
+
     // update status if option is defined
     if (option) setStatus(option);
   };
-  
+
   const handleUpdateTaskDetails = (
     taskId: string,
-    updateTaskData: Prisma.tasksUpdateInput
+    updateTaskData: Prisma.tasksUpdateInput,
   ) => {
-
     const rawResources = updateTaskData.resources as unknown as UppyFile<
-    Meta,
-    Record<string, never>
-  >[];
+      Meta,
+      Record<string, never>
+    >[];
     const trimmedResources = rawResources.map((upload) => {
       return {
         name: upload.name || null,
@@ -209,44 +221,49 @@ export default function TaskList() {
         size: upload.size || null,
         uploadURL: upload.uploadURL || null,
       };
-    })
+    });
 
-    
     // optimistically update the UI
     const updatedTasks = tasks?.map((task) =>
-      task?.id === taskId ? { ...task, ...{...updateTaskData, ["resources"]: trimmedResources} } : task
+      task?.id === taskId
+        ? { ...task, ...{ ...updateTaskData, ["resources"]: trimmedResources } }
+        : task,
     );
     setTasks(updatedTasks);
-  
-    
+
     if (selectedTask?.id === taskId) {
-      setSelectedTask({ ...selectedTask, ...{...updateTaskData, ["resources"]: trimmedResources} });
+      setSelectedTask({
+        ...selectedTask,
+        ...{ ...updateTaskData, ["resources"]: trimmedResources },
+      });
     }
-  
-    const jsonUpdateTaskData = JSON.stringify({...updateTaskData, ["resources"]: trimmedResources});
-  
+
+    const jsonUpdateTaskData = JSON.stringify({
+      ...updateTaskData,
+      ["resources"]: trimmedResources,
+    });
+
     submit(
       { taskId, updateTaskData: jsonUpdateTaskData, _action: "updateTask" },
-      { method: "POST", action: "/dashboard/tasks" }
+      { method: "POST", action: "/dashboard/tasks" },
     );
-  
-    setEditTask(false); 
-  };
-  
 
+    setEditTask(false);
+  };
 
   useEffect(() => {
     if (fetcher.state === "idle" && fetcher.data?.error) {
-      // if there's an error revert to initialTasks, 
+      // if there's an error revert to initialTasks,
       setTasks(initialTasks);
       if (selectedTask) {
-        const serverTask = initialTasks?.find((task) => task?.id === selectedTask.id);
+        const serverTask = initialTasks?.find(
+          (task) => task?.id === selectedTask.id,
+        );
         setSelectedTask(serverTask || null);
       }
       console.error("Failed to update task:", fetcher.data.error);
     }
   }, [fetcher.state, fetcher.data, initialTasks, selectedTask]);
-  
 
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -310,6 +327,22 @@ export default function TaskList() {
     }
   };
 
+  const showApplicants = () => {
+    const applicantUserIds = selectedTaskApplications?.map((applicant) => {
+      return [applicant.userId];
+    });
+    console.log(applicantUserIds, "Application Ids");
+
+    fetcher.submit(
+      {
+        applicantUserIds: JSON.stringify(applicantUserIds),
+        _action: "getApplicants",
+      },
+      { action: `/dashboard/tasks`, method: "POST" },
+    );
+    setShowApplicantsModal(true);
+  };
+
   return (
     <div className="flex flex-col lg:flex-row w-full lg:min-h-screen p-4 -mt-8">
       <div className="lg:w-1/3 w-full p-4 shadow-md space-y-4 rounded-md border border-basePrimaryDark">
@@ -355,6 +388,7 @@ export default function TaskList() {
                   task as unknown as Partial<tasks>,
                   task?.charity as unknown as Partial<charities>,
                   task?.createdBy as unknown as Partial<users>,
+                  task?.taskApplications as unknown as Partial<taskApplications>,
                 )
               }
             >
@@ -646,7 +680,7 @@ export default function TaskList() {
                       ))}
                       <button
                         onClick={() => {
-                          setShowModal(true);
+                          setShowUploadModal(true);
                         }}
                         className=""
                       >
@@ -665,7 +699,10 @@ export default function TaskList() {
                   </>
                 ) : (
                   <>
-                    <Modal isOpen={showModal} onClose={handleCloseModal}>
+                    <Modal
+                      isOpen={showUploadModal}
+                      onClose={handleCloseUploadModal}
+                    >
                       <div className="w-max-1 items-center justify-center flex flex-col">
                         <UploadFilesComponent
                           formData={formData}
@@ -674,7 +711,7 @@ export default function TaskList() {
                         <span className="flex w-full flex-row-reverse mt-2">
                           <SecondaryButton
                             text="Save"
-                            action={handleCloseModal}
+                            action={handleCloseUploadModal}
                           />
                         </span>
                       </div>
@@ -726,6 +763,47 @@ export default function TaskList() {
                 }
                 action={handleShowMessageSection}
               />
+              {role == "charity" && (
+                <SecondaryButton
+                  ariaLabel="view applicants"
+                  text={"View Applicants"}
+                  action={() => showApplicants()}
+                />
+              )}
+
+              <Modal
+                isOpen={showApplicantsModal}
+                onClose={handleCloseApplicantModal}
+              >
+                <div>
+                  {fetcher.state === "submitting" ? (
+                    <svg
+                      className="animate-spin h-5 w-5 mr-3 text-baseSecondary"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="#836953"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="#836953"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                      ></path>
+                    </svg>
+                  ) : (
+                    fetcher.data?.userIds?.map((user) => (
+                      <p key={user.id}>{user.name}</p>
+                    ))
+                  )}
+                </div>
+              </Modal>
               <button className="px-4 py-2 bg-dangerPrimary text-basePrimaryDark rounded">
                 {userRole.includes("charity")
                   ? "Cancel task"
@@ -759,32 +837,32 @@ export const MessageSection = () => {
   );
 };
 
-export const EditTitle = (
-  formData: any,
-  handleChange: any,
-  defaultValue: any,
-) => {
-  return (
-    <FormFieldFloating
-      htmlFor="title"
-      placeholder={defaultValue}
-      type="string"
-      label=""
-      backgroundColour="bg-basePrimary"
-      onChange={handleChange}
-      value={formData.title}
-      defaultValue={defaultValue}
-    />
-  );
-};
-
 export async function action({ request }: ActionFunctionArgs) {
   const data = await request.formData();
   const updateTaskData = data.get("updateTaskData")?.toString();
   const taskId = data.get("taskId")?.toString();
-  console.log(taskId, updateTaskData);
-  const updatedTaskData = await updateTask(taskId, JSON.parse(updateTaskData));
-  console.log("Updated Task", updatedTaskData);
+  const actionType = data.get("_action")?.toString();
 
-  return {};
+  console.log(taskId, updateTaskData);
+  switch (actionType) {
+    case "updateTask": {
+      const parsedUpdateTaskData = updateTaskData
+        ? JSON.parse(updateTaskData)
+        : null;
+      if (taskId && parsedUpdateTaskData) {
+        const updatedTaskData = await updateTask(taskId, parsedUpdateTaskData);
+        console.log("Updated Task", updatedTaskData);
+      }
+      return { updateTaskData, userIds: null };
+    }
+    case "getApplicants": {
+      const applicantUserIds = data.get("applicantUserIds")?.toString() || "";
+      const userIds = await listUsers(JSON.parse(applicantUserIds).flat());
+      console.log(userIds);
+
+      return { updateTaskData: null, userIds };
+    }
+    default:
+      return { updateTaskData: null, userIds: null };
+  }
 }
