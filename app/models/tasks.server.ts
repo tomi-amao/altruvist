@@ -110,7 +110,7 @@ export const getCharityTasks = async (charityId: string) => {
       where: { charityId: charityId },
       include: { taskApplications: true, charity: true, createdBy: true },
     });
-    console.log("returned", tasks);
+    // console.log("returned", tasks);
 
     return {
       tasks,

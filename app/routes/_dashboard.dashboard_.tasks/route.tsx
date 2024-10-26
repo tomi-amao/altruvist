@@ -34,7 +34,7 @@ import {
   getUserTasks,
   updateTask,
 } from "~/models/tasks.server";
-import { useLoaderData, useSubmit } from "@remix-run/react";
+import { useFetcher, useLoaderData, useSubmit } from "@remix-run/react";
 import {
   charities,
   tasks,
@@ -51,6 +51,7 @@ import { useEffect } from "react";
 import { UploadFilesComponent } from "~/components/utils/FileUpload";
 import { AddIcon } from "~/components/utils/icons";
 import { Modal } from "~/components/utils/Modal2";
+import { Meta, UppyFile } from "@uppy/core";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
@@ -99,7 +100,12 @@ const taskFiles = ["PDF", "PNG", "EXCEL"];
 const role: string = "charity";
 
 export default function TaskList() {
-  const { tasks, error, userRole } = useLoaderData<typeof loader>();
+  const {
+    tasks: initialTasks,
+    error,
+    userRole,
+  } = useLoaderData<typeof loader>();
+  const [tasks, setTasks] = useState(initialTasks);
   const [selectedTask, setSelectedTask] = useState<Partial<tasks> | null>();
   const [selectedCharity, setSelectedCharity] =
     useState<Partial<charities> | null>();
@@ -110,6 +116,7 @@ export default function TaskList() {
   const [editTask, setEditTask] = useState(false);
   const [status, setStatus] = useState<string>();
   const submit = useSubmit();
+  const fetcher: { state: "idle" | "submitting" | "loading"; data?: FetcherData } = useFetcher();
   const [formData, setFormData] = useState<NewTaskFormData>({
     title: selectedTask?.title || "",
     description: selectedTask?.description || "",
@@ -119,16 +126,20 @@ export default function TaskList() {
     urgency: selectedTask?.urgency || "LOW",
     category: selectedTask?.category || [],
     deadline: "",
-    volunteersNeeded: null,
+    volunteersNeeded: 0,
     deliverables: [],
   });
+  
+  useEffect(() => {
+    setTasks(initialTasks);
+  }, [initialTasks]);
 
   const [showModal, setShowModal] = useState(false);
   const handleCloseModal = () => {
     setShowModal(false);
   };
 
-  const handleTaskClick = (
+  const handleShowSelectedTask = (
     task: Partial<tasks>,
     charity: Partial<charities>,
     taskCreator: Partial<users>,
@@ -156,25 +167,86 @@ export default function TaskList() {
   const handleUpdateTaskStatus = (
     taskId: string,
     updateTaskData: Prisma.tasksUpdateInput,
-    option?: string,
+    option?: string
   ) => {
+    // optimistically update the UI
+    const updatedTasks = tasks?.map((task) =>
+      task?.id === taskId ? { ...task, ...updateTaskData } : task
+    );
+    setTasks(updatedTasks);
+  
+    // update selectedTask if applicable
+    if (selectedTask?.id === taskId) {
+      setSelectedTask({ ...selectedTask, ...updateTaskData });
+    }
+  
     const jsonUpdateTaskData = JSON.stringify(updateTaskData);
-
+  
+    // submit the update
     submit(
       { taskId, updateTaskData: jsonUpdateTaskData, _action: "updateTask" },
-      { method: "POST", action: "/dashboard/tasks" },
+      { method: "POST", action: "/dashboard/tasks" }
     );
-    setStatus(option);
+  
+    // update status if option is defined
+    if (option) setStatus(option);
   };
-
+  
   const handleUpdateTaskDetails = (
     taskId: string,
-    updateTaskData: Prisma.tasksUpdateInput,
+    updateTaskData: Prisma.tasksUpdateInput
   ) => {
-    const jsonUpdateTaskData = JSON.stringify(updateTaskData);
-    console.log(updateTaskData, taskId);
-    setEditTask((preValue) => !preValue);
+
+    const rawResources = updateTaskData.resources as unknown as UppyFile<
+    Meta,
+    Record<string, never>
+  >[];
+    const trimmedResources = rawResources.map((upload) => {
+      return {
+        name: upload.name || null,
+        extension: upload.extension || null,
+        type: upload.type || null,
+        size: upload.size || null,
+        uploadURL: upload.uploadURL || null,
+      };
+    })
+
+    
+    // optimistically update the UI
+    const updatedTasks = tasks?.map((task) =>
+      task?.id === taskId ? { ...task, ...{...updateTaskData, ["resources"]: trimmedResources} } : task
+    );
+    setTasks(updatedTasks);
+  
+    
+    if (selectedTask?.id === taskId) {
+      setSelectedTask({ ...selectedTask, ...{...updateTaskData, ["resources"]: trimmedResources} });
+    }
+  
+    const jsonUpdateTaskData = JSON.stringify({...updateTaskData, ["resources"]: trimmedResources});
+  
+    submit(
+      { taskId, updateTaskData: jsonUpdateTaskData, _action: "updateTask" },
+      { method: "POST", action: "/dashboard/tasks" }
+    );
+  
+    setEditTask(false); 
   };
+  
+
+
+  useEffect(() => {
+    if (fetcher.state === "idle" && fetcher.data?.error) {
+      // if there's an error revert to initialTasks, 
+      setTasks(initialTasks);
+      if (selectedTask) {
+        const serverTask = initialTasks?.find((task) => task?.id === selectedTask.id);
+        setSelectedTask(serverTask || null);
+      }
+      console.error("Failed to update task:", fetcher.data.error);
+    }
+  }, [fetcher.state, fetcher.data, initialTasks, selectedTask]);
+  
 
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -201,6 +273,7 @@ export default function TaskList() {
         impact: selectedTask.impact || "",
         requiredSkills: selectedTask.requiredSkills || [],
         deliverables: selectedTask.deliverables || [],
+        volunteersNeeded: selectedTask.volunteersNeeded || 0,
         resources: selectedTask.resources || [],
       }));
     }
@@ -278,7 +351,7 @@ export default function TaskList() {
                   : ""
               }`}
               onClick={() =>
-                handleTaskClick(
+                handleShowSelectedTask(
                   task as unknown as Partial<tasks>,
                   task?.charity as unknown as Partial<charities>,
                   task?.createdBy as unknown as Partial<users>,
@@ -444,11 +517,13 @@ export default function TaskList() {
                 <p className=" font-primary  ">{selectedTask.impact}</p>
               </>
             )}
-            {selectedTask.deliverables?.length!  > 0 ? (
+            {selectedTask.deliverables?.length! > 0 ? (
               <h1 className="text-base font-primary font-semibold py-2 mb ">
                 Key Deliverables
               </h1>
-            ): <div className="mb-4"></div> }
+            ) : (
+              <div className="mb-4"></div>
+            )}
             {editTask ? (
               <>
                 <div className="flex-col flex w-full my-2">
@@ -709,7 +784,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const taskId = data.get("taskId")?.toString();
   console.log(taskId, updateTaskData);
   const updatedTaskData = await updateTask(taskId, JSON.parse(updateTaskData));
-  console.log(updatedTaskData);
+  console.log("Updated Task", updatedTaskData);
 
   return {};
 }
