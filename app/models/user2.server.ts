@@ -109,9 +109,7 @@ export const updateUserInfo = async (
 };
 
 export const listUsers = async (userIds: string[]) => {
-  
   try {
-
     const users = await prisma.users.findMany({
       where: {
         id: {
@@ -119,10 +117,10 @@ export const listUsers = async (userIds: string[]) => {
         },
       },
     });
-    
-    return users; 
+
+    return users;
   } catch (error) {
     console.error("Error fetching users:", error);
-    return []; 
+    return [];
   }
 };

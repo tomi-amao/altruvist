@@ -77,7 +77,10 @@ export const getUserTasks = async (userId: string) => {
   try {
     const tasks = await prisma.taskApplications.findMany({
       where: { userId },
-      include: { task: { include: { createdBy: true, taskApplications: true } }, charity: true },
+      include: {
+        task: { include: { createdBy: true, taskApplications: true } },
+        charity: true,
+      },
     });
 
     return {
@@ -90,6 +93,31 @@ export const getUserTasks = async (userId: string) => {
     return {
       tasks: null,
       message: "No user tasks found",
+      error,
+      status: 500,
+    };
+  }
+};
+
+export const deleteUserTaskApplication = async (
+  taskId: string,
+  userId: string,
+) => {
+  try {
+    const deletedApplication = await prisma.taskApplications.deleteMany({
+      where: { taskId, userId },
+    });
+
+    return {
+      deletedApplication,
+      message: "Successfully Deleted User Task Application",
+      error: null,
+      status: 200,
+    };
+  } catch (error) {
+    return {
+      deletedApplication: null,
+      message: "Failed to delete user task application",
       error,
       status: 500,
     };
@@ -147,6 +175,28 @@ export const updateTask = async (
     return {
       tasks: null,
       message: "Task could not be updated",
+      error,
+      status: 500,
+    };
+  }
+};
+
+export const deleteTask = async (taskId: string) => {
+  try {
+    const deletedTask = await prisma.tasks.delete({
+      where: { id: taskId },
+    });
+
+    return {
+      task: deletedTask,
+      message: "Task successfully deleted",
+      error: null,
+      status: 200,
+    };
+  } catch (error) {
+    return {
+      task: null,
+      message: "Task could not be deleted",
       error,
       status: 500,
     };

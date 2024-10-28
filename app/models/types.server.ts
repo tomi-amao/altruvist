@@ -1,19 +1,7 @@
-import type { TaskUrgency, User } from "@prisma/client";
-import { Meta, UppyFile } from "@uppy/core";
+import type { TaskUrgency } from "@prisma/client";
+import { TaskResource } from "~/types/tasks";
 
-export type RegisterForm = {
-  email: User["email"];
-  password: User["password"];
-  lastName: string;
-  firstName: string;
-};
-
-export type LoginForm = {
-  email: User["email"];
-  password: User["password"];
-};
-
-export interface newUserForm {
+export interface newusersForm {
   role: string;
   title: string;
   tags: string[];
@@ -27,10 +15,10 @@ export interface NewTaskFormData {
   description: string;
   requiredSkills: string[];
   impact: string;
-  resources: UppyFile<Meta, Record<string, never>>[];
+  resources: TaskResource[];
   category: string[];
   deadline: string;
-  volunteersNeeded: number | null;
+  volunteersNeeded: number | undefined;
   urgency: TaskUrgency;
   deliverables: string[];
 }

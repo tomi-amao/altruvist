@@ -18,6 +18,7 @@ import { useEffect, useState } from "react";
 import FileUpload from "./FileUpload";
 import { Meta, UppyFile } from "@uppy/core";
 import { NewTaskFormData } from "~/models/types.server";
+import { TaskUrgency } from "@prisma/client";
 
 export default function CreateTaskForm() {
   const [requiredSkills, setRequiredSkills] = useState<string[]>([]);
@@ -37,10 +38,10 @@ export default function CreateTaskForm() {
     resources: [],
     requiredSkills: [],
     impact: "",
-    urgency: "",
+    urgency: "LOW",
     category: [],
     deadline: "",
-    volunteersNeeded: null,
+    volunteersNeeded: 0,
     deliverables: [],
   });
 
@@ -61,7 +62,7 @@ export default function CreateTaskForm() {
     console.log("Deliverables", formData.deliverables);
     setFormData({
       ...formData,
-      urgency: urgency,
+      urgency: urgency as TaskUrgency,
     });
   }, [requiredSkills, categories, urgency]);
 
@@ -227,7 +228,7 @@ export default function CreateTaskForm() {
                 setUrgency(option);
                 setFormData({
                   ...formData,
-                  urgency: urgency,
+                  urgency: urgency as TaskUrgency,
                 });
               }}
             />
@@ -244,7 +245,7 @@ export default function CreateTaskForm() {
                 ...formData,
                 volunteersNeeded: e.target.value
                   ? parseInt(e.target.value)
-                  : null,
+                  : undefined,
               })
             }
           />

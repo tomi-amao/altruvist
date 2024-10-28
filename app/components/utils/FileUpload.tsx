@@ -159,19 +159,18 @@ export const UploadFilesComponent: React.FC<{
   }, [uploadedResources]);
   return (
     <>
-        <FileUpload
-          formTarget="#uploadResources"
-          uppyId="uploadResourceTask"
-          onUploadedFile={(
-            successfullFiles: UppyFile<Meta, Record<string, never>>[],
-          ) => handleUploadedResourcesUrls(successfullFiles)}
-          toggleUploadBtn={(toggle: boolean) => setShowUploadButton(toggle)}
-        />
-        
+      <FileUpload
+        formTarget="#uploadResources"
+        uppyId="uploadResourceTask"
+        onUploadedFile={(
+          successfullFiles: UppyFile<Meta, Record<string, never>>[],
+        ) => handleUploadedResourcesUrls(successfullFiles)}
+        toggleUploadBtn={(toggle: boolean) => setShowUploadButton(toggle)}
+      />
+
       {uploadedResources.length > 0 && (
         <div className="pt-8">
           <div id="uploaded-files" className="flex gap-4 mt-2 flex-wrap">
-            
             {uploadedResources.map((upload, index) => {
               return (
                 <FilePreviewButton

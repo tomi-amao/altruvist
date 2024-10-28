@@ -24,12 +24,15 @@ import {
 import CreateTaskForm from "~/components/utils/TaskForm";
 import {
   ActionFunctionArgs,
+  json,
   LoaderFunctionArgs,
   redirect,
 } from "@remix-run/node";
 import { getSession } from "~/services/session.server";
 import { getUserInfo, listUsers } from "~/models/user2.server";
 import {
+  deleteTask,
+  deleteUserTaskApplication,
   getCharityTasks,
   getUserTasks,
   updateTask,
@@ -63,46 +66,33 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (!userInfo?.id) {
     return redirect("/zitlogin");
   }
-  // const userId = userInfo?.id;
-  // const userRole = userInfo.roles
+
   const { id: userId, roles: userRole, charityId } = userInfo;
 
   console.log("user id", userId, "charity id", charityId);
   if (userRole.includes("charity")) {
-    // console.log("This is user is a charity", charityId);
     const { tasks, error, message, status } = await getCharityTasks(
       charityId || "",
     );
-    // console.log(tasks);
-    // console.log("Returned tasks", tasks, message, status);
 
-    return { tasks, error, userRole };
+    return { tasks, error, userRole, userId };
   } else if (userRole.includes("techie")) {
-    // console.log("This is user is a techie ");
     const { tasks: rawTasks, error } = await getUserTasks(userId);
 
+    console.log(rawTasks?.map((taskApplication) => taskApplication.id));
+
     const tasks = transformUserTaskApplications(rawTasks);
-    return { tasks, error, userRole };
+
+    return { tasks, error, userRole, userId };
   }
-  // console.log(tasks);
 }
-
-const bannerItems: BannerItem[] = [
-  {
-    title: "Recommended Tasks",
-    value: "Create a Fundraising Platform for Charity X",
-  },
-  { title: "Charities Helped", value: "8" },
-];
-
-const taskFiles = ["PDF", "PNG", "EXCEL"];
-const role: string = "charity";
 
 export default function TaskList() {
   const {
     tasks: initialTasks,
     error,
     userRole,
+    userId,
   } = useLoaderData<typeof loader>();
   const [tasks, setTasks] = useState(initialTasks);
   const [selectedTask, setSelectedTask] = useState<Partial<tasks> | null>();
@@ -177,37 +167,10 @@ export default function TaskList() {
     return {};
   };
 
-  const handleUpdateTaskStatus = (
-    taskId: string,
-    updateTaskData: Prisma.tasksUpdateInput,
-    option?: string,
-  ) => {
-    // optimistically update the UI
-    const updatedTasks = tasks?.map((task) =>
-      task?.id === taskId ? { ...task, ...updateTaskData } : task,
-    );
-    setTasks(updatedTasks);
-
-    // update selectedTask if applicable
-    if (selectedTask?.id === taskId) {
-      setSelectedTask({ ...selectedTask, ...updateTaskData });
-    }
-
-    const jsonUpdateTaskData = JSON.stringify(updateTaskData);
-
-    // submit the update
-    submit(
-      { taskId, updateTaskData: jsonUpdateTaskData, _action: "updateTask" },
-      { method: "POST", action: "/dashboard/tasks" },
-    );
-
-    // update status if option is defined
-    if (option) setStatus(option);
-  };
-
   const handleUpdateTaskDetails = (
     taskId: string,
     updateTaskData: Prisma.tasksUpdateInput,
+    option?: string,
   ) => {
     const rawResources = updateTaskData.resources as unknown as UppyFile<
       Meta,
@@ -226,29 +189,33 @@ export default function TaskList() {
     // optimistically update the UI
     const updatedTasks = tasks?.map((task) =>
       task?.id === taskId
-        ? { ...task, ...{ ...updateTaskData, ["resources"]: trimmedResources } }
+        ? { ...task, ...{ ...updateTaskData, ["resources"]: trimmedResources } } // transform resources property to match schema
         : task,
     );
-    setTasks(updatedTasks);
+    setTasks(updatedTasks as typeof initialTasks);
 
     if (selectedTask?.id === taskId) {
       setSelectedTask({
         ...selectedTask,
-        ...{ ...updateTaskData, ["resources"]: trimmedResources },
+        ...{ ...(updateTaskData as tasks), ["resources"]: trimmedResources },
       });
     }
 
-    const jsonUpdateTaskData = JSON.stringify({
-      ...updateTaskData,
-      ["resources"]: trimmedResources,
-    });
+    const jsonUpdateTaskData = option
+      ? JSON.stringify({ status: option, deadline: selectedTask?.deadline })
+      : JSON.stringify({
+          ...updateTaskData,
+          ["resources"]: trimmedResources,
+        });
 
     submit(
       { taskId, updateTaskData: jsonUpdateTaskData, _action: "updateTask" },
       { method: "POST", action: "/dashboard/tasks" },
     );
 
-    setEditTask(false);
+    if (!option) {
+      setEditTask(false);
+    }
   };
 
   useEffect(() => {
@@ -259,9 +226,8 @@ export default function TaskList() {
         const serverTask = initialTasks?.find(
           (task) => task?.id === selectedTask.id,
         );
-        setSelectedTask(serverTask || null);
+        setSelectedTask((serverTask as unknown as tasks) || null);
       }
-      console.error("Failed to update task:", fetcher.data.error);
     }
   }, [fetcher.state, fetcher.data, initialTasks, selectedTask]);
 
@@ -280,8 +246,7 @@ export default function TaskList() {
   // if selectedTask changes update formData
   useEffect(() => {
     if (selectedTask) {
-      setFormData((prevFormData) => ({
-        ...prevFormData,
+      setFormData({
         title: selectedTask.title || "",
         description: selectedTask.description || "",
         urgency: selectedTask.urgency || "LOW",
@@ -292,15 +257,15 @@ export default function TaskList() {
         deliverables: selectedTask.deliverables || [],
         volunteersNeeded: selectedTask.volunteersNeeded || 0,
         resources: selectedTask.resources || [],
-      }));
+      });
     }
   }, [selectedTask]); //  run when selectedTask changes
 
   const formatDateForInput = (date: string) => {
     const d = new Date(date);
     const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, "0"); // Ensure two digits
-    const day = String(d.getDate()).padStart(2, "0"); // Ensure two digits
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
 
@@ -341,6 +306,29 @@ export default function TaskList() {
       { action: `/dashboard/tasks`, method: "POST" },
     );
     setShowApplicantsModal(true);
+  };
+
+  const handleDeleteTask = (taskId: string) => {
+    fetcher.submit(
+      {
+        _action: "deleteTask",
+        taskId,
+      },
+      { method: "POST" },
+    );
+    setSelectedTask(null);
+  };
+
+  const handleWithdrawFromTask = (taskId: string, userId: string) => {
+    fetcher.submit(
+      {
+        _action: "withdrawApplication",
+        taskId,
+        userId,
+      },
+      { method: "POST" },
+    );
+    setSelectedTask(null);
   };
 
   return (
@@ -388,7 +376,7 @@ export default function TaskList() {
                   task as unknown as Partial<tasks>,
                   task?.charity as unknown as Partial<charities>,
                   task?.createdBy as unknown as Partial<users>,
-                  task?.taskApplications as unknown as Partial<taskApplications>,
+                  task?.taskApplications as unknown as Partial<taskApplications>[],
                 )
               }
             >
@@ -678,14 +666,16 @@ export default function TaskList() {
                           fileExtension={resource.extension}
                         />
                       ))}
-                      <button
-                        onClick={() => {
-                          setShowUploadModal(true);
-                        }}
-                        className=""
-                      >
-                        <AddIcon />
-                      </button>
+                      {userRole.includes("charity") && (
+                        <button
+                          onClick={() => {
+                            setShowUploadModal(true);
+                          }}
+                          className=""
+                        >
+                          <AddIcon />
+                        </button>
+                      )}
                     </>
                   )}
                 </div>
@@ -712,6 +702,7 @@ export default function TaskList() {
                           <SecondaryButton
                             text="Save"
                             action={handleCloseUploadModal}
+                            ariaLabel="save uploaded attachments"
                           />
                         </span>
                       </div>
@@ -731,9 +722,7 @@ export default function TaskList() {
                   placeholder={selectedTask.status as string}
                   options={statusOptions}
                   onSelect={(option) => {
-                    handleUpdateTaskStatus(selectedTask.id!, {
-                      status: option as TaskStatus,
-                    });
+                    handleUpdateTaskDetails(selectedTask.id!, formData, option);
                   }}
                 />
               </div>
@@ -759,11 +748,13 @@ export default function TaskList() {
               <SecondaryButton
                 ariaLabel="message volunteer"
                 text={
-                  role === "charity" ? "Message Volunteer" : "Message Charity"
+                  userRole.includes("charity")
+                    ? "Message Volunteer"
+                    : "Message Charity"
                 }
                 action={handleShowMessageSection}
               />
-              {role == "charity" && (
+              {userRole.includes("charity") && (
                 <SecondaryButton
                   ariaLabel="view applicants"
                   text={"View Applicants"}
@@ -804,11 +795,21 @@ export default function TaskList() {
                   )}
                 </div>
               </Modal>
-              <button className="px-4 py-2 bg-dangerPrimary text-basePrimaryDark rounded">
-                {userRole.includes("charity")
-                  ? "Cancel task"
-                  : "Withdraw from task"}
-              </button>
+              {userRole.includes("charity") ? (
+                <SecondaryButton
+                  text="Delete Task"
+                  action={() => handleDeleteTask(selectedTask.id!)}
+                  ariaLabel="delete selected task"
+                />
+              ) : (
+                <SecondaryButton
+                  ariaLabel="withdraw from task"
+                  text="Withdraw from task"
+                  action={() =>
+                    handleWithdrawFromTask(selectedTask.id!, userId)
+                  }
+                />
+              )}
             </div>
           </div>
         </div>
@@ -826,12 +827,7 @@ export const MessageSection = () => {
     <div className="mt-4 lg:mt-0 h-80 lg:h-screen rounded shadow-lg w-full lg:w-8/12 pl-2 flex flex-col justify-between">
       <div>hello</div>
       <div className="mb-2 lg:mb-14 pr-2">
-        <FormFieldFloating
-          htmlFor="message"
-          placeholder={
-            role === "chartiy" ? "Message Volunteer" : "Message Charity"
-          }
-        />
+        <FormFieldFloating htmlFor="message" placeholder={"Message"} />
       </div>
     </div>
   );
@@ -841,28 +837,101 @@ export async function action({ request }: ActionFunctionArgs) {
   const data = await request.formData();
   const updateTaskData = data.get("updateTaskData")?.toString();
   const taskId = data.get("taskId")?.toString();
-  const actionType = data.get("_action")?.toString();
+  const userId = data.get("userId")?.toString();
+  const intent = data.get("_action")?.toString();
 
-  console.log(taskId, updateTaskData);
-  switch (actionType) {
-    case "updateTask": {
-      const parsedUpdateTaskData = updateTaskData
-        ? JSON.parse(updateTaskData)
-        : null;
-      if (taskId && parsedUpdateTaskData) {
-        const updatedTaskData = await updateTask(taskId, parsedUpdateTaskData);
-        console.log("Updated Task", updatedTaskData);
+  console.log("Action Type:", intent);
+  console.log("Task ID:", taskId);
+  console.log("User ID:", userId);
+
+  try {
+    switch (intent) {
+      case "updateTask": {
+        const parsedUpdateTaskData = updateTaskData
+          ? JSON.parse(updateTaskData)
+          : null;
+
+        if (taskId && parsedUpdateTaskData) {
+          const updatedTaskData = await updateTask(
+            taskId,
+            {
+              ...parsedUpdateTaskData,
+              ["deadline"]: new Date(parsedUpdateTaskData.deadline),
+            }, //transform deadline date to date object before updating task
+          );
+          console.log("Updated Task", updatedTaskData);
+        }
+        return { updateTaskData, userIds: null };
       }
-      return { updateTaskData, userIds: null };
-    }
-    case "getApplicants": {
-      const applicantUserIds = data.get("applicantUserIds")?.toString() || "";
-      const userIds = await listUsers(JSON.parse(applicantUserIds).flat());
-      console.log(userIds);
 
-      return { updateTaskData: null, userIds };
+      case "deleteTask": {
+        if (!taskId) {
+          throw new Error("Task ID is required for deletion");
+        }
+        const result = await deleteTask(taskId);
+        if (result.error) {
+          return json(
+            {
+              updateTaskData: null,
+              userIds: null,
+              error: result.message,
+            },
+            { status: 500 },
+          );
+        }
+        return json({
+          updateTaskData: null,
+          userIds: null,
+          success: true,
+        });
+      }
+
+      case "withdrawApplication": {
+        if (!taskId || !userId) {
+          throw new Error(
+            "Application ID and User ID is required for withdrawal",
+          );
+        }
+        const result = await deleteUserTaskApplication(taskId, userId);
+
+        console.log(result);
+
+        if (result.error) {
+          return json(
+            {
+              updateTaskData: null,
+              userIds: null,
+              error: result.message,
+            },
+            { status: 500 },
+          );
+        }
+        return json({
+          updateTaskData: null,
+          userIds: null,
+          success: true,
+        });
+      }
+
+      case "getApplicants": {
+        const applicantUserIds = data.get("applicantUserIds")?.toString() || "";
+        const userIds = await listUsers(JSON.parse(applicantUserIds).flat());
+        console.log(userIds);
+        return { updateTaskData: null, userIds };
+      }
+
+      default:
+        return { updateTaskData: null, userIds: null };
     }
-    default:
-      return { updateTaskData: null, userIds: null };
+  } catch (error) {
+    console.error("Action error:", error);
+    return json(
+      {
+        updateTaskData: null,
+        userIds: null,
+        error: "An unexpected error occurred",
+      },
+      { status: 500 },
+    );
   }
 }

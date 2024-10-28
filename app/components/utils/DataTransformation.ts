@@ -16,13 +16,13 @@ type taskApplications = {
     requiredSkills: string[];
     estimatedHours: number | null;
     category: string[];
-    urgency: string;
+    urgency: string | null;
     volunteersNeeded: number;
     deliverables: string[];
     deadline: Date;
-    charityId: string;
+    charityId: string | null;
     userId: string;
-    status: string;
+    status: string | null;
     location: string | null;
     createdAt: Date;
     updatedAt: Date;
@@ -40,26 +40,26 @@ type taskApplications = {
       locale: string;
       roles: string[];
       permissions: string[];
-      charityId: string;
+      charityId: string | null;
     };
   };
   charity: {
-    id: string;
-    name: string;
-    description: string;
-    website: string;
+    id: string | null;
+    name: string | null;
+    description: string | null;
+    website: string | null;
     contactPerson: string | null;
     contactEmail: string | null;
-    createdAt: Date;
-    updatedAt: Date;
-    tags: string[];
-  };
+    createdAt: Date | null;
+    updatedAt: Date | null;
+    tags: string[] | null;
+  } | null;
 };
 
 export function transformUserTaskApplications(
-  firstArray: taskApplications[] | null,
+  userTaskApplication: taskApplications[] | null,
 ) {
-  return firstArray?.map((item) => ({
+  return userTaskApplication?.map((item) => ({
     resources: item.task.resources,
     id: item.task.id,
     title: item.task.title,
@@ -88,15 +88,15 @@ export function transformUserTaskApplications(
       },
     ],
     charity: {
-      id: item.charity.id,
-      name: item.charity.name,
-      description: item.charity.description,
-      website: item.charity.website,
-      contactPerson: item.charity.contactPerson,
-      contactEmail: item.charity.contactEmail,
-      createdAt: item.charity.createdAt,
-      updatedAt: item.charity.updatedAt,
-      tags: item.charity.tags,
+      id: item.charity?.id,
+      name: item.charity?.name,
+      description: item.charity?.description,
+      website: item.charity?.website,
+      contactPerson: item.charity?.contactPerson,
+      contactEmail: item.charity?.contactEmail,
+      createdAt: item.charity?.createdAt,
+      updatedAt: item.charity?.updatedAt,
+      tags: item.charity?.tags,
     },
     createdBy: item.task.createdBy,
   }));

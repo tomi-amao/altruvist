@@ -400,10 +400,10 @@ export const ListInput: React.FC<ListInputProps> = ({
 };
 
 export const FilePreviewButton: React.FC<{
-  fileUrl: string | undefined;
-  fileName: string | undefined;
+  fileUrl: string | null;
+  fileName: string | null;
   fileSize: number | null;
-  fileExtension: string | undefined;
+  fileExtension: string | null;
 }> = ({ fileUrl, fileName, fileSize, fileExtension }) => {
   function convertBytes(bytes: number): string {
     if (bytes < 1024) {
@@ -417,7 +417,7 @@ export const FilePreviewButton: React.FC<{
     }
   }
   const handleFilePreview = () => {
-    window.open(fileUrl, "_blank");
+    window.open(fileUrl as string, "_blank");
   };
 
   return (
