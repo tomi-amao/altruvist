@@ -60,15 +60,15 @@ export const DashboardBanner2 = ({
   );
 };
 
-export interface BannerItem {
+export interface BannerItemProps {
   title: string;
   value: string;
 }
-export interface DashboardBanner {
+export interface DashboardBannerProps {
   date?: string;
-  bannerItems: BannerItem[];
+  bannerItems: BannerItemProps[];
 }
-export const DashboardBanner = ({ date, bannerItems }: DashboardBanner) => {
+const DashboardBanner = ({ date, bannerItems }: DashboardBannerProps) => {
   return (
     <div className=" m-auto w-fit rounded-lg shadow-lg text-baseSecondary border-[1px] border-baseSecondary">
       <div className="container mx-auto flex justify-between items-center gap-4">

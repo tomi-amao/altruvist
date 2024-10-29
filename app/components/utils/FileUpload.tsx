@@ -99,12 +99,12 @@ const FileUpload = ({
     });
 
     return () => {
-      uppy.off("upload-success", (file) => {
-        file;
-      });
-      uppy.off("complete", (file) => {
-        file;
-      });
+      // uppy.off("upload-success", (file) => {
+      //   file;
+      // });
+      // uppy.off("complete", (file) => {
+      //   file;
+      // });
       uppy.clear();
     };
   }, [formTarget]);

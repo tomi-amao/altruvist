@@ -1,5 +1,4 @@
+
 export default function ManageTasks() {
-  <>
-    <div>Hello</div>
-  </>;
+  return <div></div>
 }

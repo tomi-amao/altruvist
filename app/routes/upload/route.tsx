@@ -1,10 +1,6 @@
 import type { MetaFunction } from "@remix-run/node";
 import { Form } from "@remix-run/react";
-import { log } from "console";
-import { useState } from "react";
-import CustomUploadForm from "~/components/utils/CustomFileUploader";
 import FileUpload from "~/components/utils/FileUpload";
-import FileUploaderCustom from "~/components/utils/FileUploaderCustom";
 
 export const meta: MetaFunction = () => {
   return [
@@ -14,16 +10,9 @@ export const meta: MetaFunction = () => {
 };
 
 export default function Upload() {
-  const [selectedFiles, setSelectedFiles] = useState([]);
-
-  const handleFilesSelected = (files) => {
-    setSelectedFiles(files);
-  };
-
-  const handleSubmit = (event) => {
+  const handleSubmit = (event: { preventDefault: () => void }) => {
     event.preventDefault();
     // Handle form submission, including the selectedFiles
-    console.log(selectedFiles);
   };
   return (
     <div className="w-72">

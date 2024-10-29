@@ -8,3 +8,7 @@ zitadel.config
 machinekey
 uppy-companion-server
 app/components/utils/FileUploaderCustom.tsx
+app/components/utils/CustomFileUploader.tsx
+app/routes/upload/route.tsx
+app/routes/_index/routetemp.tsx
+app/routes/_dashboard/routeold.tsx

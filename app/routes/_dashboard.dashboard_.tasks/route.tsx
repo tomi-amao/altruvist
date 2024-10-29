@@ -50,7 +50,6 @@ import DashboardBanner from "~/components/cards/BannerSummaryCard";
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
   const accessToken = session.get("accessToken"); //retrieve access token from session to be used as bearer token
-
   if (!accessToken) {
     return redirect("/zitlogin");
   }
