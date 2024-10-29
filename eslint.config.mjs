@@ -29,16 +29,16 @@ export default [
       },
       parserOptions: {
         ecmaFeatures: {
-          jsx: true
-        }
-      }
+          jsx: true,
+        },
+      },
     },
     rules: {
       "no-async-promise-executor": "warn",
     },
     linterOptions: {
-      reportUnusedDisableDirectives: true
-    }
+      reportUnusedDisableDirectives: true,
+    },
   },
 
   // React configuration
@@ -47,25 +47,25 @@ export default [
     plugins: {
       react: reactPlugin,
       "jsx-a11y": jsxA11yPlugin,
-      "react-hooks": reactHooksPlugin
+      "react-hooks": reactHooksPlugin,
     },
     settings: {
       react: {
-        version: "detect"
+        version: "detect",
       },
       formComponents: ["Form"],
       linkComponents: [
         { name: "Link", linkAttribute: "to" },
-        { name: "NavLink", linkAttribute: "to" }
-      ]
+        { name: "NavLink", linkAttribute: "to" },
+      ],
     },
     rules: {
       ...reactPlugin.configs.recommended.rules,
       ...reactPlugin.configs["jsx-runtime"].rules,
       ...reactHooksPlugin.configs.recommended.rules,
       ...jsxA11yPlugin.configs.recommended.rules,
-      "no-undef": 0  
-    }
+      "no-undef": 0,
+    },
   },
 
   // TypeScript configuration
@@ -73,7 +73,7 @@ export default [
     files: ["**/*.{ts,tsx}"],
     plugins: {
       "@typescript-eslint": tseslint,
-      import: importPlugin
+      import: importPlugin,
     },
     languageOptions: {
       parser: tsparser,
@@ -81,26 +81,26 @@ export default [
         ecmaVersion: "latest",
         sourceType: "module",
         ecmaFeatures: {
-          jsx: true
-        }
-      }
+          jsx: true,
+        },
+      },
     },
     settings: {
       "import/internal-regex": "^~/",
       "import/resolver": {
         typescript: {
-          alwaysTryTypes: true
+          alwaysTryTypes: true,
         },
         node: {
-          extensions: [".ts", ".tsx"]
-        }
-      }
+          extensions: [".ts", ".tsx"],
+        },
+      },
     },
     rules: {
       ...tseslint.configs.recommended.rules,
       ...importPlugin.configs.recommended.rules,
       ...importPlugin.configs.typescript.rules,
-    }
+    },
   },
 
   // Node configuration for config files
@@ -110,11 +110,11 @@ export default [
       globals: {
         process: true,
         __dirname: true,
-        __filename: true
-      }
-    }
+        __filename: true,
+      },
+    },
   },
 
   // Prettier config should be last
-  prettier
+  prettier,
 ];
