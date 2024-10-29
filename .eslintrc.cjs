@@ -9,7 +9,6 @@ module.exports = {
   rules: {
     "no-async-promise-executor": "warn",
   },
-  root: true,
   parserOptions: {
     ecmaVersion: "latest",
     sourceType: "module",
