@@ -3,23 +3,19 @@ import {
   useActionData,
   useNavigation,
   useSubmit,
-  Link,
   useLoaderData,
 } from "@remix-run/react";
 import {
   ActionFunctionArgs,
-  json,
   LoaderFunctionArgs,
   redirect,
 } from "@remix-run/node";
-import { getZitadelVars } from "~/services/env.server";
 import { getSession } from "~/services/session.server";
 import { getUserInfo, updateUserInfo } from "~/models/user2.server";
 import {
   FormFieldFloating,
   FormTextarea,
   RadioOption,
-  StyledTextarea,
 } from "~/components/utils/FormField";
 import { useEffect, useRef, useState } from "react";
 import { getTags } from "~/components/utils/OptionsForDropdowns";
@@ -62,7 +58,7 @@ interface StepProps {
   formData: FormData;
 }
 
-const RoleSelectionStep: React.FC<StepProps> = ({ updateFields, formData }) => {
+const RoleSelectionStep = ({ updateFields, formData }: StepProps) => {
   const handleRoleChange = (role: string) => {
     updateFields({ role });
   };
@@ -95,7 +91,7 @@ const RoleSelectionStep: React.FC<StepProps> = ({ updateFields, formData }) => {
   );
 };
 
-const TitleStep: React.FC<StepProps> = ({ updateFields, formData }) => {
+const TitleStep = ({ updateFields, formData }: StepProps) => {
   return (
     <>
       <h1 className=" mb-6">
@@ -118,7 +114,7 @@ const TitleStep: React.FC<StepProps> = ({ updateFields, formData }) => {
   );
 };
 
-const DescriptionStep: React.FC<StepProps> = ({ updateFields, formData }) => {
+const DescriptionStep = ({ updateFields, formData }: StepProps) => {
   return (
     <>
       <h1 className=" mb-6">
@@ -146,10 +142,7 @@ const DescriptionStep: React.FC<StepProps> = ({ updateFields, formData }) => {
   );
 };
 
-const CharityWebsiteStep: React.FC<StepProps> = ({
-  updateFields,
-  formData,
-}) => {
+const CharityWebsiteStep = ({ updateFields, formData }: StepProps) => {
   return (
     <>
       <h1 className=" mb-6">What is the website for {formData.title}?</h1>
@@ -165,7 +158,7 @@ const CharityWebsiteStep: React.FC<StepProps> = ({
   );
 };
 
-export const TagsStep: React.FC<StepProps> = ({ updateFields, formData }) => {
+export const TagsStep = ({ updateFields, formData }: StepProps) => {
   const [newSkill, setNewSkill] = useState("");
   const [filteredSkills, setFilteredSkills] = useState<string[]>([]);
   const [error, setError] = useState("");
@@ -277,26 +270,28 @@ export const TagsStep: React.FC<StepProps> = ({ updateFields, formData }) => {
             <button
               type="button"
               onClick={() => addSkill(newSkill)}
-              className="bg-baseSecondary text-basePrimaryLight px-4 rounded-r-md hover:bg-blue-700 transition-colors"
+              className="bg-baseSecondary text-basePrimaryLight px-4 rounded-r-md  transition-colors"
             >
               Add
             </button>
           </div>
-          {error && <span className="text-red-500 text-sm mt-1">{error}</span>}
+          {error && (
+            <span className="text-dangerPrimary text-sm mt-1">{error}</span>
+          )}
 
           {isDropdownVisible && filteredSkills.length > 0 && (
             <ul
               ref={dropdownRef}
-              className="absolute left-0 w-full bg-white border rounded-lg border-baseSecondary mt-2 max-h-60 overflow-auto z-20 bg-basePrimaryLight"
+              className="absolute left-0 w-full border rounded-lg border-baseSecondary mt-2 max-h-60 overflow-auto z-20 bg-basePrimaryLight"
             >
               {filteredSkills.map((skill, index) => (
-                <li
+                <button
                   key={index}
                   onClick={() => addSkill(skill)}
-                  className="p-2 cursor-pointer hover:bg-blue-100 transition-colors"
+                  className="p-2 cursor-pointer hover:bg-accentPrimary transition-colors"
                 >
                   {skill}
-                </li>
+                </button>
               ))}
             </ul>
           )}
@@ -311,7 +306,7 @@ export const TagsStep: React.FC<StepProps> = ({ updateFields, formData }) => {
               {skill}
               <button
                 onClick={() => removeSkill(skill)}
-                className="ml-2 text-xs bg-red-500 rounded-full w-4 h-4 flex items-center justify-center hover:bg-red-600 transition-colors"
+                className="ml-2 text-xs bg-dangerPrimary rounded-full w-4 h-4 flex items-center justify-center hover:bg-dangerPrimary transition-colors"
               >
                 ×
               </button>
@@ -323,18 +318,15 @@ export const TagsStep: React.FC<StepProps> = ({ updateFields, formData }) => {
   );
 };
 
-const PictureStep: React.FC<StepProps> = ({ updateFields, formData }) => {
-  const [showUploadButton, setShowUploadButton] = useState<boolean>(false);
+const PictureStep = ({ updateFields, formData }: StepProps) => {
   const handleUploadedPicture = (
-    successfullFiles: UppyFile<Meta, Record<string, never>>[],
+    successfulFiles: UppyFile<Meta, Record<string, never>>[],
   ) => {
-    successfullFiles.map((upload) =>
+    successfulFiles.map((upload) =>
       updateFields({ picture: upload.uploadURL }),
     );
   };
   const showFileUpload = () => {
-    console.log("click");
-
     updateFields({ picture: undefined });
   };
   return (
@@ -343,10 +335,9 @@ const PictureStep: React.FC<StepProps> = ({ updateFields, formData }) => {
         <FileUpload
           uppyId="newUserPicture"
           formTarget="#uploadPicture"
-          toggleUploadBtn={(toggle: boolean) => setShowUploadButton(toggle)}
           onUploadedFile={(
-            successfullFiles: UppyFile<Meta, Record<string, never>>[],
-          ) => handleUploadedPicture(successfullFiles)}
+            successfulFiles: UppyFile<Meta, Record<string, never>>[],
+          ) => handleUploadedPicture(successfulFiles)}
         />
       )}
       {formData.picture && (
@@ -354,8 +345,8 @@ const PictureStep: React.FC<StepProps> = ({ updateFields, formData }) => {
           <div>
             <img
               src={formData.picture}
-              alt="Profile Picture"
               className="w-24 h-24 rounded-full object-cover border-2 shadow-sm"
+              alt="Profile Display"
             />
           </div>
           <div>
@@ -466,6 +457,7 @@ export default function NewUserForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-baseSecondary">
+      <div>{error}</div>
       <div className="max-w-md w-full space-y-8 bg-basePrimaryLight p-8 rounded-xl shadow-lg">
         <Form
           method="post"
@@ -492,7 +484,7 @@ export default function NewUserForm() {
               <button
                 type="button"
                 onClick={nextStep}
-                className="px-4 py-2 bg-baseSecondary text-basePrimaryLight rounded-md hover:bg-blue-700 transition-colors"
+                className="px-4 py-2 bg-baseSecondary text-basePrimaryLight rounded-md transition-colors"
               >
                 Next
               </button>
@@ -507,9 +499,7 @@ export default function NewUserForm() {
                 }}
                 disabled={isSubmitting}
                 className={`px-4 py-2 rounded-md text-basePrimaryLight font-semibold transition-colors ${
-                  isSubmitting
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-baseSecondary hover:bg-blue-700"
+                  isSubmitting ? " cursor-not-allowed" : "bg-baseSecondary"
                 }`}
               >
                 {isSubmitting ? "Submitting..." : "Submit"}

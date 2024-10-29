@@ -103,7 +103,7 @@ const Dropdown: React.FC<DropdownProps> = ({
 
       {isOpen && (
         <div
-          className="origin-top-right absolute z-50 bg-basePrimary mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-baseSecondary ring-opacity-5"
+          className="origin-top-right absolute z-50 bg-basePrimary mt-2 w-56 rounded-md shadow-lg ring-1 ring-baseSecondary ring-opacity-5"
           role="menu"
           aria-orientation="vertical"
           aria-labelledby="options-menu"
@@ -113,7 +113,7 @@ const Dropdown: React.FC<DropdownProps> = ({
               <button
                 key={index}
                 onClick={() => handleSelect(option.option, option.selected)}
-                className={`flex flex-row items-center font-primary ${option.selected ? "bg-baseSecondary" : ""} ${option.selected ? "text-basePrimary" : "text-baseSecondary"} hover:bg-baseSecondary w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-basePrimary`}
+                className={`flex flex-row items-center font-primary ${option.selected ? "bg-baseSecondary" : ""} ${option.selected ? "text-basePrimary" : "text-baseSecondary"} hover:bg-baseSecondary w-full text-left px-4 py-2 text-sm hover:text-basePrimary`}
                 role="menuitem"
                 type="button"
               >

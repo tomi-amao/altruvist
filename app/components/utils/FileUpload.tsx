@@ -13,25 +13,23 @@ import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
 import "@uppy/image-editor/dist/style.css";
 import "@uppy/progress-bar/dist/style.css";
-import Form from "@uppy/form";
 import { NewTaskFormData } from "~/models/types.server";
 import { FilePreviewButton } from "./FormField";
+import { TaskResource } from "~/types/tasks";
 
 const FileUpload = ({
   formTarget,
   uppyId,
   onUploadedFile,
-  toggleUploadBtn,
 }: {
   formTarget: string;
   uppyId: string;
   onUploadedFile: (
     uploadedUrl: UppyFile<Meta, Record<string, never>>[],
   ) => void;
-  toggleUploadBtn: (toggle: boolean) => void;
+  toggleUploadBtn?: (toggle: boolean) => void;
 }) => {
   const [uppyInstance, setUppyInstance] = useState<Uppy | null>(null);
-  //   const []
 
   useEffect(() => {
     const uppy = new Uppy({
@@ -57,10 +55,6 @@ const FileUpload = ({
       },
     })
       .use(Compressor)
-      // .use(Form, {
-      //   target: formTarget,
-      //   triggerUploadOnSubmit: true,
-      // })
       .use(GoogleDrive, {
         companionUrl: "http://localhost:3020",
       })
@@ -91,10 +85,6 @@ const FileUpload = ({
       console.log(file?.extension);
     });
 
-    uppy.on("file-added", (file) => {
-      toggleUploadBtn(true);
-    });
-
     uppy.on("complete", (result) => {
       console.log("successful files:", result.successful);
       console.log("failed files:", result.failed);
@@ -109,8 +99,12 @@ const FileUpload = ({
     });
 
     return () => {
-      uppy.off("upload-success", (file) => {});
-      uppy.off("complete", (file) => {});
+      uppy.off("upload-success", (file) => {
+        file;
+      });
+      uppy.off("complete", (file) => {
+        file;
+      });
       uppy.clear();
     };
   }, [formTarget]);
@@ -130,23 +124,22 @@ const FileUpload = ({
     />
   );
 };
-export const UploadFilesComponent: React.FC<{
+export const UploadFilesComponent = ({
+  setFormData,
+  formData,
+}: {
   setFormData: React.Dispatch<React.SetStateAction<NewTaskFormData>>;
   formData: NewTaskFormData;
-}> = ({ setFormData, formData }) => {
-  const [uploadedResources, setUploadedResources] = useState<
-    UppyFile<Meta, Record<string, never>>[]
-  >([]);
+}) => {
+  const [uploadedResources, setUploadedResources] = useState<TaskResource[]>(
+    [],
+  );
 
   const [showUploadButton, setShowUploadButton] = useState<boolean>(false);
+  console.log(showUploadButton);
 
-  const handleUploadedResourcesUrls = (
-    successfullFiles: UppyFile<Meta, Record<string, never>>[],
-  ) => {
-    setUploadedResources((prevUploads) => [
-      ...prevUploads,
-      ...successfullFiles,
-    ]);
+  const handleUploadedResourcesUrls = (successfulFiles: TaskResource[]) => {
+    setUploadedResources((prevUploads) => [...prevUploads, ...successfulFiles]);
   };
 
   useEffect(() => {
@@ -163,8 +156,8 @@ export const UploadFilesComponent: React.FC<{
         formTarget="#uploadResources"
         uppyId="uploadResourceTask"
         onUploadedFile={(
-          successfullFiles: UppyFile<Meta, Record<string, never>>[],
-        ) => handleUploadedResourcesUrls(successfullFiles)}
+          successfulFiles: UppyFile<Meta, Record<string, never>>[],
+        ) => handleUploadedResourcesUrls(successfulFiles as TaskResource[])}
         toggleUploadBtn={(toggle: boolean) => setShowUploadButton(toggle)}
       />
 
@@ -174,9 +167,10 @@ export const UploadFilesComponent: React.FC<{
             {uploadedResources.map((upload, index) => {
               return (
                 <FilePreviewButton
-                  fileName={upload.name}
+                  key={index}
+                  fileName={upload.name || null}
                   fileSize={upload.size}
-                  fileUrl={upload.uploadURL}
+                  fileUrl={upload.uploadURL || null}
                   fileExtension={upload.extension}
                 />
               );

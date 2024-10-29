@@ -1,16 +1,6 @@
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
-import {
-  Link,
-  Outlet,
-  useLoaderData,
-  useLocation,
-  useNavigation,
-  useSearchParams,
-} from "@remix-run/react";
-import {
-  BannerItem,
-  DashboardBanner,
-} from "~/components/cards/BannerSummaryCard";
+import { Link, Outlet, useLoaderData, useLocation } from "@remix-run/react";
+
 import { ProfileCard } from "~/components/cards/ProfileCard";
 import Navbar from "~/components/navigation/Header2";
 import { getUserInfo } from "~/models/user2.server";
@@ -51,8 +41,7 @@ export default function Dashboard() {
     "Explore",
     "Logout",
   ];
-  const params = useSearchParams();
-  const navigation = useNavigation();
+
   const location = useLocation();
   console.log(location.pathname);
 
@@ -68,7 +57,7 @@ export default function Dashboard() {
     }
   };
 
-  const { userInfo, error } = useLoaderData<typeof loader>();
+  const { userInfo } = useLoaderData<typeof loader>();
 
   return (
     <>

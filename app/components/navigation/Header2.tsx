@@ -1,9 +1,6 @@
 import { Form, Link } from "@remix-run/react";
 import { SearchIcon } from "../utils/icons";
 import { useEffect, useState } from "react";
-import { LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { getSession } from "~/services/session.server";
-import { getUserInfo } from "~/models/user2.server";
 
 export default function Navbar({
   altBackground,

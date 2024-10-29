@@ -34,7 +34,7 @@ export default function Index() {
           <div className="flex-shrink-0 lg:w-1/2 ">
             <img
               src="/watering_plant.png"
-              alt="water plant home page image"
+              alt="water plant home page"
               className="w-full h-auto object-cover"
             />
           </div>

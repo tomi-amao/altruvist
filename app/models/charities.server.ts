@@ -1,7 +1,5 @@
 import { charities } from "@prisma/client";
 import { prisma } from "~/services/db.server";
-import { validateCharity, validateUserIds } from "~/services/validators.server";
-
 export const createCharity = async (
   charityData: Partial<charities>,
   userId: string,

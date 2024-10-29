@@ -71,16 +71,16 @@ type ListItemProps = {
   text: string;
 };
 
-export const ListItem: React.FC<ListItemProps> = ({ text }) => (
+export const ListItem = ({ text }: ListItemProps) => (
   <li className="py-2 border-b  last:border-b-0">{text}</li>
 );
 
-export const Section: React.FC<SectionProps> = ({
+export const Section = ({
   title,
   listItems,
   extraHeading,
   extraListItems,
-}) => (
+}: SectionProps) => (
   <div className=" rounded-lg shadow-md mb-4 p-4 border-[1px] border-basePrimaryDark">
     <h2 className="text-xl font-semibold font-primary mb-3">{title}</h2>
     <ul>

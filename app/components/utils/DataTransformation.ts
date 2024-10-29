@@ -1,3 +1,5 @@
+import { TaskResource } from "~/types/tasks";
+
 type taskApplications = {
   id: string;
   taskId: string;
@@ -8,7 +10,7 @@ type taskApplications = {
   createdAt: Date;
   updatedAt: Date;
   task: {
-    resources: any[];
+    resources: TaskResource[];
     id: string;
     title: string;
     description: string;

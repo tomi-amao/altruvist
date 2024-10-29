@@ -1,3 +1,4 @@
+import { charities } from "@prisma/client";
 import { z } from "zod";
 
 const emailSchema = z
@@ -48,7 +49,7 @@ const charitySchema = z.object({
 
 const userIdsSchema = z.string().min(1, { message: "Invalid user ID" });
 
-export const validateCharity = (charityData: any) => {
+export const validateCharity = (charityData: Partial<charities>) => {
   return charitySchema.safeParse(charityData);
 };
 

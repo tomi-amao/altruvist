@@ -1,5 +1,3 @@
-import { useFetcher } from "@remix-run/react";
-
 export function PrimaryButton({
   text,
   name,

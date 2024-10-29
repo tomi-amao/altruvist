@@ -1,4 +1,4 @@
-import { tasks, TaskUrgency } from "@prisma/client";
+import { tasks } from "@prisma/client";
 import { ActionFunctionArgs, redirect } from "@remix-run/node";
 import { Meta, UppyFile } from "@uppy/core";
 import { createTask } from "~/models/tasks.server";
@@ -19,6 +19,8 @@ export async function action({ request }: ActionFunctionArgs) {
   }
   const { userInfo, error } = await getUserInfo(accessToken);
   if (!userInfo?.charityId || !userInfo.id) {
+    console.log(error);
+
     return redirect("/login");
   }
 
@@ -38,41 +40,6 @@ export async function action({ request }: ActionFunctionArgs) {
       uploadURL: upload.uploadURL || null,
     };
   });
-
-  console.log(resources);
-
-  // const {
-  //   title,
-  //   description,
-  //   impact,
-  //   volunteers,
-  //   deliverables,
-  //   deadline,
-  //   urgency,
-  //   requiredSkills,
-  //   categories,
-  //   uploadedResources
-  // } = Object.fromEntries(data);
-
-  // console.log(
-  //   userInfo?.id,
-  //   title,
-  //   description,
-  //   deadline,
-  //   impact,
-  //   volunteers,
-  //   deliverables,
-  //   urgency,
-  //   requiredSkills,
-  //   categories,
-  //   uploadedResources
-  // );
-
-  // const attachments = JSON.parse(uploadedResources as string)
-  // const attachmentsUrls = attachments.map((item) => item.uploadURL) ?? [""]
-  // console.log(attachmentsUrls);
-
-  // console.log(attachments[0].uploadURL);
 
   const taskData: Partial<tasks> = {
     title: newTask.title,

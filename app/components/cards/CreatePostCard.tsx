@@ -212,7 +212,7 @@ function SelectType() {
         {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
         <label
           htmlFor="suggestion"
-          className="inline-flex items-center justify-between w-full p-2 text-lightGrey border hover:bg-altMidGrey rounded-lg cursor-pointer peer-checked:border-txtprimary dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700"
+          className="inline-flex items-center justify-between w-full p-2 text-lightGrey border hover:bg-altMidGrey rounded-lg cursor-pointer peer-checked:border-txtprimary"
         >
           <div className="block">
             <div className="w-full text-sm">Suggestion</div>
@@ -231,7 +231,7 @@ function SelectType() {
         {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
         <label
           htmlFor="problem"
-          className="inline-flex items-center justify-between w-full p-2 text-lightGrey border hover:bg-altMidGrey rounded-lg cursor-pointer peer-checked:border-txtprimary dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700"
+          className="inline-flex items-center justify-between w-full p-2 text-lightGrey border hover:bg-altMidGrey rounded-lg cursor-pointer peer-checked:border-txtprimary"
         >
           <div className="block">
             <div className="w-full text-sm">Problem</div>
@@ -259,7 +259,7 @@ export function DropdownOptions({
   return (
     <>
       <ul
-        className="absolute bg-bgprimary z-10 mt-1 max-h-32 w-fit overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+        className="absolute bg-bgprimary z-10 mt-1 max-h-32 w-fit overflow-auto rounded-md py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
         tabIndex={-1}
         role="listbox"
         aria-labelledby="listbox-label"
@@ -268,7 +268,7 @@ export function DropdownOptions({
         {options.map((option) => (
           <li
             key={option.id}
-            className="relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900 hover:bg-txtprimary"
+            className="relative cursor-default select-none py-2 pl-3 pr-9 hover:bg-txtprimary"
             id="listbox-option-0"
             role="option"
             aria-selected

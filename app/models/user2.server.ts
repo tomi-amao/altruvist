@@ -1,8 +1,7 @@
 import { prisma } from "~/services/db.server";
 
-import { getSession } from "~/services/session.server";
 import { getZitadelVars } from "~/services/env.server";
-import type { GetUserResponse, zitadelUserInfo } from "~/types/zitadelUser";
+import type { zitadelUserInfo } from "~/types/zitadelUser";
 import type { Prisma } from "@prisma/client";
 
 // create a mongodb user document if user from zitadel directory does not exist

@@ -22,7 +22,7 @@ interface FormTextareaProps {
   error?: string;
   placeholder: string;
   backgroundColour?: string;
-  maxLength: number | null;
+  maxLength: number;
   defaultValue?: string;
 }
 
@@ -63,7 +63,7 @@ export function FormField({
           autoComplete={autocomplete}
           placeholder={placeholder}
         />
-        <div className="text-xs font-semibold text-center tracking-wide text-red-500 w-full">
+        <div className="text-xs font-semibold text-center tracking-wide text-dangerPrimary w-full">
           {errorText || ""}
         </div>
       </div>
@@ -80,7 +80,6 @@ export function FormFieldFloating({
   onChange = () => {},
   label,
   backgroundColour = "bg-basePrimaryDark",
-  defaultValue,
 }: FormFieldProps) {
   const [isFocused, setIsFocused] = useState(false);
   const [hasValue, setHasValue] = useState(false);
@@ -125,7 +124,7 @@ export const FormTextarea = ({
   autocomplete,
   value,
   onChange = () => {},
-  maxLength,
+  maxLength = 100,
   label,
   backgroundColour = "bg-basePrimaryDark",
 }: FormTextareaProps) => {
@@ -141,7 +140,7 @@ export const FormTextarea = ({
   const handleFocus = () => setIsFocused(true);
   const handleBlur = () => setIsFocused(false);
   const handleChange = (e) => {
-    const newValue = e.target.value.slice(0, maxLength!);
+    const newValue = e.target.value.slice(0, maxLength);
     onChange({ target: { value: newValue } });
   };
 
@@ -168,7 +167,7 @@ export const FormTextarea = ({
         {label}
       </label>
       <div
-        className={`absolute bottom-1 left-2 text-xs ${charCount > maxLength ? "text-red-500" : "text-baseSecondary"}`}
+        className={`absolute bottom-1 left-2 text-xs ${charCount > maxLength ? "text-dangerPrimary" : "text-baseSecondary"}`}
       >
         {charCount}/{maxLength}
       </div>
@@ -246,14 +245,14 @@ interface ListInputProps {
   useDefaultListStyling?: boolean;
 }
 
-export const ListInput: React.FC<ListInputProps> = ({
+export const ListInput = ({
   inputtedList,
   availableOptions = [],
   onInputsChange,
   placeholder = "Enter a input",
   allowCustomOptions = true,
   useDefaultListStyling = true,
-}) => {
+}: ListInputProps) => {
   const [newOption, setNewOption] = useState("");
   const [filteredOptions, setFilteredOptions] = useState<string[]>([]);
   const [error, setError] = useState("");
@@ -351,26 +350,28 @@ export const ListInput: React.FC<ListInputProps> = ({
           <button
             type="button"
             onClick={() => addInput(newOption)}
-            className="bg-baseSecondary text-basePrimaryLight px-4 rounded-r-md hover:bg-blue-700 transition-colors"
+            className="bg-baseSecondary text-basePrimaryLight px-4 rounded-r-md  transition-colors"
           >
             Add
           </button>
         </div>
-        {error && <span className="text-red-500 text-sm mt-1">{error}</span>}
+        {error && (
+          <span className="text-dangerPrimary text-sm mt-1">{error}</span>
+        )}
 
         {isDropdownVisible && filteredOptions.length > 0 && (
           <ul
             ref={dropdownRef}
-            className="absolute left-0 w-full bg-white border rounded-lg border-baseSecondary mt-2 max-h-60 overflow-auto z-20 bg-basePrimaryLight"
+            className="absolute left-0 w-full border rounded-lg border-baseSecondary mt-2 max-h-60 overflow-auto z-20 bg-basePrimaryLight"
           >
             {filteredOptions.map((input, index) => (
-              <li
+              <button
                 key={index}
                 onClick={() => addInput(input)}
-                className="p-2 cursor-pointer hover:bg-blue-100 transition-colors"
+                className="p-2 cursor-pointer transition-colors flex flex-col text-baseSecondary hover:text-basePrimary hover:bg-baseSecondary w-full"
               >
                 {input}
-              </li>
+              </button>
             ))}
           </ul>
         )}
@@ -387,7 +388,7 @@ export const ListInput: React.FC<ListInputProps> = ({
               <button
                 type="button"
                 onClick={() => removeTag(input)}
-                className="ml-2 text-xs bg-red-500 rounded-full w-4 h-4 flex items-center justify-center hover:bg-red-600 transition-colors"
+                className="ml-2 text-xs bg-dangerPrimary rounded-full w-4 h-4 flex items-center justify-center hover:bg-dangerPrimary transition-colors"
               >
                 ×
               </button>
@@ -399,12 +400,17 @@ export const ListInput: React.FC<ListInputProps> = ({
   );
 };
 
-export const FilePreviewButton: React.FC<{
+export const FilePreviewButton = ({
+  fileUrl,
+  fileName,
+  fileSize,
+  fileExtension,
+}: {
   fileUrl: string | null;
   fileName: string | null;
   fileSize: number | null;
   fileExtension: string | null;
-}> = ({ fileUrl, fileName, fileSize, fileExtension }) => {
+}) => {
   function convertBytes(bytes: number): string {
     if (bytes < 1024) {
       return `${bytes} bytes`;
@@ -430,7 +436,7 @@ export const FilePreviewButton: React.FC<{
       </span>
       <div className="flex flex-col items-start px-2 w-fit">
         <p className="pt-1 text-start font-semibold overflow-hidden flex flex-wrap break-all">
-          {fileName?.length! < 50 ? fileName : fileName?.slice(0, 50)}
+          {fileName?.length || 0 < 50 ? fileName : fileName?.slice(0, 50)}
         </p>
         <p>{convertBytes(fileSize!)}</p>
       </div>

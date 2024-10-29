@@ -1,4 +1,3 @@
-import { tasks } from "@prisma/client";
 import { LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import TaskSummaryCard from "~/components/cards/taskCard";

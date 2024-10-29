@@ -1,4 +1,4 @@
-import { Form, useNavigation, useSubmit } from "@remix-run/react";
+import { Form, useSubmit } from "@remix-run/react";
 import {
   FilePreviewButton,
   FormFieldFloating,
@@ -6,14 +6,8 @@ import {
   ListInput,
 } from "./FormField";
 import Dropdown from "./selectDropdown";
-import {
-  charityTags,
-  requiredSkillsOptions,
-  taskCharityCategories,
-  techSkills,
-  urgencyOptions,
-} from "./OptionsForDropdowns";
-import { CancelButton, PrimaryButton, SecondaryButton } from "./BasicButton";
+import { charityTags, techSkills, urgencyOptions } from "./OptionsForDropdowns";
+import { CancelButton, PrimaryButton } from "./BasicButton";
 import { useEffect, useState } from "react";
 import FileUpload from "./FileUpload";
 import { Meta, UppyFile } from "@uppy/core";
@@ -21,16 +15,14 @@ import { NewTaskFormData } from "~/models/types.server";
 import { TaskUrgency } from "@prisma/client";
 
 export default function CreateTaskForm() {
-  const [requiredSkills, setRequiredSkills] = useState<string[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
   const [urgency, setUrgency] = useState<string>("");
   const [uploadedResources, setUploadedResources] = useState<
     UppyFile<Meta, Record<string, never>>[]
   >([]);
   const [showUploadButton, setShowUploadButton] = useState<boolean>(false);
-  const navigation = useNavigation();
+  console.log(showUploadButton);
+
   const submit = useSubmit();
-  const isSubmitting = navigation.state === "submitting";
 
   const [formData, setFormData] = useState<NewTaskFormData>({
     title: "",
@@ -58,13 +50,11 @@ export default function CreateTaskForm() {
   };
 
   useEffect(() => {
-    console.log("Skills", requiredSkills);
-    console.log("Deliverables", formData.deliverables);
     setFormData({
       ...formData,
       urgency: urgency as TaskUrgency,
     });
-  }, [requiredSkills, categories, urgency]);
+  }, [urgency]);
 
   const handleUploadedResourcesUrls = (
     successfullFiles: UppyFile<Meta, Record<string, never>>[],
@@ -296,9 +286,10 @@ export default function CreateTaskForm() {
             {uploadedResources.map((upload, index) => {
               return (
                 <FilePreviewButton
-                  fileName={upload.name}
+                  key={index}
+                  fileName={upload.name || null}
                   fileSize={upload.size}
-                  fileUrl={upload.uploadURL}
+                  fileUrl={upload.uploadURL || null}
                   fileExtension={upload.extension}
                 />
               );

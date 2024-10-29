@@ -1,4 +1,4 @@
-import { tasks, TaskStatus } from "@prisma/client";
+import { tasks } from "@prisma/client";
 import { prisma } from "~/services/db.server";
 import type { Prisma } from "@prisma/client";
 

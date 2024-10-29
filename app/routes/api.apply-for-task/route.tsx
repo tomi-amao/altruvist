@@ -13,7 +13,7 @@ export async function action({ request }: ActionFunctionArgs) {
   if (!accessToken) {
     return redirect("/login");
   }
-  const { userInfo, error } = await getUserInfo(accessToken);
+  const { userInfo } = await getUserInfo(accessToken);
   if (!userInfo?.id) {
     return redirect("login");
   }

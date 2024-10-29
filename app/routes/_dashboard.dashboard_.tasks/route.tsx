@@ -3,9 +3,7 @@ import {
   PrimaryButton,
   SecondaryButton,
 } from "../../components/utils/BasicButton";
-import DashboardBanner, {
-  BannerItem,
-} from "~/components/cards/BannerSummaryCard";
+
 import Dropdown from "~/components/utils/selectDropdown";
 import {
   statusOptions,
@@ -38,15 +36,8 @@ import {
   updateTask,
 } from "~/models/tasks.server";
 import { useFetcher, useLoaderData, useSubmit } from "@remix-run/react";
-import {
-  charities,
-  tasks,
-  TaskStatus,
-  TaskUrgency,
-  users,
-} from "@prisma/client";
+import { charities, tasks, TaskUrgency, users } from "@prisma/client";
 import { getUrgencyColor } from "~/components/cards/taskCard";
-import { getCharity } from "~/models/charities.server";
 import type { Prisma, taskApplications } from "@prisma/client";
 import { NewTaskFormData } from "~/models/types.server";
 import { transformUserTaskApplications } from "~/components/utils/DataTransformation";
@@ -54,6 +45,7 @@ import { UploadFilesComponent } from "~/components/utils/FileUpload";
 import { AddIcon } from "~/components/utils/icons";
 import { Modal } from "~/components/utils/Modal2";
 import { Meta, UppyFile } from "@uppy/core";
+import DashboardBanner from "~/components/cards/BannerSummaryCard";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
@@ -75,7 +67,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       charityId || "",
     );
 
-    return { tasks, error, userRole, userId };
+    return { tasks, error, userRole, userId, message, status };
   } else if (userRole.includes("techie")) {
     const { tasks: rawTasks, error } = await getUserTasks(userId);
 
@@ -90,7 +82,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export default function TaskList() {
   const {
     tasks: initialTasks,
-    error,
+
     userRole,
     userId,
   } = useLoaderData<typeof loader>();
@@ -106,7 +98,6 @@ export default function TaskList() {
   const [showMessageSection, setShowMessageSection] = useState(false);
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [editTask, setEditTask] = useState(false);
-  const [status, setStatus] = useState<string>();
   const submit = useSubmit();
   const fetcher = useFetcher();
   const [formData, setFormData] = useState<NewTaskFormData>({
@@ -362,11 +353,11 @@ export default function TaskList() {
           />
         </div>
 
-        <ul className=" lg:space-y-0">
+        <ul className=" lg:space-y-0 text-baseSecondary">
           {tasks?.map((task) => (
-            <li
+            <button
               key={task?.id}
-              className={` p-4 lg:p-2 border-b-[1px] hover:bg-baseSecondary hover:text-basePrimary rounded cursor-pointer lg:border-dashed ${
+              className={`  text-left block w-full p-4 lg:p-2 border-b-[1px] hover:bg-baseSecondary hover:text-basePrimary rounded cursor-pointer lg:border-dashed ${
                 selectedTask?.id?.toString() === task?.id
                   ? "bg-baseSecondary text-basePrimaryDark font-semibold"
                   : ""
@@ -382,7 +373,7 @@ export default function TaskList() {
             >
               <div className="text-lg font-primary ">{task?.title}</div>
               <div className="text-sm">{`Due: ${new Date(task?.deadline ? task?.deadline : "").toLocaleDateString()}`}</div>
-            </li>
+            </button>
           ))}
         </ul>
       </div>
@@ -399,22 +390,28 @@ export default function TaskList() {
                 ...(editTask
                   ? []
                   : [
-                      { title: "Title", value: selectedTask.title! },
+                      { title: "Title", value: selectedTask.title || "" },
                       {
                         title: "Deadline",
-                        value: new Date(
-                          selectedTask.deadline!,
-                        ).toLocaleDateString(),
+                        value: selectedTask.deadline
+                          ? new Date(selectedTask.deadline).toLocaleDateString()
+                          : "",
                       },
                       {
                         title: "Category",
-                        value: selectedTask.category![0],
+                        value: Array.isArray(selectedTask.category)
+                          ? selectedTask.category.join(", ")
+                          : selectedTask.category || "",
                       },
                     ]),
-
                 ...(selectedCharity?.id
-                  ? [{ title: "Charity", value: selectedCharity.name! }]
-                  : [{ title: "Creator", value: selectedTaskCreator?.name! }]),
+                  ? [{ title: "Charity", value: selectedCharity.name || "" }]
+                  : [
+                      {
+                        title: "Creator",
+                        value: selectedTaskCreator?.name || "",
+                      },
+                    ]),
               ]}
             />
 
@@ -539,7 +536,7 @@ export default function TaskList() {
                 <p className=" font-primary  ">{selectedTask.impact}</p>
               </>
             )}
-            {selectedTask.deliverables?.length! > 0 ? (
+            {selectedTask.deliverables?.length || 0 > 0 ? (
               <h1 className="text-base font-primary font-semibold py-2 mb ">
                 Key Deliverables
               </h1>
@@ -567,7 +564,9 @@ export default function TaskList() {
             ) : (
               <>
                 <p className=" font-primary px-3 ">
-                  {selectedTask?.deliverables?.map((item) => <li> {item}</li>)}
+                  {selectedTask?.deliverables?.map((item, index) => (
+                    <li key={index}> {item} </li>
+                  ))}
                 </p>
               </>
             )}
@@ -658,8 +657,9 @@ export default function TaskList() {
                 <div className="flex gap-4 mt-2 flex-wrap">
                   {!editTask && (
                     <>
-                      {formData.resources.map((resource) => (
+                      {formData.resources.map((resource, index) => (
                         <FilePreviewButton
+                          key={index}
                           fileName={resource.name}
                           fileSize={resource.size}
                           fileUrl={resource.uploadURL}

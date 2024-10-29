@@ -6,3 +6,5 @@ node_modules
 zitadel.config
 .DS_Store
 machinekey
+uppy-companion-server
+app/components/utils/FileUploaderCustom.tsx

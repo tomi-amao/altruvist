@@ -1,7 +1,6 @@
 import { tasks } from "@prisma/client";
-import { CalendarIcon, ClockIcon, PersonIcon } from "@radix-ui/react-icons";
+import { CalendarIcon, PersonIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
-import { PostBannerSummary } from "~/routes/_base.posts.$postId/route";
 import { Modal } from "../utils/Modal2";
 import DashboardBanner from "./BannerSummaryCard";
 import { PrimaryButton, SecondaryButton } from "../utils/BasicButton";
@@ -30,10 +29,6 @@ interface taskAdditionalDetails
 export default function TaskSummaryCard(task: taskAdditionalDetails) {
   const [showModal, setShowModal] = useState(false);
 
-  const handleOpenModal = () => {
-    setShowModal(true);
-  };
-
   const handleCloseModal = () => {
     setShowModal(false);
   };
@@ -53,7 +48,7 @@ export default function TaskSummaryCard(task: taskAdditionalDetails) {
   return (
     <>
       <button
-        className="lg:w-[19rem] w-[20rem] rounded-xl shadow-md overflow-hidden  bg-white hover:shadow-2xl"
+        className="lg:w-[19rem] w-[20rem] rounded-xl shadow-md overflow-hidden  hover:shadow-2xl"
         onClick={() => {
           setShowModal(true);
         }}
@@ -131,8 +126,8 @@ export default function TaskSummaryCard(task: taskAdditionalDetails) {
             Key Deliverables
           </h1>
           <p className=" font-primary px-3 ">
-            {task.deliverables.map((item) => (
-              <li> {item}</li>
+            {task.deliverables.map((item, index) => (
+              <li key={index}> {item}</li>
             ))}
           </p>
           <h1 className="text-base font-primary font-semibold mt-2 py-2 ">
@@ -180,7 +175,7 @@ export default function TaskSummaryCard(task: taskAdditionalDetails) {
             <PrimaryButton
               text="Volunteer"
               ariaLabel="volunteer for task"
-              action={() => handleApply(task.id, task.charityId)}
+              action={() => handleApply(task.id, task.charityId || "")}
             />
             <button className="font-primary text-sm text-baseSecondary">
               {" "}
