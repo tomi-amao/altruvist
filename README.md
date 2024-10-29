@@ -9,7 +9,6 @@ This website serves as a dynamic hub where software engineers, data scientists, 
 DATABASE_URL=
 SESSION_SECRET=
 
-
 ## Zitadel Environment variables - redirect and logout uri variables need to be present in zitadel
 
 ZITADEL_DOMAIN=
