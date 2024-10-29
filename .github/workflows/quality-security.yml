@@ -28,7 +28,8 @@ jobs:
         run: |
           npm install prettier
           npm install eslint
-          npm install @microsoft/eslint-formatter-sarif@2.1.7 @eslint/eslintrc
+          npm install @microsoft/eslint-formatter-sarif@2.1.7
+          npm install @eslint/eslintrc
 
       - name: Run Prettier
         run: npx prettier . --check
