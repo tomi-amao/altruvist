@@ -26,8 +26,8 @@ jobs:
 
       - name: Install Prettier and ESLint
         run: |
-          npm install prettier@3.3.3
-          npm install eslint@8.10.0
+          npm install prettier
+          npm install eslint
           npm install @microsoft/eslint-formatter-sarif@2.1.7
 
       - name: Run Prettier
