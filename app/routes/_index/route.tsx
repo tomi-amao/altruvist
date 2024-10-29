@@ -1,8 +1,9 @@
-import { json, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
+import { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { getZitadelVars } from "~/services/env.server";
-import { generateCodeChallenge, generateCodeVerifier } from "~/services/pkce";
-import { getSession, commitSession } from "~/services/session.server";
+import LatestTasks from "~/components/cards/LatestTasksCard";
+import Navbar from "~/components/navigation/Header2";
+import { getUserInfo } from "~/models/user2.server";
+import { getSession } from "~/services/session.server";
 
 export const meta: MetaFunction = () => {
   return [
@@ -11,61 +12,49 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  const session = await getSession(request);
-  const error = session.get("error");
-  const zitadel = getZitadelVars();
+export default function Index() {
+  const { userInfo } = useLoaderData<typeof loader>();
+  console.log(userInfo?.id);
 
-  const codeVerifier = generateCodeVerifier();
-  const codeChallenge = generateCodeChallenge(codeVerifier);
+  return (
+    <>
+      <div className="bg-baseSecondary h-auto lg:h-screen max-w-full">
+        <Navbar altBackground={true} isLoggedIn={userInfo?.id ? true : false} />
 
-  if (!zitadel.CLIENT_ID || !zitadel.REDIRECT_URI || !zitadel.ZITADEL_DOMAIN) {
-    return json(
-      {
-        error: "Missing Zitadel configuration",
-        codeChallenge: "",
-        zitadel: { ZITADEL_DOMAIN: "", CLIENT_ID: "", REDIRECT_URI: "" },
-      },
-      { status: 400 },
-    );
-  }
-
-  session.set("codeVerifier", codeVerifier); //set code verifier to session to be used in callback
-
-  return json(
-    { error, codeChallenge, zitadel },
-    {
-      headers: {
-        "Set-Cookie": await commitSession(session),
-      },
-    },
+        <div className="p-4"></div>
+        <h1 className="tracking-wide text-accentPrimary w-fit text-4xl lg:text-7xl mt-8 m-auto">
+          {" "}
+          Donate your digital skills{" "}
+        </h1>
+        <h1 className="tracking-wide text-basePrimaryDark w-fit text-3xl m-auto lg:text-5xl ">
+          {" "}
+          Amplify Charity Impact{" "}
+        </h1>
+        <div className="flex flex-col h-fit lg:flex-row items-center justify-center p-4">
+          <div className="flex-shrink-0 lg:w-1/2 ">
+            <img
+              src="/watering_plant.png"
+              alt="water plant home page"
+              className="w-full h-auto object-cover"
+            />
+          </div>
+          <div className="flex-1 lg:w-1/2 w-full lg:max-w-xl mt-4 lg:mt-0 lg:ml-4">
+            <LatestTasks />
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
 
-export default function Login() {
-  const { error, codeChallenge, zitadel } = useLoaderData<typeof loader>();
+export async function loader({ request }: LoaderFunctionArgs) {
+  const session = await getSession(request);
+  const accessToken = session.get("accessToken");
 
-  const handleLogin = () => {
-    const authUrl = new URL(`${zitadel.ZITADEL_DOMAIN}/oauth/v2/authorize`);
-    authUrl.searchParams.append("client_id", zitadel.CLIENT_ID);
-    authUrl.searchParams.append("response_type", "code");
-    authUrl.searchParams.append("redirect_uri", zitadel.REDIRECT_URI);
-    authUrl.searchParams.append(
-      "scope",
-      "openid profile email urn:zitadel:iam:user:metadata",
-    );
-    authUrl.searchParams.append("code_challenge", codeChallenge);
-    authUrl.searchParams.append("code_challenge_method", "S256");
-    window.location.href = authUrl.toString(); //navigate to zitadel hosted login page
-  };
+  if (!accessToken) {
+    return { message: "User not logged in", userInfo: null };
+  }
+  const { userInfo } = await getUserInfo(accessToken);
 
-  return (
-    <div>
-      <h1>Login</h1>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <button onClick={handleLogin} className="text-jade3">
-        Login with Zitadel
-      </button>
-    </div>
-  );
+  return { userInfo };
 }

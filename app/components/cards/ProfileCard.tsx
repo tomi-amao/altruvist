@@ -1,12 +1,13 @@
 import * as Avatar from "@radix-ui/react-avatar";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import { HoverCard } from "../utils/HoverCard";
+import { users } from "@prisma/client";
 
 export function ProfileCardWithHover() {
   return <HoverCard trigger={<ProfileCard />} content={<ProfileImg />} />;
 }
 
-export function ProfileCard() {
+export function ProfileCard({ name, techTitle }: Partial<users>) {
   return (
     <>
       <div className="flex bg-bgprimary rounded-md gap-3 border-solid border-altMidGrey border-b-2 mb-2 py-2 p-1">
@@ -14,8 +15,8 @@ export function ProfileCard() {
           <ProfileImg />
         </div>
         <div className="flex flex-col pr-4 w-full">
-          <p className="text-md text-jade9">Olivia Yuri</p>
-          <p className="text-xs text-jade11"> Data Scientist</p>
+          <p className="text-md text-jade9">{name}</p>
+          <p className="text-xs text-jade11"> {techTitle}</p>
         </div>
       </div>
     </>
@@ -32,7 +33,7 @@ export function ProfileImg() {
       />
 
       <Avatar.Fallback
-        className="text-violet11 leading-1 flex h-full w-full items-center justify-center bg-white text-[15px] font-medium"
+        className="text-violet11 leading-1 flex h-full w-full items-center justify-center text-[15px] font-medium"
         delayMs={600}
       >
         CT

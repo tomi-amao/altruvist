@@ -5,13 +5,13 @@ import {
   Scripts,
   ScrollRestoration,
   redirect,
-  useLoaderData,
 } from "@remix-run/react";
 import type {
   ActionFunctionArgs,
   LinksFunction,
 } from "@remix-run/node";
 import stylesheet from "~/styles/tailwind.css?url";
+
 
 import darkModeSet, { getDarkMode } from "./data/darkmode";
 
@@ -20,17 +20,19 @@ export const links: LinksFunction = () => {
 };
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const mode = useLoaderData();
 
   return (
-    <html lang="en" className={mode === "true" ? "" : "dark"}>
+    <html lang="en">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        <link rel="preconnect" href="https://fonts.googleapis.com"/>
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin=""/>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Jomhuria&display=swap" rel="stylesheet"></link>
       </head>
-      <body className="bg-mauve2 dark:bg-bgprimary">
+      <body className="">
         {children}
         <ScrollRestoration />
         <Scripts />

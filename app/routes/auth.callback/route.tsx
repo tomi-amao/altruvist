@@ -1,6 +1,8 @@
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { createUser } from "~/models/user2.server";
 import { getZitadelVars } from "~/services/env.server";
 import { getSession, commitSession } from "~/services/session.server";
+import { zitadelUserInfo } from "~/types/zitadelUser";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
@@ -55,6 +57,32 @@ export async function loader({ request }: LoaderFunctionArgs) {
     session.set("idToken", id_token);
     session.unset("codeVerifier");
 
+    // create new mongodb user if none exists upon login
+    const userInfoResponse = await fetch(
+      `${zitadel.ZITADEL_DOMAIN}/oidc/v1/userinfo`,
+      {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      },
+    );
+
+    if (!userInfoResponse.ok) {
+      throw new Error("Failed to fetch user info");
+    }
+
+    const userInfo: zitadelUserInfo = await userInfoResponse.json();
+    const newUser = await createUser(userInfo);
+    console.log("Mongodb user", newUser);
+
+    // if new user, redirect to new user set up journey
+    if (newUser.status === 200) {
+      return redirect("/newuser", {
+        headers: {
+          "Set-Cookie": await commitSession(session),
+        },
+      });
+    }
     return redirect("/dashboard", {
       headers: {
         "Set-Cookie": await commitSession(session),

@@ -1,3 +1,4 @@
+import { charities } from "@prisma/client";
 import { z } from "zod";
 
 const emailSchema = z
@@ -30,4 +31,28 @@ export const validateFirstName = (firstName: string) => {
 };
 export const validateLastName = (lastName: string) => {
   return lastNameSchema.safeParse(lastName);
+};
+
+const charitySchema = z.object({
+  name: z
+    .string()
+    .min(2, { message: "Charity name must be at least 2 characters long" }),
+  description: z.string().min(10, {
+    message: "Charity description must be at least 10 characters long",
+  }),
+  website: z.string().url({ message: "Please enter a valid URL" }).optional(),
+  contactEmail: z
+    .string()
+    .email({ message: "Please input a valid contact email" })
+    .optional(),
+});
+
+const userIdsSchema = z.string().min(1, { message: "Invalid user ID" });
+
+export const validateCharity = (charityData: Partial<charities>) => {
+  return charitySchema.safeParse(charityData);
+};
+
+export const validateUserIds = (userIds: string) => {
+  return userIdsSchema.safeParse(userIds);
 };

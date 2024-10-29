@@ -2,8 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
-/* @layer base {
-  html {
-    @apply bg-bgprimary;
+@layer base {
+  h1 {
+    @apply font-header text-5xl text-baseSecondary;
   }
-} */
+  h2 {
+    @apply font-primary text-2xl text-baseSecondary font-light;
+  }
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-header text-2xl font-bold text-baseSecondary;
+  }
+  li,
+  p,
+  span {
+    @apply font-primary text-[15px] font-light text-baseSecondary;
+  }
+  html {
+    @apply bg-basePrimary;
+  }
+}

@@ -1,20 +1,29 @@
-import {
-  useEffect,
-  useState,
-  Dispatch,
-  SetStateAction,
-  ReactNode,
-} from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 
 interface FormFieldProps {
   htmlFor: string;
   label?: string;
   type?: string;
   value?: string;
-  onChange?: () => Record<string, never>;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  autocomplete?: string;
+  error?: string;
+  placeholder?: string;
+  backgroundColour?: string;
+  defaultValue?: string;
+}
+interface FormTextareaProps {
+  htmlFor: string;
+  label?: string;
+  type?: string;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   autocomplete?: string;
   error?: string;
   placeholder: string;
+  backgroundColour?: string;
+  maxLength: number;
+  defaultValue?: string;
 }
 
 export function FormField({
@@ -54,7 +63,7 @@ export function FormField({
           autoComplete={autocomplete}
           placeholder={placeholder}
         />
-        <div className="text-xs font-semibold text-center tracking-wide text-red-500 w-full">
+        <div className="text-xs font-semibold text-center tracking-wide text-dangerPrimary w-full">
           {errorText || ""}
         </div>
       </div>
@@ -68,131 +77,369 @@ export function FormFieldFloating({
   value,
   autocomplete,
   placeholder,
+  onChange = () => {},
+  label,
+  backgroundColour = "bg-basePrimaryDark",
 }: FormFieldProps) {
+  const [isFocused, setIsFocused] = useState(false);
+  const [hasValue, setHasValue] = useState(false);
+
+  const handleFocus = () => setIsFocused(true);
+  const handleBlur = () => setIsFocused(false);
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setHasValue(e.target.value.length > 0);
+    onChange(e);
+  };
+
   return (
-    <div className="relative">
+    <div className="relative z-0">
       <input
         type={type}
         name={htmlFor}
         id={htmlFor}
         aria-label={htmlFor}
-        className="block text-lightGrey px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-midGrey rounded-lg border-[1px] border-lightGrey appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-txtprimary peer valid:border-txtprimary "
-        placeholder=""
+        className={`block text-baseSecondary px-2.5 pb-2.5 pt-3 w-full text-sm ${backgroundColour} rounded-lg border-[1px] focus:outline-none focus:border-baseSecondary peer transition-all duration-300 placeholder:text-baseSecondary placeholder:text-opacity-60`}
+        placeholder={isFocused || hasValue ? "" : placeholder}
         autoComplete={autocomplete}
         value={value}
+        onChange={handleChange}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
         required
       />
       <label
         htmlFor={htmlFor}
-        className="absolute text-sm block bg-midGrey text-lightGrey dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-transparent dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-focus:dark:text-blue-500  peer-focus:block peer-focus:text-txtprimary peer-focus:bg-midGrey peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1"
+        className={`absolute text-md text-baseSecondary duration-300 transform -translate-y-4 scale-75 top-1 z-10 origin-[0] ${backgroundColour} px-2 peer-focus:px-2 peer-focus:text-baseSecondary start-1
+          ${isFocused || hasValue ? "opacity-100" : "opacity-0"}`}
       >
-        {placeholder}
+        {label}
       </label>
     </div>
   );
 }
 
-export function FormTextArea({
+export const FormTextarea = ({
   htmlFor,
-  value,
-  autocomplete,
   placeholder,
-}: FormFieldProps) {
+  autocomplete,
+  value,
+  onChange = () => {},
+  maxLength = 100,
+  label,
+  backgroundColour = "bg-basePrimaryDark",
+}: FormTextareaProps) => {
+  const [isFocused, setIsFocused] = useState(false);
+  const [hasValue, setHasValue] = useState(false);
+  const [charCount, setCharCount] = useState(0);
+
+  useEffect(() => {
+    setCharCount(value!.length);
+    setHasValue(value!.length > 0);
+  }, [value]);
+
+  const handleFocus = () => setIsFocused(true);
+  const handleBlur = () => setIsFocused(false);
+  const handleChange = (e) => {
+    const newValue = e.target.value.slice(0, maxLength);
+    onChange({ target: { value: newValue } });
+  };
+
   return (
-    <div className="relative">
+    <div className="relative z-0">
       <textarea
         name={htmlFor}
         id={htmlFor}
         aria-label={htmlFor}
-        className="block h-24 resize-none text-lightGrey  px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-midGrey rounded-lg border-[1px] appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-txtprimary border-lightGrey  peer valid:border-txtprimary "
-        placeholder=""
+        className={`block text-baseSecondary px-2.5 pb-2.5 pt-4 w-full h-32 text-sm ${backgroundColour} rounded-lg border-[1px] focus:outline-none focus:border-baseSecondary peer transition-all duration-300 resize-none placeholder:text-baseSecondary placeholder:text-opacity-60`}
+        placeholder={isFocused || hasValue ? "" : placeholder}
         autoComplete={autocomplete}
         value={value}
+        onChange={handleChange}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
         required
       />
       <label
         htmlFor={htmlFor}
-        className="absolute text-sm block bg-midGrey text-lightGrey dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-transparent dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-txtprimary  peer-focus:dark:text-blue-500  peer-focus:block peer-focus:bg-midGrey peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2  peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto  start-1"
+        className={`absolute text-md text-baseSecondary duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] ${backgroundColour} px-2 peer-focus:px-2 peer-focus:text-baseSecondary start-1
+          ${isFocused || hasValue ? "opacity-100" : "opacity-0"}`}
       >
-        {placeholder}
+        {label}
       </label>
+      <div
+        className={`absolute bottom-1 left-2 text-xs ${charCount > maxLength ? "text-dangerPrimary" : "text-baseSecondary"}`}
+      >
+        {charCount}/{maxLength}
+      </div>
     </div>
   );
+};
+
+interface RadioOptionProps {
+  value: string;
+  label: string;
+  onChange: (role: string) => void;
+  isSelected?: boolean;
+  description?: string;
 }
-
-export default function FormOptions({
-  setShowOptions,
-  showOptions,
-
-  dropDownOptions,
-  selected,
-}: {
-  setShowOptions: Dispatch<SetStateAction<boolean>>;
-  showOptions: boolean;
-
-  dropDownOptions: ReactNode;
-  selected: { option: string; id: number };
-  setSelected: Dispatch<SetStateAction<{ option: string; id: number }>>;
-}) {
+export const RadioOption = ({
+  value,
+  label,
+  isSelected,
+  onChange,
+  description,
+}: RadioOptionProps) => {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    // Allow the user to select via "Enter" or "Space" keys
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onChange(value);
+    }
+  };
   return (
-    <>
-      <div className="flex items-center">
-        <div className=" mt-2 w-fit pb-2 ">
-          <Selected
-            setShowOptions={setShowOptions}
-            selected={selected?.option}
-            showOptions={showOptions}
-          />
-          <div className={showOptions ? "block" : "hidden"}>
-            {dropDownOptions}
-          </div>
-        </div>
+    <div
+      role="radio"
+      aria-checked={isSelected}
+      tabIndex={0} // Make the component focusable
+      onKeyDown={handleKeyDown} // Keyboard support
+      className={`flex items-center p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer focus:outline-none ${
+        isSelected
+          ? "border-baseSecondary shadow-md"
+          : " hover:border-baseSecondary border-basePrimaryDark "
+      }`}
+      onClick={() => onChange(value)}
+    >
+      <div
+        className={`w-6 h-6 rounded-full border-2 mr-3 flex items-center justify-center ${
+          isSelected
+            ? "border-basePrimaryDark bg-basePrimaryDark"
+            : "border-basePrimaryDark"
+        }`}
+      >
+        {isSelected && (
+          <div className="w-4 h-4 rounded-full bg-baseSecondary"></div>
+        )}
       </div>
-    </>
+      <div>
+        <span
+          className={`text-lg ${isSelected ? " font-semibold" : "text-basePrimaryDark"}`}
+        >
+          {label}
+        </span>
+        <p
+          className={`text-xs ${isSelected ? " font-semibold" : "text-basePrimaryDark"}`}
+        >
+          {description}
+        </p>
+      </div>
+    </div>
   );
+};
+
+interface ListInputProps {
+  inputtedList: string[];
+  availableOptions?: string[]; // Optional array for dropdown suggestions
+  onInputsChange: (inputtedList: string[]) => void; // Callback to update parent state
+  placeholder?: string;
+  allowCustomOptions?: boolean; // Optional flag to allow custom inputtedList
+  useDefaultListStyling?: boolean;
 }
 
-function Selected({
-  selected,
-  setShowOptions,
-  showOptions,
-}: {
-  selected: string;
-  setShowOptions: Dispatch<SetStateAction<boolean>>;
-  showOptions: boolean;
-}) {
-  const [toggle, setToggle] = useState(false);
+export const ListInput = ({
+  inputtedList,
+  availableOptions = [],
+  onInputsChange,
+  placeholder = "Enter a input",
+  allowCustomOptions = true,
+  useDefaultListStyling = true,
+}: ListInputProps) => {
+  const [newOption, setNewOption] = useState("");
+  const [filteredOptions, setFilteredOptions] = useState<string[]>([]);
+  const [error, setError] = useState("");
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
-    setShowOptions((preState) => !preState);
-    console.log(showOptions);
-  }, [toggle]);
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node) &&
+        inputRef.current &&
+        !inputRef.current.contains(event.target as Node)
+      ) {
+        setIsDropdownVisible(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setNewOption(value);
+    setError("");
+
+    if (value.trim() === "" || !availableOptions.length) {
+      setFilteredOptions([]);
+      setIsDropdownVisible(false);
+    } else {
+      const filtered = availableOptions.filter(
+        (input) =>
+          input.toLowerCase().includes(value.toLowerCase()) &&
+          !inputtedList.includes(input),
+      );
+      setFilteredOptions(filtered);
+      setIsDropdownVisible(true);
+    }
+  };
+
+  const addInput = (input: string) => {
+    const trimmedOption = input.trim();
+    if (trimmedOption === "") return;
+
+    if (availableOptions.length && !availableOptions.includes(trimmedOption)) {
+      if (!allowCustomOptions) {
+        setError(`"${trimmedOption}" is not a valid input`);
+        return;
+      }
+    }
+
+    if (!inputtedList.includes(trimmedOption)) {
+      onInputsChange([...inputtedList, trimmedOption]);
+      setNewOption("");
+      setFilteredOptions([]);
+      setIsDropdownVisible(false);
+      setError("");
+    } else {
+      setError(`"${trimmedOption}" is already added`);
+    }
+  };
+
+  const removeTag = (inputToRemove: string) => {
+    onInputsChange(inputtedList.filter((input) => input !== inputToRemove));
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addInput(newOption);
+    } else if (e.key === "Escape") {
+      setIsDropdownVisible(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="relative">
+        <div className="flex">
+          <input
+            ref={inputRef}
+            type="text"
+            value={newOption}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            onFocus={() => setIsDropdownVisible(true)}
+            className="block text-baseSecondary px-2.5 pb-2.5 pt-3 w-full text-sm bg-basePrimaryLight rounded-l-md border-[1px] focus:outline-none focus:border-baseSecondary peer transition-all duration-300 placeholder:text-baseSecondary placeholder:text-opacity-60"
+            placeholder={placeholder}
+          />
+
+          <button
+            type="button"
+            onClick={() => addInput(newOption)}
+            className="bg-baseSecondary text-basePrimaryLight px-4 rounded-r-md  transition-colors"
+          >
+            Add
+          </button>
+        </div>
+        {error && (
+          <span className="text-dangerPrimary text-sm mt-1">{error}</span>
+        )}
+
+        {isDropdownVisible && filteredOptions.length > 0 && (
+          <ul
+            ref={dropdownRef}
+            className="absolute left-0 w-full border rounded-lg border-baseSecondary mt-2 max-h-60 overflow-auto z-20 bg-basePrimaryLight"
+          >
+            {filteredOptions.map((input, index) => (
+              <button
+                key={index}
+                onClick={() => addInput(input)}
+                className="p-2 cursor-pointer transition-colors flex flex-col text-baseSecondary hover:text-basePrimary hover:bg-baseSecondary w-full"
+              >
+                {input}
+              </button>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {useDefaultListStyling && (
+        <div className="flex flex-wrap gap-2">
+          {inputtedList.map((input, index) => (
+            <span
+              key={index}
+              className="bg-baseSecondary text-basePrimaryLight px-3 py-1 rounded-full flex items-center"
+            >
+              {input}
+              <button
+                type="button"
+                onClick={() => removeTag(input)}
+                className="ml-2 text-xs bg-dangerPrimary rounded-full w-4 h-4 flex items-center justify-center hover:bg-dangerPrimary transition-colors"
+              >
+                ×
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export const FilePreviewButton = ({
+  fileUrl,
+  fileName,
+  fileSize,
+  fileExtension,
+}: {
+  fileUrl: string | null;
+  fileName: string | null;
+  fileSize: number | null;
+  fileExtension: string | null;
+}) => {
+  function convertBytes(bytes: number): string {
+    if (bytes < 1024) {
+      return `${bytes} bytes`;
+    } else if (bytes < 1024 * 1024) {
+      const kilobytes = bytes / 1024;
+      return `${kilobytes.toFixed(2)} KB`;
+    } else {
+      const megabytes = bytes / (1024 * 1024);
+      return `${megabytes.toFixed(2)} MB`;
+    }
+  }
+  const handleFilePreview = () => {
+    window.open(fileUrl as string, "_blank");
+  };
+
   return (
     <button
-      type="button"
-      className="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left shadow-sm ring-1  ring-lightGrey focus:outline-none focus:ring-2 focus:ring-txtprimary sm:text-sm sm:leading-6"
-      aria-haspopup="listbox"
-      aria-expanded="true"
-      aria-labelledby="listbox-label"
-      onClick={() => setToggle((preState) => !preState)}
+      className="w-full md:max-w-72 flex border-2 border-basePrimaryDark rounded-md bg-basePrimaryDark"
+      onClick={handleFilePreview}
     >
-      <span className="flex items-center">
-        <span className="ml-3 block text-lightGrey truncate">{selected}</span>
+      <span className="w-fit text-lg h-full bg-baseSecondary rounded-l-md text-basePrimaryDark p-2 border-r-2 border-y-basePrimaryDark items-center flex">
+        {fileExtension?.toUpperCase()}
       </span>
-      <span className="pointer-events-none absolute inset-y-0 right-0 ml-3 flex items-center pr-2">
-        <svg
-          className="h-5 w-5 text-gray-400"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-          aria-hidden="true"
-        >
-          <path
-            fillRule="evenodd"
-            d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z"
-            clipRule="evenodd"
-          />
-        </svg>
-      </span>
+      <div className="flex flex-col items-start px-2 w-fit">
+        <p className="pt-1 text-start font-semibold overflow-hidden flex flex-wrap break-all">
+          {fileName?.length || 0 < 50 ? fileName : fileName?.slice(0, 50)}
+        </p>
+        <p>{convertBytes(fileSize!)}</p>
+      </div>
     </button>
   );
-}
+};

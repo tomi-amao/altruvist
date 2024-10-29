@@ -10,86 +10,138 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model ExeprtSuggestion {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  title      String
-  categories String[]
+model users {
+  id               String             @id @default(auto()) @map("_id") @db.ObjectId
+  techTitle        String?
+  zitadelId        String             @unique
+  email            String
+  name             String
+  skills           String[]
+  bio              String?
+  profilePicture   String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  taskApplications taskApplications[]
+  locale           String
+  roles            String[]
+  permissions      String[]
+  charity          charities?         @relation(fields: [charityId], references: [id])
+  charityId        String?            @db.ObjectId
+  tasks            tasks[]
 }
 
-model User {
-  id         String       @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
-  email      String       @unique
-  password   String
-  profile    Profile
-  active     Boolean?
-  posts      Posts[]
-  postLikes  PostLikes[]
-  favourites Favourites[]
+model charities {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  description   String
+  website       String?
+  contactPerson String?
+  contactEmail  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  tasks         tasks[]
+  users         users[]
+  tags          String[]
+
+  taskApplications taskApplications[]
 }
 
-model Posts {
-  id         String       @id @default(auto()) @map("_id") @db.ObjectId
-  title      String
-  content    String
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
-  status     PostStatus
-  type       PostType?
-  author     User         @relation(fields: [authorId],references: [id], onDelete:Cascade)
-  authorId   String       @db.ObjectId
-  postLikes  PostLikes[]
-  favourites Favourites[]
-  tags       String[]
+model tasks {
+  id               String             @id @default(auto()) @map("_id") @db.ObjectId
+  title            String
+  description      String
+  impact           String
+  requiredSkills   String[]
+  estimatedHours   Int?
+  category         String[]
+  urgency          TaskUrgency?
+  volunteersNeeded Int
+  deliverables     String[]
+  deadline         DateTime
+  resources        resource[]
+  charity          charities?         @relation(fields: [charityId], references: [id])
+  charityId        String?            @db.ObjectId
+  createdBy        users              @relation(fields: [userId], references: [id])
+  userId           String             @db.ObjectId
+  status           TaskStatus?
+  location         TaskLocation?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  taskApplications taskApplications[]
 }
 
-// type Tags {
-//   tags String[]
+model taskApplications {
+  id        String            @id @default(auto()) @map("_id") @db.ObjectId
+  task      tasks             @relation(fields: [taskId], references: [id])
+  taskId    String            @db.ObjectId
+  user      users             @relation(fields: [userId], references: [id])
+  userId    String            @db.ObjectId
+  charity   charities?        @relation(fields: [charityId], references: [id])
+  charityId String?           @db.ObjectId
+  status    ApplicationStatus
+  message   String?
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+}
+
+// type taskApplications {
+//   status    ApplicationStatus
+//   message   String?
+//   userId    String?           @db.ObjectId
+//   taskId    String?           @db.ObjectId
+//   createdAt DateTime          @default(now())
+//   updatedAt DateTime
 // }
 
-model PostLikes {
-  id       String   @id @default(auto()) @map("_id") @db.ObjectId
-  postId   String   @db.ObjectId
-  post     Posts    @relation(fields: [postId], references: [id])
-  likeSent DateTime @default(now())
-  userId   String   @db.ObjectId
-  user     User     @relation(fields: [userId], references: [id])
+type resource {
+  name      String?
+  extension String?
+  type      String?
+  size      Int?
+  uploadURL String?
 }
 
-model Favourites {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  postId       String   @db.ObjectId
-  post         Posts    @relation(fields: [postId], references: [id])
-  favouritedAt DateTime @default(now())
-  User         User?    @relation(fields: [userId], references: [id])
-  userId       String?  @db.ObjectId
+enum TaskCategory {
+  WEB_DEVELOPMENT
+  MOBILE_APP
+  DATA_ANALYSIS
+  UX_UI_DESIGN
+  OTHER
 }
 
-type Profile {
-  firstName      String
-  lastName       String
-  username       String?
-  profilePicture String?
-  role           String?
-  type           UserType?
-}
-
-enum UserType {
+enum ExperienceLevel {
+  BEGINNER
+  INTERMEDIATE
   EXPERT
-  SENIOR
-  null
-}
-enum PostType {
-  problem
-  suggestion
 }
 
-enum PostStatus {
-  UNRESOLVED
+enum TaskUrgency {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum TaskStatus {
+  INCOMPLETE
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum TaskLocation {
+  REMOTE
+  ONSITE
+  HYBRID
+}
+
+enum CommunicationPreference {
+  EMAIL
+  MESSAGE
+}
+
+enum ApplicationStatus {
   PENDING
-  RESOLVED
-  CLOSED
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
 }
