@@ -1,11 +1,11 @@
-import js from '@eslint/js';
-import tseslint from '@typescript-eslint/eslint-plugin';
-import tsparser from '@typescript-eslint/parser';
-import reactPlugin from 'eslint-plugin-react';
-import reactHooks from 'eslint-plugin-react-hooks';
-import jsxa11y from 'eslint-plugin-jsx-a11y';
-import importPlugin from 'eslint-plugin-import';
-import prettier from 'eslint-config-prettier';
+import js from "@eslint/js";
+import tseslint from "@typescript-eslint/eslint-plugin";
+import tsparser from "@typescript-eslint/parser";
+import reactPlugin from "eslint-plugin-react";
+import reactHooks from "eslint-plugin-react-hooks";
+import jsxa11y from "eslint-plugin-jsx-a11y";
+import importPlugin from "eslint-plugin-import";
+import prettier from "eslint-config-prettier";
 
 /** @type {import('eslint').Flat.Config[]} */
 const config = [
@@ -14,18 +14,18 @@ const config = [
     linterOptions: {
       noInlineConfig: false,
     },
-    ignores: ['!**/.server', '!**/.client'],
+    ignores: ["!**/.server", "!**/.client"],
   },
 
   // Default JavaScript configuration
   js.configs.recommended,
   {
     rules: {
-      'no-async-promise-executor': 'warn',
+      "no-async-promise-executor": "warn",
     },
     languageOptions: {
-      ecmaVersion: 'latest',
-      sourceType: 'module',
+      ecmaVersion: "latest",
+      sourceType: "module",
       parserOptions: {
         ecmaFeatures: {
           jsx: true,
@@ -44,28 +44,28 @@ const config = [
 
   // React configuration for JS/JSX/TS/TSX files
   {
-    files: ['**/*.{js,jsx,ts,tsx}'],
+    files: ["**/*.{js,jsx,ts,tsx}"],
     plugins: {
-      'react': reactPlugin,
-      'jsx-a11y': jsxa11y,
-      'react-hooks': reactHooks,
+      react: reactPlugin,
+      "jsx-a11y": jsxa11y,
+      "react-hooks": reactHooks,
     },
     settings: {
       react: {
-        version: 'detect',
+        version: "detect",
       },
-      formComponents: ['Form'],
+      formComponents: ["Form"],
       linkComponents: [
-        { name: 'Link', linkAttribute: 'to' },
-        { name: 'NavLink', linkAttribute: 'to' },
+        { name: "Link", linkAttribute: "to" },
+        { name: "NavLink", linkAttribute: "to" },
       ],
-      'import/resolver': {
+      "import/resolver": {
         typescript: {},
       },
     },
     rules: {
       ...reactPlugin.configs.recommended.rules,
-      ...reactPlugin.configs['jsx-runtime'].rules,
+      ...reactPlugin.configs["jsx-runtime"].rules,
       ...reactHooks.configs.recommended.rules,
       ...jsxa11y.configs.recommended.rules,
     },
@@ -73,19 +73,19 @@ const config = [
 
   // TypeScript specific configuration
   {
-    files: ['**/*.{ts,tsx}'],
+    files: ["**/*.{ts,tsx}"],
     plugins: {
-      '@typescript-eslint': tseslint,
-      'import': importPlugin,
+      "@typescript-eslint": tseslint,
+      import: importPlugin,
     },
     languageOptions: {
       parser: tsparser,
     },
     settings: {
-      'import/internal-regex': '^~/',
-      'import/resolver': {
+      "import/internal-regex": "^~/",
+      "import/resolver": {
         node: {
-          extensions: ['.ts', '.tsx'],
+          extensions: [".ts", ".tsx"],
         },
         typescript: {
           alwaysTryTypes: true,
@@ -101,7 +101,7 @@ const config = [
 
   // Configuration for eslint config file itself
   {
-    files: ['.eslintrc.{js,cjs}'],
+    files: [".eslintrc.{js,cjs}"],
     languageOptions: {
       globals: {
         node: true,
