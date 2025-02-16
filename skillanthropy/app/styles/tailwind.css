@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  h1 {
+    @apply font-header text-5xl text-baseSecondary;
+  }
+  h2 {
+    @apply text-2xl text-baseSecondary font-light;
+  }
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply text-2xl font-bold text-baseSecondary;
+  }
+  li,
+  p,
+  span {
+    @apply font-primary text-[15px] font-light text-baseSecondary;
+  }
+  html {
+    @apply bg-basePrimary;
+  }
+
+  /* Scrollbar styles */
+  ::-webkit-scrollbar {
+    width: 8px;
+    background-color: transparent;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #836953;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+}
