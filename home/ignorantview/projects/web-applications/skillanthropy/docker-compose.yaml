@@ -1,0 +1,184 @@
+name: skillanthropy
+services:
+  # app:
+  #   image: theignorantview/skillanthropy
+  #   build:
+  #     context: ./
+  #     dockerfile: Dockerfile
+  #   env_file:
+  #     - .env
+  #   # ---- uncomment if runnig without proxy ----
+  #   # ports:
+  #   #   - 3000:3000
+  #   networks:
+  #     - traefik-net
+  #   # ----- uncomment to enable traefik docker provider ------
+  #   # labels:
+  #   #   - "traefik.enable=true"
+  #   #   - "traefik.http.routers.app.rule=Host(`app.localhost`)"
+
+  traefik:
+    container_name: "traefik"
+
+    image: traefik:v2.5
+    command:
+      - "--api.insecure=true"
+      # configure traefik to use file provider instead of docker provider, manually defining services
+      # -----uncomment for docker provider -----
+      # - "--providers.docker=true"
+      # - "--providers.docker.exposedbydefault=false"
+      - "--providers.file.directory=/etc/traefik/dynamic_conf"
+      - "--providers.file.watch=true" # enable automatic reloading of dynamic configuration files
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.zitadel.address=:7200"
+      - "--entrypoints.app.address=:8001"
+      - "--entrypoints.tusd.address=:8004"
+    ports:
+      - "80:80"
+      - "8081:8080" # Traefik dashboard
+      - "7200:7200" # Zitadel
+      - "8001:8001" # Application
+      - "8004:8004" # Tusd
+    volumes:
+      - ./traefik_dynamic_conf:/etc/traefik/dynamic_conf # - /var/run/docker.sock:/var/run/docker.sock:ro  --- uncomment for docker provider
+    networks:
+      - traefik-net
+
+    # ----- uncomment if runnig without proxy -----
+    # ports:
+    #   - "8081:8080"
+    # healthcheck:
+    #   test: ["CMD", "/app/zitadel ready"]
+    #   interval: "10s"
+    #   timeout: "5s"
+    #   retries: 5
+    #   start_period: "10s"
+    # ----- uncomment to enable traefik docker provider -----
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.zitadel.rule=Host(`auth.localhost`)"
+    #   - "traefik.http.services.zitadel.loadbalancer.server.port=8080"
+
+  zitadel:
+    # The user should have the permission to write to ./machinekey
+    container_name: "zitadel"
+
+    user: "${UID:-1000}"
+    restart: "always"
+    networks:
+      - "zitadel"
+      - traefik-net
+
+    image: "ghcr.io/zitadel/zitadel:latest"
+    command: 'start-from-init --masterkey "MasterkeyNeedsToHave32Characters" --tlsMode disabled'
+    environment:
+      ZITADEL_DATABASE_POSTGRES_HOST: zitadel_db
+      ZITADEL_DATABASE_POSTGRES_PORT: 5432
+      ZITADEL_DATABASE_POSTGRES_DATABASE: zitadel
+      ZITADEL_DATABASE_POSTGRES_USER_USERNAME: zitadel
+      ZITADEL_DATABASE_POSTGRES_USER_PASSWORD: zitadel
+      ZITADEL_DATABASE_POSTGRES_USER_SSL_MODE: disable
+      ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME: postgres
+      ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD: postgres
+      ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE: disable
+      ZITADEL_EXTERNALSECURE: false
+      ZITADEL_FIRSTINSTANCE_MACHINEKEYPATH: /machinekey/zitadel-admin-sa.json
+      ZITADEL_FIRSTINSTANCE_PATPATH: /machinekey/zitadel-admin-pat.json
+      ZITADEL_FIRSTINSTANCE_ORG_MACHINE_MACHINE_USERNAME: zitadel-admin-sa
+      ZITADEL_FIRSTINSTANCE_ORG_MACHINE_MACHINE_NAME: Admin
+      ZITADEL_FIRSTINSTANCE_ORG_MACHINE_MACHINEKEY_TYPE: 1
+      ZITADEL_FIRSTINSTANCE_ORG_MACHINE_PAT_EXPIRATIONDATE: "2025-01-01T00:00:00Z"
+      # for development convenience, set to false
+      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORDCHANGEREQUIRED: false
+
+    depends_on:
+      zitadel_db:
+        condition: "service_healthy"
+    volumes:
+      - ./machinekey:/machinekey
+
+  zitadel_db:
+    container_name: "zitadel_db"
+    restart: "always"
+    image: postgres:16-alpine
+    environment:
+      PGUSER: postgres
+      POSTGRES_PASSWORD: postgres
+    networks:
+      - "zitadel"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "zitadel", "-U", "postgres"]
+      interval: "10s"
+      timeout: "30s"
+      retries: 5
+      start_period: "20s"
+
+  # run local file upload server using tusd protocol, a resumbale file upload protocol
+  tusd:
+    container_name: "tusd"
+    restart: "always"
+    image: tusproject/tusd
+    networks:
+      - "zitadel"
+      - traefik-net
+
+  # search capability services
+  # elastsearch engine, kibana ui and connectors service to ingest mongodb data into elasticsearch
+
+  elasticsearch:
+    container_name: "elasticsearch"
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    environment:
+      - "discovery.type=single-node"
+      - "ES_JAVA_OPTS=-Xms2048m -Xmx2048m"
+      - "xpack.security.enabled=true"
+      - "xpack.security.authc.api_key.enabled=true"
+      - "xpack.security.authc.token.enabled=true"
+      - "ELASTIC_PASSWORD=${ELASTIC_PASSWORD}"
+      - "action.destructive_requires_name=false"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    networks:
+      - elastic
+    ports:
+      - 9200:9200
+    volumes:
+      - conn-es-data:/usr/share/elasticsearch/data
+
+  kibana:
+    container_name: "kibana"
+    image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
+    ports:
+      - 5601:5601
+    depends_on:
+      - elasticsearch
+    networks:
+      - elastic
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      ELASTICSEARCH_USERNAME: kibana_system
+      ELASTICSEARCH_PASSWORD: ${ELASTIC_PASSWORD}
+      XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY: c69548d9027afcf4d55146b1d425a9f4c69548d9027afcf4d55146b1d425a9f4
+  # mongodb_es_sync_service:
+  #   image: theignorantview/mongodb-es-sync-service:latest
+  #   # depends_on:
+  #   #   - elasticsearch
+  #   #   - kibana
+  #   container_name: mongodb_es_sync_service
+  #   env_file:
+  #     - .env
+  #   # restart: unless-stopped
+  #   networks:
+  #     - elastic
+
+networks:
+  zitadel:
+  elastic:
+  traefik-net:
+    driver: bridge
+
+volumes:
+  conn-es-data:
