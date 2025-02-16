@@ -1,0 +1,15 @@
+
+
+connectors:
+-
+  connector_id: "skillanthropy_charities"
+  service_type: "mongodb"
+
+
+elasticsearch:
+  host: "http://elasticsearch:9200"
+  api_key: <your_api_key>
+
+
+elasticsearch.max_retries: 10
+elasticsearch.retry_interval: 10
