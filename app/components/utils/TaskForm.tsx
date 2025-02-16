@@ -186,8 +186,8 @@ export default function TaskForm({
 
       // Only reset form if there are no validation errors
       if (!serverValidation || serverValidation.length === 0) {
-        setFormData(defaultFormData);
-        setResetField((prev) => !prev);
+        // setFormData(defaultFormData);
+        // setResetField((prev) => !prev);
       }
     }
 
