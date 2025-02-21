@@ -1,10 +1,10 @@
-import { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
+import { json, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import ErrorPopup from "~/components/cards/ErrorPopup";
 import PopularTasks from "~/components/cards/LatestTasksCard";
 import Navbar from "~/components/navigation/Header2";
 import { getUserInfo } from "~/models/user2.server";
-import { getSession } from "~/services/session.server";
+import { getSession, commitSession } from "~/services/session.server";
 import { prisma } from "~/services/db.server";
 
 export const meta: MetaFunction = () => {
@@ -26,7 +26,7 @@ export default function Index() {
         <h1 className="tracking-wide text-accentPrimary w-fit text-4xl lg:text-7xl mt-8 m-auto">
           Donate your digital skills
         </h1>
-        {error && <ErrorPopup error={error} />}
+        {error && <Notification type="error" message={error} />}
         <h1 className="tracking-wide text-basePrimaryDark w-fit text-3xl m-auto lg:text-5xl ">
           Amplify Charity Impact
         </h1>
@@ -48,10 +48,12 @@ export default function Index() {
 }
 
 import { subDays } from "date-fns";
+import Notification from "~/components/cards/NotificationCard";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
   const accessToken = session.get("accessToken");
+  const flashError = session.get("error");
 
   // Get the date 30 days ago for recency filtering
   const thirtyDaysAgo = subDays(new Date(), 30);
@@ -81,30 +83,20 @@ export async function loader({ request }: LoaderFunctionArgs) {
     .sort((a, b) => b.popularityScore - a.popularityScore)
     .slice(0, 3);
 
-  // Check for authentication errors
-  const urlError = new URL(request.url).searchParams.get("error");
-  console.log("error", urlError);
-
-  if (urlError) {
-    return {
-      message: "Authentication Error",
-      userInfo: null,
-      error: urlError,
+  // Return with flash message and clear it
+  return json(
+    {
+      message: accessToken ? "User logged in" : "User not logged in",
+      userInfo: accessToken ? await getUserInfo(accessToken) : null,
+      error: flashError,
       recentTasks: topTasks,
-    };
-  }
-
-  if (!accessToken) {
-    return {
-      message: "User not logged in",
-      userInfo: null,
-      error: null,
-      recentTasks: topTasks,
-    };
-  }
-
-  const { userInfo } = await getUserInfo(accessToken);
-  return { userInfo, error: null, recentTasks: topTasks };
+    },
+    {
+      headers: {
+        "Set-Cookie": await commitSession(session),
+      },
+    }
+  );
 }
 
 // Helper function to calculate task popularity score

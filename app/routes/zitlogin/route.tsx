@@ -1,60 +1,46 @@
-import { json, LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { getZitadelVars } from "~/services/env.server";
 import { generateCodeChallenge, generateCodeVerifier } from "~/services/pkce";
 import { getSession, commitSession } from "~/services/session.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
-  const error = session.get("error");
-  console.log(error);
-
   const url = new URL(request.url);
   const returnTo = url.searchParams.get("returnTo") || "/";
 
   const zitadel = getZitadelVars();
 
   if (!zitadel.CLIENT_ID || !zitadel.REDIRECT_URI || !zitadel.ZITADEL_DOMAIN) {
-    return json(
-      {
-        error: "Missing Zitadel configuration",
-        codeChallenge: "",
-        zitadel: { ZITADEL_DOMAIN: "", CLIENT_ID: "", REDIRECT_URI: "" },
+    session.flash("error", "Missing Zitadel configuration");
+    return redirect("/", {
+      headers: {
+        "Set-Cookie": await commitSession(session),
       },
-      { status: 500 },
-    );
+    });
   }
+
   try {
     const response = await fetch(zitadel.ZITADEL_DOMAIN, {
       method: "GET",
     });
 
     if (!response.ok) {
-      console.error(
-        "Failed to connect to Zitadel domain:",
-        response.status,
-        response.statusText,
-      );
-      return redirect(
-        `${returnTo}?error=${encodeURIComponent("Server error during authentication")}`,
-        {
-          headers: {
-            "Set-Cookie": await commitSession(session),
-          },
-        },
-      );
-    }
-  } catch (err) {
-    console.error("Error connecting to Zitadel domain:", err);
-
-    return redirect(
-      `${returnTo}?error=${encodeURIComponent("Server error during authentication")}`,
-      {
+      session.flash("error", "Server error during authentication");
+      return redirect("/", {
         headers: {
           "Set-Cookie": await commitSession(session),
         },
+      });
+    }
+  } catch (err) {
+    session.flash("error", "Server error during authentication");
+    return redirect("/", {
+      headers: {
+        "Set-Cookie": await commitSession(session),
       },
-    );
+    });
   }
+
   const codeVerifier = generateCodeVerifier();
   const codeChallenge = generateCodeChallenge(codeVerifier);
 
