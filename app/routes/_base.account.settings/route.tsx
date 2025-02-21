@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Form,
   MetaFunction,
@@ -30,6 +30,7 @@ import { getFeatureFlags } from "~/services/env.server";
 import { Alert } from "~/components/utils/Alert";
 import { z } from "zod";
 import { updateCharity } from "~/models/charities.server";
+import { getSignedUrlForFile } from "~/services/s3.server";
 
 // Add this type definition at the top of the file
 type ActionResponse = {
@@ -52,7 +53,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirect("/zitlogin");
   }
 
-  return { userInfo, FEATURE_FLAG };
+  const signedProfilePicture = await getSignedUrlForFile(
+    userInfo.profilePicture,
+    true,
+  );
+
+  return { userInfo, signedProfilePicture, FEATURE_FLAG };
 }
 
 // Replace the action function with this standardized version
@@ -97,7 +103,8 @@ export async function action({ request }: ActionFunctionArgs) {
             .string()
             .min(1, "Title is required")
             .max(50, "Maximum of 50 characters")
-            .optional(),
+            .optional()
+            .or(z.literal("")),
           bio: z
             .string()
             .min(1, "Bio is required")
@@ -263,6 +270,10 @@ export default function AccountSettings() {
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
+  const [signedProfilePicture, setSignedProfilePicture] = useState<
+    string | null
+  >(null);
+
   const fetcher = useFetcher();
   const tabs = [
     { id: "profile", label: "Profile", icon: "👤" },
@@ -277,6 +288,19 @@ export default function AccountSettings() {
       : []),
     { id: "danger", label: "Danger Zone", icon: "⚠️" },
   ];
+
+  useEffect(() => {
+    async function fetchSignedUrl() {
+      const res = await fetch(
+        `/api/s3-get-url?file=${formData.profilePicture}&action=upload`,
+      );
+      const data = await res.json();
+      if (data.url) {
+        setSignedProfilePicture(data.url);
+      }
+    }
+    fetchSignedUrl();
+  }, [formData.profilePicture]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
@@ -342,7 +366,7 @@ export default function AccountSettings() {
         {formData.profilePicture && (
           <div className="flex flex-col items-center gap-4">
             <img
-              src={formData.profilePicture}
+              src={signedProfilePicture || formData.profilePicture}
               className="w-32 h-32 rounded-full object-cover border-2 shadow-sm"
               alt="Profile Picture"
             />
@@ -366,7 +390,7 @@ export default function AccountSettings() {
           <div className="bg-basePrimary rounded-lg p-4 shadow-lg">
             <div className="flex items-center gap-4 mb-6 p-2">
               <Avatar
-                src={userInfo?.profilePicture}
+                src={signedProfilePicture || userInfo?.profilePicture}
                 name={userInfo?.name}
                 size={60}
               />
@@ -424,7 +448,9 @@ export default function AccountSettings() {
                     >
                       <img
                         src={
-                          formData.profilePicture || userInfo?.profilePicture
+                          signedProfilePicture ||
+                          formData.profilePicture ||
+                          userInfo?.profilePicture
                         }
                         className="w-24 h-24 rounded-full object-cover border-2 shadow-sm"
                         alt="Profile Picture"

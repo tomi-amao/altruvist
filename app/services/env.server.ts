@@ -21,3 +21,11 @@ export function getFeatureFlags() {
     FEATURE_FLAG: process.env.FEATURE_FLAG === "true",
   };
 }
+export function getS3Credentials() {
+  return {
+    ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID ?? "",
+    SECRET_ACCESS_KEY: process.env.AWS_SECRET ?? "",
+    REGION: process.env.AWS_REGION ?? "",
+    BUCKET: process.env.AWS_BUCKET ?? "",
+  };
+}

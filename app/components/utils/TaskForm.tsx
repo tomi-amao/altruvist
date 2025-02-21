@@ -115,14 +115,13 @@ export default function TaskForm({
     initialData?.resources?.map((resource) => ({
       name: resource.name,
       size: resource.size,
-      uploadURL: resource.url,
+      uploadURL: resource.uploadURL,
       extension: resource.extension,
     })) || [],
   );
   const [showUploadButton, setShowUploadButton] = useState<boolean>(false);
   const [showNotification, setShowNotification] = useState(false);
   const [resetField, setResetField] = useState(false);
-  const fetcher = useFetcher();
   // Schema definitions
   const titleSchema = z
     .string()
@@ -193,6 +192,18 @@ export default function TaskForm({
 
     setShowNotification(true);
     setTimeout(() => setShowNotification(false), 3000);
+  };
+
+  const handleFileDelete = async (file: string) => {
+    console.log("File deleted", file);
+    setUploadedResources((prev) =>
+      prev.filter((resource) => resource.uploadURL !== file),
+    );
+    const res = await fetch(`/api/s3-get-url?file=${file}&action=delete`);
+    const data = await res.json();
+    console.log(data.message);
+
+    console.log("Files after delete", uploadedResources);
   };
 
   const hasServerError = (fieldName: string) => {
@@ -424,16 +435,20 @@ export default function TaskForm({
 
           {uploadedResources.length > 0 && (
             <div className="mt-4">
-              <h3 className="font-medium mb-2">Uploaded Files</h3>
+              <h3 className="font-medium mb-2 text-base">Uploaded Files</h3>
               <div className="flex flex-row flex-wrap gap-4 items-center">
                 {uploadedResources.map((upload, index) => (
-                  <FilePreviewButton
-                    key={index}
-                    fileName={upload.name || null}
-                    fileSize={upload.size}
-                    fileUrl={upload.uploadURL || null}
-                    fileExtension={upload.extension}
-                  />
+                  <>
+                    <FilePreviewButton
+                      key={index}
+                      fileName={upload.name || null}
+                      fileSize={upload.size}
+                      fileUrl={upload.uploadURL || null}
+                      fileExtension={upload.extension}
+                      onDelete={handleFileDelete}
+                      isEditing={true}
+                    />
+                  </>
                 ))}
               </div>
             </div>
@@ -445,14 +460,21 @@ export default function TaskForm({
           <PrimaryButton
             text={isEditing ? "Save Changes" : "Create Task"}
             type="submit"
+            ariaLabel="Submit task form"
           />
-          {onCancel && <CancelButton text="Cancel" action={onCancel} />}
+          {onCancel && (
+            <CancelButton
+              text="Cancel"
+              action={onCancel}
+              ariaLabel="Cancel task Form"
+            />
+          )}
         </div>
       </Form>
 
       {showNotification && (
         <div className="fixed top-4 right-4">
-          {serverValidation ? (
+          {serverValidation.length > 0 ? (
             <Notification
               message={`Unable to ${isEditing ? "update" : "create"} task`}
               type="error"

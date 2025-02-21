@@ -1,5 +1,6 @@
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { Link, Outlet, useLoaderData, useLocation } from "@remix-run/react";
+import { useEffect, useState } from "react";
 import { SimpleProfileCard } from "~/components/cards/ProfileCard";
 import Navbar from "~/components/navigation/Header2";
 import { getUserInfo } from "~/models/user2.server";
@@ -33,6 +34,9 @@ export default function Dashboard() {
   const { userInfo } = useLoaderData<typeof loader>();
   const role = userInfo.roles[0];
   const location = useLocation();
+  const [signedProfilePicture, setSignedProfilePicture] = useState<
+    string | null
+  >(null);
 
   const getSideBarMenu = (role: string) => {
     switch (role) {
@@ -59,6 +63,19 @@ export default function Dashboard() {
     }
   };
 
+  useEffect(() => {
+    async function fetchSignedUrl() {
+      const res = await fetch(
+        `/api/s3-get-url?file=${userInfo.profilePicture}&action=upload`,
+      );
+      const data = await res.json();
+      if (data.url) {
+        setSignedProfilePicture(data.url);
+      }
+    }
+    fetchSignedUrl();
+  }, [userInfo.profilePicture]);
+
   return (
     <>
       <div className="h-full lg:h-screen flex flex-row">
@@ -69,7 +86,7 @@ export default function Dashboard() {
             <SimpleProfileCard
               name={userInfo?.name}
               userTitle={userInfo?.userTitle}
-              profilePicture={userInfo?.profilePicture}
+              profilePicture={signedProfilePicture || userInfo?.profilePicture}
               className="hover:shadow-md transition-shadow duration-200"
             />
           </div>

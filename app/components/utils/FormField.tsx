@@ -1,6 +1,7 @@
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { AlertIcon, InfoIcon } from "./icons";
+import { Meta, UppyFile } from "@uppy/core";
 
 interface FormFieldProps {
   htmlFor: string;
@@ -839,11 +840,15 @@ export const FilePreviewButton = ({
   fileName,
   fileSize,
   fileExtension,
+  onDelete,
+  isEditing,
 }: {
   fileUrl: string | null;
   fileName: string | null;
   fileSize: number | null;
   fileExtension: string | null;
+  onDelete?: (file: string) => void;
+  isEditing: boolean;
 }) => {
   const convertBytes = (bytes: number): string => {
     const units = ["bytes", "KB", "MB", "GB"];
@@ -858,11 +863,25 @@ export const FilePreviewButton = ({
     return `${size.toFixed(2)} ${units[unitIndex]}`;
   };
 
+  // State to store the signed URL
+  const [signedFileUrl, setSignedFileUrl] = useState<string | null>(null);
+  // Fetch the signed URL when the component mounts
+  useEffect(() => {
+    async function fetchSignedUrl() {
+      const res = await fetch(`/api/s3-get-url?file=${fileUrl}&action=upload`);
+      const data = await res.json();
+      if (data.url) {
+        setSignedFileUrl(data.url);
+      }
+    }
+    fetchSignedUrl();
+  }, [fileUrl]);
+
   const handleFilePreview = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (fileUrl) {
-      window.open(fileUrl, "_blank", "noopener,noreferrer");
+    if (signedFileUrl) {
+      window.open(signedFileUrl, "_blank", "noopener,noreferrer");
     }
   };
 
@@ -871,47 +890,77 @@ export const FilePreviewButton = ({
     return `${name.slice(0, limit)}...`;
   };
 
+  const handleFileDelete = (e: React.MouseEvent) => {
+    onDelete?.(fileUrl);
+    e.preventDefault();
+    e.stopPropagation();
+  };
   return (
-    <button
-      onClick={handleFilePreview}
-      className={`group relative w-full max-w-sm transition-all duration-200 
+    <>
+      <button
+        onClick={handleFilePreview}
+        className={`group relative w-full max-w-sm transition-all duration-200 
                  ${fileUrl ? "hover:shadow-lg cursor-pointer" : "cursor-not-allowed opacity-75"} 
                  focus:outline-none focus:ring-2 focus:ring-baseSecondary focus:ring-offset-2
                  z-10`}
-      disabled={!fileUrl}
-      aria-label={`Preview ${fileName}`}
-      title={!fileUrl ? "No preview available" : undefined}
-    >
-      <div
-        className="flex overflow-hidden rounded-lg border border-basePrimaryDark
-                    bg-basePrimaryLight hover:bg-basePrimary transition-colors duration-200"
+        disabled={!fileUrl}
+        aria-label={`Preview ${fileName}`}
+        title={!fileUrl ? "No preview available" : undefined}
       >
-        {/* File Extension Badge */}
         <div
-          className="flex min-w-16 items-center justify-center bg-baseSecondary 
-                      p-3 font-medium text-basePrimaryDark"
+          className="flex overflow-hidden rounded-lg border border-basePrimaryDark
+                    bg-basePrimaryLight hover:bg-basePrimary transition-colors duration-200"
         >
-          {fileExtension?.toUpperCase() || "?"}
-        </div>
-        {/* File Information */}
-        <div className="flex flex-1 flex-col justify-between p-3">
-          <div className="space-y-1">
-            <p className="font-medium text-baseSecondary text-sm text-left">
-              {fileName ? truncateFileName(fileName, 40) : "Unnamed File"}
-            </p>
-            <p className="text-xs text-baseSecondary text-opacity-75">
-              {fileSize ? convertBytes(fileSize) : "Unknown size"}
-            </p>
+          {/* File Extension Badge */}
+          <div
+            className="flex min-w-16 items-center justify-center bg-baseSecondary 
+                      p-3 font-medium text-basePrimaryDark"
+          >
+            {fileExtension?.toUpperCase() || "?"}
+          </div>
+          {/* File Information */}
+          <div className="flex flex-1 flex-col justify-between p-3">
+            <div className="space-y-1">
+              <p className="font-medium text-baseSecondary text-sm text-left">
+                {fileName ? truncateFileName(fileName, 40) : "Unnamed File"}
+              </p>
+              <p className="text-xs text-baseSecondary text-opacity-75">
+                {fileSize ? convertBytes(fileSize) : "Unknown size"}
+              </p>
+            </div>
+          </div>
+
+          {/* Preview Icon */}
+          <div
+            className="flex items-center pr-4 opacity-0 transition-opacity 
+                      group-hover:opacity-100"
+          >
+            <svg
+              className="h-5 w-5 text-baseSecondary"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+              />
+            </svg>
           </div>
         </div>
-
-        {/* Preview Icon */}
-        <div
-          className="flex items-center pr-4 opacity-0 transition-opacity 
-                      group-hover:opacity-100"
-        >
+      </button>
+      {isEditing && (
+        <button className="ml-2" onClick={handleFileDelete}>
           <svg
-            className="h-5 w-5 text-baseSecondary"
+            className="h-5 w-5 text-dangerPrimary"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -920,18 +969,12 @@ export const FilePreviewButton = ({
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth="2"
-              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-            />
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
             />
           </svg>
-        </div>
-      </div>
-    </button>
+        </button>
+      )}
+    </>
   );
 };
 
@@ -1285,7 +1328,7 @@ export function DropdownField({
         </label>
 
         {isOpen && (
-          <ul className="absolute left-0 w-full mt-1 border rounded-lg border-baseSecondary bg-basePrimaryLight max-h-60 overflow-y-auto z-auto">
+          <ul className="absolute left-0 w-full mt-1 border rounded-lg border-baseSecondary bg-basePrimaryLight max-h-60 overflow-y-auto z-50">
             {options.map((option) => (
               <li
                 key={option.value}
