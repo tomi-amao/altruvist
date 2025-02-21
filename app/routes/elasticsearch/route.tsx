@@ -11,7 +11,7 @@ const client = new Client({
 
 import { LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import TaskSummaryCard from "~/components/cards/taskCard";
+import TaskSummaryCard from "~/components/tasks/taskCard";
 import { transformElasticSearchTasks } from "~/components/utils/DataTransformation";
 import { getElasticVars } from "~/services/env.server";
 

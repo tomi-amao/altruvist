@@ -14,7 +14,7 @@ import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
 import "@uppy/image-editor/dist/style.css";
 import "@uppy/progress-bar/dist/style.css";
-import { NewTaskFormData } from "~/models/types.server";
+import { NewTaskFormData } from "~/types/tasks";
 import { FilePreviewButton } from "./FormField";
 import { TaskResource } from "~/types/tasks";
 

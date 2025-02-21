@@ -1,6 +1,5 @@
 import { json, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import ErrorPopup from "~/components/cards/ErrorPopup";
 import PopularTasks from "~/components/cards/LatestTasksCard";
 import Navbar from "~/components/navigation/Header2";
 import { getUserInfo } from "~/models/user2.server";
@@ -83,18 +82,28 @@ export async function loader({ request }: LoaderFunctionArgs) {
     .sort((a, b) => b.popularityScore - a.popularityScore)
     .slice(0, 3);
 
-  // Return with flash message and clear it
+  // Only commit session if there was a flash message
+  const headers = flashError
+    ? {
+        "Set-Cookie": await commitSession(session),
+      }
+    : undefined;
+
+  let userInfoResult = null;
+  if (accessToken) {
+    const { userInfo } = await getUserInfo(accessToken);
+    userInfoResult = userInfo;
+  }
+
   return json(
     {
       message: accessToken ? "User logged in" : "User not logged in",
-      userInfo: accessToken ? await getUserInfo(accessToken) : null,
+      userInfo: userInfoResult,
       error: flashError,
       recentTasks: topTasks,
     },
     {
-      headers: {
-        "Set-Cookie": await commitSession(session),
-      },
+      headers,
     }
   );
 }

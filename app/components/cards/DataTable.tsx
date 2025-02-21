@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { TaskSummaryCardMobile } from "./taskCard";
+import { TaskSummaryCardMobile } from "../tasks/taskCard";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 type TableProps = {
@@ -169,8 +169,8 @@ const DataTable = ({
 
       {/* Mobile View with Pagination */}
       <div className="md:hidden space-y-4">
-        {getCurrentPageData().map((task) => (
-          <TaskSummaryCardMobile key={task.title} data={task} />
+        {getCurrentPageData().map((task, index) => (
+          <TaskSummaryCardMobile key={task.title + index} data={task} />
         ))}
 
         {/* Mobile Pagination Controls */}

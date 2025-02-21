@@ -43,10 +43,6 @@ const Notification: React.FC<NotificationProps> = ({
     >
       {message}
       <div className=" absolute top-12 h-[2px] w-full rounded-full ">
-        {/* <div
-          className="h-full bg-baseSecondary rounded"
-          style={{ width: `${progress}%`, transition: "width 0.1s linear" }}
-        ></div> */}
       </div>
     </div>,
     document.body,

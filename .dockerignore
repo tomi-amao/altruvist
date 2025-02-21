@@ -8,3 +8,5 @@ LICENSE
 /public/build
 /build
 .github/
+.env.companion
+.env.local

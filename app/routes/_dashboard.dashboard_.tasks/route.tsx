@@ -34,7 +34,7 @@ import { tasks, TaskStatus, TaskUrgency } from "@prisma/client";
 import TaskManagementActions from "~/components/tasks/TaskManagementActions";
 import { SortOrder } from "../search/route";
 import { useEffect, useMemo, useState } from "react";
-import TaskForm from "~/components/utils/TaskForm";
+import TaskForm from "~/components/tasks/TaskForm";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);

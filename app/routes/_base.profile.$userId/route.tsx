@@ -3,10 +3,10 @@ import { MetaFunction, useLoaderData } from "@remix-run/react";
 import { getProfileInfo, getUserInfo } from "~/models/user2.server";
 import { getSession } from "~/services/session.server";
 import DataTable from "~/components/cards/DataTable";
-import TaskDetailsCard from "~/components/cards/taskDetailsCard";
+import TaskDetailsCard from "~/components/tasks/taskDetailsCard";
 import { Modal } from "~/components/utils/Modal2";
-import { useState } from "react";
-import { CombinedCollections } from "~/models/types.server";
+import { useEffect, useState } from "react";
+import { CombinedCollections } from "~/types/tasks";
 import { getUserTasks } from "~/models/tasks.server";
 import { Avatar } from "~/components/cards/ProfileCard";
 import { getFeatureFlags } from "~/services/env.server";
@@ -36,18 +36,11 @@ export default function ProfilePage() {
     );
   }
 
-  const data = [
-    {
-      title: "Save Dogs",
-      description: "Saving dogs in the local area",
-      urgency: "LOW",
-      requiredSkills: ["Teamwork", "Compassion"],
-      deadline: "2024-12-21T00:00:00",
-    },
-  ];
   const [showSelectedTask, setShowSelectedTask] = useState(false);
   const [selectedTask, setSelectedTask] = useState<CombinedCollections>();
-
+  const [signedProfilePicture, setSignedProfilePicture] = useState<
+    string | null
+  >(null);
   // const handleRowClick = (row) => {
   //   console.log(row);
   // };
@@ -62,13 +55,26 @@ export default function ProfilePage() {
     setSelectedTask(selectedTaskData);
   };
 
+  useEffect(() => {
+    async function fetchSignedUrl() {
+      const res = await fetch(
+        `/api/s3-get-url?file=${userInfo?.profilePicture}&action=upload`,
+      );
+      const data = await res.json();
+      if (data.url) {
+        setSignedProfilePicture(data.url);
+      }
+    }
+    fetchSignedUrl();
+  }, [userInfo?.profilePicture]);
+
   return (
     <>
       <div className="md:flex-row md:flex flex-col items-center md:items-start">
         <div className="bg-basePrimaryDark md:w-8/12 flex flex-col md:flex-shrink-0 p-4 rounded-md ">
           <div className="flex items-center gap-2 justify-between flex-row ">
             <Avatar
-              src={profileInfo?.profilePicture}
+              src={signedProfilePicture||profileInfo?.profilePicture}
               name={profileInfo.name}
               size={130}
             />

@@ -8,7 +8,7 @@ import {
 import {
   CombinedCollections,
   MultiSearchDocuments,
-} from "~/models/types.server";
+} from "~/types/tasks";
 
 import { useNavigate } from "@remix-run/react";
 

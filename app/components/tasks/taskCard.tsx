@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Modal } from "../utils/Modal2";
 
 import { useFetcher } from "@remix-run/react";
-import { SearchResultCardType } from "./searchResultCard";
+import { SearchResultCardType } from "../cards/searchResultCard";
 import TaskDetailsCard from "./taskDetailsCard";
 
 export const getUrgencyColor = (urgency: string) => {
@@ -167,8 +167,8 @@ export const TaskSummaryCardMobile = (
               {taskData.data.requiredSkills && (
                 <li className="text-xs  md:text-sm font-semibold space-x-1">
                   Skills:
-                  {taskData.data?.requiredSkills.map((skill) => (
-                    <span className="rounded-sm font-semibold bg-basePrimaryLight px-1 text-[12px]">
+                  {taskData.data?.requiredSkills.map((skill, index) => (
+                    <span key={index} className="rounded-sm font-semibold bg-basePrimaryLight px-1 text-[12px]">
                       {skill}
                     </span>
                   ))}
@@ -186,8 +186,8 @@ export const TaskSummaryCardMobile = (
                 <li className="text-xs md:text-sm  font-semibold">
                   Tags:
                   <span className="font-normal md:text-sm text-xs">
-                    {taskData.data?.category.map((tag) => (
-                      <span className="rounded-sm font-semibold bg-basePrimaryLight px-1 text-[12px]">
+                    {taskData.data?.category.map((tag, index) => (
+                      <span key={index} className="rounded-sm font-semibold bg-basePrimaryLight px-1 text-[12px]">
                         {tag}
                       </span>
                     ))}

@@ -1,7 +1,7 @@
 import { Link } from "@remix-run/react";
 import { formatDistanceToNow, previousDay } from "date-fns";
 import { Modal } from "../utils/Modal2";
-import TaskDetailsCard from "./taskDetailsCard";
+import TaskDetailsCard from "../tasks/taskDetailsCard";
 import { useState } from "react";
 
 interface Task {

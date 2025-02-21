@@ -2,7 +2,7 @@ import { LoaderFunctionArgs } from "@remix-run/node";
 import { useFetcher, useLoaderData } from "@remix-run/react";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { DropdownCard } from "~/components/cards/FilterCard";
-import TaskSummaryCard from "~/components/cards/taskCard";
+import TaskSummaryCard from "~/components/tasks/taskCard";
 import Navbar from "~/components/navigation/Header2";
 import {
   CancelButton,

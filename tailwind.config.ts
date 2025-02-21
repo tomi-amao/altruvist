@@ -4,6 +4,11 @@ import type { Config } from 'tailwindcss'
 export default {
   darkMode: 'selector',
   content: ['./app/**/*.{js,jsx,ts,tsx}'],
+  safelist: [
+    {
+      pattern: /^bg-indicator-(red|blue|green|yellow|purple|pink|indigo|orange|teal|cyan)$/,
+    }
+  ],
   theme: {
     colors:{
       basePrimary: "#DDDDDD",

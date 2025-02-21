@@ -123,7 +123,6 @@ const ListItem = ({
   }
 };
 
-// Enhanced Section component
 const Section = ({ title, tasks, userRole }: SectionProps) => (
   <div className="bg-basePrimary rounded-lg shadow-lg overflow-hidden flex flex-col">
     <h2 className="text-xl font-semibold font-primary p-4 bg-baseSecondary text-txtsecondary sticky top-0">

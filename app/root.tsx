@@ -16,8 +16,7 @@ import type {
 import stylesheet from "~/styles/tailwind.css?url";
 
 
-import darkModeSet, { getDarkMode } from "./data/darkmode";
-import { PrimaryButton } from "./components/utils/BasicButton";
+
 import { ErrorCard } from "./components/utils/ErrorCard";
 
 export const links: LinksFunction = () => {
@@ -249,10 +248,4 @@ export function ErrorBoundary() {
 
 export default function App() {
   return <Outlet />;
-}
-
-export async function loader() {
-  const mode = await getDarkMode();
-
-  return mode;
 }

@@ -6,11 +6,11 @@ import {
   TextAreaField,
   ListInput,
   DropdownField,
-} from "./FormField";
-import { charityTags, techSkills } from "./OptionsForDropdowns";
-import { CancelButton, PrimaryButton } from "./BasicButton";
+} from "../utils/FormField";
+import { charityTags, techSkills } from "../utils/OptionsForDropdowns";
+import { CancelButton, PrimaryButton } from "../utils/BasicButton";
 import { useEffect, useState } from "react";
-import FileUpload from "./FileUpload";
+import FileUpload from "../utils/FileUpload";
 import { Meta, UppyFile } from "@uppy/core";
 import type { tasks, TaskUrgency } from "@prisma/client";
 import { z } from "zod";

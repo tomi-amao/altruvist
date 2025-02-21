@@ -2,14 +2,14 @@ import React, { useEffect, useState } from "react";
 import {
   CombinedCollections,
   MultiSearchDocuments,
-} from "~/models/types.server";
+} from "~/types/tasks";
 import {
   CompanyIcon,
   DescriptionIcon,
   AccountCircleIcon,
 } from "../utils/icons";
 import { useNavigate } from "@remix-run/react";
-import { getUrgencyColor } from "./taskCard";
+import { getUrgencyColor } from "../tasks/taskCard";
 
 export interface SearchResultCardType extends MultiSearchDocuments {
   all: boolean;

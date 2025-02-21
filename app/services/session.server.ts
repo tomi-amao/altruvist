@@ -1,7 +1,7 @@
 import { createCookieSessionStorage, redirect } from "@remix-run/node";
 
 type SessionData = {
-  userId: string;
+  accessToken: string;
 };
 
 type SessionFlashData = {
@@ -25,7 +25,7 @@ export const sessionStorage = createCookieSessionStorage<
     path: "/",
     httpOnly: true,
     secrets: [sessionSecret],
-    // secure: process.env.NODE_ENV === "production"
+    secure: process.env.NODE_ENV === "production"
   },
 });
 

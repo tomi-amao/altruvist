@@ -4,7 +4,7 @@ import DashboardBanner from "../cards/BannerSummaryCard";
 import { SecondaryButton, PrimaryButton } from "../utils/BasicButton";
 import type { taskApplications, tasks, users } from "@prisma/client";
 import { FilePreviewButton, DropdownField } from "../utils/FormField";
-import TaskForm from "../utils/TaskForm";
+import TaskForm from "./TaskForm";
 import { TaskApplicants } from "./TaskApplicants";
 import { CommentSection } from "../comment/Comment";
 import getColour from "../utils/ColourGenerator";
@@ -150,8 +150,9 @@ export function TaskDetails({
 
   const listDotStyling = (value: string) => {
     const dotColour = getColour(value);
+    const colorClass = `bg-indicator-${dotColour}`;
     return (
-      <span className={`w-2 h-2 rounded-full bg-indicator-${dotColour}`}></span>
+      <span className={`inline-block w-2 h-2 rounded-full ${colorClass}`}></span>
     );
   };
 
@@ -576,10 +577,8 @@ export function TaskDetails({
                               hover:border-baseSecondary/20 hover:shadow-sm
                               flex items-center gap-2"
                           >
-                            <span
-                              className="w-2 h-2 rounded-full bg-accentPrimary/70 
-                              group-hover:bg-accentPrimary transition-colors duration-300"
-                            ></span>
+                              {listDotStyling(cat)}
+
                             <span
                               className="text-sm font-medium text-baseSecondary/80 
                               group-hover:text-baseSecondary transition-colors duration-300"
