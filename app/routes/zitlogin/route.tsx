@@ -5,8 +5,6 @@ import { getSession, commitSession } from "~/services/session.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
-  const url = new URL(request.url);
-  const returnTo = url.searchParams.get("returnTo") || "/";
 
   const zitadel = getZitadelVars();
 
@@ -33,6 +31,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
       });
     }
   } catch (err) {
+    console.log(err);
+    
     session.flash("error", "Server error during authentication");
     return redirect("/", {
       headers: {

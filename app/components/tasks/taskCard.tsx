@@ -1,9 +1,8 @@
 import { tasks } from "@prisma/client";
 import { CalendarIcon, PersonIcon } from "@radix-ui/react-icons";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Modal } from "../utils/Modal2";
 
-import { useFetcher } from "@remix-run/react";
 import { SearchResultCardType } from "../cards/searchResultCard";
 import TaskDetailsCard from "./taskDetailsCard";
 
@@ -41,23 +40,10 @@ interface volunteerDetails {
 }
 export default function TaskSummaryCard(task: taskAdditionalDetails) {
   const [showModal, setShowModal] = useState(false);
-  const [showMessage, setShowMessage] = useState(true);
 
   const handleCloseModal = () => {
     setShowModal(false);
   };
-
-  const fetcher = useFetcher();
-
-  useEffect(() => {
-    if (fetcher.data) {
-      const timer = setTimeout(() => {
-        setShowMessage(false);
-      }, 3000); // 3 seconds
-
-      return () => clearTimeout(timer); // Cleanup the timer on component unmount
-    }
-  }, [fetcher.data]);
 
   return (
     <>

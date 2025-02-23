@@ -2,14 +2,20 @@ import { TaskUrgency } from "@prisma/client";
 import { format } from "date-fns";
 import { useFetcher } from "@remix-run/react";
 import { PrimaryButton, SecondaryButton } from "../utils/BasicButton";
-import { useState } from "react";
 import { FilePreviewButton } from "../utils/FormField";
+
+interface Resource {
+  name: string;
+  size: number;
+  uploadURL: string;
+  extension: string;
+}
 
 interface TaskDetailsCardProps {
   category: string[];
-  charityName: any;
+  charityName: string;
   charityId: string | null;
-  id: any;
+  id: string;
   description: string;
   title: string;
   impact: string;
@@ -20,7 +26,7 @@ interface TaskDetailsCardProps {
   deadline: Date;
   userId: string;
   status: string;
-  resources: any[];
+  resources: Resource[];
   userRole: string[];
   volunteerDetails?: {
     userId: string;
@@ -52,7 +58,7 @@ export default function TaskDetailsCard({
   taskApplications = [],
 }: TaskDetailsCardProps) {
   const fetcher = useFetcher();
-  const [showMessage, setShowMessage] = useState(true);
+  const showMessage = true;
 
   const handleApply = (taskId: string, charityId: string) => {
     fetcher.submit(

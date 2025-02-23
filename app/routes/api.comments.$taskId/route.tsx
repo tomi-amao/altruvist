@@ -112,7 +112,7 @@ export async function action({ params, request }: ActionFunctionArgs) {
         const updatedComments = await getCommentsForTask(taskId);
 
         // Find the full reply data including user info
-        let fullReply: any = null;
+        let fullReply: Comment | null = null;
         updatedComments.forEach((comment) => {
           comment.replies?.forEach((reply) => {
             if (reply.id === createdReply.id) {

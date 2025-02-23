@@ -18,14 +18,12 @@ interface ListItemProps {
   userRole: string;
 }
 
-// Enhanced ListItem component with deadline information
 const ListItem = ({
   text,
   deadline,
   status,
   applicationStatus,
   section,
-  userRole,
 }: ListItemProps) => {
   const now = new Date();
   const dueDate = new Date(deadline);

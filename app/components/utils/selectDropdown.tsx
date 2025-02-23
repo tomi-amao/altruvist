@@ -6,7 +6,6 @@ import {
   DescriptionIcon,
 } from "./icons";
 import {
-  CombinedCollections,
   MultiSearchDocuments,
 } from "~/types/tasks";
 
@@ -167,19 +166,17 @@ export const SearchDropdown = ({
 }: {
   searchResults: MultiSearchDocuments[];
 }) => {
-  const [showSelectedSearchItem, setShowSelectedSearchItem] = useState(false);
-  const [selectedSearchItem, setSelectedSearchItem] =
-    useState<CombinedCollections>();
+  // const [showSelectedSearchItem, setShowSelectedSearchItem] = useState(false);
+  // const [selectedSearchItem, setSelectedSearchItem] =
+  //   useState<CombinedCollections>();
 
-  const handleSelectedSearchItem = (selectedItemData: CombinedCollections) => {
-    setShowSelectedSearchItem((preValue) => !preValue);
-    setSelectedSearchItem(selectedItemData);
-  };
+  // const handleSelectedSearchItem = (selectedItemData: CombinedCollections) => {
+  //   setShowSelectedSearchItem((preValue) => !preValue);
+  //   setSelectedSearchItem(selectedItemData);
+  // };
 
   const navigate = useNavigate();
-  const handleCloseModal = () => {
-    setShowSelectedSearchItem(false);
-  };
+
 
   const renderSearchResult = (searchResults: MultiSearchDocuments) => {
     switch (searchResults.collection) {
@@ -187,7 +184,7 @@ export const SearchDropdown = ({
         return (
           <button
             className="flex text-left items-center m-auto  rounded-md space-x-2 hover:bg-basePrimaryLight w-full p-2 "
-            onClick={() => handleSelectedSearchItem(searchResults.data)}
+            // onClick={() => handleSelectedSearchItem(searchResults.data)}
           >
             <span>
               <CompanyIcon />

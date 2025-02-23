@@ -205,8 +205,9 @@ export default function SearchResults() {
         </div>
 
         {searchResults &&
-          searchResults.rawSearchedDocuments.map((document) => (
+          searchResults.rawSearchedDocuments.map((document, index) => (
             <SearchResultCard
+              key={index}
               collection={document?.collection}
               data={document?.data}
               all={showCollections.all}
@@ -223,7 +224,7 @@ export default function SearchResults() {
       <Modal isOpen={showSelectedSearchItem} onClose={handleCloseModal}>
         <div>
           <TaskDetailsCard
-            category={selectedSearchItem?.category!}
+            category={selectedSearchItem?.category}
             charityName={selectedSearchItem}
             id={selectedSearchItem}
             charityId={null}

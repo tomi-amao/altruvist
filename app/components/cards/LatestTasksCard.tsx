@@ -1,5 +1,5 @@
 import { Link } from "@remix-run/react";
-import { formatDistanceToNow, previousDay } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { Modal } from "../utils/Modal2";
 import TaskDetailsCard from "../tasks/taskDetailsCard";
 import { useState } from "react";
@@ -43,13 +43,11 @@ export default function PopularTasks({ tasks }: { tasks: Task[] }) {
 
 export function LatestTaskSummary({ task }: { task: Task }) {
   const [showModal, setShowModal] = useState(false);
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   const handleCloseModal = () => {
     setShowModal(false);
   };
-  const handleModal = (task: Task) => {
-    setSelectedTask(task);
+  const handleModal = () => {
     setShowModal((preValue) => !preValue);
   };
   const timeAgo = formatDistanceToNow(new Date(task.createdAt), {
@@ -58,9 +56,9 @@ export function LatestTaskSummary({ task }: { task: Task }) {
 
   return (
     <>
-      <div
-        className="w-full cursor-pointer rounded-md p-4 flex flex-col hover:bg-basePrimary transition-colors"
-        onClick={() => handleModal(task)}
+      <button
+        className="w-full text-left cursor-pointer rounded-md p-4 flex flex-col hover:bg-basePrimary transition-colors"
+        onClick={() => handleModal()}
       >
         <p className="font-bold font-primary">
           {task.category[0] || "Uncategorized"}
@@ -87,7 +85,7 @@ export function LatestTaskSummary({ task }: { task: Task }) {
             <span>{timeAgo}</span>
           </div>
         </div>
-      </div>
+      </button>
       <Modal isOpen={showModal} onClose={handleCloseModal}>
         <TaskDetailsCard
           category={task.category}

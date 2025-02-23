@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect } from "react";
 import { DropdownCard } from "../cards/FilterCard";
 import Dropdown from "../utils/selectDropdown";
 import { FilterIcon, SortIcon } from "../utils/icons";
@@ -26,11 +26,7 @@ export function TaskSearchFilter({
   applicationStatusOptions,
   filterType = "APPLICATIONS",
 }: TaskSearchFilterProps) {
-  const [volunteerFilters, setVolunteerFilters] = useState(filterType);
 
-  useEffect(() => {
-    setVolunteerFilters(filterType);
-  }, [filterType]);
 
   const sortOptions = [
     <Dropdown

@@ -7,11 +7,11 @@ type NotificationProps = {
   duration?: number; // Optional, defaults to 3000 ms
 };
 
-const Notification: React.FC<NotificationProps> = ({
+const Notification = ({
   message,
   type = "info",
   duration = 3000,
-}) => {
+}: NotificationProps) => {
   const [visible, setVisible] = useState(true);
   const [progress, setProgress] = useState(100);
 
@@ -36,16 +36,34 @@ const Notification: React.FC<NotificationProps> = ({
   if (!visible) return null;
 
   return createPortal(
-    <div
-      className={`fixed top-4 right-4 p-2 rounded-lg shadow-lg text-sm transition-opacity duration-300 z-50 border bg-basePrimary border-baseSecondary text-baseSecondary border-b-4
-        ${type === "success" ? "border-confirmPrimary" : type === "error" ? "border-dangerPrimary" : "bg-basePrimaryLight"}
-      `}
-    >
-      {message}
-      <div className=" absolute top-12 h-[2px] w-full rounded-full ">
+    <div className="fixed top-4 right-4 z-50">
+      <div
+        className={`relative rounded-lg shadow-lg text-sm bg-basePrimary border border-baseSecondary text-baseSecondary overflow-hidden
+          ${
+            type === "success"
+              ? "border-confirmPrimary"
+              : type === "error"
+              ? "border-dangerPrimary"
+              : "border-baseSecondary"
+          }
+        `}
+      >
+        <div className="p-3">
+          {message}
+        </div>
+        <div
+          className={`h-1 transition-all duration-100 ease-linear ${
+            type === "success"
+              ? "bg-confirmPrimary"
+              : type === "error"
+              ? "bg-dangerPrimary"
+              : "bg-baseSecondary"
+          }`}
+          style={{ width: `${progress}%` }}
+        />
       </div>
     </div>,
-    document.body,
+    document.body
   );
 };
 

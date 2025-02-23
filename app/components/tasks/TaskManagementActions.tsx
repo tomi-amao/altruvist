@@ -15,7 +15,6 @@ export default function TaskManagementActions({
   userRole,
   onCreateTask,
   isLoading,
-  selectedTaskId,
   onVolunteerFilterChange,
   activeVolunteerFilter = "ACTIVE_TASKS",
 }: TaskManagementActionsProps) {

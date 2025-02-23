@@ -1,12 +1,11 @@
-import { tasks } from "@prisma/client";
-import { prisma } from "~/services/db.server";
-import {
+import { tasks ,
   ApplicationStatus,
   Prisma,
   taskApplications,
   TaskStatus,
   TaskUrgency,
 } from "@prisma/client";
+import { prisma } from "~/services/db.server";
 import { SortOrder } from "~/routes/search/route";
 import { transformUserTaskApplications } from "~/components/utils/DataTransformation";
 import { ObjectIdSchema } from "~/services/validators.server";
@@ -448,7 +447,7 @@ export const acceptTaskApplication = async (
 interface UpdateTaskApplicationResponse {
   error: boolean;
   message?: string;
-  data?: any;
+  data?: taskApplications;
 }
 
 export async function updateTaskApplicationStatus(
@@ -597,10 +596,4 @@ export const removeVolunteerFromTask = async (
   }
 };
 
-const getTaskApplicationStatus = async (taskId: string) => {
-  return await prisma.taskApplications.groupBy({
-    where: { taskId: taskId },
-    by: ["status"],
-    _count: true,
-  });
-};
+

@@ -147,12 +147,12 @@ export async function action({ request }: ActionFunctionArgs) {
           return json(response, { status: 400 });
         }
 
-        const { updatedUserInfo, status, error } = await updateUserInfo(
+        const { status } = await updateUserInfo(
           userInfo.id,
           updateFields,
         );
 
-        if (error || status !== 200) {
+        if (status !== 200) {
           return json(
             {
               errors: [{ field: "form", message: "Failed to update profile" }],
@@ -202,12 +202,12 @@ export async function action({ request }: ActionFunctionArgs) {
           return json(response, { status: 400 });
         }
 
-        const { charity, status, error } = await updateCharity(
+        const { status } = await updateCharity(
           userInfo.charity.id,
           updateCharityData,
         );
 
-        if (error || status !== 200) {
+        if (status !== 200) {
           return json(
             {
               errors: [
@@ -236,6 +236,8 @@ export async function action({ request }: ActionFunctionArgs) {
         );
     }
   } catch (error) {
+    console.log(`Error occurred in action ${action}`, error);
+    
     return json(
       {
         errors: [{ field: "form", message: "An unexpected error occurred" }],
@@ -371,7 +373,7 @@ export default function AccountSettings() {
             <img
               src={signedProfilePicture || formData.profilePicture}
               className="w-32 h-32 rounded-full object-cover border-2 shadow-sm"
-              alt="Profile Picture"
+              alt={`${userInfo?.name}'s profile`}
             />
             <SecondaryButton
               ariaLabel="choose another picture"
@@ -447,6 +449,13 @@ export default function AccountSettings() {
                     <div
                       className="relative group cursor-pointer"
                       onClick={() => setIsModalOpen(true)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          setIsModalOpen(true);
+                        }
+                      }}
+                      role="button"
+                      tabIndex={0}
                     >
                       <img
                         src={
@@ -455,7 +464,7 @@ export default function AccountSettings() {
                           userInfo?.profilePicture
                         }
                         className="w-24 h-24 rounded-full object-cover border-2 shadow-sm"
-                        alt="Profile Picture"
+                        alt={`${userInfo?.name}'s profile`}
                       />
                       <div className="absolute inset-0 flex items-center justify-center rounded-full bg-basePrimaryDark/50 opacity-0 group-hover:opacity-100 transition-opacity">
                         <svg

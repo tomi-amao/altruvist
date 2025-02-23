@@ -2,16 +2,18 @@ import React, { useState } from "react";
 import { TaskSummaryCardMobile } from "../tasks/taskCard";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
+type TaskData = {
+  title: string;
+  description: string;
+  urgency: string;
+  requiredSkills: string[];
+  deadline: string;
+};
+
 type TableProps = {
-  data: Array<{
-    title: string;
-    description: string;
-    urgency: string;
-    requiredSkills: string[];
-    deadline: string;
-  }>;
-  handleRowClick: (item: any) => void;
-  itemsPerPage?: number; // New prop for controlling items per page
+  data: TaskData[];
+  handleRowClick: (item: TaskData) => void;
+  itemsPerPage?: number; 
 };
 
 const DataTable = ({

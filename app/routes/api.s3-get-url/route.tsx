@@ -11,7 +11,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   }
 
   switch (action) {
-    case "upload":
+    case "upload": {
       const fileName = new URL(fileUrl).pathname.slice(1); // Remove leading slash and get full path
 
       if (!fileName) {
@@ -20,11 +20,13 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
       const signedUrl = await getSignedUrlForFile(decodeURIComponent(fileName));
       return json({ message: "Upload successful", url: signedUrl });
-    case "delete":
+    }
+    case "delete": {
       const deleteFile = await deleteS3Object(fileUrl);
       console.log("File deleted:", deleteFile);
 
       return json({ message: "Delete successful", url: null });
+    }
     default:
       return json({ error: "Invalid action" }, { status: 400 });
   }

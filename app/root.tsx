@@ -6,7 +6,6 @@ import {
   ScrollRestoration,
   isRouteErrorResponse,
   redirect,
-  useNavigate,
   useRouteError,
 } from "@remix-run/react";
 import type {
@@ -46,13 +45,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  const darkToggle = Object.fromEntries(formData);
-  const mode = Boolean(darkToggle.darkToggle);
-  // console.log(darkToggle);
 
-  // console.log(mode);
-  // console.log(request.url);
 
   const page = request.headers.get("referer");
 

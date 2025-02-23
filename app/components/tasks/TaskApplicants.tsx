@@ -1,17 +1,13 @@
 import { useState } from "react";
 import { Link } from "@remix-run/react";
 import { SecondaryButton } from "../utils/BasicButton";
-import { ArrowDropDown } from "../utils/icons";
 import type {
   users,
   taskApplications,
   ApplicationStatus,
 } from "@prisma/client";
 
-interface TaskApplicantData {
-  application: taskApplications;
-  userData: users;
-}
+
 
 interface TaskApplicantsProps {
   applicants: {
@@ -32,7 +28,6 @@ export function TaskApplicants({
   acceptedCount,
   onAccept,
   onReject,
-  onRemoveVolunteer,
   onUndoStatus,
 }: TaskApplicantsProps) {
   const [expandedIds, setExpandedIds] = useState<string[]>([]);

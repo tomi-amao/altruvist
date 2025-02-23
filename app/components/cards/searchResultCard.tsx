@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from "react";
 import {
   CombinedCollections,
   MultiSearchDocuments,
@@ -20,11 +19,7 @@ export interface SearchResultCardType extends MultiSearchDocuments {
 }
 
 export default function SearchResultCard(searchResults: SearchResultCardType) {
-  const [initialSearchResults, setInitialSearchResults] = useState();
   const navigate = useNavigate();
-  useEffect(() => {
-    setInitialSearchResults(initialSearchResults);
-  });
 
   const renderSearchResult = () => {
     switch (searchResults.collection) {
@@ -56,8 +51,8 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
                     {searchResults.data.tags && (
                       <li className="text-xs md:text-sm font-semibold ">
                         Tags:
-                        {searchResults.data?.tags.map((skill) => (
-                          <span className="rounded-sm  md:text-sm font-semibold bg-basePrimaryLight px-1 text-[12px]">
+                        {searchResults.data?.tags.map((skill, index) => (
+                          <span key={index} className="rounded-sm  md:text-sm font-semibold bg-basePrimaryLight px-1 text-[12px]">
                             {skill}
                           </span>
                         ))}
@@ -78,6 +73,7 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
             </button>
           );
         }
+        break;
 
       case "skillanthropy_tasks":
         if (searchResults.all || searchResults.tasks) {
@@ -115,8 +111,8 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
                     {searchResults.data.requiredSkills && (
                       <li className="text-xs  md:text-sm font-semibold space-x-1">
                         Skills:
-                        {searchResults.data?.requiredSkills.map((skill) => (
-                          <span className="rounded-sm font-semibold bg-basePrimaryLight px-1 text-[12px]">
+                        {searchResults.data?.requiredSkills.map((skill, index) => (
+                          <span key={index} className="rounded-sm font-semibold bg-basePrimaryLight px-1 text-[12px]">
                             {skill}
                           </span>
                         ))}
@@ -136,8 +132,8 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
                       <li className="text-xs md:text-sm  font-semibold">
                         Tags:
                         <span className="font-normal md:text-sm text-xs">
-                          {searchResults.data?.category.map((tag) => (
-                            <span className="rounded-sm font-semibold bg-basePrimaryLight px-1 text-[12px]">
+                          {searchResults.data?.category.map((tag, index) => (
+                            <span key={index} className="rounded-sm font-semibold bg-basePrimaryLight px-1 text-[12px]">
                               {tag}
                             </span>
                           ))}
@@ -159,6 +155,7 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
             </button>
           );
         }
+        break;
 
       case "skillanthropy_users":
         if (searchResults.all || searchResults.users) {
@@ -198,8 +195,8 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
                     {searchResults.data.skills && (
                       <li className="text-xs md:text-sm font-semibold">
                         Skills:
-                        {searchResults.data?.skills.map((skill) => (
-                          <span className="rounded-sm  md:text-sm font-semibold bg-basePrimaryLight px-1 text-[12px]">
+                        {searchResults.data?.skills.map((skill, index) => (
+                          <span key={index} className="rounded-sm  md:text-sm font-semibold bg-basePrimaryLight px-1 text-[12px]">
                             {skill}
                           </span>
                         ))}
@@ -214,9 +211,10 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
             // renderRoleCard()
           );
         }
+        break;
 
       default:
-        <div>No search results found</div>;
+        return <div>No search results found</div>;
     }
   };
   return <>{renderSearchResult()}</>;

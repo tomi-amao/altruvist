@@ -25,35 +25,12 @@ export default function ProfilePage() {
     taskApplications,
     FEATURE_FLAG,
   } = useLoaderData<typeof loader>();
-  if (!profileInfo) {
-    // Handle case when post is not found
-    return (
-      <ErrorCard
-        message="Search for another profile"
-        title={"Profile not found"}
-        subMessage={""}
-      />
-    );
-  }
 
   const [showSelectedTask, setShowSelectedTask] = useState(false);
   const [selectedTask, setSelectedTask] = useState<CombinedCollections>();
   const [signedProfilePicture, setSignedProfilePicture] = useState<
     string | null
   >(null);
-  // const handleRowClick = (row) => {
-  //   console.log(row);
-  // };
-
-  const handleCloseModal = () => {
-    setShowSelectedTask(false);
-  };
-
-  const handleRowClick = (selectedTaskData: CombinedCollections) => {
-    setShowSelectedTask((preValue) => !preValue);
-
-    setSelectedTask(selectedTaskData);
-  };
 
   useEffect(() => {
     async function fetchSignedUrl() {
@@ -67,6 +44,26 @@ export default function ProfilePage() {
     }
     fetchSignedUrl();
   }, [userInfo?.profilePicture]);
+
+  if (!profileInfo) {
+    // Handle case when post is not found
+    return (
+      <ErrorCard
+        message="Search for another profile"
+        title={"Profile not found"}
+        subMessage={""}
+      />
+    );
+  }
+
+  const handleCloseModal = () => {
+    setShowSelectedTask(false);
+  };
+
+  const handleRowClick = (selectedTaskData: CombinedCollections) => {
+    setShowSelectedTask((preValue) => !preValue);
+    setSelectedTask(selectedTaskData);
+  };
 
   return (
     <>
@@ -290,12 +287,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
     };
   }
 
-  const { userInfo, error } = await getUserInfo(accessToken);
+  const { userInfo } = await getUserInfo(accessToken);
 
   // Get logged in user's task applications if they are a volunteer
   let taskApplications = null;
   if (userInfo?.roles[0] === "volunteer") {
-    const { tasks: userTasks, status } = await getUserTasks(
+    const { tasks: userTasks } = await getUserTasks(
       userInfo.roles[0],
       undefined,
       userInfo.id,

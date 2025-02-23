@@ -3,7 +3,7 @@ import Uppy, { Meta, UppyFile } from "@uppy/core";
 import { Dashboard } from "@uppy/react";
 import GoogleDrivePicker from "@uppy/google-drive-picker";
 import ImageEditor from "@uppy/image-editor";
-import Tus from "@uppy/tus";
+// import Tus from "@uppy/tus";
 import DropTarget from "@uppy/drop-target";
 import ThumbnailGenerator from "@uppy/thumbnail-generator";
 import ProgressBar from "@uppy/progress-bar";
@@ -14,9 +14,8 @@ import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
 import "@uppy/image-editor/dist/style.css";
 import "@uppy/progress-bar/dist/style.css";
-import { NewTaskFormData } from "~/types/tasks";
+import { NewTaskFormData , TaskResource } from "~/types/tasks";
 import { FilePreviewButton } from "./FormField";
-import { TaskResource } from "~/types/tasks";
 
 const FileUpload = ({
   formTarget,

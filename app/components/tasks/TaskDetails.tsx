@@ -19,8 +19,6 @@ interface TaskDetailsProps {
   userId?: string;
   onEdit: (taskData?: tasks) => void;
   onDelete: () => void;
-  onMessage?: () => void;
-  onWithdraw?: () => void;
   isEditing: boolean;
   error?: string;
   isError?: boolean;
@@ -34,8 +32,6 @@ export function TaskDetails({
   userId,
   onEdit,
   onDelete,
-  onMessage,
-  onWithdraw,
   isEditing,
   error,
   isError,
@@ -126,7 +122,7 @@ export function TaskDetails({
     });
   }, [task]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = () => {
     console.log("Taskform data", formData);
 
     onEdit(formData);
@@ -330,7 +326,6 @@ export function TaskDetails({
 
                       <ul
                         className="grid grid-cols-1 md:grid-cols-2 gap-4"
-                        role="list"
                       >
                         {displayData.deliverables.map((deliverable, index) => (
                           <li
@@ -565,13 +560,11 @@ export function TaskDetails({
 
                       <div
                         className="flex flex-wrap gap-2"
-                        role="list"
                         aria-label="Task categories"
                       >
                         {displayData.category.map((cat, index) => (
                           <span
                             key={index}
-                            role="listitem"
                             className="group relative bg-basePrimary px-4 py-2 rounded-lg 
                               border border-baseSecondary/10 transition-all duration-300
                               hover:border-baseSecondary/20 hover:shadow-sm

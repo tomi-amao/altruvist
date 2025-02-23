@@ -54,7 +54,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const createdAt = url.searchParams.get("createdAt");
   const updatedAt = url.searchParams.get("updatedAt");
   const taskStatus = url.searchParams.get("status");
-  const search = url.searchParams.get("search");
 
   try {
     const { tasks, error, message, status } = await getUserTasks(
@@ -98,7 +97,6 @@ export default function ManageTasks() {
     tasks: initialTasks,
     userRole,
     userId,
-    error,
     userName,
   } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
@@ -106,7 +104,7 @@ export default function ManageTasks() {
   const fetcher = useFetcher<typeof action>();
   const taskFormFetcher = useFetcher<typeof action>();
   const [showCreateTask, setShowCreateTask] = useState(false);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   // Local state for UI management
   const [isEditing, setIsEditing] = useState(false);
@@ -400,7 +398,7 @@ export async function action({ request }: ActionFunctionArgs) {
             resources: parsedUpdateTaskData.resources,
             urgency: parsedUpdateTaskData.urgency,
             status: parsedUpdateTaskData.status,
-          }).filter(([_, value]) => value),
+          }).filter(([, value]) => value),
         );
 
         console.log("Updated Data", updateData);

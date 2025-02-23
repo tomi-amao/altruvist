@@ -2,7 +2,7 @@ import { prisma } from "~/services/db.server";
 
 import { getZitadelVars } from "~/services/env.server";
 import type { zitadelUserInfo } from "~/types/zitadelUser";
-import type { Prisma, taskApplications } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { ObjectIdSchema } from "~/services/validators.server";
 
 // create a mongodb user document if user from zitadel directory does not exist
@@ -168,6 +168,8 @@ export const deleteUser = async (id: string, zitId: string) => {
       .catch((error) => console.log("error", error));
     return { message: "Successfully deleted user", status: 200 };
   } catch (error) {
+    console.log(error);
+    
     return { message: "Failed to delete user", status: 500 };
   }
 };

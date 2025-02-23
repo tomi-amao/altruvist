@@ -1,5 +1,5 @@
 // TaskForm.tsx
-import { Form, useFetcher } from "@remix-run/react";
+import { Form } from "@remix-run/react";
 import {
   FilePreviewButton,
   FormField,
@@ -21,10 +21,17 @@ interface ValidationError {
   message: string;
 }
 
+interface Resource {
+  name: string;
+  size: number;
+  uploadURL: string;
+  extension: string;
+}
+
 interface TaskFormData {
   title: string;
   description: string;
-  resources: any[];
+  resources: Resource[];
   requiredSkills: string[];
   impact: string;
   urgency: TaskUrgency;
@@ -42,7 +49,6 @@ interface TaskFormProps {
   error?: string;
   serverValidation: ValidationError[];
   isSubmitting: boolean;
-  setFormDataFromTask?: () => void;
 }
 
 const defaultFormData: TaskFormData = {
@@ -63,10 +69,8 @@ export default function TaskForm({
   onSubmit,
   onCancel,
   isEditing = false,
-  error,
   serverValidation = [],
   isSubmitting,
-  setFormDataFromTask,
 }: TaskFormProps) {
   // Initialize form data with initial data if provided
   const [formData, setFormData] = useState<TaskFormData>(() => {
@@ -119,9 +123,9 @@ export default function TaskForm({
       extension: resource.extension,
     })) || [],
   );
-  const [showUploadButton, setShowUploadButton] = useState<boolean>(false);
   const [showNotification, setShowNotification] = useState(false);
-  const [resetField, setResetField] = useState(false);
+  const resetField = false;  
+  
   // Schema definitions
   const titleSchema = z
     .string()
@@ -176,6 +180,11 @@ export default function TaskForm({
     }
   };
 
+  // const resetForm = () => {
+  //   setResetField((prev) => !prev);
+  //   setFormData(defaultFormData);
+  // };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -183,11 +192,7 @@ export default function TaskForm({
     if (!isSubmitting) {
       onSubmit(formData);
 
-      // Only reset form if there are no validation errors
-      if (!serverValidation || serverValidation.length === 0) {
-        // setFormData(defaultFormData);
-        // setResetField((prev) => !prev);
-      }
+
     }
 
     setShowNotification(true);
@@ -430,7 +435,6 @@ export default function TaskForm({
             formTarget="#taskForm"
             uppyId={isEditing ? "editTaskResources" : "createTaskResources"}
             onUploadedFile={handleUploadedResourcesUrls}
-            toggleUploadBtn={setShowUploadButton}
           />
 
           {uploadedResources.length > 0 && (

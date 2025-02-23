@@ -1,35 +1,8 @@
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { AlertIcon, InfoIcon } from "./icons";
-import { Meta, UppyFile } from "@uppy/core";
 
-interface FormFieldProps {
-  htmlFor: string;
-  label?: string;
-  type?: string;
-  value?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  autocomplete?: string;
-  error?: string;
-  placeholder?: string;
-  backgroundColour?: string;
-  defaultValue?: string;
-}
-interface FormTextareaProps {
-  htmlFor: string;
-  label?: string;
-  type?: string;
-  value?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  autocomplete?: string;
-  error?: string;
-  placeholder: string;
-  backgroundColour?: string;
-  maxLength: number;
-  defaultValue?: string;
-}
-
-interface FormFieldProps {
+interface FormFieldProps<T> {
   htmlFor: string;
   type?: string;
   value: string;
@@ -38,7 +11,7 @@ interface FormFieldProps {
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
   label?: string;
   backgroundColour?: string;
-  schema?: z.ZodType<any>;
+  schema?: z.ZodType<T>;
   helperText?: string;
   required?: boolean;
   serverValidationError?: boolean;
@@ -48,13 +21,13 @@ interface FormFieldProps {
   isInteger?: boolean; // Flag to determine if it's an integer input
 }
 
-export function FormField({
+export function FormField<T>({
   htmlFor,
   type = "text",
   value,
   autocomplete,
   placeholder,
-  onChange = () => {},
+  onChange = () => { },
   label,
   backgroundColour = "bg-basePrimary",
   schema,
@@ -65,7 +38,7 @@ export function FormField({
   min,
   max,
   isInteger = false,
-}: FormFieldProps) {
+}: FormFieldProps<T>) {
   const [isFocused, setIsFocused] = useState(false);
   const [hasValue, setHasValue] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -253,24 +226,24 @@ export function FormField({
   );
 }
 
-interface TextAreaFieldProps {
+interface TextAreaFieldProps<T> {
   htmlFor: string;
   value: string;
   onChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
   label: string;
   placeholder?: string;
   backgroundColour?: string;
-  schema?: z.ZodType<any>;
+  schema?: z.ZodType<T>;
   helperText?: string;
   required?: boolean;
   maxLength?: number;
   minRows?: number;
   maxRows?: number;
-  serverValidationError: Boolean;
-  resetField: Boolean;
+  serverValidationError: boolean;
+  resetField: boolean;
 }
 
-export function TextAreaField({
+export function TextAreaField<T>({
   htmlFor,
   value,
   onChange,
@@ -285,7 +258,7 @@ export function TextAreaField({
   maxRows = 18,
   serverValidationError,
   resetField = false,
-}: TextAreaFieldProps) {
+}: TextAreaFieldProps<T>) {
   const [isFocused, setIsFocused] = useState(false);
   const [hasValue, setHasValue] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -298,13 +271,12 @@ export function TextAreaField({
   useEffect(() => {
     setTouched(false);
     setError(null);
-    console.log("resetted field", resetField);
   }, [resetField]);
 
   useEffect(() => {
     if (serverValidationError) {
       setError("This field is required");
-      console.log("Server validation component", error);
+      // console.log("Server validation component", error);
       return;
     }
   }, [serverValidationError]);
@@ -329,24 +301,25 @@ export function TextAreaField({
   };
 
   // Auto-resize textarea
-  const adjustHeight = () => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
 
-    textarea.style.height = "auto";
-    const singleLineHeight = 40;
-    const minHeight = singleLineHeight * minRows;
-    const maxHeight = singleLineHeight * maxRows;
-
-    const scrollHeight = textarea.scrollHeight;
-    const newHeight = Math.min(Math.max(scrollHeight, minHeight), maxHeight);
-
-    textarea.style.height = `${newHeight}px`;
-  };
 
   useEffect(() => {
+    const adjustHeight = () => {
+      const textarea = textareaRef.current;
+      if (!textarea) return;
+  
+      textarea.style.height = "auto";
+      const singleLineHeight = 40;
+      const minHeight = singleLineHeight * minRows;
+      const maxHeight = singleLineHeight * maxRows;
+  
+      const scrollHeight = textarea.scrollHeight;
+      const newHeight = Math.min(Math.max(scrollHeight, minHeight), maxHeight);
+  
+      textarea.style.height = `${newHeight}px`;
+    };
     adjustHeight();
-  }, [value]);
+  }, [value, minRows, maxRows]);
 
   const handleFocus = () => {
     setIsFocused(true);
@@ -498,19 +471,17 @@ export const RadioOption = ({
       aria-checked={isSelected}
       tabIndex={0} // Make the component focusable
       onKeyDown={handleKeyDown} // Keyboard support
-      className={`flex items-center p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer focus:outline-none ${
-        isSelected
+      className={`flex items-center p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer focus:outline-none ${isSelected
           ? "border-baseSecondary shadow-md"
           : " hover:border-baseSecondary border-basePrimaryDark "
-      }`}
+        }`}
       onClick={() => onChange(value)}
     >
       <div
-        className={`w-6 h-6 rounded-full border-2 mr-3 flex items-center justify-center ${
-          isSelected
+        className={`w-6 h-6 rounded-full border-2 mr-3 flex items-center justify-center ${isSelected
             ? "border-basePrimaryDark bg-basePrimaryDark"
             : "border-basePrimaryDark"
-        }`}
+          }`}
       >
         {isSelected && (
           <div className="w-4 h-4 rounded-full bg-baseSecondary"></div>
@@ -542,8 +513,8 @@ interface ListInputProps {
   inputLimit?: number;
   errorMessage: string;
   helperText?: string;
-  serverValidationError?: Boolean;
-  resetField: Boolean;
+  serverValidationError?: boolean;
+  resetField: boolean;
   label?: string;
   required?: boolean;
   htmlFor?: string;
@@ -582,7 +553,6 @@ export const ListInput = ({
   useEffect(() => {
     setHasInteracted(false);
     setError("");
-    console.log("Resetted field List", resetField);
   }, [resetField]);
 
   useEffect(() => {
@@ -592,7 +562,7 @@ export const ListInput = ({
       console.log("Server validation component", error);
       return;
     }
-  }, [serverValidationError]);
+  }, [serverValidationError, error]);
   // Update validation state when list changes
   useEffect(() => {
     if (hasInteracted) {
@@ -991,8 +961,8 @@ interface IntegerInputProps {
   max?: number;
   errorMessage?: string;
   helperText?: string;
-  serverValidationError: Boolean;
-  resetField: Boolean;
+  serverValidationError: boolean;
+  resetField: boolean;
 }
 export function IntegerInput({
   htmlFor,
@@ -1000,7 +970,7 @@ export function IntegerInput({
   value,
   autocomplete,
   placeholder = "Volunteers needed",
-  onChange = () => {},
+  onChange = () => { },
   label = "Number of volunteers",
   backgroundColour = "bg-basePrimaryDark",
   min = 1,
@@ -1019,7 +989,6 @@ export function IntegerInput({
     setIsFocused(false);
     setError(null);
     setIsValid(false);
-    console.log("resetted field", resetField);
   }, [resetField]);
 
   useEffect(() => {
@@ -1028,7 +997,7 @@ export function IntegerInput({
       console.log("Server validation component", error);
       return;
     }
-  }, [serverValidationError]);
+  }, [serverValidationError, error]);
 
   const inputIntegerSchema = (min: number, max: number) =>
     z
@@ -1108,10 +1077,9 @@ export function IntegerInput({
             ${backgroundColour}
                         ${isValid ? "border-confirmPrimary" : ""}
 
-            ${
-              error
-                ? "border-dangerPrimary focus:border-bg-dangerPrimary "
-                : "border-basePrimaryDark focus:border-baseSecondary"
+            ${error
+              ? "border-dangerPrimary focus:border-bg-dangerPrimary "
+              : "border-basePrimaryDark focus:border-baseSecondary"
             }
             focus:outline-none
           hide-number-spinner `}
@@ -1131,10 +1099,9 @@ export function IntegerInput({
               border-baseSecondary
             absolute text-md text-baseSecondary duration-300 transform -translate-y-4 scale-75 top-0 z-auto origin-[0]
             ${backgroundColour}
-            ${
-              isFocused || hasValue
-                ? "translate-y-[-0.75rem] scale-75 opacity-100"
-                : "translate-y-0 scale-100 opacity-0"
+            ${isFocused || hasValue
+              ? "translate-y-[-0.75rem] scale-75 opacity-100"
+              : "translate-y-0 scale-100 opacity-0"
             }
             ${error ? "text-dangerPrimary" : "text-baseSecondary"}
           `}
@@ -1185,14 +1152,14 @@ interface DropdownOption {
   label: string;
 }
 
-interface DropdownFieldProps {
+interface DropdownFieldProps<T> {
   htmlFor: string;
   value: string;
   options: DropdownOption[];
   onChange: (value: string) => void;
   label?: string;
   backgroundColour?: string;
-  schema?: z.ZodType<any>;
+  schema?: z.ZodType<T>;  // Updated to use generic type
   helperText?: string;
   required?: boolean;
   serverValidationError?: boolean;
@@ -1200,7 +1167,7 @@ interface DropdownFieldProps {
   placeholder?: string;
 }
 
-export function DropdownField({
+export function DropdownField<T>({
   htmlFor,
   value,
   options,
@@ -1213,7 +1180,7 @@ export function DropdownField({
   serverValidationError = false,
   resetField = false,
   placeholder = "Select an option",
-}: DropdownFieldProps) {
+}: DropdownFieldProps<T>) {
   const [error, setError] = useState<string | null>(null);
   const [isValid, setIsValid] = useState(false);
   const [touched, setTouched] = useState(false);
@@ -1328,12 +1295,21 @@ export function DropdownField({
         </label>
 
         {isOpen && (
-          <ul className="absolute left-0 w-full mt-1 border rounded-lg border-baseSecondary bg-basePrimaryLight max-h-60 overflow-y-auto z-50">
+          <ul role="listbox" className="absolute left-0 w-full mt-1 border rounded-lg border-baseSecondary bg-basePrimaryLight max-h-60 overflow-y-auto z-50">
             {options.map((option) => (
               <li
                 key={option.value}
-                className="px-4 py-2 cursor-pointer hover:bg-baseSecondary hover:text-basePrimaryLight transition-colors"
+                role="option"
+                aria-selected={option.value === value}
+                tabIndex={0}
                 onClick={() => handleSelect(option.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleSelect(option.value);
+                  }
+                }}
+                className="px-4 py-2 cursor-pointer hover:bg-baseSecondary hover:text-basePrimaryLight transition-colors focus:outline-none focus:bg-baseSecondary focus:text-basePrimaryLight"
               >
                 {option.label}
               </li>
