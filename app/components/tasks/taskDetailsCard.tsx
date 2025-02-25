@@ -1,6 +1,6 @@
 import { TaskUrgency } from "@prisma/client";
 import { format } from "date-fns";
-import { useFetcher } from "@remix-run/react";
+import { useFetcher, useNavigate } from "@remix-run/react";
 import { PrimaryButton, SecondaryButton } from "../utils/BasicButton";
 import { FilePreviewButton } from "../utils/FormField";
 
@@ -58,6 +58,7 @@ export default function TaskDetailsCard({
   taskApplications = [],
 }: TaskDetailsCardProps) {
   const fetcher = useFetcher();
+  const navigate = useNavigate();
   const showMessage = true;
 
   const handleApply = (taskId: string, charityId: string) => {
@@ -114,13 +115,12 @@ export default function TaskDetailsCard({
     if (hasApplied) {
       return (
         <SecondaryButton
-          text="Withdraw Application"
-          ariaLabel="withdraw from task"
-          action={() => handleWithdraw(id, volunteerDetails?.userId || "")}
+          text="Go to Task"
+          ariaLabel="go to task"
+          action={() => navigate(`/dashboard/tasks?taskid=${id}`)}
         />
       );
     }
-
     return (
       <PrimaryButton
         text="Volunteer"

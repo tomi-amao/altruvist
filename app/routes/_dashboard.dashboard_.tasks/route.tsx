@@ -35,6 +35,14 @@ import TaskManagementActions from "~/components/tasks/TaskManagementActions";
 import { SortOrder } from "../search/route";
 import { useEffect, useMemo, useState } from "react";
 import TaskForm from "~/components/tasks/TaskForm";
+import { ServerRuntimeMetaFunction as MetaFunction } from "@remix-run/server-runtime";
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Tasks" },
+    { name: "description", content: "Manage your tasks on Skillanthropy!" },
+  ];
+};
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);

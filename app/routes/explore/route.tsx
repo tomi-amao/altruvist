@@ -20,6 +20,18 @@ import { getExploreTasks, getUserTasks } from "~/models/tasks.server";
 import { getUserInfo } from "~/models/user2.server";
 import { getSession } from "~/services/session.server";
 import type { Task } from "~/types/tasks";
+import { ServerRuntimeMetaFunction as MetaFunction } from "@remix-run/server-runtime";
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Explore" },
+    {
+      name: "description",
+      content:
+        "Discover tasks and volunteering opportunities on Skillanthropy!",
+    },
+  ];
+};
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
@@ -105,9 +117,11 @@ export default function Explore() {
 
   // Load initial tasks on component mount
   useEffect(() => {
-    setTasks(initialTasks as Task[]);
-    loadMoreTasks();
-  }, []);
+    if (initialTasks) {
+      setTasks(initialTasks);
+      setCursor(initialCursor);
+    }
+  }, [initialTasks, initialCursor]);
 
   const buildSearchParams = (currentCursor: string | null = null) => {
     return new URLSearchParams({
@@ -121,15 +135,19 @@ export default function Explore() {
       ...(currentCursor && { cursor: currentCursor }),
     });
   };
+
   const loadMoreTasks = useCallback(() => {
-    if (isLoading || cursor === null || isFilterChange) return;
+    if (isLoading || cursor === null || isFilterChange || !tasks?.length)
+      return;
     setIsLoading(true);
     const searchParams = buildSearchParams(cursor);
     fetchTasks.load(`/explore?${searchParams.toString()}`);
-  }, [cursor, isLoading, fetchTasks, isFilterChange, filters]);
+  }, [cursor, isLoading, fetchTasks, isFilterChange, tasks]);
 
   // Setup intersection observer
   useEffect(() => {
+    if (!tasks?.length) return; // Don't set up observer if no initial tasks
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (
@@ -153,7 +171,7 @@ export default function Explore() {
         observer.unobserve(loadMoreRef.current);
       }
     };
-  }, [loadMoreTasks, isLoading, cursor]);
+  }, [loadMoreTasks, isLoading, cursor, tasks]);
 
   const clearFilters = () => {
     setFilters({
@@ -214,6 +232,7 @@ export default function Explore() {
       const searchParams = buildSearchParams(null);
       fetchTasks.load(`/explore?${searchParams.toString()}`);
     };
+
     const isFiltersEmpty = Object.values(filters).every(
       (property) => Array.isArray(property) && property.length === 0,
     );
@@ -227,7 +246,9 @@ export default function Explore() {
         setTasks(fetchTasks.data.tasks);
         setIsFilterChange(false);
       } else {
-        setTasks((prev) => [...prev, ...fetchTasks.data.tasks]);
+        setTasks((prev) =>
+          prev ? [...prev, ...fetchTasks.data.tasks] : fetchTasks.data.tasks,
+        );
       }
       setCursor(fetchTasks.data.nextCursor);
       setIsLoading(false);
