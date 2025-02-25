@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { TaskSummaryCardMobile } from "../tasks/taskCard";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import {CaretRight , CaretLeft } from "phosphor-react";
 
 type TaskData = {
   title: string;
@@ -140,7 +140,7 @@ const DataTable = ({
               className="p-2 rounded hover:bg-basePrimaryDark disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Previous page"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <CaretLeft size={32} />
             </button>
 
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -163,7 +163,7 @@ const DataTable = ({
               className="p-2 rounded hover:bg-basePrimaryDark disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Next page"
             >
-              <ChevronRight className="w-5 h-5" />
+              <CaretRight  size={32} />
             </button>
           </div>
         </div>
@@ -182,7 +182,7 @@ const DataTable = ({
             disabled={currentPage === 1}
             className="p-2 rounded hover:bg-basePrimaryDark disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <CaretLeft size={32} />
           </button>
 
           <span className="text-sm">
@@ -194,7 +194,7 @@ const DataTable = ({
             disabled={currentPage === totalPages}
             className="p-2 rounded hover:bg-basePrimaryDark disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <ChevronRight className="w-5 h-5" />
+            <CaretRight size={32} />
           </button>
         </div>
       </div>

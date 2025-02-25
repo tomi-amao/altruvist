@@ -1,8 +1,7 @@
 import { tasks } from "@prisma/client";
-import { CalendarIcon, PersonIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
 import { Modal } from "../utils/Modal2";
-
+import { Calendar, Users } from "phosphor-react"
 import { SearchResultCardType } from "../cards/searchResultCard";
 import TaskDetailsCard from "./taskDetailsCard";
 
@@ -70,13 +69,13 @@ export default function TaskSummaryCard(task: taskAdditionalDetails) {
 
           <div className="flex flex-row items-center justify-start gap-2 pb-4">
             <div className="flex flex-row items-center">
-              <CalendarIcon className="h-5 w-5 mr-2 text-baseSecondary" />
+              <Calendar size={32} />
               <span>{task.deadline.toLocaleDateString()}</span>
             </div>
 
             {task.volunteersNeeded > 0 && (
               <div className="flex flex-row items-center">
-                <PersonIcon className="h-5 w-5 mr-2 text-baseSecondary" />
+                <Users className="h-5 w-5 mr-2 text-baseSecondary" />
                 <span>{task.volunteersNeeded}</span>
               </div>
             )}

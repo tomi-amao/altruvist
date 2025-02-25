@@ -14,3 +14,5 @@ app/routes/_index/routetemp.tsx
 app/routes/_dashboard/routeold.tsx
 # config/elastic-connectors/
 .env.companion
+test-results
+playwright-report

@@ -37,7 +37,7 @@ export default function Index() {
               className="w-full h-auto object-contain"
             />
           </div>
-          <div className="w-full lg:w-1/2 max-w-2xl">
+          <div className="w-full lg:w-1/2 max-w-2xl" data-testid="popular-tasks">
             <PopularTasks tasks={recentTasks} />
           </div>
         </div>

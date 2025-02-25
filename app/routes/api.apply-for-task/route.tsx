@@ -11,11 +11,11 @@ export async function action({ request }: ActionFunctionArgs) {
   const accessToken = session.get("accessToken"); //retrieve access token from session to be used as bearer token
 
   if (!accessToken) {
-    return redirect("/login");
+    return redirect("/zitlogin");
   }
   const { userInfo } = await getUserInfo(accessToken);
   if (!userInfo?.id) {
-    return redirect("login");
+    return redirect("/zitlogin");
   }
   const userId = userInfo.id;
   console.log(userId, taskId);

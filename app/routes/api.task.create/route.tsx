@@ -16,13 +16,13 @@ export async function action({ request }: ActionFunctionArgs) {
   const accessToken = session.get("accessToken");
 
   if (!accessToken) {
-    return redirect("/login");
+    return redirect("/zitlogin");
   }
 
   const { userInfo, error } = await getUserInfo(accessToken);
   if (!userInfo?.charityId || !userInfo.id) {
     console.log(error);
-    return redirect("/login");
+    return redirect("/zitlogin");
   }
 
   try {
