@@ -195,12 +195,11 @@ export function TaskDetails({
               <span
                 className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium
                   shadow-md backdrop-blur-sm transition-all duration-300 hover:shadow-lg
-                  ${
-                    displayData.urgency === "HIGH"
-                      ? "bg-dangerPrimary text-basePrimaryLight"
-                      : displayData.urgency === "MEDIUM"
-                        ? "bg-accentPrimary text-baseSecondary"
-                        : "bg-confirmPrimary text-basePrimaryLight"
+                  ${displayData.urgency === "HIGH"
+                    ? "bg-dangerPrimary text-basePrimaryLight"
+                    : displayData.urgency === "MEDIUM"
+                      ? "bg-accentPrimary text-baseSecondary"
+                      : "bg-confirmPrimary text-basePrimaryLight"
                   }`}
               >
                 <span className=" h-2 w-2 -ml-2 rounded-full  animate-pulse"></span>
@@ -570,7 +569,7 @@ export function TaskDetails({
                               hover:border-baseSecondary/20 hover:shadow-sm
                               flex items-center gap-2"
                           >
-                              {listDotStyling(cat)}
+                            {listDotStyling(cat)}
 
                             <span
                               className="text-sm font-medium text-baseSecondary/80 
@@ -641,8 +640,24 @@ export function TaskDetails({
                   </>
                 ) : (
                   <>
-                    {task.taskApplications[0].status === "REJECTED" ||
-                      (task.taskApplications[0].status === "WITHDRAWN" && (
+                    {task.taskApplications[0].status === "REJECTED" && (
+                      <SecondaryButton
+                        ariaLabel="delete-application"
+                        text="Delete Application"
+                        action={() =>
+                          handleDeleteApplication(task.taskApplications[0].id)
+                        }
+                      />
+                    )}
+                    {task.taskApplications[0].status === "WITHDRAWN" && (
+                      <>
+                        <PrimaryButton
+                          ariaLabel="reapply"
+                          text="Re-apply for Task"
+                          action={() =>
+                            handleReapply(task.taskApplications[0].id)
+                          }
+                        />
                         <SecondaryButton
                           ariaLabel="delete-application"
                           text="Delete Application"
@@ -650,15 +665,7 @@ export function TaskDetails({
                             handleDeleteApplication(task.taskApplications[0].id)
                           }
                         />
-                      ))}
-                    {task.taskApplications[0].status === "WITHDRAWN" && (
-                      <PrimaryButton
-                        ariaLabel="reapply"
-                        text="Re-apply for Task"
-                        action={() =>
-                          handleReapply(task.taskApplications[0].id)
-                        }
-                      />
+                      </>
                     )}
 
                     {task.taskApplications[0].status === "PENDING" && (

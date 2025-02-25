@@ -169,6 +169,7 @@ export function TaskApplicants({
                   </button>
                   <span
                     className={`px-3 py-1 rounded-full text-basePrimaryLight ${getStatusColor(application.status)}`}
+                    data-testid="application-status"
                   >
                     {application.status}
                   </span>

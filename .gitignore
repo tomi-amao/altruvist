@@ -16,3 +16,4 @@ app/routes/_dashboard/routeold.tsx
 .env.companion
 test-results
 playwright-report
+.env.test
