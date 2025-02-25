@@ -71,7 +71,7 @@ export default function ProfilePage() {
         <div className="bg-basePrimaryDark md:w-8/12 flex flex-col md:flex-shrink-0 p-4 rounded-md ">
           <div className="flex items-center gap-2 justify-between flex-row ">
             <Avatar
-              src={signedProfilePicture||profileInfo?.profilePicture}
+              src={signedProfilePicture || profileInfo?.profilePicture}
               name={profileInfo.name}
               size={130}
             />

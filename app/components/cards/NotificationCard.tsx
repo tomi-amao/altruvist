@@ -43,27 +43,25 @@ const Notification = ({
             type === "success"
               ? "border-confirmPrimary"
               : type === "error"
-              ? "border-dangerPrimary"
-              : "border-baseSecondary"
+                ? "border-dangerPrimary"
+                : "border-baseSecondary"
           }
         `}
       >
-        <div className="p-3">
-          {message}
-        </div>
+        <div className="p-3">{message}</div>
         <div
           className={`h-1 transition-all duration-100 ease-linear ${
             type === "success"
               ? "bg-confirmPrimary"
               : type === "error"
-              ? "bg-dangerPrimary"
-              : "bg-baseSecondary"
+                ? "bg-dangerPrimary"
+                : "bg-baseSecondary"
           }`}
           style={{ width: `${progress}%` }}
         />
       </div>
     </div>,
-    document.body
+    document.body,
   );
 };
 

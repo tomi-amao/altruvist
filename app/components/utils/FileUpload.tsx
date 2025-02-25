@@ -14,7 +14,7 @@ import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
 import "@uppy/image-editor/dist/style.css";
 import "@uppy/progress-bar/dist/style.css";
-import { NewTaskFormData , TaskResource } from "~/types/tasks";
+import { NewTaskFormData, TaskResource } from "~/types/tasks";
 import { FilePreviewButton } from "./FormField";
 
 const FileUpload = ({

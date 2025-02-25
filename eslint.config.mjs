@@ -65,7 +65,7 @@ export default [
       ...reactHooksPlugin.configs.recommended.rules,
       ...jsxA11yPlugin.configs.recommended.rules,
       "no-undef": 0,
-      "react/prop-types": "off",  // Add this line to disable prop-types checking
+      "react/prop-types": "off", // Disable prop-types checking
     },
   },
 

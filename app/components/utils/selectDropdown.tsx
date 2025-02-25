@@ -5,9 +5,7 @@ import {
   CompanyIcon,
   DescriptionIcon,
 } from "./icons";
-import {
-  MultiSearchDocuments,
-} from "~/types/tasks";
+import { MultiSearchDocuments } from "~/types/tasks";
 
 import { useNavigate } from "@remix-run/react";
 
@@ -176,7 +174,6 @@ export const SearchDropdown = ({
   // };
 
   const navigate = useNavigate();
-
 
   const renderSearchResult = (searchResults: MultiSearchDocuments) => {
     switch (searchResults.collection) {

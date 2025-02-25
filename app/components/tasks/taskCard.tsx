@@ -1,7 +1,7 @@
 import { tasks } from "@prisma/client";
 import { useState } from "react";
 import { Modal } from "../utils/Modal2";
-import { Calendar, Users } from "phosphor-react"
+import { Calendar, Users } from "phosphor-react";
 import { SearchResultCardType } from "../cards/searchResultCard";
 import TaskDetailsCard from "./taskDetailsCard";
 
@@ -153,7 +153,10 @@ export const TaskSummaryCardMobile = (
                 <li className="text-xs  md:text-sm font-semibold space-x-1">
                   Skills:
                   {taskData.data?.requiredSkills.map((skill, index) => (
-                    <span key={index} className="rounded-sm font-semibold bg-basePrimaryLight px-1 text-[12px]">
+                    <span
+                      key={index}
+                      className="rounded-sm font-semibold bg-basePrimaryLight px-1 text-[12px]"
+                    >
                       {skill}
                     </span>
                   ))}
@@ -172,7 +175,10 @@ export const TaskSummaryCardMobile = (
                   Tags:
                   <span className="font-normal md:text-sm text-xs">
                     {taskData.data?.category.map((tag, index) => (
-                      <span key={index} className="rounded-sm font-semibold bg-basePrimaryLight px-1 text-[12px]">
+                      <span
+                        key={index}
+                        className="rounded-sm font-semibold bg-basePrimaryLight px-1 text-[12px]"
+                      >
                         {tag}
                       </span>
                     ))}

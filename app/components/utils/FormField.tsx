@@ -27,7 +27,7 @@ export function FormField<T>({
   value,
   autocomplete,
   placeholder,
-  onChange = () => { },
+  onChange = () => {},
   label,
   backgroundColour = "bg-basePrimary",
   schema,
@@ -302,20 +302,19 @@ export function TextAreaField<T>({
 
   // Auto-resize textarea
 
-
   useEffect(() => {
     const adjustHeight = () => {
       const textarea = textareaRef.current;
       if (!textarea) return;
-  
+
       textarea.style.height = "auto";
       const singleLineHeight = 40;
       const minHeight = singleLineHeight * minRows;
       const maxHeight = singleLineHeight * maxRows;
-  
+
       const scrollHeight = textarea.scrollHeight;
       const newHeight = Math.min(Math.max(scrollHeight, minHeight), maxHeight);
-  
+
       textarea.style.height = `${newHeight}px`;
     };
     adjustHeight();
@@ -471,17 +470,19 @@ export const RadioOption = ({
       aria-checked={isSelected}
       tabIndex={0} // Make the component focusable
       onKeyDown={handleKeyDown} // Keyboard support
-      className={`flex items-center p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer focus:outline-none ${isSelected
+      className={`flex items-center p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer focus:outline-none ${
+        isSelected
           ? "border-baseSecondary shadow-md"
           : " hover:border-baseSecondary border-basePrimaryDark "
-        }`}
+      }`}
       onClick={() => onChange(value)}
     >
       <div
-        className={`w-6 h-6 rounded-full border-2 mr-3 flex items-center justify-center ${isSelected
+        className={`w-6 h-6 rounded-full border-2 mr-3 flex items-center justify-center ${
+          isSelected
             ? "border-basePrimaryDark bg-basePrimaryDark"
             : "border-basePrimaryDark"
-          }`}
+        }`}
       >
         {isSelected && (
           <div className="w-4 h-4 rounded-full bg-baseSecondary"></div>
@@ -970,7 +971,7 @@ export function IntegerInput({
   value,
   autocomplete,
   placeholder = "Volunteers needed",
-  onChange = () => { },
+  onChange = () => {},
   label = "Number of volunteers",
   backgroundColour = "bg-basePrimaryDark",
   min = 1,
@@ -1077,9 +1078,10 @@ export function IntegerInput({
             ${backgroundColour}
                         ${isValid ? "border-confirmPrimary" : ""}
 
-            ${error
-              ? "border-dangerPrimary focus:border-bg-dangerPrimary "
-              : "border-basePrimaryDark focus:border-baseSecondary"
+            ${
+              error
+                ? "border-dangerPrimary focus:border-bg-dangerPrimary "
+                : "border-basePrimaryDark focus:border-baseSecondary"
             }
             focus:outline-none
           hide-number-spinner `}
@@ -1099,9 +1101,10 @@ export function IntegerInput({
               border-baseSecondary
             absolute text-md text-baseSecondary duration-300 transform -translate-y-4 scale-75 top-0 z-auto origin-[0]
             ${backgroundColour}
-            ${isFocused || hasValue
-              ? "translate-y-[-0.75rem] scale-75 opacity-100"
-              : "translate-y-0 scale-100 opacity-0"
+            ${
+              isFocused || hasValue
+                ? "translate-y-[-0.75rem] scale-75 opacity-100"
+                : "translate-y-0 scale-100 opacity-0"
             }
             ${error ? "text-dangerPrimary" : "text-baseSecondary"}
           `}
@@ -1159,7 +1162,7 @@ interface DropdownFieldProps<T> {
   onChange: (value: string) => void;
   label?: string;
   backgroundColour?: string;
-  schema?: z.ZodType<T>;  // Updated to use generic type
+  schema?: z.ZodType<T>; // Updated to use generic type
   helperText?: string;
   required?: boolean;
   serverValidationError?: boolean;
@@ -1295,7 +1298,10 @@ export function DropdownField<T>({
         </label>
 
         {isOpen && (
-          <ul role="listbox" className="absolute left-0 w-full mt-1 border rounded-lg border-baseSecondary bg-basePrimaryLight max-h-60 overflow-y-auto z-50">
+          <ul
+            role="listbox"
+            className="absolute left-0 w-full mt-1 border rounded-lg border-baseSecondary bg-basePrimaryLight max-h-60 overflow-y-auto z-50"
+          >
             {options.map((option) => (
               <li
                 key={option.value}
@@ -1304,7 +1310,7 @@ export function DropdownField<T>({
                 tabIndex={0}
                 onClick={() => handleSelect(option.value)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
+                  if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
                     handleSelect(option.value);
                   }

@@ -61,8 +61,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     // Get the task ids of the tasks the user has applied to, using the task applications data
     const taskApplications = userTasks?.map((task) => task.id);
 
-
-
     return {
       tasks,
       userInfo,

@@ -92,7 +92,7 @@ export default function Dashboard() {
           </div>
 
           {/* Navigation section */}
-            <nav className="flex-1" data-testid="dashboard-nav">
+          <nav className="flex-1" data-testid="dashboard-nav">
             <ul className="flex flex-col gap-1">
               {sideBarMenu.map((link, index) => (
                 <Link

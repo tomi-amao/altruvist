@@ -148,7 +148,9 @@ export function TaskDetails({
     const dotColour = getColour(value);
     const colorClass = `bg-indicator-${dotColour}`;
     return (
-      <span className={`inline-block w-2 h-2 rounded-full ${colorClass}`}></span>
+      <span
+        className={`inline-block w-2 h-2 rounded-full ${colorClass}`}
+      ></span>
     );
   };
 
@@ -195,11 +197,12 @@ export function TaskDetails({
               <span
                 className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium
                   shadow-md backdrop-blur-sm transition-all duration-300 hover:shadow-lg
-                  ${displayData.urgency === "HIGH"
-                    ? "bg-dangerPrimary text-basePrimaryLight"
-                    : displayData.urgency === "MEDIUM"
-                      ? "bg-accentPrimary text-baseSecondary"
-                      : "bg-confirmPrimary text-basePrimaryLight"
+                  ${
+                    displayData.urgency === "HIGH"
+                      ? "bg-dangerPrimary text-basePrimaryLight"
+                      : displayData.urgency === "MEDIUM"
+                        ? "bg-accentPrimary text-baseSecondary"
+                        : "bg-confirmPrimary text-basePrimaryLight"
                   }`}
               >
                 <span className=" h-2 w-2 -ml-2 rounded-full  animate-pulse"></span>
@@ -323,9 +326,7 @@ export function TaskDetails({
                         </h3>
                       </div>
 
-                      <ul
-                        className="grid grid-cols-1 md:grid-cols-2 gap-4"
-                      >
+                      <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {displayData.deliverables.map((deliverable, index) => (
                           <li
                             key={index}

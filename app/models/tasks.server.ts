@@ -1,4 +1,5 @@
-import { tasks ,
+import {
+  tasks,
   ApplicationStatus,
   Prisma,
   taskApplications,
@@ -595,5 +596,3 @@ export const removeVolunteerFromTask = async (
     return { updatedTaskApplication: null, status: 500, error };
   }
 };
-
-

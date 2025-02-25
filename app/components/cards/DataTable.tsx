@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { TaskSummaryCardMobile } from "../tasks/taskCard";
-import {CaretRight , CaretLeft } from "phosphor-react";
+import { CaretRight, CaretLeft } from "phosphor-react";
 
 type TaskData = {
   title: string;
@@ -13,7 +13,7 @@ type TaskData = {
 type TableProps = {
   data: TaskData[];
   handleRowClick: (item: TaskData) => void;
-  itemsPerPage?: number; 
+  itemsPerPage?: number;
 };
 
 const DataTable = ({
@@ -163,7 +163,7 @@ const DataTable = ({
               className="p-2 rounded hover:bg-basePrimaryDark disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Next page"
             >
-              <CaretRight  size={32} />
+              <CaretRight size={32} />
             </button>
           </div>
         </div>

@@ -169,7 +169,7 @@ export const deleteUser = async (id: string, zitId: string) => {
     return { message: "Successfully deleted user", status: 200 };
   } catch (error) {
     console.log(error);
-    
+
     return { message: "Failed to delete user", status: 500 };
   }
 };

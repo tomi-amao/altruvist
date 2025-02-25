@@ -15,17 +15,25 @@ export default function DashboardBanner({
   showWelcome = true,
 }: DashboardBannerProps) {
   return (
-    <div className="w-full bg-basePrimary rounded-lg shadow-lg p-6" data-testid="banner-card">
+    <div
+      className="w-full bg-basePrimary rounded-lg shadow-lg p-6"
+      data-testid="banner-card"
+    >
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         {showWelcome && date ? (
           <div className="flex-shrink-0" data-testid="welcome-section">
             <h1 className="text-2xl font-semibold font-primary text-baseSecondary">
               Welcome Back
             </h1>
-            <p className="text-altMidGrey mt-1" data-testid="date-display">{date}</p>
+            <p className="text-altMidGrey mt-1" data-testid="date-display">
+              {date}
+            </p>
           </div>
         ) : null}
-        <div className="flex flex-col md:flex-row gap-4 w-full flex-wrap" data-testid="banner-items">
+        <div
+          className="flex flex-col md:flex-row gap-4 w-full flex-wrap"
+          data-testid="banner-items"
+        >
           {bannerItems.map((item, index) => (
             <BannerItem key={index} {...item} />
           ))}
@@ -37,8 +45,14 @@ export default function DashboardBanner({
 
 function BannerItem({ title, value }: BannerItemProps) {
   return (
-    <div className="bg-basePrimaryLight p-4 rounded-lg md:flex-1 w-full md:w-auto border-l-2 border-baseSecondary" data-testid="banner-item">
-      <h3 className="text-baseSecondary/85 font-primary font-medium text-sm" data-testid="banner-item-title">
+    <div
+      className="bg-basePrimaryLight p-4 rounded-lg md:flex-1 w-full md:w-auto border-l-2 border-baseSecondary"
+      data-testid="banner-item"
+    >
+      <h3
+        className="text-baseSecondary/85 font-primary font-medium text-sm"
+        data-testid="banner-item-title"
+      >
         {title}
       </h3>
       <p

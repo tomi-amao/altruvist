@@ -124,8 +124,8 @@ export default function TaskForm({
     })) || [],
   );
   const [showNotification, setShowNotification] = useState(false);
-  const resetField = false;  
-  
+  const resetField = false;
+
   // Schema definitions
   const titleSchema = z
     .string()
@@ -191,8 +191,6 @@ export default function TaskForm({
     // Only proceed if not currently submitting
     if (!isSubmitting) {
       onSubmit(formData);
-
-
     }
 
     setShowNotification(true);

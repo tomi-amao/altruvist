@@ -26,8 +26,6 @@ export function TaskSearchFilter({
   applicationStatusOptions,
   filterType = "APPLICATIONS",
 }: TaskSearchFilterProps) {
-
-
   const sortOptions = [
     <Dropdown
       key="createdAt"

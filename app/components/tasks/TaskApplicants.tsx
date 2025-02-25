@@ -7,8 +7,6 @@ import type {
   ApplicationStatus,
 } from "@prisma/client";
 
-
-
 interface TaskApplicantsProps {
   applicants: {
     application: taskApplications;

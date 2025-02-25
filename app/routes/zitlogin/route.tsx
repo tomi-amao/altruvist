@@ -32,7 +32,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     }
   } catch (err) {
     console.log(err);
-    
+
     session.flash("error", "Server error during authentication");
     return redirect("/", {
       headers: {

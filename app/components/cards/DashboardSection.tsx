@@ -41,7 +41,7 @@ const ListItem = ({
     if (status === "COMPLETED") return null;
     if (daysRemaining === 0) return "Due today";
     if (daysRemaining < 0) return `${Math.abs(daysRemaining)} days overdue`;
-    return `${daysRemaining} ${daysRemaining === 1 ? 'day' : 'days'} left`;
+    return `${daysRemaining} ${daysRemaining === 1 ? "day" : "days"} left`;
   };
 
   const deadlineText = getDeadlineText();

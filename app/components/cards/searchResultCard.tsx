@@ -1,7 +1,4 @@
-import {
-  CombinedCollections,
-  MultiSearchDocuments,
-} from "~/types/tasks";
+import { CombinedCollections, MultiSearchDocuments } from "~/types/tasks";
 import {
   CompanyIcon,
   DescriptionIcon,
@@ -52,7 +49,10 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
                       <li className="text-xs md:text-sm font-semibold ">
                         Tags:
                         {searchResults.data?.tags.map((skill, index) => (
-                          <span key={index} className="rounded-sm  md:text-sm font-semibold bg-basePrimaryLight px-1 text-[12px]">
+                          <span
+                            key={index}
+                            className="rounded-sm  md:text-sm font-semibold bg-basePrimaryLight px-1 text-[12px]"
+                          >
                             {skill}
                           </span>
                         ))}
@@ -111,11 +111,16 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
                     {searchResults.data.requiredSkills && (
                       <li className="text-xs  md:text-sm font-semibold space-x-1">
                         Skills:
-                        {searchResults.data?.requiredSkills.map((skill, index) => (
-                          <span key={index} className="rounded-sm font-semibold bg-basePrimaryLight px-1 text-[12px]">
-                            {skill}
-                          </span>
-                        ))}
+                        {searchResults.data?.requiredSkills.map(
+                          (skill, index) => (
+                            <span
+                              key={index}
+                              className="rounded-sm font-semibold bg-basePrimaryLight px-1 text-[12px]"
+                            >
+                              {skill}
+                            </span>
+                          ),
+                        )}
                       </li>
                     )}
                     {
@@ -133,7 +138,10 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
                         Tags:
                         <span className="font-normal md:text-sm text-xs">
                           {searchResults.data?.category.map((tag, index) => (
-                            <span key={index} className="rounded-sm font-semibold bg-basePrimaryLight px-1 text-[12px]">
+                            <span
+                              key={index}
+                              className="rounded-sm font-semibold bg-basePrimaryLight px-1 text-[12px]"
+                            >
                               {tag}
                             </span>
                           ))}
@@ -196,7 +204,10 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
                       <li className="text-xs md:text-sm font-semibold">
                         Skills:
                         {searchResults.data?.skills.map((skill, index) => (
-                          <span key={index} className="rounded-sm  md:text-sm font-semibold bg-basePrimaryLight px-1 text-[12px]">
+                          <span
+                            key={index}
+                            className="rounded-sm  md:text-sm font-semibold bg-basePrimaryLight px-1 text-[12px]"
+                          >
                             {skill}
                           </span>
                         ))}
