@@ -8,7 +8,16 @@ import TaskForm from "./TaskForm";
 import { TaskApplicants } from "./TaskApplicants";
 import { CommentSection } from "../comment/Comment";
 import getColour from "../utils/ColourGenerator";
-import { Files, Info, Lightbulb, Lightning, ListChecks, NotePencil, Tag, Target } from "phosphor-react";
+import {
+  Files,
+  Info,
+  Lightbulb,
+  Lightning,
+  ListChecks,
+  NotePencil,
+  Tag,
+  Target,
+} from "phosphor-react";
 interface TaskDetailsProps {
   task: tasks & {
     applications?: {
@@ -221,10 +230,10 @@ export function TaskDetails({
                   className="text-base font-semibold  tracking-wider text-baseSecondary mb-3
                    flex items-center gap-2"
                 >
-                  <Target 
-                  size={20}
-                  weight="regular"
-                  className="text-baseSecondary/70"
+                  <Target
+                    size={20}
+                    weight="regular"
+                    className="text-baseSecondary/70"
                   />
                   Impact
                 </h3>
@@ -251,8 +260,8 @@ export function TaskDetails({
                   backdrop-blur-sm border border-baseSecondary/10 transition-all duration-300 
                   hover:border-baseSecondary/20 hover:bg-gradient-to-br hover:from-basePrimary/10 hover:to-basePrimary/15"
                 >
-                    <div className="flex items-center gap-2 mb-4">
-                    <NotePencil 
+                  <div className="flex items-center gap-2 mb-4">
+                    <NotePencil
                       size={20}
                       weight="regular"
                       className="text-baseSecondary/70"
@@ -263,8 +272,7 @@ export function TaskDetails({
                     >
                       About this task
                     </h3>
-                    </div>
-
+                  </div>
 
                   <div className="relative">
                     <div className="absolute -left-3 top-0 bottom-0 w-1 bg-baseSecondary/10 rounded-full"></div>
@@ -290,8 +298,8 @@ export function TaskDetails({
                       backdrop-blur-sm border border-baseSecondary/10 transition-all duration-300 
                       hover:border-baseSecondary/20"
                     >
-                        <div className="flex items-center gap-2 mb-4">
-                        <ListChecks 
+                      <div className="flex items-center gap-2 mb-4">
+                        <ListChecks
                           size={20}
                           weight="regular"
                           className="text-baseSecondary/70"
@@ -302,7 +310,7 @@ export function TaskDetails({
                         >
                           Key Deliverables
                         </h3>
-                        </div>
+                      </div>
 
                       <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {displayData.deliverables.map((deliverable, index) => (
@@ -373,16 +381,16 @@ export function TaskDetails({
                     hover:border-baseSecondary/20"
                   >
                     <div className="flex items-center gap-2 mb-6">
-                      <Files 
-                      size={20}
-                      weight="regular"
-                      className="text-baseSecondary/70"
+                      <Files
+                        size={20}
+                        weight="regular"
+                        className="text-baseSecondary/70"
                       />
                       <h2
-                      id="resources-heading"
-                      className="text-base font-semibold tracking-wide text-baseSecondary"
+                        id="resources-heading"
+                        className="text-base font-semibold tracking-wide text-baseSecondary"
                       >
-                      Resources & Materials
+                        Resources & Materials
                       </h2>
                     </div>
 
@@ -419,7 +427,6 @@ export function TaskDetails({
                 >
                   {/* Header */}
 
-
                   <div className="space-y-8">
                     {/* Team Size Card */}
                     <div
@@ -446,17 +453,17 @@ export function TaskDetails({
 
                     {/* Required Skills Section */}
                     <div>
-                        <h3
+                      <h3
                         className="text-sm font-medium uppercase tracking-wider text-baseSecondary/70 mb-4
                       flex items-center gap-2"
-                        >
-                        <Lightbulb 
+                      >
+                        <Lightbulb
                           size={20}
                           weight="regular"
                           className="text-baseSecondary/70"
                         />
                         Required Skills
-                        </h3>
+                      </h3>
                       <div className="flex flex-wrap gap-2">
                         {requiredSkills.length > 0 ? (
                           requiredSkills.map((skill, index) => (
@@ -483,17 +490,17 @@ export function TaskDetails({
                   {/* Categories */}
                   {displayData.category && displayData.category.length > 0 && (
                     <div className="mt-8">
-                        <h3
+                      <h3
                         className="text-sm font-medium uppercase tracking-wider text-baseSecondary/70 mb-4
                         flex items-center gap-2"
-                        >
-                        <Tag 
+                      >
+                        <Tag
                           size={20}
                           weight="regular"
                           className="text-baseSecondary/70"
                         />
                         Categories
-                        </h3>
+                      </h3>
 
                       <div
                         className="flex flex-wrap gap-2"
@@ -523,17 +530,17 @@ export function TaskDetails({
 
                   {userRole.includes("charity") && (
                     <div className="mt-8">
-                        <h3
+                      <h3
                         className="text-sm font-medium uppercase tracking-wider text-baseSecondary/70 mb-4
                         flex items-center gap-2"
-                        >
-                        <Info 
+                      >
+                        <Info
                           size={20}
                           weight="regular"
                           className="text-baseSecondary/70"
                         />
                         Task Status
-                        </h3>
+                      </h3>
 
                       <DropdownField
                         htmlFor="urgency"

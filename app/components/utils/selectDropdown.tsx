@@ -133,10 +133,11 @@ const Dropdown: React.FC<DropdownProps> = ({
                 <button
                   key={index}
                   onClick={() => handleSelect(option)}
-                  className={`flex flex-row items-center font-primary ${isSelected
+                  className={`flex flex-row items-center font-primary ${
+                    isSelected
                       ? "bg-baseSecondary text-basePrimary"
                       : "text-baseSecondary"
-                    } hover:bg-baseSecondary w-full text-left px-4 py-2 text-sm hover:text-basePrimary`}
+                  } hover:bg-baseSecondary w-full text-left px-4 py-2 text-sm hover:text-basePrimary`}
                   role="menuitem"
                   type="button"
                 >
@@ -176,7 +177,7 @@ export const SearchDropdown = ({
         return (
           <button
             className="flex text-left items-center m-auto  rounded-md space-x-2 hover:bg-basePrimaryLight w-full p-2 "
-          // onClick={() => handleSelectedSearchItem(searchResults.data)}
+            // onClick={() => handleSelectedSearchItem(searchResults.data)}
           >
             <span>
               <Buildings className="w-5 h-5" />

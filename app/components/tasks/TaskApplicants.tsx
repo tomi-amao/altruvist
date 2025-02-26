@@ -106,11 +106,11 @@ export function TaskApplicants({
     >
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-2 ">
-            <UsersThree
+          <UsersThree
             size={24}
             className="text-baseSecondary/70"
             weight="thin"
-            />
+          />
           <h2
             id="applicants-heading"
             className="text-base font-semibold tracking-wide text-baseSecondary"
@@ -145,7 +145,7 @@ export function TaskApplicants({
                     <CaretDown
                       size={20}
                       className={`transform transition-transform ${
-                      expandedIds.includes(application.id) ? "rotate-180" : ""
+                        expandedIds.includes(application.id) ? "rotate-180" : ""
                       }`}
                       weight="thin"
                     />

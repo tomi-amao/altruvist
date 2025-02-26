@@ -145,8 +145,9 @@ export default function Navbar({
   return (
     <>
       <div
-        className={`fixed w-full transition-transform duration-300 ease-in-out z-50 ${showNavbar ? "transform translate-y-0" : "transform -translate-y-full"
-          } border-b-[1px] border-b-baseSecondary h-fit ${altBackground && "bg-baseSecondary"}  bg-basePrimary`}
+        className={`fixed w-full transition-transform duration-300 ease-in-out z-50 ${
+          showNavbar ? "transform translate-y-0" : "transform -translate-y-full"
+        } border-b-[1px] border-b-baseSecondary h-fit ${altBackground && "bg-baseSecondary"}  bg-basePrimary`}
         ref={ref}
       >
         <div className="flex justify-between h-auto px-2 flex-row items-center gap-4">
@@ -169,11 +170,7 @@ export default function Navbar({
               onSubmit={handleSearchSubmit}
             >
               <div className="p-1 flex gap-4 items-center flex-grow">
-                <MagnifyingGlass
-                  size={20}
-                  weight="bold"
-                  color="#836953"
-                />
+                <MagnifyingGlass size={20} weight="bold" color="#836953" />
                 <input
                   type="text"
                   placeholder={`${searchError ? "Search is unavailable" : "Search"}`}
@@ -229,8 +226,9 @@ export default function Navbar({
         </div>
 
         <div
-          className={`fixed right-0 h-screen w-64 transform transition-transform duration-300 ease-in-out ${isDropdownOpen ? "translate-x-0" : "translate-x-full"
-            }  bg-basePrimaryLight z-10 font-primary rounded-md`}
+          className={`fixed right-0 h-screen w-64 transform transition-transform duration-300 ease-in-out ${
+            isDropdownOpen ? "translate-x-0" : "translate-x-full"
+          }  bg-basePrimaryLight z-10 font-primary rounded-md`}
         >
           <nav className="flex flex-col p-4 gap-2 text-baseSecondary">
             <NavListPages userId={userId} />

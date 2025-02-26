@@ -32,7 +32,14 @@ import { Alert } from "~/components/utils/Alert";
 import { z } from "zod";
 import { updateCharity } from "~/models/charities.server";
 import { getSignedUrlForFile } from "~/services/s3.server";
-import { Bell, Buildings, Heart, ShieldCheck, UserCircle, Warning } from "phosphor-react";
+import {
+  Bell,
+  Buildings,
+  Heart,
+  ShieldCheck,
+  UserCircle,
+  Warning,
+} from "phosphor-react";
 
 // Add this type definition at the top of the file
 type ActionResponse = {
@@ -280,17 +287,43 @@ export default function AccountSettings() {
 
   const fetcher = useFetcher();
   const tabs = [
-    { id: "profile", label: "Profile", icon: <UserCircle weight="fill" size={24} /> },
+    {
+      id: "profile",
+      label: "Profile",
+      icon: <UserCircle weight="fill" size={24} />,
+    },
     ...(FEATURE_FLAG
-      ? [{ id: "security", label: "Security", icon: <ShieldCheck weight="fill" size={24} /> }]
+      ? [
+          {
+            id: "security",
+            label: "Security",
+            icon: <ShieldCheck weight="fill" size={24} />,
+          },
+        ]
       : []),
     ...(FEATURE_FLAG
-      ? [{ id: "notifications", label: "Notifications", icon: <Bell weight="fill" size={24} /> }]
+      ? [
+          {
+            id: "notifications",
+            label: "Notifications",
+            icon: <Bell weight="fill" size={24} />,
+          },
+        ]
       : []),
     ...(userInfo?.roles?.includes("charity")
-      ? [{ id: "charity", label: "Charity", icon: <Buildings weight="fill" size={24} /> }]
+      ? [
+          {
+            id: "charity",
+            label: "Charity",
+            icon: <Buildings weight="fill" size={24} />,
+          },
+        ]
       : []),
-    { id: "danger", label: "Danger Zone", icon: <Warning weight="fill" size={24} /> },
+    {
+      id: "danger",
+      label: "Danger Zone",
+      icon: <Warning weight="fill" size={24} />,
+    },
   ];
 
   useEffect(() => {
@@ -420,9 +453,18 @@ export default function AccountSettings() {
                   : "text-baseSecondary hover:bg-basePrimaryLight"
               }`}
                 >
-                  <span className={activeTab === tab.id ? "fill-basePrimary" : "fill-baseSecondary"}>
+                  <span
+                    className={
+                      activeTab === tab.id
+                        ? "fill-basePrimary"
+                        : "fill-baseSecondary"
+                    }
+                  >
                     {React.cloneElement(tab.icon as React.ReactElement, {
-                      className: activeTab === tab.id ? "fill-basePrimary" : "fill-baseSecondary"
+                      className:
+                        activeTab === tab.id
+                          ? "fill-basePrimary"
+                          : "fill-baseSecondary",
                     })}
                   </span>
                   {tab.label}

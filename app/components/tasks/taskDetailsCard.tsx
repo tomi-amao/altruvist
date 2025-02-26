@@ -173,11 +173,11 @@ export default function TaskDetailsCard({
 
           <div className="flex flex-wrap items-center gap-6 text-baseSecondary/80">
             <span className="flex items-center gap-2 text-sm hover:text-baseSecondary transition-colors">
-                <Clock className="w-5 h-5" />
+              <Clock className="w-5 h-5" />
               Due {format(deadline, "MMM dd, yyyy")}
             </span>
             <span className="flex items-center gap-2 text-sm">
-                <Users className="w-5 h-5" />
+              <Users className="w-5 h-5" />
               <span className="font-medium">{volunteersNeeded}</span>
               volunteer{volunteersNeeded !== 1 ? "s" : ""} needed
             </span>

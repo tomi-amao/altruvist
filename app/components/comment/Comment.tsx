@@ -2,7 +2,14 @@ import React, { useEffect, useState } from "react";
 import { comment, users } from "@prisma/client";
 import { Avatar } from "../cards/ProfileCard";
 import { Form, useFetcher } from "@remix-run/react";
-import { ArrowBendUpLeft, Check, PaperPlane, PaperPlaneRight, PencilSimple, TrashSimple } from "phosphor-react";
+import {
+  ArrowBendUpLeft,
+  Check,
+  PaperPlane,
+  PaperPlaneRight,
+  PencilSimple,
+  TrashSimple,
+} from "phosphor-react";
 
 /** Extended comment type including user and nested replies */
 interface CommentType extends comment {
@@ -183,7 +190,7 @@ export default function Comment({
                   onClick={() => setIsReplying(true)}
                   className="text-sm text-baseSecondary/60 hover:text-baseSecondary transition-colors duration-200 flex items-center gap-1"
                 >
-                    <ArrowBendUpLeft className="w-4 h-4" />
+                  <ArrowBendUpLeft className="w-4 h-4" />
                   Reply
                 </button>
               ) : (
@@ -201,7 +208,7 @@ export default function Comment({
                       disabled={!replyContent.trim()}
                       className="px-4 py-2 bg-baseSecondary text-basePrimary rounded-lg hover:bg-baseSecondary/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
-                        <ArrowBendUpLeft className="w-4 h-4" />
+                      <ArrowBendUpLeft className="w-4 h-4" />
                       Reply
                     </button>
                     <button
@@ -298,14 +305,14 @@ const NewCommentForm: React.FC<NewCommentFormProps> = ({ onSubmit }) => {
           rows={3}
         />
         <div className="absolute bottom-3 right-3">
-            <button
+          <button
             type="submit"
             disabled={!content.trim()}
             className="px-6 py-2 bg-baseSecondary text-basePrimary rounded-lg hover:bg-baseSecondary/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            >
+          >
             <PaperPlane className="w-4 h-4" />
             Post Comment
-            </button>
+          </button>
         </div>
       </div>
     </Form>

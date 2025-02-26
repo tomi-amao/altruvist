@@ -908,7 +908,7 @@ export const FilePreviewButton = ({
       </button>
       {isEditing && (
         <button className="ml-2" onClick={handleFileDelete}>
-            <Trash size={20} className="text-dangerPrimary" />
+          <Trash size={20} className="text-dangerPrimary" />
         </button>
       )}
     </>
@@ -1237,10 +1237,10 @@ export function DropdownField<T>({
           <span className={`${!selectedLabel ? "text-opacity-60" : ""}`}>
             {selectedLabel || placeholder}
           </span>
-            <CaretDown
+          <CaretDown
             size={16}
             className={`transition-transform ${isOpen ? "transform rotate-180" : ""}`}
-            />
+          />
         </button>
 
         <label
