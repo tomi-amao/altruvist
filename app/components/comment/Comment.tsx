@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { comment, users } from "@prisma/client";
 import { Avatar } from "../cards/ProfileCard";
 import { Form, useFetcher } from "@remix-run/react";
+import { ArrowBendUpLeft, Check, PaperPlane, PaperPlaneRight, PencilSimple, TrashSimple } from "phosphor-react";
 
 /** Extended comment type including user and nested replies */
 interface CommentType extends comment {
@@ -124,38 +125,14 @@ export default function Comment({
                     onClick={() => setIsEditing(!isEditing)}
                     className="text-sm text-baseSecondary/60 hover:text-baseSecondary transition-colors duration-200 flex items-center gap-1"
                   >
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                      />
-                    </svg>
+                    <PencilSimple className="w-4 h-4" />
                     Edit
                   </button>
                   <button
                     onClick={() => onDelete(comment.id)}
                     className="text-sm text-dangerPrimary hover:text-dangerPrimary/80 transition-colors duration-200 flex items-center gap-1"
                   >
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                      />
-                    </svg>
+                    <TrashSimple className="w-4 h-4" />
                     Delete
                   </button>
                 </div>
@@ -176,19 +153,7 @@ export default function Comment({
                     type="submit"
                     className="px-4 py-2 bg-baseSecondary text-basePrimary rounded-lg hover:bg-baseSecondary/90 transition-colors duration-200 flex items-center gap-2"
                   >
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
+                    <Check className="w-4 h-4" />
                     Save
                   </button>
                   <button
@@ -218,19 +183,7 @@ export default function Comment({
                   onClick={() => setIsReplying(true)}
                   className="text-sm text-baseSecondary/60 hover:text-baseSecondary transition-colors duration-200 flex items-center gap-1"
                 >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"
-                    />
-                  </svg>
+                    <ArrowBendUpLeft className="w-4 h-4" />
                   Reply
                 </button>
               ) : (
@@ -248,19 +201,7 @@ export default function Comment({
                       disabled={!replyContent.trim()}
                       className="px-4 py-2 bg-baseSecondary text-basePrimary rounded-lg hover:bg-baseSecondary/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"
-                        />
-                      </svg>
+                        <ArrowBendUpLeft className="w-4 h-4" />
                       Reply
                     </button>
                     <button
@@ -357,26 +298,14 @@ const NewCommentForm: React.FC<NewCommentFormProps> = ({ onSubmit }) => {
           rows={3}
         />
         <div className="absolute bottom-3 right-3">
-          <button
+            <button
             type="submit"
             disabled={!content.trim()}
             className="px-6 py-2 bg-baseSecondary text-basePrimary rounded-lg hover:bg-baseSecondary/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-              />
-            </svg>
+            <PaperPlane className="w-4 h-4" />
             Post Comment
-          </button>
+            </button>
         </div>
       </div>
     </Form>

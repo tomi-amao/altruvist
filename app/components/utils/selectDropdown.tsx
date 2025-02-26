@@ -1,13 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
-import {
-  AccountCircleIcon,
-  CheckIcon,
-  CompanyIcon,
-  DescriptionIcon,
-} from "./icons";
+
 import { MultiSearchDocuments } from "~/types/tasks";
 
 import { useNavigate } from "@remix-run/react";
+import { Check, UserCircle, Buildings, ClipboardText } from "phosphor-react";
 
 interface DropdownProps {
   options: string[];
@@ -137,15 +133,14 @@ const Dropdown: React.FC<DropdownProps> = ({
                 <button
                   key={index}
                   onClick={() => handleSelect(option)}
-                  className={`flex flex-row items-center font-primary ${
-                    isSelected
+                  className={`flex flex-row items-center font-primary ${isSelected
                       ? "bg-baseSecondary text-basePrimary"
                       : "text-baseSecondary"
-                  } hover:bg-baseSecondary w-full text-left px-4 py-2 text-sm hover:text-basePrimary`}
+                    } hover:bg-baseSecondary w-full text-left px-4 py-2 text-sm hover:text-basePrimary`}
                   role="menuitem"
                   type="button"
                 >
-                  {isSelected && <CheckIcon />}
+                  {isSelected && <Check className="w-5 h-5" />}
                   {option}
                 </button>
               );
@@ -181,10 +176,10 @@ export const SearchDropdown = ({
         return (
           <button
             className="flex text-left items-center m-auto  rounded-md space-x-2 hover:bg-basePrimaryLight w-full p-2 "
-            // onClick={() => handleSelectedSearchItem(searchResults.data)}
+          // onClick={() => handleSelectedSearchItem(searchResults.data)}
           >
             <span>
-              <CompanyIcon />
+              <Buildings className="w-5 h-5" />
             </span>
             <div>
               <p> {searchResults.data.name} </p>
@@ -202,7 +197,7 @@ export const SearchDropdown = ({
             }
           >
             <span>
-              <DescriptionIcon />
+              <ClipboardText size={24} weight="regular" />
             </span>
             <div>
               <p> {searchResults.data.title} </p>
@@ -217,7 +212,7 @@ export const SearchDropdown = ({
             onClick={() => navigate(`/profile/${searchResults.data.id}`)}
           >
             <span>
-              <AccountCircleIcon />
+              <UserCircle className="w-5 h-5" />
             </span>
             <div>
               <p> {searchResults.data.name} </p>

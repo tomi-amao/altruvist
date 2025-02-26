@@ -8,6 +8,7 @@ import TaskForm from "./TaskForm";
 import { TaskApplicants } from "./TaskApplicants";
 import { CommentSection } from "../comment/Comment";
 import getColour from "../utils/ColourGenerator";
+import { Files, Info, Lightbulb, Lightning, ListChecks, NotePencil, Tag, Target } from "phosphor-react";
 interface TaskDetailsProps {
   task: tasks & {
     applications?: {
@@ -218,21 +219,13 @@ export function TaskDetails({
               >
                 <h3
                   className="text-base font-semibold  tracking-wider text-baseSecondary mb-3
-                     flex items-center gap-2"
+                   flex items-center gap-2"
                 >
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13 10V3L4 14h7v7l9-11h-7z"
-                    />
-                  </svg>
+                  <Target 
+                  size={20}
+                  weight="regular"
+                  className="text-baseSecondary/70"
+                  />
                   Impact
                 </h3>
                 <p
@@ -258,27 +251,20 @@ export function TaskDetails({
                   backdrop-blur-sm border border-baseSecondary/10 transition-all duration-300 
                   hover:border-baseSecondary/20 hover:bg-gradient-to-br hover:from-basePrimary/10 hover:to-basePrimary/15"
                 >
-                  <div className="flex items-center gap-2 mb-4">
-                    <svg
-                      className="w-5 h-5 text-baseSecondary/70"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
+                    <div className="flex items-center gap-2 mb-4">
+                    <NotePencil 
+                      size={20}
+                      weight="regular"
+                      className="text-baseSecondary/70"
+                    />
                     <h3
                       id="task-description-heading"
                       className="text-base font-semibold tracking-wider text-baseSecondary"
                     >
                       About this task
                     </h3>
-                  </div>
+                    </div>
+
 
                   <div className="relative">
                     <div className="absolute -left-3 top-0 bottom-0 w-1 bg-baseSecondary/10 rounded-full"></div>
@@ -304,27 +290,19 @@ export function TaskDetails({
                       backdrop-blur-sm border border-baseSecondary/10 transition-all duration-300 
                       hover:border-baseSecondary/20"
                     >
-                      <div className="flex items-center gap-2 mb-4">
-                        <svg
-                          className="w-5 h-5 text-baseSecondary/70"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                          />
-                        </svg>
+                        <div className="flex items-center gap-2 mb-4">
+                        <ListChecks 
+                          size={20}
+                          weight="regular"
+                          className="text-baseSecondary/70"
+                        />
                         <h3
                           id="deliverables-heading"
                           className="text-base font-semibold tracking-wider text-baseSecondary"
                         >
                           Key Deliverables
                         </h3>
-                      </div>
+                        </div>
 
                       <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {displayData.deliverables.map((deliverable, index) => (
@@ -395,24 +373,16 @@ export function TaskDetails({
                     hover:border-baseSecondary/20"
                   >
                     <div className="flex items-center gap-2 mb-6">
-                      <svg
-                        className="w-6 h-6 text-baseSecondary/70"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                        />
-                      </svg>
+                      <Files 
+                      size={20}
+                      weight="regular"
+                      className="text-baseSecondary/70"
+                      />
                       <h2
-                        id="resources-heading"
-                        className="text-base font-semibold tracking-wide text-baseSecondary"
+                      id="resources-heading"
+                      className="text-base font-semibold tracking-wide text-baseSecondary"
                       >
-                        Resources & Materials
+                      Resources & Materials
                       </h2>
                     </div>
 
@@ -448,24 +418,7 @@ export function TaskDetails({
                   border border-baseSecondary/10 transition-all duration-300 hover:border-baseSecondary/20"
                 >
                   {/* Header */}
-                  <div className="flex items-center gap-2 mb-6">
-                    <svg
-                      className="w-5 h-5 text-baseSecondary/70"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                      />
-                    </svg>
-                    <h2 className="text-lg font-semibold tracking-wide text-baseSecondary">
-                      Task Details
-                    </h2>
-                  </div>
+
 
                   <div className="space-y-8">
                     {/* Team Size Card */}
@@ -493,25 +446,17 @@ export function TaskDetails({
 
                     {/* Required Skills Section */}
                     <div>
-                      <h3
+                        <h3
                         className="text-sm font-medium uppercase tracking-wider text-baseSecondary/70 mb-4
-                    flex items-center gap-2"
-                      >
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
+                      flex items-center gap-2"
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                          />
-                        </svg>
+                        <Lightbulb 
+                          size={20}
+                          weight="regular"
+                          className="text-baseSecondary/70"
+                        />
                         Required Skills
-                      </h3>
+                        </h3>
                       <div className="flex flex-wrap gap-2">
                         {requiredSkills.length > 0 ? (
                           requiredSkills.map((skill, index) => (
@@ -538,25 +483,17 @@ export function TaskDetails({
                   {/* Categories */}
                   {displayData.category && displayData.category.length > 0 && (
                     <div className="mt-8">
-                      <h3
+                        <h3
                         className="text-sm font-medium uppercase tracking-wider text-baseSecondary/70 mb-4
                         flex items-center gap-2"
-                      >
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-                          />
-                        </svg>
+                        <Tag 
+                          size={20}
+                          weight="regular"
+                          className="text-baseSecondary/70"
+                        />
                         Categories
-                      </h3>
+                        </h3>
 
                       <div
                         className="flex flex-wrap gap-2"
@@ -586,25 +523,17 @@ export function TaskDetails({
 
                   {userRole.includes("charity") && (
                     <div className="mt-8">
-                      <h3
+                        <h3
                         className="text-sm font-medium uppercase tracking-wider text-baseSecondary/70 mb-4
                         flex items-center gap-2"
-                      >
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
-                          />
-                        </svg>
+                        <Info 
+                          size={20}
+                          weight="regular"
+                          className="text-baseSecondary/70"
+                        />
                         Task Status
-                      </h3>
+                        </h3>
 
                       <DropdownField
                         htmlFor="urgency"

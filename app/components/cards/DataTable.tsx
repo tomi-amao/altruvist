@@ -140,7 +140,7 @@ const DataTable = ({
               className="p-2 rounded hover:bg-basePrimaryDark disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Previous page"
             >
-              <CaretLeft size={32} />
+              <CaretLeft className="h-5 w-5 mr-2 text-baseSecondary hover:bg-basePrimaryLight" />
             </button>
 
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -163,7 +163,7 @@ const DataTable = ({
               className="p-2 rounded hover:bg-basePrimaryDark disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Next page"
             >
-              <CaretRight size={32} />
+              <CaretRight className="h-5 w-5 mr-2 text-baseSecondary hover:bg-basePrimaryLight" />
             </button>
           </div>
         </div>
@@ -182,7 +182,7 @@ const DataTable = ({
             disabled={currentPage === 1}
             className="p-2 rounded hover:bg-basePrimaryDark disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <CaretLeft size={32} />
+            <CaretLeft className="h-5 w-5 mr-2 text-baseSecondary hover:bg-basePrimaryLight" />
           </button>
 
           <span className="text-sm">
@@ -193,8 +193,9 @@ const DataTable = ({
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
             className="p-2 rounded hover:bg-basePrimaryDark disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="Next page"
           >
-            <CaretRight size={32} />
+            <CaretRight className="h-5 w-5 mr-2 text-baseSecondary hover:bg-basePrimaryLight" />
           </button>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import { tasks } from "@prisma/client";
 import { useState } from "react";
 import { Modal } from "../utils/Modal2";
-import { Calendar, Users } from "phosphor-react";
+import { CalendarBlank, Users } from "phosphor-react";
 import { SearchResultCardType } from "../cards/searchResultCard";
 import TaskDetailsCard from "./taskDetailsCard";
 
@@ -69,7 +69,7 @@ export default function TaskSummaryCard(task: taskAdditionalDetails) {
 
           <div className="flex flex-row items-center justify-start gap-2 pb-4">
             <div className="flex flex-row items-center">
-              <Calendar size={32} />
+              <CalendarBlank className="h-6 w-6 mr-2 text-baseSecondary" />
               <span>{task.deadline.toLocaleDateString()}</span>
             </div>
 

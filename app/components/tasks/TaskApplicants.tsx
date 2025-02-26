@@ -6,6 +6,7 @@ import type {
   taskApplications,
   ApplicationStatus,
 } from "@prisma/client";
+import { CaretDown, UsersThree } from "phosphor-react";
 
 interface TaskApplicantsProps {
   applicants: {
@@ -105,19 +106,11 @@ export function TaskApplicants({
     >
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-2 ">
-          <svg
-            className="w-6 h-6 text-baseSecondary/70"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+            <UsersThree
+            size={24}
+            className="text-baseSecondary/70"
+            weight="thin"
             />
-          </svg>
           <h2
             id="applicants-heading"
             className="text-base font-semibold tracking-wide text-baseSecondary"
@@ -149,21 +142,13 @@ export function TaskApplicants({
                     className="flex items-center gap-2 text-baseSecondary hover:text-baseSecondary/80"
                   >
                     <span className="font-semibold">{userData.name}</span>
-                    <svg
-                      className={`w-5 h-5 transform transition-transform ${
-                        expandedIds.includes(application.id) ? "rotate-180" : ""
+                    <CaretDown
+                      size={20}
+                      className={`transform transition-transform ${
+                      expandedIds.includes(application.id) ? "rotate-180" : ""
                       }`}
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
+                      weight="thin"
+                    />
                   </button>
                   <span
                     className={`px-3 py-1 rounded-full text-basePrimaryLight ${getStatusColor(application.status)}`}

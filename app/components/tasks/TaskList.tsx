@@ -1,6 +1,6 @@
 import { Link, useLocation } from "@remix-run/react";
-import { LoadingIcon } from "../utils/icons";
 import type { tasks } from "@prisma/client";
+import { Spinner } from "phosphor-react";
 
 interface TaskListProps {
   tasks: (tasks & {
@@ -27,7 +27,7 @@ export function TaskList({
   const location = useLocation();
   const isDashboardTasksRoute = location.pathname === "/dashboard/tasks";
 
-  if (isLoading) return <LoadingIcon />;
+  if (isLoading) return <Spinner className="animate-spin w-6 h-6" />;
   if (error) return <div>Error fetching tasks</div>;
   if (!tasks?.length) return <div>No tasks found</div>;
 

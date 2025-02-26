@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { useFetcher, useNavigate } from "@remix-run/react";
 import { PrimaryButton, SecondaryButton } from "../utils/BasicButton";
 import { FilePreviewButton } from "../utils/FormField";
+import { Clock, Users } from "phosphor-react";
 
 interface Resource {
   name: string;
@@ -149,7 +150,7 @@ export default function TaskDetailsCard({
       <div className="bg-basePrimaryDark p-8 border-b border-baseSecondary/20">
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
-            <h1 className="text-3xl md:text-4xl font-header text-baseSecondary tracking-tight">
+            <h1 className="text-3xl md:text-6xl font-header  text-baseSecondary tracking-normal">
               {title}
             </h1>
             <div className="flex items-center gap-2">
@@ -172,15 +173,11 @@ export default function TaskDetailsCard({
 
           <div className="flex flex-wrap items-center gap-6 text-baseSecondary/80">
             <span className="flex items-center gap-2 text-sm hover:text-baseSecondary transition-colors">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zm0 16a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
-              </svg>
+                <Clock className="w-5 h-5" />
               Due {format(deadline, "MMM dd, yyyy")}
             </span>
             <span className="flex items-center gap-2 text-sm">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
-              </svg>
+                <Users className="w-5 h-5" />
               <span className="font-medium">{volunteersNeeded}</span>
               volunteer{volunteersNeeded !== 1 ? "s" : ""} needed
             </span>

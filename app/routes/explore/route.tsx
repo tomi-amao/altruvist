@@ -8,7 +8,6 @@ import {
   CancelButton,
   SecondaryButtonAlt,
 } from "~/components/utils/BasicButton";
-import { CloseIcon, FilterIcon, SortIcon } from "~/components/utils/icons";
 import {
   statusOptions,
   taskCategoryFilterOptions,
@@ -21,6 +20,7 @@ import { getUserInfo } from "~/models/user2.server";
 import { getSession } from "~/services/session.server";
 import type { Task } from "~/types/tasks";
 import { ServerRuntimeMetaFunction as MetaFunction } from "@remix-run/server-runtime";
+import { Funnel, FunnelSimple, X } from "phosphor-react";
 
 export const meta: MetaFunction = () => {
   return [
@@ -260,7 +260,7 @@ export default function Explore() {
       <SecondaryButtonAlt
         ariaLabel="filter button"
         text="Filter"
-        icon={<FilterIcon />}
+        icon={<Funnel className="h-5 w-5" />}
         action={handleToggle}
       />
     );
@@ -270,7 +270,7 @@ export default function Explore() {
       <SecondaryButtonAlt
         ariaLabel="sort button"
         text="Sort"
-        icon={<SortIcon />}
+        icon={<FunnelSimple className="h-5 w-5" />}
         action={handleToggle}
       />
     );
@@ -369,7 +369,7 @@ export default function Explore() {
               <CancelButton
                 text="Clear Filters"
                 ariaLabel="clear filters"
-                icon={<CloseIcon />}
+                icon={<X className="h-5 w-5" />}
                 action={clearFilters}
               />
             )}

@@ -1,6 +1,6 @@
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { z } from "zod";
-import { AlertIcon, InfoIcon } from "./icons";
+import { CaretDown, Eye, Info, Trash, WarningCircle } from "phosphor-react";
 
 interface FormFieldProps<T> {
   htmlFor: string;
@@ -188,7 +188,7 @@ export function FormField<T>({
 
         {type !== "date" && error && (
           <p className="absolute right-2 top-1/2 -translate-y-1/2">
-            <AlertIcon />
+            <WarningCircle className="h-5 w-5" />
           </p>
         )}
       </div>
@@ -210,7 +210,7 @@ export function FormField<T>({
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            <InfoIcon />
+            <Info className="h-5 w-5" />
           </div>
           {isHovered && (
             <div
@@ -382,14 +382,10 @@ export function TextAreaField<T>({
           {label}
           {required ? " *" : ""}
         </label>
-        {/* {isValid && touched && !error && (
-          <p className="absolute right-2 top-2">
-            <TickIcon />
-          </p>
-        )} */}
+
         {error && (
           <p className="absolute right-2 top-2">
-            <AlertIcon />
+            <WarningCircle className="h-5 w-5" />
           </p>
         )}
       </div>
@@ -409,7 +405,7 @@ export function TextAreaField<T>({
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
               >
-                <InfoIcon />
+                <Info className="h-5 w-5" />
               </div>
               {isHovered && (
                 <div
@@ -755,7 +751,7 @@ export const ListInput = ({
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
             >
-              <InfoIcon />
+              <Info className="h-5 w-5" />
             </div>
             {isHovered && (
               <div className="text-sm text-baseSecondary font-primary">
@@ -906,43 +902,13 @@ export const FilePreviewButton = ({
             className="flex items-center pr-4 opacity-0 transition-opacity 
                       group-hover:opacity-100"
           >
-            <svg
-              className="h-5 w-5 text-baseSecondary"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-              />
-            </svg>
+            <Eye size={20} className="text-baseSecondary" />
           </div>
         </div>
       </button>
       {isEditing && (
         <button className="ml-2" onClick={handleFileDelete}>
-          <svg
-            className="h-5 w-5 text-dangerPrimary"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-            />
-          </svg>
+            <Trash size={20} className="text-dangerPrimary" />
         </button>
       )}
     </>
@@ -1119,7 +1085,7 @@ export function IntegerInput({
         {error && (
           <div className="absolute right-2 top-1/2 -translate-y-1/2">
             <p>
-              <AlertIcon />
+              <WarningCircle className="h-5 w-5" />
             </p>
             {/* <AlertCircle className="h-5 w-5 text-bg-dangerPrimary" /> */}
           </div>
@@ -1134,7 +1100,7 @@ export function IntegerInput({
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            <InfoIcon />
+            <Info className="h-5 w-5" />
           </div>
           {isHovered && (
             <div
@@ -1271,19 +1237,10 @@ export function DropdownField<T>({
           <span className={`${!selectedLabel ? "text-opacity-60" : ""}`}>
             {selectedLabel || placeholder}
           </span>
-          <svg
-            className={`w-4 h-4 transition-transform ${isOpen ? "transform rotate-180" : ""}`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M19 9l-7 7-7-7"
+            <CaretDown
+            size={16}
+            className={`transition-transform ${isOpen ? "transform rotate-180" : ""}`}
             />
-          </svg>
         </button>
 
         <label
@@ -1325,7 +1282,7 @@ export function DropdownField<T>({
 
         {error && (
           <div className="absolute right-2 top-1/2 -translate-y-1/2">
-            <AlertIcon />
+            <WarningCircle className="h-5 w-5" />
           </div>
         )}
       </div>
@@ -1342,7 +1299,7 @@ export function DropdownField<T>({
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            <InfoIcon />
+            <Info className="h-5 w-5" />
           </div>
           {isHovered && (
             <div className="text-sm text-baseSecondary font-primary">

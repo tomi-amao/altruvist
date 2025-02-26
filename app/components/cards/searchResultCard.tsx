@@ -1,11 +1,8 @@
 import { CombinedCollections, MultiSearchDocuments } from "~/types/tasks";
-import {
-  CompanyIcon,
-  DescriptionIcon,
-  AccountCircleIcon,
-} from "../utils/icons";
+
 import { useNavigate } from "@remix-run/react";
 import { getUrgencyColor } from "../tasks/taskCard";
+import { Buildings, ClipboardText, User } from "phosphor-react";
 
 export interface SearchResultCardType extends MultiSearchDocuments {
   all: boolean;
@@ -33,7 +30,7 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
                 // onClick={() => handleSelectedSearchItem(searchResults.data)}
               >
                 <span>
-                  <CompanyIcon />
+                  <Buildings size={24} weight="regular" />
                 </span>
                 <div>
                   <p className="font-semibold md:text-lg">
@@ -90,7 +87,7 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
                 // onClick={() => handleSelectedSearchItem(searchResults.data)}
               >
                 <span>
-                  <DescriptionIcon />
+                  <ClipboardText size={24} weight="regular" />
                 </span>
                 <div className="">
                   <p className="font-semibold md:text-lg">
@@ -178,7 +175,7 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
                 // onClick={() => handleSelectedSearchItem(searchResults.data)}
               >
                 <span>
-                  <AccountCircleIcon />
+                  <User size={24} weight="regular" />
                 </span>
                 <div>
                   <p className="font-semibold md:text-lg">

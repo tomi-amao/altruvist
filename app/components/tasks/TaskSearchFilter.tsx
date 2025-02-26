@@ -1,9 +1,9 @@
 import { ChangeEvent, useEffect } from "react";
 import { DropdownCard } from "../cards/FilterCard";
 import Dropdown from "../utils/selectDropdown";
-import { FilterIcon, SortIcon } from "../utils/icons";
 import { SecondaryButtonAlt } from "../utils/BasicButton";
 import type { FilterSortState } from "~/types/tasks";
+import { Funnel, FunnelSimple } from "phosphor-react";
 
 interface TaskSearchFilterProps {
   onSearch: (query: string) => void;
@@ -122,7 +122,7 @@ export function TaskSearchFilter({
                 <SecondaryButtonAlt
                   ariaLabel="sort button"
                   text="Sort"
-                  icon={<SortIcon />}
+                  icon={<FunnelSimple className="h-5 w-5" />}
                   action={handleToggle}
                 />
               )}
@@ -133,7 +133,7 @@ export function TaskSearchFilter({
                 <SecondaryButtonAlt
                   ariaLabel="filter button"
                   text="Filter"
-                  icon={<FilterIcon />}
+                  icon={<Funnel className="h-5 w-5" />}
                   action={handleToggle}
                 />
               )}
