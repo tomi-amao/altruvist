@@ -48,6 +48,9 @@ COPY --from=build /myapp/node_modules/.prisma /myapp/node_modules/.prisma
 
 COPY --from=build /myapp/build /myapp/build
 COPY --from=build /myapp/public /myapp/public
-ADD . .
+COPY package.json .
+COPY package-lock.json .
+
+USER 1001
 
 CMD ["npm", "start"]

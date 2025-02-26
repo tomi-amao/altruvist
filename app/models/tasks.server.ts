@@ -108,11 +108,7 @@ export async function getExploreTasks(
   if (cursor === "null") {
     cursor = null;
   }
-  console.log("Filter", Boolean(category[0]), skills[0], urgency, status);
-  console.log("cursor", cursor);
-  console.log("deadline", deadline);
-  console.log("createdAt", createdAt);
-  console.log("updatedAt", updatedAt);
+
 
   const whereClause = {
     ...(category[0] && { category: { hasSome: category } }),
@@ -163,7 +159,6 @@ export async function getExploreTasks(
 
   const nextCursor = tasks.length === limit ? tasks[tasks.length - 1].id : null;
 
-  console.log(tasks);
 
   return {
     tasks,

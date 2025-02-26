@@ -17,3 +17,4 @@ app/routes/_dashboard/routeold.tsx
 test-results
 playwright-report
 .env.test
+docker-compose*

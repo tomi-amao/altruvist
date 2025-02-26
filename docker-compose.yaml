@@ -1,21 +1,22 @@
 name: skillanthropy
 services:
-  # app:
-  #   image: theignorantview/skillanthropy
-  #   build:
-  #     context: ./
-  #     dockerfile: Dockerfile
-  #   env_file:
-  #     - .env
-  #   # ---- uncomment if runnig without proxy ----
-  #   # ports:
-  #   #   - 3000:3000
-  #   networks:
-  #     - traefik-net
-  #   # ----- uncomment to enable traefik docker provider ------
-  #   # labels:
-  #   #   - "traefik.enable=true"
-  #   #   - "traefik.http.routers.app.rule=Host(`app.localhost`)"
+  app:
+    image: theignorantview/skillanthropy
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    # ---- uncomment if runnig without proxy ----
+    # ports:
+    #   - 3000:3000
+    networks:
+      - traefik-net
+    # ----- uncomment to enable traefik docker provider ------
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.app.rule=Host(`app.localhost`)"
+    container_name: skillanthropy
 
   traefik:
     container_name: "traefik"

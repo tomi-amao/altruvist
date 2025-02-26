@@ -10,3 +10,8 @@ LICENSE
 .github/
 .env.companion
 .env.local
+**/*.test.ts
+test-results
+playwright-report
+.env.test
+tests/
