@@ -157,6 +157,20 @@ export const deleteDocument = async (
 };
 
 /**
+ * Delete all documents from an index
+ */
+export const deleteAllDocuments = async (indexName: string): Promise<boolean> => {
+  try {
+    const index = client.index(indexName);
+    await index.delete();
+    return true;
+  } catch (error) {
+    console.error(`Failed to delete all documents from ${indexName}:`, error);
+    return false;
+  }
+};
+
+/**
  * Search tasks based on provided taskIds (similar to searchUserTaskApplications in Elasticsearch)
  */
 export const searchUserTaskApplications = async (
@@ -326,6 +340,7 @@ export const initializeMeilisearch = async () => {
         "category",
         "deliverables",
         "location",
+        "resources",
       ],
       filterableAttributes: [
         "id",
@@ -400,4 +415,4 @@ export const initializeMeilisearch = async () => {
     }
     throw error;
   }
-};/** * Utility function to sync data from MongoDB to Meilisearch * @param collection The MongoDB collection to sync * @param indexName The Meilisearch index name */export const syncMongoToMeili = async <T extends { id: string }>(  mongoData: T[],  indexName: string): Promise<boolean> => {  try {    if (!mongoData || mongoData.length === 0) {      console.log(`No data to sync for ${indexName}`);      return true;    }    console.log(`Syncing ${mongoData.length} documents to index ${indexName}`);    return await indexDocuments(indexName, mongoData);  } catch (error) {    console.error(`Error syncing MongoDB data to Meilisearch for ${indexName}:`, error);    return false;  }};// Export the client for direct access if neededexport { client };
+}

@@ -9,6 +9,7 @@ import {
   initializeMeilisearch,
   isMeilisearchConnected,
   INDICES,
+  deleteAllDocuments,
 } from "~/services/meilisearch.server";
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -160,6 +161,27 @@ export async function action({ request }: ActionFunctionArgs) {
         });
       }
 
+      case "delete-all-documents": {
+        const indexName = formData.get("indexName") as string;
+
+        if (!indexName) {
+          return json({
+            success: false,
+            message: "Index name is required",
+            action,
+          });
+        }
+
+        const result = await deleteAllDocuments(indexName);
+        return json({
+          success: result,
+          message: result
+            ? "All documents deleted successfully"
+            : "Failed to delete documents",
+          action,
+        });
+      }
+
       case "search-tasks": {
         const query = formData.get("query") as string;
         const taskIdsString = formData.get("taskIds") as string;
@@ -201,9 +223,9 @@ export async function action({ request }: ActionFunctionArgs) {
       }
 
       case "sync-all": {
-        await initializeMeilisearch();
-
         try {
+          await initializeMeilisearch();
+
           // Sync tasks
           console.log("Starting task sync...");
           const tasks = await prisma.tasks.findMany({
@@ -225,48 +247,41 @@ export async function action({ request }: ActionFunctionArgs) {
 
           console.log(`Found ${tasks.length} tasks to sync`);
 
-          // Process tasks for Meilisearch
-          const processedTasks = tasks.map((task) => {
-            // Create a simpler version of the task with stringified complex objects
-            return {
-              id: task.id,
-              title: task.title,
-              description: task.description,
-              impact: task.impact,
-              requiredSkills: task.requiredSkills,
-              estimatedHours: task.estimatedHours,
-              category: task.category,
-              urgency: task.urgency,
-              volunteersNeeded: task.volunteersNeeded,
-              deliverables: task.deliverables || [],
-              deadline: task.deadline ? task.deadline.toISOString() : null,
-              charityId: task.charityId,
-              userId: task.userId,
-              status: task.status,
-              location: task.location,
-              createdAt: task.createdAt.toISOString(),
-              updatedAt: task.updatedAt.toISOString(),
-              // Store these as strings to avoid nesting issues
-              charity: JSON.stringify({
-                id: task.charity?.id,
-                name: task.charity?.name,
-              }),
-              createdBy: JSON.stringify({
-                id: task.createdBy?.id,
-                name: task.createdBy?.name,
-              }),
-              resources: JSON.stringify(task.resources),
-            };
-          });
+          if (tasks.length === 0) {
+            console.log("No tasks found in MongoDB");
+            return json({
+              success: false,
+              message: "No tasks found to sync",
+              action,
+            });
+          }
 
-          console.log(
-            "Sample processed task:",
-            JSON.stringify(processedTasks[0], null, 2),
-          );
-          const tasksResult = await indexDocuments(
-            INDICES.TASKS,
-            processedTasks,
-          );
+          // Process tasks for Meilisearch
+          
+
+
+          // Index tasks in smaller batches
+          const batchSize = 50;
+          let tasksResult = true;
+
+          for (let i = 0; i < tasks.length; i += batchSize) {
+            const batch = tasks.slice(i, i + batchSize);
+            console.log(`Processing batch ${i / batchSize + 1} of ${Math.ceil(tasks.length / batchSize)}`);
+            
+            try {
+              const batchResult = await indexDocuments(INDICES.TASKS, batch);
+              if (!batchResult) {
+                console.error(`Failed to index batch ${i / batchSize + 1}`);
+                tasksResult = false;
+                break;
+              }
+            } catch (error) {
+              console.error(`Error indexing batch ${i / batchSize + 1}:`, error);
+              tasksResult = false;
+              break;
+            }
+          }
+
           console.log("Tasks sync result:", tasksResult);
 
           // Sync users

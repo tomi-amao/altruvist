@@ -209,8 +209,10 @@ export default function SearchTestPage() {
         </div>
 
         <div className="bg-basePrimary p-4 rounded-md border border-baseSecondary">
-          <h2 className="text-xl font-semibold mb-4">Delete Document</h2>
-          <Form method="post">
+          <h2 className="text-xl font-semibold mb-4">Delete Documents</h2>
+          
+          {/* Existing delete single document form */}
+          <Form method="post" className="mb-6">
             <input type="hidden" name="action" value="delete-document" />
             <div className="mb-4">
               <label className="block mb-2">Index:</label>
@@ -247,6 +249,42 @@ export default function SearchTestPage() {
               className="bg-dangerPrimary text-basePrimary py-2 px-4 rounded hover:bg-opacity-90 disabled:opacity-50"
             >
               Delete Document
+            </button>
+          </Form>
+
+          {/* New form for deleting all documents */}
+          <Form method="post">
+            <input type="hidden" name="action" value="delete-all-documents" />
+            <div className="mb-4">
+              <label className="block mb-2">Index:</label>
+              <select
+                name="indexName"
+                className="border rounded py-1 px-2 w-full bg-basePrimaryDark"
+                required
+              >
+                <option value="">Select an index</option>
+                <option value={loaderData.indices.TASKS}>
+                  {loaderData.indices.TASKS}
+                </option>
+                <option value={loaderData.indices.USERS}>
+                  {loaderData.indices.USERS}
+                </option>
+                <option value={loaderData.indices.CHARITIES}>
+                  {loaderData.indices.CHARITIES}
+                </option>
+              </select>
+            </div>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="bg-dangerPrimary text-basePrimary py-2 px-4 rounded hover:bg-opacity-90 disabled:opacity-50"
+              onClick={(e) => {
+                if (!confirm('Are you sure you want to delete ALL documents from this index? This action cannot be undone.')) {
+                  e.preventDefault();
+                }
+              }}
+            >
+              Delete All Documents
             </button>
           </Form>
         </div>
