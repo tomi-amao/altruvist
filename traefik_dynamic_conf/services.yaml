@@ -17,7 +17,11 @@ http:
         - "tusd"
       service: tusd
       rule: "PathPrefix(`/`)"
-
+    meilisearch:
+      entryPoints:
+        - "meilisearch"
+      service: meilisearch
+      rule: "PathPrefix(`/`)"
   services:
     zitadel:
       loadBalancer:
@@ -31,3 +35,7 @@ http:
       loadBalancer:
         servers:
           - url: "http://tusd:8080"
+    meilisearch:
+      loadBalancer:
+        servers:
+          - url: "http://meilisearch:7700"

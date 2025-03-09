@@ -30,3 +30,10 @@ export function getS3Credentials() {
     BUCKET: process.env.AWS_BUCKET ?? "",
   };
 }
+
+export function getMeiliVars() {
+  return {
+    MEILI_HOST: process.env.MEILI_HOST ?? "",
+    MEILI_MASTER_KEY: process.env.MEILI_MASTER_KEY ?? "",
+  };
+}

@@ -34,12 +34,14 @@ services:
       - "--entrypoints.zitadel.address=:7200"
       - "--entrypoints.app.address=:8001"
       - "--entrypoints.tusd.address=:8004"
+      - "--entrypoints.meilisearch.address=:7700"
     ports:
       - "80:80"
       - "8081:8080" # Traefik dashboard
       - "7200:7200" # Zitadel
       - "8001:8001" # Application
       - "8004:8004" # Tusd
+      - "7700:7700" # meilisearch
     volumes:
       - ./traefik_dynamic_conf:/etc/traefik/dynamic_conf # - /var/run/docker.sock:/var/run/docker.sock:ro  --- uncomment for docker provider
     networks:
@@ -163,6 +165,23 @@ services:
       ELASTICSEARCH_USERNAME: kibana_system
       ELASTICSEARCH_PASSWORD: ${ELASTIC_PASSWORD}
       XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY: c69548d9027afcf4d55146b1d425a9f4c69548d9027afcf4d55146b1d425a9f4
+
+  # Add Meilisearch for efficient full-text search
+  meilisearch:
+    container_name: "meilisearch"
+    image: getmeili/meilisearch:v1.13
+    ports:
+      - 7702:7700
+    environment:
+      - MEILI_MASTER_KEY=${MEILI_MASTER_KEY}
+      - MEILI_NO_ANALYTICS=true
+      - MEILI_ENV=development
+    volumes:
+      - meilisearch-data:/meili_data
+    networks:
+      - traefik-net
+    restart: unless-stopped
+
   # mongodb_es_sync_service:
   #   image: theignorantview/mongodb-es-sync-service:latest
   #   # depends_on:
@@ -194,3 +213,4 @@ networks:
 volumes:
   conn-es-data:
   companion-data:
+  meilisearch-data:

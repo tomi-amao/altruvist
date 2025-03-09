@@ -12,9 +12,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   switch (action) {
     case "upload": {
-      // Instead of parsing as URL, treat fileUrl as a path and clean it
-      const fileName = fileUrl.startsWith("/") 
-        ? fileUrl.slice(1)  // Remove leading slash if present
+
+      const fileName = fileUrl.startsWith("/")
+        ? fileUrl.slice(1) 
         : fileUrl;
 
       if (!fileName) {

@@ -12,7 +12,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const accessToken = session.get("accessToken");
   const isNew = session.get("isNew");
 
-
   if (!accessToken) {
     return redirect("/zitlogin");
   }
@@ -25,7 +24,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (isNew) {
     return redirect("/newuser");
   }
-
 
   const userRole = userInfo.roles[0];
   const { tasks } = await getUserTasks(

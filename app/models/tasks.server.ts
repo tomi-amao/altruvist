@@ -109,7 +109,6 @@ export async function getExploreTasks(
     cursor = null;
   }
 
-
   const whereClause = {
     ...(category[0] && { category: { hasSome: category } }),
     ...(skills[0] && { requiredSkills: { hasSome: skills } }),
@@ -158,7 +157,6 @@ export async function getExploreTasks(
   });
 
   const nextCursor = tasks.length === limit ? tasks[tasks.length - 1].id : null;
-
 
   return {
     tasks,
