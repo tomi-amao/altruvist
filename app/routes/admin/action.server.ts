@@ -1,4 +1,5 @@
-import { json, type ActionFunctionArgs } from "@remix-run/node";
+import { json, redirect, type ActionFunctionArgs } from "@remix-run/node";
+import { getUserInfo } from "~/models/user2.server";
 import { prisma } from "~/services/db.server";
 import {
   indexDocuments,
@@ -9,8 +10,29 @@ import {
   INDICES,
   deleteAllDocuments,
 } from "~/services/meilisearch.server";
+import { getSession } from "~/services/session.server";
 
 export async function action({ request }: ActionFunctionArgs) {
+  const session = await getSession(request);
+  const accessToken = session.get("accessToken");
+  const { userInfo, zitUserInfo } = await getUserInfo(accessToken);
+
+  if (!userInfo) {
+    return redirect("/zitlogin");
+  }
+
+  const roles = zitUserInfo?.["urn:zitadel:iam:org:project:roles"] as Record<
+    string,
+    unknown
+  >;
+  const role = roles ? Object.keys(roles).join(", ") : "User";
+
+  console.log("Role:", role);
+
+  if (role !== "Admin") {
+    throw new Error("You are not authorized to access this page");
+  }
+  
   const formData = await request.formData();
   const action = formData.get("action") as string;
 
@@ -283,7 +305,11 @@ export async function action({ request }: ActionFunctionArgs) {
             processedCharities,
           );
 
-          const success = tasksResult && usersResult && charitiesResult && taskApplicationsResult;
+          const success =
+            tasksResult &&
+            usersResult &&
+            charitiesResult &&
+            taskApplicationsResult;
 
           return json({
             success: success,
@@ -294,7 +320,10 @@ export async function action({ request }: ActionFunctionArgs) {
               tasks: { count: tasks.length, success: tasksResult },
               users: { count: users.length, success: usersResult },
               charities: { count: charities.length, success: charitiesResult },
-              taskApplications: { count: taskApplications.length, success: taskApplicationsResult },
+              taskApplications: {
+                count: taskApplications.length,
+                success: taskApplicationsResult,
+              },
             },
             action,
           });

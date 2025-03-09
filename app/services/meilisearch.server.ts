@@ -173,7 +173,6 @@ export const deleteAllDocuments = async (
   }
 };
 
-
 /**
  * Search across multiple indices (tasks, users, charities)
  */
@@ -281,7 +280,6 @@ export const initializeMeilisearch = async () => {
         "Some indices may already exist, continuing with configuration...",
       );
     }
-
 
     const taskApplicationsIndex = client.index(INDICES.TASK_APPLICATIONS);
     await taskApplicationsIndex.updateSettings({

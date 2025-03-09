@@ -12,10 +12,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   switch (action) {
     case "upload": {
-
-      const fileName = fileUrl.startsWith("/")
-        ? fileUrl.slice(1) 
-        : fileUrl;
+      const fileName = fileUrl.startsWith("/") ? fileUrl.slice(1) : fileUrl;
 
       if (!fileName) {
         return json({ error: "File name is required" }, { status: 400 });

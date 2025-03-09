@@ -1,12 +1,34 @@
-import { json, type LoaderFunctionArgs } from "@remix-run/node";
+import { json, redirect, type LoaderFunctionArgs } from "@remix-run/node";
+import { getUserInfo } from "~/models/user2.server";
 import { prisma } from "~/services/db.server";
 import {
   isMeilisearchConnected,
   client,
   INDICES,
 } from "~/services/meilisearch.server";
+import { getSession } from "~/services/session.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
+  const session = await getSession(request);
+  const accessToken = session.get("accessToken");
+  const { userInfo, zitUserInfo } = await getUserInfo(accessToken);
+
+  if (!userInfo) {
+    return redirect("/zitlogin");
+  }
+
+  const roles = zitUserInfo?.["urn:zitadel:iam:org:project:roles"] as Record<
+    string,
+    unknown
+  >;
+  const role = roles ? Object.keys(roles).join(", ") : "User";
+
+  console.log("Role:", role);
+
+  if (role !== "Admin") {
+    throw new Error("You are not authorized to access this page");
+  }
+
   // Check Meilisearch connection status
   const isConnected = await isMeilisearchConnected();
 
@@ -31,7 +53,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       // Add debug logging
       console.log("Connected to Meilisearch, getting stats...");
       console.log("Available indices:", Object.values(INDICES));
-      
+
       // Get stats for each predefined index
       const statsPromises = Object.values(INDICES).map(async (indexUid) => {
         try {
@@ -77,5 +99,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     sampleCharities,
     indicesStats,
     indices: INDICES,
+    userInfo,
+    zitUserInfo,
   });
 }
