@@ -103,26 +103,3 @@ export function transformUserTaskApplications(
     createdBy: item.task.createdBy,
   }));
 }
-
-export function transformElasticSearchTasks(elasticSearch) {
-  return elasticSearch?.map((item) => ({
-    resources: item.resources,
-    id: item.id,
-    title: item.title,
-    description: item.description,
-    impact: item.impact,
-    requiredSkills: item.requiredSkills,
-    category: item.category,
-    urgency: item.urgency,
-    volunteersNeeded: item.volunteersNeeded,
-    deliverables: item.deliverables,
-    deadline: item.deadline,
-    charityId: item.charityId,
-    userId: item.userId,
-    status: item.status,
-    createdAt: item.createdAt,
-    updatedAt: item.updatedAt,
-    taskApplications: item.taskApplications,
-    createdBy: item.createdBy,
-  }));
-}

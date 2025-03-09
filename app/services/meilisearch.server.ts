@@ -15,6 +15,7 @@ export const INDICES = {
   TASKS: "skillanthropy_tasks",
   USERS: "skillanthropy_users",
   CHARITIES: "skillanthropy_charities",
+  TASK_APPLICATIONS: "skillanthropy_taskApplications",
 } as const;
 
 /**
@@ -159,7 +160,9 @@ export const deleteDocument = async (
 /**
  * Delete all documents from an index
  */
-export const deleteAllDocuments = async (indexName: string): Promise<boolean> => {
+export const deleteAllDocuments = async (
+  indexName: string,
+): Promise<boolean> => {
   try {
     const index = client.index(indexName);
     await index.delete();
@@ -170,56 +173,6 @@ export const deleteAllDocuments = async (indexName: string): Promise<boolean> =>
   }
 };
 
-/**
- * Search tasks based on provided taskIds (similar to searchUserTaskApplications in Elasticsearch)
- */
-export const searchUserTaskApplications = async (
-  query: string,
-  taskIds: string[] | undefined,
-) => {
-  if (!taskIds) {
-    return { message: "No task ids provided", status: 400 };
-  }
-
-  try {
-    const isConnected = await isMeilisearchConnected();
-    if (!isConnected) {
-      return {
-        status: "error",
-        message:
-          "Search service is currently unavailable. Please try again later.",
-        searchResult: null,
-        searchedDocuments: [],
-        rawSearchedDocuments: [],
-      };
-    }
-
-    const index = client.index(INDICES.TASKS);
-
-    // Search with a filter to only include the specified task IDs
-    const searchResult = await index.search(query, {
-      filter: [`id IN [${taskIds.map((id) => `"${id}"`).join(", ")}]`],
-    });
-
-    const rawSearchedDocuments = searchResult.hits;
-
-    return {
-      status: 200,
-      searchResult,
-      searchedDocuments: rawSearchedDocuments,
-      rawSearchedDocuments,
-    };
-  } catch (error) {
-    console.error("Meilisearch search error:", error);
-    return {
-      status: 400,
-      message: "An error occurred while searching. Please try again later.",
-      searchResult: null,
-      searchedDocuments: [],
-      rawSearchedDocuments: [],
-    };
-  }
-};
 
 /**
  * Search across multiple indices (tasks, users, charities)
@@ -254,7 +207,7 @@ export const searchMultipleIndices = async (query: string) => {
       client.index(INDICES.CHARITIES).search(query),
     ]);
 
-    // Format the results similar to the Elasticsearch function output
+    // Format the results for easier consumption
     const tasksDocuments = tasksResults.hits.map((hit) => ({
       collection: INDICES.TASKS,
       data: hit,
@@ -320,6 +273,7 @@ export const initializeMeilisearch = async () => {
         client.createIndex(INDICES.TASKS, { primaryKey: "id" }),
         client.createIndex(INDICES.USERS, { primaryKey: "id" }),
         client.createIndex(INDICES.CHARITIES, { primaryKey: "id" }),
+        client.createIndex(INDICES.TASK_APPLICATIONS, { primaryKey: "id" }),
       ]);
     } catch (createError) {
       // Ignore errors if indices already exist
@@ -328,8 +282,15 @@ export const initializeMeilisearch = async () => {
       );
     }
 
-    // Configure tasks index
-    console.log("Configuring tasks index...");
+
+    const taskApplicationsIndex = client.index(INDICES.TASK_APPLICATIONS);
+    await taskApplicationsIndex.updateSettings({
+      searchableAttributes: ["taskId", "userId", "status"],
+      filterableAttributes: ["id", "taskId", "userId", "status"],
+      sortableAttributes: ["createdAt", "updatedAt"],
+    });
+    console.log("Task applications index configured successfully");
+
     const tasksIndex = client.index(INDICES.TASKS);
     await tasksIndex.updateSettings({
       searchableAttributes: [
@@ -415,4 +376,4 @@ export const initializeMeilisearch = async () => {
     }
     throw error;
   }
-}
+};

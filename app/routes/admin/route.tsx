@@ -5,7 +5,6 @@ import {
   useNavigation,
 } from "@remix-run/react";
 import { useEffect, useState } from "react";
-import { INDICES } from "~/constants/search";
 
 // Remove direct imports from meilisearch.server.ts
 import type { LoaderReturn, ActionReturn } from "./types";
@@ -60,15 +59,17 @@ export default function SearchTestPage() {
                 </tr>
               </thead>
               <tbody>
-                {Object.entries(loaderData.indicesStats).map(([indexName, stats]: [string, any]) => (
-                  <tr key={indexName} className="border-b">
-                    <td className="py-2">{indexName}</td>
-                    <td className="py-2">{stats.numberOfDocuments}</td>
-                    <td className="py-2">
-                      {stats.isIndexing ? "Yes" : "No"}
-                    </td>
-                  </tr>
-                ))}
+                {Object.entries(loaderData.indicesStats).map(
+                  ([indexName, stats]: [string, any]) => (
+                    <tr key={indexName} className="border-b">
+                      <td className="py-2">{indexName}</td>
+                      <td className="py-2">{stats.numberOfDocuments}</td>
+                      <td className="py-2">
+                        {stats.isIndexing ? "Yes" : "No"}
+                      </td>
+                    </tr>
+                  ),
+                )}
               </tbody>
             </table>
           </div>
@@ -210,7 +211,7 @@ export default function SearchTestPage() {
 
         <div className="bg-basePrimary p-4 rounded-md border border-baseSecondary">
           <h2 className="text-xl font-semibold mb-4">Delete Documents</h2>
-          
+
           {/* Existing delete single document form */}
           <Form method="post" className="mb-6">
             <input type="hidden" name="action" value="delete-document" />
@@ -272,6 +273,9 @@ export default function SearchTestPage() {
                 <option value={loaderData.indices.CHARITIES}>
                   {loaderData.indices.CHARITIES}
                 </option>
+                <option value={loaderData.indices.TASK_APPLICATIONS}>
+                  {loaderData.indices.TASK_APPLICATIONS}
+                </option>
               </select>
             </div>
             <button
@@ -279,7 +283,11 @@ export default function SearchTestPage() {
               disabled={isSubmitting}
               className="bg-dangerPrimary text-basePrimary py-2 px-4 rounded hover:bg-opacity-90 disabled:opacity-50"
               onClick={(e) => {
-                if (!confirm('Are you sure you want to delete ALL documents from this index? This action cannot be undone.')) {
+                if (
+                  !confirm(
+                    "Are you sure you want to delete ALL documents from this index? This action cannot be undone.",
+                  )
+                ) {
                   e.preventDefault();
                 }
               }}
@@ -361,7 +369,6 @@ export default function SearchTestPage() {
           </pre>
         </div>
       )}
-
     </div>
   );
 }

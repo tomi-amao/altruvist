@@ -125,46 +125,6 @@ services:
       - "zitadel"
       - traefik-net
 
-  # search capability services
-  # elastsearch engine, kibana ui and connectors service to ingest mongodb data into elasticsearch
-
-  elasticsearch:
-    container_name: "elasticsearch"
-    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
-    environment:
-      - "discovery.type=single-node"
-      - "ES_JAVA_OPTS=-Xms2048m -Xmx2048m"
-      - "xpack.security.enabled=true"
-      - "xpack.security.authc.api_key.enabled=true"
-      - "xpack.security.authc.token.enabled=true"
-      - "ELASTIC_PASSWORD=${ELASTIC_PASSWORD}"
-      - "action.destructive_requires_name=false"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    networks:
-      - elastic
-    ports:
-      - 9200:9200
-    volumes:
-      - conn-es-data:/usr/share/elasticsearch/data
-
-  kibana:
-    container_name: "kibana"
-    image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
-    ports:
-      - 5601:5601
-    depends_on:
-      - elasticsearch
-    networks:
-      - elastic
-    environment:
-      ELASTICSEARCH_URL: http://elasticsearch:9200
-      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
-      ELASTICSEARCH_USERNAME: kibana_system
-      ELASTICSEARCH_PASSWORD: ${ELASTIC_PASSWORD}
-      XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY: c69548d9027afcf4d55146b1d425a9f4c69548d9027afcf4d55146b1d425a9f4
 
   # Add Meilisearch for efficient full-text search
   meilisearch:
@@ -182,17 +142,6 @@ services:
       - traefik-net
     restart: unless-stopped
 
-  # mongodb_es_sync_service:
-  #   image: theignorantview/mongodb-es-sync-service:latest
-  #   # depends_on:
-  #   #   - elasticsearch
-  #   #   - kibana
-  #   container_name: mongodb_es_sync_service
-  #   env_file:
-  #     - .env
-  #   # restart: unless-stopped
-  #   networks:
-  #     - elastic
 
   companion:
     container_name: "companion"
@@ -206,7 +155,6 @@ services:
 
 networks:
   zitadel:
-  elastic:
   traefik-net:
     driver: bridge
 

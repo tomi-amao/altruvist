@@ -1,10 +1,8 @@
 import { json, type ActionFunctionArgs } from "@remix-run/node";
 import { prisma } from "~/services/db.server";
 import {
-  indexDocument,
   indexDocuments,
   deleteDocument,
-  searchUserTaskApplications,
   searchMultipleIndices,
   initializeMeilisearch,
   isMeilisearchConnected,
@@ -25,7 +23,8 @@ export async function action({ request }: ActionFunctionArgs) {
           if (!isConnected) {
             return json({
               success: false,
-              message: "Failed to initialize indices: Meilisearch is not connected",
+              message:
+                "Failed to initialize indices: Meilisearch is not connected",
               errorDetails: "Connection to Meilisearch failed",
               action,
             });
@@ -34,7 +33,7 @@ export async function action({ request }: ActionFunctionArgs) {
           // If connected, try to initialize
           console.log("Starting Meilisearch initialization...");
           await initializeMeilisearch();
-          
+
           return json({
             success: true,
             message: "Meilisearch indices initialized successfully",
@@ -45,98 +44,13 @@ export async function action({ request }: ActionFunctionArgs) {
           return json({
             success: false,
             message: "Failed to initialize indices",
-            errorDetails: initError instanceof Error ? initError.message : String(initError),
+            errorDetails:
+              initError instanceof Error
+                ? initError.message
+                : String(initError),
             action,
           });
         }
-      }
-
-      case "index-task": {
-        const taskId = formData.get("taskId") as string;
-        if (!taskId)
-          return json({
-            success: false,
-            message: "No task ID provided",
-            action,
-          });
-
-        const task = await prisma.tasks.findUnique({
-          where: { id: taskId },
-          include: {
-            charity: { select: { id: true, name: true } },
-            createdBy: { select: { id: true, name: true } },
-          },
-        });
-
-        if (!task)
-          return json({ success: false, message: "Task not found", action });
-
-        const result = await indexDocument(INDICES.TASKS, task);
-        return json({
-          success: result,
-          message: result
-            ? "Task indexed successfully"
-            : "Failed to index task",
-          action,
-        });
-      }
-
-      case "index-user": {
-        const userId = formData.get("userId") as string;
-        if (!userId)
-          return json({
-            success: false,
-            message: "No user ID provided",
-            action,
-          });
-
-        const user = await prisma.users.findUnique({
-          where: { id: userId },
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            skills: true,
-            bio: true,
-          },
-        });
-
-        if (!user)
-          return json({ success: false, message: "User not found", action });
-
-        const result = await indexDocument(INDICES.USERS, user);
-        return json({
-          success: result,
-          message: result
-            ? "User indexed successfully"
-            : "Failed to index user",
-          action,
-        });
-      }
-
-      case "index-charity": {
-        const charityId = formData.get("charityId") as string;
-        if (!charityId)
-          return json({
-            success: false,
-            message: "No charity ID provided",
-            action,
-          });
-
-        const charity = await prisma.charities.findUnique({
-          where: { id: charityId },
-        });
-        if (!charity)
-          return json({ success: false, message: "Charity not found", action });
-
-        const result = await indexDocument(INDICES.CHARITIES, charity);
-        return json({
-          success: result,
-          message: result
-            ? "Charity indexed successfully"
-            : "Failed to index charity",
-          action,
-        });
       }
 
       case "delete-document": {
@@ -182,29 +96,6 @@ export async function action({ request }: ActionFunctionArgs) {
         });
       }
 
-      case "search-tasks": {
-        const query = formData.get("query") as string;
-        const taskIdsString = formData.get("taskIds") as string;
-
-        if (!query || !taskIdsString) {
-          return json({
-            success: false,
-            message: "Query and task IDs are required",
-            action,
-          });
-        }
-
-        const taskIds = taskIdsString.split(",").map((id) => id.trim());
-        const result = await searchUserTaskApplications(query, taskIds);
-
-        return json({
-          success: result.status === 200,
-          message: result.status === 200 ? "Search completed" : result.message,
-          result: result,
-          action,
-        });
-      }
-
       case "search-all": {
         const query = formData.get("query") as string;
 
@@ -226,6 +117,48 @@ export async function action({ request }: ActionFunctionArgs) {
         try {
           await initializeMeilisearch();
 
+          //sync task applications
+          console.log("Starting task application sync...");
+          const taskApplications = await prisma.taskApplications.findMany({
+            include: {
+              task: {
+                select: {
+                  id: true,
+                  title: true,
+                  description: true,
+                  charity: {
+                    select: {
+                      id: true,
+                      name: true,
+                    },
+                  },
+                },
+              },
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  skills: true,
+                  bio: true,
+                  roles: true,
+                  charityId: true,
+                  zitadelId: true,
+                  createdAt: true,
+                  updatedAt: true,
+                },
+              },
+            },
+          });
+
+          console.log(
+            `Found ${taskApplications.length} task applications to sync`,
+          );
+          const taskApplicationsResult = await indexDocuments(
+            INDICES.TASK_APPLICATIONS,
+            taskApplications,
+          );
+
           // Sync tasks
           console.log("Starting task sync...");
           const tasks = await prisma.tasks.findMany({
@@ -234,6 +167,16 @@ export async function action({ request }: ActionFunctionArgs) {
                 select: {
                   id: true,
                   name: true,
+                },
+              },
+              taskApplications: {
+                select: {
+                  id: true,
+                  userId: true,
+                  status: true,
+                  message: true,
+                  createdAt: true,
+                  updatedAt: true,
                 },
               },
               createdBy: {
@@ -257,8 +200,6 @@ export async function action({ request }: ActionFunctionArgs) {
           }
 
           // Process tasks for Meilisearch
-          
-
 
           // Index tasks in smaller batches
           const batchSize = 50;
@@ -266,8 +207,10 @@ export async function action({ request }: ActionFunctionArgs) {
 
           for (let i = 0; i < tasks.length; i += batchSize) {
             const batch = tasks.slice(i, i + batchSize);
-            console.log(`Processing batch ${i / batchSize + 1} of ${Math.ceil(tasks.length / batchSize)}`);
-            
+            console.log(
+              `Processing batch ${i / batchSize + 1} of ${Math.ceil(tasks.length / batchSize)}`,
+            );
+
             try {
               const batchResult = await indexDocuments(INDICES.TASKS, batch);
               if (!batchResult) {
@@ -276,7 +219,10 @@ export async function action({ request }: ActionFunctionArgs) {
                 break;
               }
             } catch (error) {
-              console.error(`Error indexing batch ${i / batchSize + 1}:`, error);
+              console.error(
+                `Error indexing batch ${i / batchSize + 1}:`,
+                error,
+              );
               tasksResult = false;
               break;
             }
@@ -337,7 +283,7 @@ export async function action({ request }: ActionFunctionArgs) {
             processedCharities,
           );
 
-          const success = tasksResult && usersResult && charitiesResult;
+          const success = tasksResult && usersResult && charitiesResult && taskApplicationsResult;
 
           return json({
             success: success,
@@ -348,6 +294,7 @@ export async function action({ request }: ActionFunctionArgs) {
               tasks: { count: tasks.length, success: tasksResult },
               users: { count: users.length, success: usersResult },
               charities: { count: charities.length, success: charitiesResult },
+              taskApplications: { count: taskApplications.length, success: taskApplicationsResult },
             },
             action,
           });

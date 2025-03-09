@@ -95,7 +95,7 @@ export default function Navbar({
   useEffect(() => {
     console.log(search);
     if (search.query) {
-      fetcher.load(`/multisearch?search=${search.query}`);
+      fetcher.load(`/api/search?search=${search.query}`);
     }
   }, [search]);
 
