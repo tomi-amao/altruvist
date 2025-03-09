@@ -2,6 +2,7 @@ export function getZitadelVars() {
   return {
     ZITADEL_DOMAIN: process.env.ZITADEL_DOMAIN ?? "",
     CLIENT_ID: process.env.CLIENT_ID ?? "",
+    CLIENT_SECRET: process.env.CLIENT_SECRET ?? "",
     REDIRECT_URI: process.env.REDIRECT_URI ?? "",
     LOGOUT_URI: process.env.LOGOUT_URI ?? "",
     STATE: process.env.STATE ?? "",

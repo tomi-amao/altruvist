@@ -10,6 +10,8 @@ import { Section } from "~/components/cards/DashboardSection";
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
   const accessToken = session.get("accessToken");
+  const isNew = session.get("isNew");
+
 
   if (!accessToken) {
     return redirect("/zitlogin");
@@ -19,6 +21,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (!userInfo) {
     return redirect("/zitlogin");
   }
+
+  if (isNew) {
+    return redirect("/newuser");
+  }
+
 
   const userRole = userInfo.roles[0];
   const { tasks } = await getUserTasks(

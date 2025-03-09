@@ -12,7 +12,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   switch (action) {
     case "upload": {
-      const fileName = new URL(fileUrl).pathname.slice(1); // Remove leading slash and get full path
+      // Instead of parsing as URL, treat fileUrl as a path and clean it
+      const fileName = fileUrl.startsWith("/") 
+        ? fileUrl.slice(1)  // Remove leading slash if present
+        : fileUrl;
 
       if (!fileName) {
         return json({ error: "File name is required" }, { status: 400 });
