@@ -11,7 +11,6 @@ import { getUserInfo } from "~/models/user2.server";
 import { prisma } from "~/services/db.server";
 import { searchMultipleIndexes } from "~/services/search.server";
 import { getSession } from "~/services/session.server";
-import { searchMultipleIndices } from "~/services/meilisearch.server";
 
 export type SortOrder = "asc" | "desc";
 
@@ -29,7 +28,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     ? decodeURIComponent(url.searchParams.get("query")!)
     : null;
 
-  const searchResults = await searchMultipleIndices(query ?? "");
+  const searchResults = await searchMultipleIndexes(query!);
   console.log("Search PAGE", searchResults.rawSearchedDocuments);
 
   const category = url.searchParams.get("charity")?.split(",") || [];

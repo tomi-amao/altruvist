@@ -1,0 +1,27 @@
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { searchMultipleIndices } from "~/services/meilisearch.server";
+
+export async function loader({ request }: LoaderFunctionArgs) {
+    const url = new URL(request.url);
+    const query = url.searchParams.get("search") || "";
+  
+    // multi-index search
+    try {
+      const {rawSearchedDocuments} = await searchMultipleIndices(query ?? "");
+  
+  
+      return {
+        status: 200,
+        rawSearchedDocuments,
+      };
+    } catch (error) {
+      console.error("Elasticsearch search error:", error);
+      return {
+        status: 400,
+        message: "An error occurred while searching. Please try again later.",
+        searchResult: null,
+        searchedDocuments: [],
+        rawSearchedDocuments: [],
+      };
+    }
+  }
