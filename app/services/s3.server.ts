@@ -22,7 +22,6 @@ export async function getSignedUrlForFile(
   if (extractFileName) {
     fileName = decodeURIComponent(fileName.split(".com/")[1]);
   }
-  console.log("File name:", fileName);
   
   const command = new GetObjectCommand({
     Bucket: "skillanthropy-uploads",

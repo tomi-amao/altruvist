@@ -4,6 +4,7 @@ import {
   useNavigation,
   useSubmit,
   useLoaderData,
+  useFetcher,
 } from "@remix-run/react";
 import {
   ActionFunctionArgs,
@@ -24,6 +25,7 @@ import { Meta, UppyFile } from "@uppy/core";
 import { SecondaryButton } from "~/components/utils/BasicButton";
 import { createCharity } from "~/models/charities.server";
 import { charities, users } from "@prisma/client";
+import React from "react";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
@@ -341,6 +343,15 @@ const PictureStep = ({ updateFields, formData }: StepProps) => {
   const showFileUpload = () => {
     updateFields({ picture: undefined });
   };
+  const [signedProfilePicture, setSignedProfilePicture] = useState("");
+  const fetchSignedUrl = useFetcher()
+  useEffect(() => {
+    fetchSignedUrl.load(`/api/s3-get-url?file=${formData.picture}&action=upload`)
+    if (fetchSignedUrl.data?.url) {
+      setSignedProfilePicture(fetchSignedUrl.data.url)
+    }
+  }, [formData.picture, fetchSignedUrl.data?.url]);
+  
   return (
     <>
       {!formData.picture && (
@@ -356,7 +367,7 @@ const PictureStep = ({ updateFields, formData }: StepProps) => {
         <div className="flex flex-row items-center justify-center gap-4">
           <div>
             <img
-              src={formData.picture}
+              src={signedProfilePicture}
               className="w-24 h-24 rounded-full object-cover border-2 shadow-sm"
               alt="Profile Display"
             />
@@ -364,7 +375,7 @@ const PictureStep = ({ updateFields, formData }: StepProps) => {
           <div>
             <SecondaryButton
               ariaLabel="choose another picture"
-              text="Select Another"
+              text="Select a different picture"
               action={showFileUpload}
               type="button"
             />
@@ -553,44 +564,44 @@ export default function NewUserForm() {
   const formSteps: FormStep[] =
     formData.role === "volunteer"
       ? [
-          {
-            id: "role",
-            title: "Choose Your Role",
-            component: RoleSelectionStep,
-          },
-          { id: "title", title: "Job Title", component: TitleStep },
-          {
-            id: "bioDescription",
-            title: "Bio Description",
-            component: DescriptionStep,
-          },
-          { id: "picture", title: "Picture", component: PictureStep },
-          { id: "tags", title: "tags", component: TagsStep },
-          {
-            id: "preferredCharities",
-            title: "Preferred Charities",
-            component: PreferredCharities,
-          },
-        ]
+        {
+          id: "role",
+          title: "Choose Your Role",
+          component: RoleSelectionStep,
+        },
+        { id: "title", title: "Job Title", component: TitleStep },
+        {
+          id: "bioDescription",
+          title: "Bio Description",
+          component: DescriptionStep,
+        },
+        { id: "picture", title: "Picture", component: PictureStep },
+        { id: "tags", title: "tags", component: TagsStep },
+        {
+          id: "preferredCharities",
+          title: "Preferred Charities",
+          component: PreferredCharities,
+        },
+      ]
       : [
-          {
-            id: "role",
-            title: "Choose Your Role",
-            component: RoleSelectionStep,
-          },
-          { id: "charityName", title: "Charity Name", component: TitleStep },
-          {
-            id: "charityDescription",
-            title: "Charity Description",
-            component: DescriptionStep,
-          },
-          {
-            id: "charityWebsite",
-            title: "Charity Website",
-            component: CharityWebsiteStep,
-          },
-          { id: "charityTags", title: "tags", component: TagsStep },
-        ];
+        {
+          id: "role",
+          title: "Choose Your Role",
+          component: RoleSelectionStep,
+        },
+        { id: "charityName", title: "Charity Name", component: TitleStep },
+        {
+          id: "charityDescription",
+          title: "Charity Description",
+          component: DescriptionStep,
+        },
+        {
+          id: "charityWebsite",
+          title: "Charity Website",
+          component: CharityWebsiteStep,
+        },
+        { id: "charityTags", title: "tags", component: TagsStep },
+      ];
 
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
@@ -677,9 +688,8 @@ export default function NewUserForm() {
                   );
                 }}
                 disabled={isSubmitting}
-                className={`px-4 py-2 rounded-md text-basePrimaryLight font-semibold transition-colors ${
-                  isSubmitting ? " cursor-not-allowed" : "bg-baseSecondary"
-                }`}
+                className={`px-4 py-2 rounded-md text-basePrimaryLight font-semibold transition-colors ${isSubmitting ? " cursor-not-allowed" : "bg-baseSecondary"
+                  }`}
               >
                 {isSubmitting ? "Submitting..." : "Submit"}
               </button>
