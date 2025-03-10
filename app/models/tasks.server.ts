@@ -10,6 +10,7 @@ import { prisma } from "~/services/db.server";
 import { SortOrder } from "~/routes/search/route";
 import { transformUserTaskApplications } from "~/components/utils/DataTransformation";
 import { ObjectIdSchema } from "~/services/validators.server";
+import { INDICES, indexDocument, deleteDocument, isMeilisearchConnected } from "~/services/meilisearch.server";
 
 export const createTask = async (
   taskData: Partial<tasks>,
@@ -48,6 +49,13 @@ export const createTask = async (
         },
       },
     });
+
+    // Index the new task in Meilisearch
+    const meiliConnected = await isMeilisearchConnected();
+    if (meiliConnected) {
+      await indexDocument(INDICES.TASKS, task);
+    }
+
     return { task, message: "Task successfully created", status: 200 };
   } catch (error) {
     return {
@@ -362,6 +370,12 @@ export const updateTask = async (
     });
     console.log(updatedTask);
 
+    // Update the task in Meilisearch
+    const meiliConnected = await isMeilisearchConnected();
+    if (meiliConnected) {
+      await indexDocument(INDICES.TASKS, updatedTask);
+    }
+
     return {
       tasks: updatedTask,
       message: "Task successfully updated",
@@ -383,6 +397,12 @@ export const deleteTask = async (taskId: string) => {
     const deletedTask = await prisma.tasks.delete({
       where: { id: taskId },
     });
+
+    // Delete the task from Meilisearch
+    const meiliConnected = await isMeilisearchConnected();
+    if (meiliConnected) {
+      await deleteDocument(INDICES.TASKS, taskId);
+    }
 
     return {
       task: deletedTask,

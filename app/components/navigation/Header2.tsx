@@ -220,7 +220,7 @@ export default function Navbar({
           )}
 
           {/* sign in / join button on large screens */}
-          <div className="w-fit min-w-fit lg:flex flex-row items-center gap-4 text-baseSecondary hidden">
+          <div className="w-fit min-w-fit lg:flex flex-row items-center gap-4 text-baseSecondary ">
             <NavListAuth altBackground={altBackground} userId={userId} />
           </div>
         </div>

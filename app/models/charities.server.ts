@@ -1,5 +1,7 @@
 import { charities, type Prisma } from "@prisma/client";
 import { prisma } from "~/services/db.server";
+import { INDICES, indexDocument, deleteDocument, isMeilisearchConnected } from "~/services/meilisearch.server";
+
 export const createCharity = async (
   charityData: Partial<charities>,
   userId: string,
@@ -17,6 +19,13 @@ export const createCharity = async (
         },
       },
     });
+
+    // Index the new charity in Meilisearch
+    const meiliConnected = await isMeilisearchConnected();
+    if (meiliConnected) {
+      await indexDocument(INDICES.CHARITIES, charity);
+    }
+
     return { charity, message: "Charity successfully created", status: 200 };
   } catch (error) {
     return {
@@ -57,7 +66,12 @@ export const updateCharity = async (
       where: { id },
       data: charityData,
     });
-    console.log("Updated charity", updatedCharity);
+
+    // Update the charity in Meilisearch
+    const meiliConnected = await isMeilisearchConnected();
+    if (meiliConnected) {
+      await indexDocument(INDICES.CHARITIES, updatedCharity);
+    }
 
     return {
       charity,
@@ -73,6 +87,7 @@ export const updateCharity = async (
     };
   }
 };
+
 export const deleteCharity = async (id: string) => {
   try {
     const charity = await prisma.charities.findUnique({
@@ -84,6 +99,13 @@ export const deleteCharity = async (id: string) => {
     await prisma.charities.delete({
       where: { id },
     });
+
+    // Delete the charity from Meilisearch
+    const meiliConnected = await isMeilisearchConnected();
+    if (meiliConnected) {
+      await deleteDocument(INDICES.CHARITIES, id);
+    }
+
     return { message: "Charity deleted", status: 200 };
   } catch (error) {
     return {

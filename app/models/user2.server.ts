@@ -1,9 +1,11 @@
 import { prisma } from "~/services/db.server";
-
 import { getZitadelVars } from "~/services/env.server";
 import type { zitadelUserInfo } from "~/types/zitadelUser";
 import type { Prisma } from "@prisma/client";
 import { ObjectIdSchema } from "~/services/validators.server";
+import https from "https";
+import fetch from "node-fetch";
+import { INDICES, indexDocument, deleteDocument, isMeilisearchConnected } from "~/services/meilisearch.server";
 
 // create a mongodb user document if user from zitadel directory does not exist
 export const createUser = async (user: zitadelUserInfo) => {
@@ -29,6 +31,13 @@ export const createUser = async (user: zitadelUserInfo) => {
         locale: user.locale,
       },
     });
+
+    // Index the new user in Meilisearch
+    const meiliConnected = await isMeilisearchConnected();
+    if (meiliConnected) {
+      await indexDocument(INDICES.USERS, newUser);
+    }
+
     return {
       newUser,
       error: null,
@@ -60,6 +69,10 @@ export const getUserInfo = async (
     };
   }
 
+  // const agent = new https.Agent({
+  //   rejectUnauthorized: false, // Disable SSL verification
+  // });
+
   try {
     const userInfoResponse = await fetch(
       `${zitadel.ZITADEL_DOMAIN}/oidc/v1/userinfo`,
@@ -67,6 +80,7 @@ export const getUserInfo = async (
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
+        // agent,
       },
     );
 
@@ -75,6 +89,7 @@ export const getUserInfo = async (
     }
 
     const zitUserInfo: zitadelUserInfo = await userInfoResponse.json();
+
     const userInfo = await prisma.users.findFirst({
       where: { zitadelId: zitUserInfo.sub },
       ...(include && { include }),
@@ -102,16 +117,18 @@ export const updateUserInfo = async (
     if (!user) {
       return { message: "No user Found" };
     }
-    const role = updateUserData.roles;
-    console.log(role, typeof role);
 
-    // if (user.roles.includes(role)) {
-    //   return { message: "Role already exists", status: 400 };
-    // }
+
     const updatedUserInfo = await prisma.users.update({
       where: { id: userId },
       data: updateUserData,
     });
+
+    // Update the user in Meilisearch
+    const meiliConnected = await isMeilisearchConnected();
+    if (meiliConnected) {
+      await indexDocument(INDICES.USERS, updatedUserInfo);
+    }
 
     return { updatedUserInfo, status: 200, error: null };
   } catch (error) {
@@ -152,6 +169,12 @@ export const deleteUser = async (id: string, zitId: string) => {
   const { ZITADEL_ADMIN_TOKEN, ZITADEL_DOMAIN } = getZitadelVars();
   try {
     await prisma.users.delete({ where: { id } });
+
+    // Delete the user from Meilisearch
+    const meiliConnected = await isMeilisearchConnected();
+    if (meiliConnected) {
+      await deleteDocument(INDICES.USERS, id);
+    }
 
     let myHeaders = new Headers();
     myHeaders.append("Authorization", `Bearer ${ZITADEL_ADMIN_TOKEN}`);

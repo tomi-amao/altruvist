@@ -176,7 +176,7 @@ export default function SearchResults() {
             deadline={new Date(selectedSearchItem?.deadline)}
             userId={selectedSearchItem?.userId}
             status={selectedSearchItem?.status}
-            resources={selectedSearchItem?.resources}
+            resources={JSON.parse(selectedSearchItem?.resources || '[]')}
           />
         </div>
       </Modal>

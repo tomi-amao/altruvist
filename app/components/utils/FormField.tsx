@@ -188,7 +188,7 @@ export function FormField<T>({
 
         {type !== "date" && error && (
           <p className="absolute right-2 top-1/2 -translate-y-1/2">
-            <WarningCircle className="h-5 w-5" />
+            <WarningCircle className="h-5 w-5 text-dangerPrimary" />
           </p>
         )}
       </div>
@@ -210,7 +210,7 @@ export function FormField<T>({
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            <Info className="h-5 w-5" />
+            <Info className="h-5 w-5 text-baseSecondary mt-1" />
           </div>
           {isHovered && (
             <div
@@ -405,7 +405,7 @@ export function TextAreaField<T>({
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
               >
-                <Info className="h-5 w-5" />
+                <Info className="h-5 w-5 text-baseSecondary" />
               </div>
               {isHovered && (
                 <div
@@ -751,7 +751,7 @@ export const ListInput = ({
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
             >
-              <Info className="h-5 w-5" />
+              <Info className="h-5 w-5 text-baseSecondary" />
             </div>
             {isHovered && (
               <div className="text-sm text-baseSecondary font-primary">
@@ -915,206 +915,7 @@ export const FilePreviewButton = ({
   );
 };
 
-interface IntegerInputProps {
-  htmlFor: string;
-  type?: string;
-  value: string;
-  autocomplete?: string;
-  placeholder?: string;
-  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
-  label?: string;
-  backgroundColour?: string;
-  min?: number;
-  max?: number;
-  errorMessage?: string;
-  helperText?: string;
-  serverValidationError: boolean;
-  resetField: boolean;
-}
-export function IntegerInput({
-  htmlFor,
-  type = "number",
-  value,
-  autocomplete,
-  placeholder = "Volunteers needed",
-  onChange = () => {},
-  label = "Number of volunteers",
-  backgroundColour = "bg-basePrimaryDark",
-  min = 1,
-  max = 100,
-  helperText,
-  serverValidationError = false,
-  resetField = false,
-}: IntegerInputProps) {
-  const [isFocused, setIsFocused] = useState(false);
-  const [hasValue, setHasValue] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [isValid, setIsValid] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
 
-  useEffect(() => {
-    setIsFocused(false);
-    setError(null);
-    setIsValid(false);
-  }, [resetField]);
-
-  useEffect(() => {
-    if (serverValidationError) {
-      setError("This field is required");
-      console.log("Server validation component", error);
-      return;
-    }
-  }, [serverValidationError, error]);
-
-  const inputIntegerSchema = (min: number, max: number) =>
-    z
-      .string()
-      .nonempty("Number of volunteers is required")
-      .refine((value) => !isNaN(parseInt(value)), {
-        message: "Please enter a valid number",
-      })
-      .refine(
-        (value) => {
-          const numValue = parseInt(value);
-          return numValue >= min;
-        },
-        {
-          message: `Minimum number of volunteers is ${min}`,
-        },
-      )
-      .refine(
-        (value) => {
-          const numValue = parseInt(value);
-          return numValue <= max;
-        },
-        {
-          message: `Maximum number of volunteers is ${max}`,
-        },
-      );
-
-  const validateValue = (value: string, min: number, max: number) => {
-    const validate = inputIntegerSchema(min, max);
-    if (!validate) {
-      setIsValid(true);
-      setError(null);
-      return;
-    }
-
-    try {
-      validate.parse(value);
-      setIsValid(true);
-      setError(null);
-      return true;
-    } catch (e) {
-      if (e instanceof z.ZodError) {
-        setError(e.errors[0]?.message);
-        setIsValid(false);
-      }
-      return false;
-    }
-  };
-
-  const handleFocus = () => setIsFocused(true);
-
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    setIsFocused(false);
-    validateValue(e.target.value, min, max);
-  };
-
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    setHasValue(newValue.length > 0);
-    validateValue(newValue, min, max);
-    onChange(e);
-  };
-
-  return (
-    <div className="">
-      <div className="relative ">
-        <input
-          type={type}
-          name={htmlFor}
-          id={htmlFor}
-          aria-label={label}
-          aria-invalid={error ? "true" : "false"}
-          aria-describedby={error ? `${htmlFor}-error` : undefined}
-          className={`
-            peer block w-full rounded-lg border px-2.5 pb-2.5 pt-4 text-sm
-            transition-all duration-300 border-baseSecondary text-baseSecondary ${error ? "placeholder:text-dangerPrimary" : "placeholder:text-baseSecondary"} placeholder:text-opacity-60
-            ${backgroundColour}
-                        ${isValid ? "border-confirmPrimary" : ""}
-
-            ${
-              error
-                ? "border-dangerPrimary focus:border-bg-dangerPrimary "
-                : "border-basePrimaryDark focus:border-baseSecondary"
-            }
-            focus:outline-none
-          hide-number-spinner `}
-          placeholder={isFocused || hasValue ? "" : placeholder}
-          autoComplete={autocomplete}
-          value={value}
-          onChange={handleChange}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          min={min}
-          max={max}
-        />
-        <label
-          htmlFor={htmlFor}
-          className={`
-             start-1  px-2 text-base
-              border-baseSecondary
-            absolute text-md text-baseSecondary duration-300 transform -translate-y-4 scale-75 top-0 z-auto origin-[0]
-            ${backgroundColour}
-            ${
-              isFocused || hasValue
-                ? "translate-y-[-0.75rem] scale-75 opacity-100"
-                : "translate-y-0 scale-100 opacity-0"
-            }
-            ${error ? "text-dangerPrimary" : "text-baseSecondary"}
-          `}
-        >
-          {label}
-        </label>
-        {/* {isValid && (
-          <p className="absolute right-2 top-1/2 -translate-y-1/2">
-            <TickIcon />
-          </p>
-        )} */}
-        {error && (
-          <div className="absolute right-2 top-1/2 -translate-y-1/2">
-            <p>
-              <WarningCircle className="h-5 w-5" />
-            </p>
-            {/* <AlertCircle className="h-5 w-5 text-bg-dangerPrimary" /> */}
-          </div>
-        )}
-      </div>
-      <p className="text-sm text-dangerPrimary" id={`${htmlFor}-error`}>
-        {error}
-      </p>
-      {helperText && (
-        <div className="flex items-center space-x-1 mt-[2px]">
-          <div
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            <Info className="h-5 w-5" />
-          </div>
-          {isHovered && (
-            <div
-              id={`${htmlFor}-helper`}
-              className="text-sm text-baseSecondary font-primary"
-            >
-              {helperText}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
 
 interface DropdownOption {
   value: string;
@@ -1299,7 +1100,7 @@ export function DropdownField<T>({
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            <Info className="h-5 w-5" />
+            <Info className="h-5 w-5 text-baseSecondary" />
           </div>
           {isHovered && (
             <div className="text-sm text-baseSecondary font-primary">

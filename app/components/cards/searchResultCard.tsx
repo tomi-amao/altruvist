@@ -27,15 +27,15 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
               {/* mobile view component */}
               <div
                 className="flex  text-left items-center m-auto  rounded-md space-x-2 hover:bg-basePrimaryLight w-full p-2 md:font-semibold"
-                // onClick={() => handleSelectedSearchItem(searchResults.data)}
+              // onClick={() => handleSelectedSearchItem(searchResults.data)}
               >
                 <span>
                   <Buildings size={24} weight="regular" />
                 </span>
                 <div>
                   <p className="font-semibold md:text-lg">
-                    {" "}
-                    {searchResults.data.name}{" "}
+
+                    {searchResults.data.name}
                   </p>
                   <p className="text-xs md:text-sm mb-1">
                     {searchResults.data.description}
@@ -84,7 +84,7 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
               {/* mobile view component */}
               <div
                 className="flex  text-left items-center m-auto  rounded-md space-x-2 hover:bg-basePrimaryLight w-full p-2  "
-                // onClick={() => handleSelectedSearchItem(searchResults.data)}
+              // onClick={() => handleSelectedSearchItem(searchResults.data)}
               >
                 <span>
                   <ClipboardText size={24} weight="regular" />
@@ -165,58 +165,60 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
       case "skillanthropy_users":
         if (searchResults.all || searchResults.users) {
           return (
-            <button
-              className="flex text-left items-center bg-basePrimaryDark rounded-md mb-2 hover:bg-basePrimaryLight w-full p-2"
-              onClick={() => navigate(`/profile/${searchResults.data.id}`)}
-            >
-              {/* mobile view component */}
-              <div
-                className="flex  text-left items-center m-auto  rounded-md space-x-2 hover:bg-basePrimaryLight w-full p-2 md:font-semibold"
-                // onClick={() => handleSelectedSearchItem(searchResults.data)}
-              >
-                <span>
-                  <User size={24} weight="regular" />
-                </span>
-                <div>
-                  <p className="font-semibold md:text-lg">
-                    {" "}
-                    {searchResults.data.name}{" "}
-                  </p>
-                  <p className="text-xs md:text-sm mb-1">
-                    {" "}
-                    {searchResults.data.userTitle}
-                  </p>
+            <>
+              {searchResults.data?.roles[0] && (
+                <button
+                  className="flex text-left items-center bg-basePrimaryDark rounded-md mb-2 hover:bg-basePrimaryLight w-full p-2"
+                  onClick={() => navigate(`/profile/${searchResults.data.id}`)}
+                >
+                  {/* mobile view component */}
+                  <div
+                    className="flex  text-left items-center m-auto  rounded-md space-x-2 hover:bg-basePrimaryLight w-full p-2 md:font-semibold"
+                  // onClick={() => handleSelectedSearchItem(searchResults.data)}
+                  >
+                    <span>
+                      <User size={24} weight="regular" />
+                    </span>
+                    <div>
+                      <p className="font-semibold md:text-lg">
 
-                  <ul className="flex gap-2  items-center">
-                    {searchResults.data.roles && (
-                      <li className="text-xs md:text-sm font-semibold">
-                        Type:
-                        <span className="font-normal md:text-sm ml-1 text-xs">
-                          {searchResults.data.roles[0].charAt(0).toUpperCase() +
-                            searchResults.data.roles[0].slice(1).toLowerCase()}
-                        </span>
-                      </li>
-                    )}
-                    {searchResults.data.skills && (
-                      <li className="text-xs md:text-sm font-semibold">
-                        Skills:
-                        {searchResults.data?.skills.map((skill, index) => (
-                          <span
-                            key={index}
-                            className="rounded-sm  md:text-sm font-semibold bg-basePrimaryLight px-1 text-[12px]"
-                          >
-                            {skill}
-                          </span>
-                        ))}
-                      </li>
-                    )}
-                  </ul>
-                </div>
-              </div>
+                        {searchResults.data.name}
+                      </p>
+                      <p className="text-xs md:text-sm mb-1">
 
-              {/* laptop/desktop screen component */}
-            </button>
-            // renderRoleCard()
+                        {searchResults.data.userTitle}
+                      </p>
+
+                      <ul className="flex gap-2  items-center">
+                        {searchResults.data?.roles[0] && (
+                          <li className="text-xs md:text-sm font-semibold">
+                            Type:
+                            <span className="font-normal md:text-sm ml-1 text-xs">
+                              {searchResults.data.roles[0]?.charAt(0)?.toUpperCase() +
+                                searchResults.data.roles[0]?.slice(1)?.toLowerCase()}
+                            </span>
+                          </li>
+                        )}
+                        {searchResults.data.skills && (
+                          <li className="text-xs md:text-sm space-x-1 font-semibold">
+                            Skills:
+                            {searchResults.data?.skills.map((skill, index) => (
+                              <span
+                                key={index}
+                                className="rounded-sm  md:text-sm font-semibold  bg-basePrimaryLight px-1 text-[12px]"
+                              >
+                                {skill}
+                              </span>
+                            ))}
+                          </li>
+                        )}
+                      </ul>
+                    </div>
+                  </div>
+
+                  {/* laptop/desktop screen component */}
+                </button>)}
+            </>
           );
         }
         break;
