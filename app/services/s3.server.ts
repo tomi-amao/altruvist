@@ -20,8 +20,10 @@ export async function getSignedUrlForFile(
   extractFileName: boolean = false,
 ) {
   if (extractFileName) {
-    fileName = decodeURIComponent(fileName.split("/").pop()) || fileName;
+    fileName = decodeURIComponent(fileName.split(".com/")[1]);
   }
+  console.log("File name:", fileName);
+  
   const command = new GetObjectCommand({
     Bucket: "skillanthropy-uploads",
     Key: fileName,

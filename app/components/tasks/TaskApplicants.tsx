@@ -30,11 +30,27 @@ export function TaskApplicants({
   onUndoStatus,
 }: TaskApplicantsProps) {
   const [expandedIds, setExpandedIds] = useState<string[]>([]);
+  const [optimisticStatuses, setOptimisticStatuses] = useState<Record<string, ApplicationStatus>>({});
 
   const toggleExpand = (id: string) => {
     setExpandedIds((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
+  };
+
+  const handleAccept = (applicationId: string) => {
+    setOptimisticStatuses(prev => ({ ...prev, [applicationId]: 'ACCEPTED' }));
+    onAccept(applicationId);
+  };
+
+  const handleReject = (applicationId: string) => {
+    setOptimisticStatuses(prev => ({ ...prev, [applicationId]: 'REJECTED' }));
+    onReject(applicationId);
+  };
+
+  const handleUndoStatus = (applicationId: string) => {
+    setOptimisticStatuses(prev => ({ ...prev, [applicationId]: 'PENDING' }));
+    onUndoStatus(applicationId);
   };
 
   const getStatusColor = (status: ApplicationStatus) => {
@@ -52,14 +68,15 @@ export function TaskApplicants({
 
   const renderActionButtons = (application: taskApplications) => {
     const noSpotsLeft = volunteersNeeded - acceptedCount === 0;
+    const currentStatus = optimisticStatuses[application.id] || application.status;
 
-    switch (application.status) {
+    switch (currentStatus) {
       case "ACCEPTED":
         return (
           <div className="flex gap-2">
             <SecondaryButton
               text="Undo Accept"
-              action={() => onUndoStatus(application.id)}
+              action={() => handleUndoStatus(application.id)}
               ariaLabel="undo accept status"
             />
           </div>
@@ -77,12 +94,12 @@ export function TaskApplicants({
           <div className="flex gap-2">
             <SecondaryButton
               text="Accept"
-              action={() => onAccept(application.id)}
+              action={() => handleAccept(application.id)}
               ariaLabel="accept application"
             />
             <SecondaryButton
               text="Reject"
-              action={() => onReject(application.id)}
+              action={() => handleReject(application.id)}
               ariaLabel="reject application"
             />
           </div>
@@ -93,9 +110,12 @@ export function TaskApplicants({
     }
   };
 
-  // Transform the data to match component's needs
+  // Transform the data and apply optimistic updates
   const applicantsWithData = applicants.map(({ application, user }) => ({
-    application,
+    application: {
+      ...application,
+      status: optimisticStatuses[application.id] || application.status,
+    },
     userData: user,
   }));
 

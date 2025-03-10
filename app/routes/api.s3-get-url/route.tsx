@@ -18,7 +18,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         return json({ error: "File name is required" }, { status: 400 });
       }
 
-      const signedUrl = await getSignedUrlForFile(decodeURIComponent(fileName));
+      const signedUrl = await getSignedUrlForFile(decodeURIComponent(fileName), true);
       return json({ message: "Upload successful", url: signedUrl });
     }
     case "delete": {
