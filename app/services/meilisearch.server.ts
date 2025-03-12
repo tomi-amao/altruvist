@@ -1,5 +1,6 @@
 import { MeiliSearch } from "meilisearch";
 import { getMeiliVars } from "./env.server";
+import { users } from "@prisma/client";
 
 // Get Meilisearch configuration from environment variables
 const meiliVars = getMeiliVars();
@@ -214,8 +215,8 @@ export const searchMultipleIndices = async (query: string) => {
 
     const usersDocuments = usersResults.hits.map((hit) => ({
       collection: INDICES.USERS,
-      data: hit,
-    }));
+      data: hit.roles && hit.roles[0] !== null ? hit : null, // filter out users with no roles
+    })).filter(doc => doc.data !== null);
 
     const charitiesDocuments = charitiesResults.hits.map((hit) => ({
       collection: INDICES.CHARITIES,
