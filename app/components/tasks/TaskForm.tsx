@@ -49,6 +49,7 @@ interface TaskFormProps {
   error?: string;
   serverValidation: ValidationError[];
   isSubmitting: boolean;
+  uploadURL: string
 }
 
 const defaultFormData: TaskFormData = {
@@ -71,6 +72,7 @@ export default function TaskForm({
   isEditing = false,
   serverValidation = [],
   isSubmitting,
+  uploadURL,
 }: TaskFormProps) {
   // Initialize form data with initial data if provided
   const [formData, setFormData] = useState<TaskFormData>(() => {
@@ -433,6 +435,7 @@ export default function TaskForm({
             formTarget="#taskForm"
             uppyId={isEditing ? "editTaskResources" : "createTaskResources"}
             onUploadedFile={handleUploadedResourcesUrls}
+            uploadURL={uploadURL}
           />
 
           {uploadedResources.length > 0 && (

@@ -4,7 +4,6 @@ import {
   useNavigation,
   useSubmit,
   useLoaderData,
-  useFetcher,
 } from "@remix-run/react";
 import {
   ActionFunctionArgs,
@@ -26,11 +25,14 @@ import { SecondaryButton } from "~/components/utils/BasicButton";
 import { createCharity } from "~/models/charities.server";
 import { charities, users } from "@prisma/client";
 import React from "react";
+import { getCompanionVars } from "~/services/env.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
   const accessToken = session.get("accessToken");
   const isNew = session.get("isNew");
+  const { COMPANION_URL } = getCompanionVars();
+
 
   if (!accessToken) {
     return redirect("/zitlogin");
@@ -43,7 +45,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const { userInfo, error } = await getUserInfo(accessToken);
 
-  return { userInfo, error };
+  return { userInfo, error, COMPANION_URL };
 }
 
 interface FormData {
@@ -65,6 +67,7 @@ interface FormStep {
 interface StepProps {
   updateFields: (fields: Partial<FormData>) => void;
   formData: FormData;
+  uploadURL?: string;
 }
 
 const RoleSelectionStep = ({ updateFields, formData }: StepProps) => {
@@ -332,57 +335,54 @@ export const TagsStep = ({ updateFields, formData }: StepProps) => {
   );
 };
 
-const PictureStep = ({ updateFields, formData }: StepProps) => {
+const PictureStep = ({ updateFields, formData, uploadURL }: StepProps) => {
+  const [signedFileUrl, setSignedFileUrl] = useState<string | null>(null);
   const handleUploadedPicture = (
     successfulFiles: UppyFile<Meta, Record<string, never>>[],
   ) => {
-    successfulFiles.map((upload) =>
-      updateFields({ picture: upload.uploadURL }),
-    );
+    successfulFiles.forEach(upload => updateFields({ picture: upload.uploadURL }));
   };
-  const showFileUpload = () => {
-    updateFields({ picture: undefined });
-  };
-  const [signedProfilePicture, setSignedProfilePicture] = useState("");
-  const fetchSignedUrl = useFetcher()
+
+  const showFileUpload = () => updateFields({ picture: undefined });
   useEffect(() => {
-    fetchSignedUrl.load(`/api/s3-get-url?file=${formData.picture}&action=upload`)
-    if (fetchSignedUrl.data?.url) {
-      setSignedProfilePicture(fetchSignedUrl.data.url)
+    async function fetchSignedUrl() {
+      const res = await fetch(`/api/s3-get-url?file=${formData.picture}&action=upload`);
+      const data = await res.json();
+      if (data.url) {
+        setSignedFileUrl(data.url);
+      }
     }
-  }, [formData.picture, fetchSignedUrl.data?.url]);
-  
+    fetchSignedUrl();
+  }, [formData.picture]);
+
   return (
-    <>
+    <div className="space-y-4">
+      <h2 className="text-xl font-semibold mb-4">Profile Picture</h2>
       {!formData.picture && (
         <FileUpload
           uppyId="newUserPicture"
           formTarget="#uploadPicture"
-          onUploadedFile={(
-            successfulFiles: UppyFile<Meta, Record<string, never>>[],
-          ) => handleUploadedPicture(successfulFiles)}
+          onUploadedFile={handleUploadedPicture}
+          uploadURL={uploadURL!}
         />
       )}
+
       {formData.picture && (
-        <div className="flex flex-row items-center justify-center gap-4">
-          <div>
-            <img
-              src={signedProfilePicture}
-              className="w-24 h-24 rounded-full object-cover border-2 shadow-sm"
-              alt="Profile Display"
-            />
-          </div>
-          <div>
-            <SecondaryButton
-              ariaLabel="choose another picture"
-              text="Select a different picture"
-              action={showFileUpload}
-              type="button"
-            />
-          </div>
+        <div className="flex flex-col items-center gap-4">
+          <img
+            src={signedFileUrl}
+            className="w-24 h-24 rounded-full object-cover border-2 shadow-sm"
+            alt="Profile Display"
+          />
+          <SecondaryButton
+            ariaLabel="choose another picture"
+            text="Select a different picture"
+            action={showFileUpload}
+            type="button"
+          />
         </div>
       )}
-    </>
+    </div>
   );
 };
 
@@ -549,7 +549,7 @@ const PreferredCharities = ({ updateFields, formData }: StepProps) => {
 
 export default function NewUserForm() {
   const [currentStep, setCurrentStep] = useState(0);
-  const { userInfo, error } = useLoaderData<typeof loader>();
+  const { userInfo, error, COMPANION_URL } = useLoaderData<typeof loader>();
 
   const [formData, setFormData] = useState<FormData>({
     role: "",
@@ -575,7 +575,11 @@ export default function NewUserForm() {
           title: "Bio Description",
           component: DescriptionStep,
         },
-        { id: "picture", title: "Picture", component: PictureStep },
+        {
+          id: "picture",
+          title: "Picture",
+          component: (props) => <PictureStep {...props} uploadURL={COMPANION_URL} />
+        },
         { id: "tags", title: "tags", component: TagsStep },
         {
           id: "preferredCharities",
@@ -588,6 +592,11 @@ export default function NewUserForm() {
           id: "role",
           title: "Choose Your Role",
           component: RoleSelectionStep,
+        },
+        {
+          id: "picture",
+          title: "Picture",
+          component: (props) => <PictureStep {...props} uploadURL={COMPANION_URL} />
         },
         { id: "charityName", title: "Charity Name", component: TitleStep },
         {

@@ -34,6 +34,7 @@ interface TaskDetailsProps {
   isError?: boolean;
   setIsEditing?: Dispatch<SetStateAction<boolean>>;
   userName?: string;
+  uploadURL: string;
 }
 
 export function TaskDetails({
@@ -47,6 +48,7 @@ export function TaskDetails({
   isError,
   setIsEditing,
   userName,
+  uploadURL,
 }: TaskDetailsProps) {
   const fetcher = useFetcher();
   const [formData, setFormData] = useState<tasks>(task);
@@ -197,6 +199,7 @@ export function TaskDetails({
           onCancel={() => setIsEditing(false)}
           isEditing={true}
           error={error}
+          uploadURL={uploadURL}
         />
       ) : (
         <div className="max-w-7xl mx-auto mt-5">

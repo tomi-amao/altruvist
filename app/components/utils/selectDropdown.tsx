@@ -229,9 +229,11 @@ export const SearchDropdown = ({
     <>
       {searchResults !== undefined && searchResults.length > 0 ? (
         <div>
-          {searchResults.map((result) =>
-            renderSearchResult(result as unknown as MultiSearchDocuments),
-          )}
+          {searchResults.map((result, index) => (
+            <div key={index}>
+              {renderSearchResult(result as unknown as MultiSearchDocuments)}
+            </div>
+          ))}
         </div>
       ) : (
         <div> No results</div>

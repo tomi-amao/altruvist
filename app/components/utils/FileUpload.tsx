@@ -21,6 +21,7 @@ const FileUpload = ({
   formTarget,
   uppyId,
   onUploadedFile,
+  uploadURL,
 }: {
   formTarget: string;
   uppyId: string;
@@ -28,10 +29,11 @@ const FileUpload = ({
     uploadedUrl: UppyFile<Meta, Record<string, never>>[],
   ) => void;
   toggleUploadBtn?: (toggle: boolean) => void;
+  uploadURL: string;
 }) => {
   const [uppyInstance, setUppyInstance] = useState<Uppy | null>(null);
   const [error, setError] = useState<string | null>(null);
-
+  
   useEffect(() => {
     async function initializeUppy() {
       try {
@@ -65,7 +67,7 @@ const FileUpload = ({
         })
           .use(Compressor)
           .use(GoogleDrivePicker, {
-            companionUrl: "http://localhost:3020",
+            companionUrl: uploadURL,
             clientId,
             apiKey,
             appId: clientId.split("-")[0],
@@ -85,7 +87,7 @@ const FileUpload = ({
             hideAfterFinish: false,
           })
           .use(AwsS3, {
-            endpoint: "http://localhost:3020",
+            endpoint: uploadURL,
           });
         // .use(Tus, {
         //   endpoint: "http://localhost:8004/files/",
@@ -144,63 +146,6 @@ const FileUpload = ({
       height={"250px"}
       width={"400px"}
     />
-  );
-};
-export const UploadFilesComponent = ({
-  setFormData,
-  formData,
-}: {
-  setFormData: React.Dispatch<React.SetStateAction<NewTaskFormData>>;
-  formData: NewTaskFormData;
-}) => {
-  const [uploadedResources, setUploadedResources] = useState<TaskResource[]>(
-    [],
-  );
-
-  const [showUploadButton, setShowUploadButton] = useState<boolean>(false);
-  console.log(showUploadButton);
-
-  const handleUploadedResourcesUrls = (successfulFiles: TaskResource[]) => {
-    setUploadedResources((prevUploads) => [...prevUploads, ...successfulFiles]);
-  };
-
-  useEffect(() => {
-    setUploadedResources(() => [...formData.resources]);
-  }, []);
-
-  useEffect(() => {
-    console.log("Client Side Files uploaded", uploadedResources);
-    setFormData({ ...formData, resources: uploadedResources });
-  }, [uploadedResources]);
-  return (
-    <>
-      <FileUpload
-        formTarget="#uploadResources"
-        uppyId="uploadResourceTask"
-        onUploadedFile={(
-          successfulFiles: UppyFile<Meta, Record<string, never>>[],
-        ) => handleUploadedResourcesUrls(successfulFiles as TaskResource[])}
-        toggleUploadBtn={(toggle: boolean) => setShowUploadButton(toggle)}
-      />
-
-      {uploadedResources.length > 0 && (
-        <div className="pt-8">
-          <div id="uploaded-files" className="flex gap-4 mt-2 flex-wrap">
-            {uploadedResources.map((upload, index) => {
-              return (
-                <FilePreviewButton
-                  key={index}
-                  fileName={upload.name || null}
-                  fileSize={upload.size}
-                  fileUrl={upload.uploadURL || null}
-                  fileExtension={upload.extension}
-                />
-              );
-            })}
-          </div>
-        </div>
-      )}
-    </>
   );
 };
 

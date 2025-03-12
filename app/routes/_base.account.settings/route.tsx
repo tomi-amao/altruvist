@@ -27,7 +27,7 @@ import FileUpload from "~/components/utils/FileUpload";
 import { Meta, UppyFile } from "@uppy/core";
 import { SecondaryButton } from "~/components/utils/BasicButton";
 import { Modal } from "~/components/utils/Modal2";
-import { getFeatureFlags } from "~/services/env.server";
+import { getCompanionVars, getFeatureFlags } from "~/services/env.server";
 import { Alert } from "~/components/utils/Alert";
 import { z } from "zod";
 import { updateCharity } from "~/models/charities.server";
@@ -57,6 +57,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const accessToken = session.get("accessToken");
   const { userInfo } = await getUserInfo(accessToken, { charity: true });
   const { FEATURE_FLAG } = getFeatureFlags();
+  const { COMPANION_URL } = getCompanionVars();
 
   if (!userInfo) {
     return redirect("/zitlogin");
@@ -70,7 +71,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   }
 
-  return { userInfo, signedProfilePicture, FEATURE_FLAG };
+
+  return { userInfo, signedProfilePicture, FEATURE_FLAG, COMPANION_URL };
 }
 
 // Replace the action function with this standardized version
@@ -257,7 +259,7 @@ export const meta: MetaFunction = () => {
 };
 
 export default function AccountSettings() {
-  const { userInfo, FEATURE_FLAG } = useLoaderData<typeof loader>();
+  const { userInfo, FEATURE_FLAG, COMPANION_URL } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
@@ -397,6 +399,7 @@ export default function AccountSettings() {
             uppyId="profilePicture"
             formTarget="#uploadProfilePicture"
             onUploadedFile={handleUploadedPicture}
+            uploadURL={COMPANION_URL}
           />
         )}
         {formData.profilePicture && (

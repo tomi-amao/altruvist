@@ -1,16 +1,24 @@
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { MetaFunction, useLoaderData } from "@remix-run/react";
 import { differenceInDays } from "date-fns";
 import DashboardBanner from "~/components/cards/BannerSummaryCard";
 import { getUserTasks, getAllTasks } from "~/models/tasks.server";
-import { getSession } from "~/services/session.server";
+import { getSession, commitSession } from "~/services/session.server";
 import { getUserInfo } from "~/models/user2.server";
 import { Section } from "~/components/cards/DashboardSection";
+
+
+export const meta: MetaFunction = () => {
+  return [{ title: "Dashboard", description: "Dashboard for Skillanthropy" }];
+};
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
   const accessToken = session.get("accessToken");
   const isNew = session.get("isNew");
+  if (isNew) {
+    return redirect("/newuser");
+  }
 
   if (!accessToken) {
     return redirect("/zitlogin");
@@ -21,12 +29,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirect("/zitlogin");
   }
 
-  if (isNew) {
-    return redirect("/newuser");
-  }
 
   const userRole = userInfo.roles[0];
-  const { tasks } = await getUserTasks(
+  const { tasks: rawTasks } = await getUserTasks(
     userRole,
     undefined,
     userInfo.id,
@@ -36,47 +41,61 @@ export async function loader({ request }: LoaderFunctionArgs) {
     undefined,
     10,
   );
-  const { allTasks } = await getAllTasks({ skip: 0, take: 1000000 }); // Get all available tasks
+  const { allTasks: rawAllTasks } = await getAllTasks({ skip: 0, take: 1000000 });
+
+  // Ensure tasks and allTasks are arrays
+  const tasks = rawTasks || [];
+  const allTasks = rawAllTasks || [];
 
   // Enhanced deadline filtering with sorting
   const nearingDeadlineTasks = tasks
     .filter((task) => {
+      if (!task || !task.deadline) return false;
       const deadline = new Date(task.deadline);
       const now = new Date();
       const diffDays = differenceInDays(deadline, now);
       return diffDays >= 0 && diffDays <= 7; // Only include future deadlines within 7 days
     })
-    .filter((task) => task.status !== "COMPLETED")
+    .filter((task) => task?.status !== "COMPLETED")
     .sort(
       (a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime(),
     );
 
-  const notStartedTasks = tasks.filter((task) => task.status === "NOT_STARTED");
-  const inProgressTasks = tasks.filter((task) => task.status === "IN_PROGRESS");
-  const completedTasks = tasks.filter((task) => task.status === "COMPLETED");
+  const notStartedTasks = tasks.filter((task) => task?.status === "NOT_STARTED");
+  const inProgressTasks = tasks.filter((task) => task?.status === "IN_PROGRESS");
+  const completedTasks = tasks.filter((task) => task?.status === "COMPLETED");
 
   // Calculate statistics for banner
   let recommendedTask = "";
   let charitiesHelped = 0;
 
+  // Redirect to new user page if user has no role
+  if (!userRole) {
+    session.set("isNew", true);
+    return redirect("/newuser", {
+      headers: {
+        "Set-Cookie": await commitSession(session)
+      }
+    });
+  }
   if (userRole === "volunteer") {
     // Calculate skill match score for each task
     // Exclude tasks that the volunteer has already applied to
     const taskMatchScores = allTasks
       .filter(
         (task) =>
-          task.status === "NOT_STARTED" &&
-          task.taskApplications?.every((app) => app.userId !== userInfo.id),
+          task?.status === "NOT_STARTED" &&
+          task?.taskApplications?.every((app) => app?.userId !== userInfo.id),
       )
       .map((task) => {
-        const matchingSkills = task.requiredSkills.filter((skill) =>
-          userInfo.skills.includes(skill),
-        );
+        const matchingSkills = task?.requiredSkills?.filter((skill) =>
+          userInfo?.skills?.includes(skill),
+        ) || [];
         return {
           task,
           matchScore: matchingSkills.length,
           urgencyBonus:
-            task.urgency === "HIGH" ? 2 : task.urgency === "MEDIUM" ? 1 : 0,
+            task?.urgency === "HIGH" ? 2 : task?.urgency === "MEDIUM" ? 1 : 0,
         };
       })
       .filter(({ matchScore }) => matchScore > 0) // Only consider tasks with at least one matching skill

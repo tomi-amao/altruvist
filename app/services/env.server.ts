@@ -31,3 +31,10 @@ export function getMeiliVars() {
     MEILI_MASTER_KEY: process.env.MEILI_MASTER_KEY ?? "",
   };
 }
+
+
+export function getCompanionVars() {
+  return {
+    COMPANION_URL: process.env.COMPANION_URL ?? "",
+  };
+}
