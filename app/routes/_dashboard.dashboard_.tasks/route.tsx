@@ -36,6 +36,7 @@ import { SortOrder } from "../search/route";
 import { useEffect, useMemo, useState } from "react";
 import TaskForm from "~/components/tasks/TaskForm";
 import { ServerRuntimeMetaFunction as MetaFunction } from "@remix-run/server-runtime";
+import { getCompanionVars } from "~/services/env.server";
 
 export const meta: MetaFunction = () => {
   return [
@@ -55,6 +56,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirect("/zitlogin");
   }
 
+  const companionVars = getCompanionVars();
   const { id: userId, roles: userRole, charityId, name } = userInfo;
 
   const url = new URL(request.url);
@@ -87,6 +89,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       error: null,
       isLoading: false,
       userName: name,
+      uploadURL: companionVars.COMPANION_URL,
     });
   } catch (error) {
     return json({
@@ -96,6 +99,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       error: error.message,
       isLoading: false,
       userName: null,
+      uploadURL: null
     });
   }
 }
@@ -106,6 +110,7 @@ export default function ManageTasks() {
     userRole,
     userId,
     userName,
+    uploadURL,
   } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const location = useLocation();
@@ -331,6 +336,7 @@ export default function ManageTasks() {
                 isEditing={true}
                 serverValidation={fetcher.data?.error || []}
                 isSubmitting={fetcher.state === "submitting"}
+                uploadURL={uploadURL}
               />
             ) : (
               <TaskDetails
@@ -343,6 +349,7 @@ export default function ManageTasks() {
                 error={fetcher.data?.error}
                 isError={Boolean(fetcher.data?.error)}
                 userName={userName}
+                uploadURL={uploadURL}
               />
             )
           ) : (
@@ -363,6 +370,7 @@ export default function ManageTasks() {
             }}
             serverValidation={taskFormFetcher.data?.error || []}
             isSubmitting={taskFormFetcher.state === "submitting"}
+            uploadURL={uploadURL}
           />
         </div>
       )}

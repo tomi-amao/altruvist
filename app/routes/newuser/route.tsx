@@ -750,11 +750,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     console.log(charity);
   } else if (data.role === "volunteer") {
     const volunteerData: Partial<users> = {
-      userTitle: data.title,
       bio: data.bio,
       skills: data.tags,
-      profilePicture: data.picture,
-      preferredCharities: data.preferredCharities, // Add this
+      preferredCharities: data.preferredCharities, 
     };
     const addNewUserInfo = await updateUserInfo(
       userId.toString(),
@@ -763,12 +761,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     console.log(addNewUserInfo);
   }
 
-  //   if (typeof userId !== "string" || typeof role !== "string") {
-  //     return { error: "Invalid input", status: 400 };
-  //   }
 
   const updatedUser = await updateUserInfo(userId?.toString(), {
     roles: [data.role],
+    profilePicture: data.picture,
+    userTitle: data.title,
+
   });
   console.log(updatedUser);
 

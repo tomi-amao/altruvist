@@ -216,7 +216,7 @@ export const searchMultipleIndices = async (query: string) => {
     const usersDocuments = usersResults.hits.map((hit) => ({
       collection: INDICES.USERS,
       data: hit.roles && hit.roles[0] !== null ? hit : null, // filter out users with no roles
-    })).filter(doc => doc.data !== null);
+    })).filter(doc => doc.data !== null); // remove null entries
 
     const charitiesDocuments = charitiesResults.hits.map((hit) => ({
       collection: INDICES.CHARITIES,
