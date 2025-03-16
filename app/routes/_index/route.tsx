@@ -206,20 +206,29 @@ export default function Index() {
                 <div className="text-xl opacity-90 text-basePrimary">{stat.label}</div>
               </motion.div>
             ))}
-            <div>
-
-              <LineGraph
-                width={800}
-                height={400}
-                data={sampleData}
-                xAxisLabel="Month"
-                yAxisLabel="Score"
-                lineColor="#F5F5DC"
-                axisColor="#F5F5DC"
-              />
-            </div>
           </div>
 
+          {/* Chart section - Modified to be fully responsive */}
+          <motion.div 
+            className="mt-16 w-full max-w-4xl mx-auto"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+          >
+            <div className="p-6 bg-baseSecondary/80 backdrop-blur-sm rounded-xl">
+              <h3 className="text-2xl font-bold mb-6 text-accentPrimary text-center">Impact Growth</h3>
+              <div className="w-full">
+                <LineGraph
+                  data={sampleData}
+                  xAxisLabel="Month"
+                  yAxisLabel="Score"
+                  lineColor="#F5F5DC"
+                  axisColor="#F5F5DC"
+                />
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
@@ -244,7 +253,7 @@ export default function Index() {
             {recentTasks.map((task, index) => (
               <motion.div
                 key={task.id}
-                className="bg-basetext-baseSecondary rounded-xl overflow-hidden border border-gray-200 shadow-md transform-gpu"
+                className=" rounded-xl overflow-hidden border border-gray-200 shadow-md transform-gpu"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -264,7 +273,7 @@ export default function Index() {
                         task.urgency === 'MEDIUM' ? 'bg-accentPrimary/10 text-accentPrimary' :
                           'bg-confirmPrimary/10 text-confirmPrimary'
                       }`}>
-                      {task.urgency} PRIORITY
+                      {task.urgency} URGENCY
                     </span>
                     <span className="text-sm text-gray-500 flex items-center">
                       <Clock size={16} className="mr-1" />

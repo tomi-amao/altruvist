@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useRef } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { LinePath } from '@visx/shape';
 import { scaleTime, scaleLinear } from '@visx/scale';
 import { AxisLeft, AxisBottom } from '@visx/axis';
@@ -7,6 +7,7 @@ import { Group } from '@visx/group';
 import { Tooltip } from '@visx/tooltip';
 import { localPoint } from '@visx/event';
 import { bisector } from 'd3-array';
+import { useMediaQuery } from 'react-responsive'; // You'll need to install this
 
 // Define the data point structure
 interface DataPoint {
@@ -16,38 +17,99 @@ interface DataPoint {
 
 // Define the props for our component
 interface LineGraphProps {
-  width: number;
-  height: number;
+  width?: number; // Make width optional
+  height?: number; // Make height optional
   data: DataPoint[];
   margin?: { top: number; right: number; bottom: number; left: number };
   xAxisLabel?: string;
   yAxisLabel?: string;
   lineColor?: string;
-  axisColor?: string; // New prop for axis color
+  axisColor?: string;
 }
 
 // Helper function to get the data point from x coordinate
 const bisectDate = bisector<DataPoint, Date>((d) => d.x).left;
 
 const LineGraph: React.FC<LineGraphProps> = ({
-  width,
-  height,
+  width: propWidth,
+  height: propHeight,
   data,
-  margin = { top: 20, right: 20, bottom: 50, left: 50 },
+  margin: propMargin,
   xAxisLabel = 'Date',
   yAxisLabel = 'Value',
-  lineColor = '#3b82f6', // blue-500
-  axisColor = '#888', // Default axis color
+  lineColor = '#3b82f6',
+  axisColor = '#888',
 }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const isMobile = useMediaQuery({ maxWidth: 768 });
+  
+  // State for container dimensions
+  const [dimensions, setDimensions] = useState({
+    width: propWidth || 500,
+    height: propHeight || 300
+  });
+
+  // Adjust margins for mobile
+  const margin = useMemo(() => {
+    const defaultMargin = propMargin || { top: 20, right: 20, bottom: 50, left: 50 };
+    if (isMobile) {
+      return {
+        ...defaultMargin,
+        left: Math.max(35, defaultMargin.left - 10), // Reduce left margin on mobile but ensure minimum space
+        bottom: Math.max(40, defaultMargin.bottom - 10) // Reduce bottom margin on mobile
+      };
+    }
+    return defaultMargin;
+  }, [propMargin, isMobile]);
+
   // Define state for tooltip
   const [tooltipData, setTooltipData] = useState<DataPoint | null>(null);
   const [tooltipLeft, setTooltipLeft] = useState<number | null>(null);
   const [tooltipTop, setTooltipTop] = useState<number | null>(null);
-  const svgRef = useRef<SVGSVGElement>(null);
 
   // Calculate inner dimensions
-  const innerWidth = width - margin.left - margin.right;
-  const innerHeight = height - margin.top - margin.bottom;
+  const innerWidth = dimensions.width - margin.left - margin.right;
+  const innerHeight = dimensions.height - margin.top - margin.bottom;
+
+  // Resize handler
+  useEffect(() => {
+    if (!propWidth || !propHeight) {
+      const handleResize = () => {
+        if (containerRef.current) {
+          const { width } = containerRef.current.getBoundingClientRect();
+          // Set height proportionally but with min/max constraints
+          // Adjust these values based on your design needs
+          const minHeight = 200;
+          const maxHeight = 400;
+          const aspectRatio = 0.5; // 2:1 aspect ratio
+          
+          const height = Math.max(minHeight, Math.min(maxHeight, width * aspectRatio));
+          setDimensions({ width, height });
+        }
+      };
+      
+      handleResize(); // Set initial size
+      
+      // Use ResizeObserver for more accurate resizing if supported
+      if (typeof ResizeObserver !== 'undefined' && containerRef.current) {
+        const resizeObserver = new ResizeObserver(handleResize);
+        resizeObserver.observe(containerRef.current);
+        return () => resizeObserver.disconnect();
+      } else {
+        // Fallback to window resize
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+      }
+    }
+    // If props are provided, use those dimensions
+    else {
+      setDimensions({
+        width: propWidth,
+        height: propHeight
+      });
+    }
+  }, [propWidth, propHeight, containerRef.current]);
 
   // Define scales
   const xScale = useMemo(
@@ -69,14 +131,18 @@ const LineGraph: React.FC<LineGraphProps> = ({
     [data, innerHeight]
   );
 
-  // Handle mouse move to show tooltip
+  // Modify handle mouse move to better support both mouse and touch
   const handleMouseMove = (event: React.TouchEvent<SVGRectElement> | React.MouseEvent<SVGRectElement>) => {
+    event.preventDefault(); // Prevent scrolling on touch devices
+    
+    const isTouchEvent = 'touches' in event;
+    
     // Get the SVG element's bounding rectangle
     const svgRect = svgRef.current?.getBoundingClientRect() || { left: 0, top: 0 };
     
-    // Get the mouse coordinates relative to the viewport
-    const clientX = 'clientX' in event ? event.clientX : event.touches[0].clientX;
-    const clientY = 'clientY' in event ? event.clientY : event.touches[0].clientY;
+    // Get the coordinates relative to the viewport
+    const clientX = isTouchEvent ? event.touches[0].clientX : event.clientX;
+    const clientY = isTouchEvent ? event.touches[0].clientY : event.clientY;
     
     // Calculate position relative to the SVG container
     const svgX = clientX - svgRect.left;
@@ -97,12 +163,20 @@ const LineGraph: React.FC<LineGraphProps> = ({
     const point = x0.getTime() - d0.x.getTime() > d1.x.getTime() - x0.getTime() ? d1 : d0;
     
     setTooltipData(point);
-    // Set tooltip position at cursor coordinates, relative to the page
-    setTooltipLeft(clientX);
-    setTooltipTop(clientY);
+    
+    // Adjust tooltip position based on the device type
+    if (isMobile) {
+      // For mobile, position tooltip above touch point to avoid finger obstruction
+      setTooltipLeft(clientX - 50); // Center tooltip
+      setTooltipTop(clientY - 70); // Position well above finger
+    } else {
+      // For desktop, position near cursor
+      setTooltipLeft(clientX + 10);
+      setTooltipTop(clientY - 10);
+    }
   };
 
-  // Hide tooltip when mouse leaves
+  // Hide tooltip when touch/mouse leaves
   const handleMouseLeave = () => {
     setTooltipData(null);
     setTooltipLeft(null);
@@ -110,8 +184,25 @@ const LineGraph: React.FC<LineGraphProps> = ({
   };
 
   return (
-    <div style={{ position: 'relative' }}>
-      <svg ref={svgRef} width={width} height={height}>
+    <div
+      ref={containerRef}
+      style={{ 
+        position: 'relative', 
+        width: '100%', 
+        height: propHeight || 'auto', 
+        maxWidth: '100%',
+        overflow: 'hidden' // Prevent any overflow
+      }}
+    >
+      <svg 
+        ref={svgRef} 
+        width={dimensions.width} 
+        height={dimensions.height}
+        style={{ 
+          display: 'block', // Remove any default spacing
+          maxWidth: '100%'  // Ensure it doesn't exceed container
+        }}
+      >
         <Group left={margin.left} top={margin.top}>
           {/* Y Axis */}
           <AxisLeft
@@ -119,15 +210,17 @@ const LineGraph: React.FC<LineGraphProps> = ({
             stroke={axisColor}
             tickStroke={axisColor}
             label={yAxisLabel}
+            numTicks={isMobile ? 5 : 8} // Fewer ticks on mobile
             labelProps={{
               fill: axisColor,
               textAnchor: 'middle',
-              fontSize: 12,
+              fontSize: isMobile ? 10 : 12,
               fontFamily: 'Arial',
+              dy: isMobile ? -20 : -25,
             }}
             tickLabelProps={() => ({
               fill: axisColor,
-              fontSize: 10,
+              fontSize: isMobile ? 8 : 10,
               textAnchor: 'end',
               dy: '0.33em',
             })}
@@ -140,15 +233,17 @@ const LineGraph: React.FC<LineGraphProps> = ({
             stroke={axisColor}
             tickStroke={axisColor}
             label={xAxisLabel}
+            numTicks={isMobile ? 4 : 6} // Fewer ticks on mobile
             labelProps={{
               fill: axisColor,
               textAnchor: 'middle',
-              fontSize: 12,
+              fontSize: isMobile ? 10 : 12,
               fontFamily: 'Arial',
+              dy: isMobile ? 25 : 30,
             }}
             tickLabelProps={() => ({
               fill: axisColor,
-              fontSize: 10,
+              fontSize: isMobile ? 8 : 10,
               textAnchor: 'middle',
             })}
           />
@@ -163,13 +258,13 @@ const LineGraph: React.FC<LineGraphProps> = ({
             curve={curveMonotoneX}
           />
           
-          {/* Data points */}
+          {/* Data points - make them slightly larger on mobile for easier touch */}
           {data.map((point, i) => (
             <circle
               key={`point-${i}`}
               cx={xScale(point.x)}
               cy={yScale(point.y)}
-              r={4}
+              r={isMobile ? 5 : 4} // Slightly larger on mobile
               fill={lineColor}
               fillOpacity={tooltipData === point ? 1 : 0.7}
               stroke="white"
@@ -177,7 +272,7 @@ const LineGraph: React.FC<LineGraphProps> = ({
             />
           ))}
           
-          {/* Transparent overlay for mouse events */}
+          {/* Transparent overlay for mouse/touch events */}
           <rect
             width={innerWidth}
             height={innerHeight}
@@ -186,27 +281,30 @@ const LineGraph: React.FC<LineGraphProps> = ({
             onMouseLeave={handleMouseLeave}
             onTouchMove={handleMouseMove}
             onTouchEnd={handleMouseLeave}
+            style={{ cursor: 'pointer', touchAction: 'none' }} // Prevent browser touch actions
           />
         </Group>
       </svg>
       
-      {/* Tooltip positioned relative to the page */}
+      {/* Optimized tooltip positioning - adjusted to ensure tooltip stays on screen */}
       {tooltipData && tooltipLeft != null && tooltipTop != null && (
         <Tooltip
-          // Position the tooltip just above the cursor
-          top={tooltipTop - 10} 
-          left={tooltipLeft + 10}
+          top={tooltipTop}
+          left={tooltipLeft}
           style={{
-            position: 'fixed', // Change to fixed positioning
+            position: 'fixed', 
             backgroundColor: 'white',
             color: '#333',
             padding: '8px',
             borderRadius: '4px',
             boxShadow: '0 1px 10px rgba(0,0,0,0.2)',
-            fontSize: '12px',
+            fontSize: isMobile ? '11px' : '12px',
             pointerEvents: 'none',
             whiteSpace: 'nowrap',
             zIndex: 9999,
+            // Make sure tooltip stays within viewport bounds
+            transform: `translate(${Math.min(0, window.innerWidth - tooltipLeft - 150)}px, 
+                      ${Math.min(0, window.innerHeight - tooltipTop - 60)}px)`,
           }}
         >
           <div>
