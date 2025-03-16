@@ -46,6 +46,30 @@ export default function Index() {
     { x: new Date('2023-07-01'), y: 90 },
   ];
 
+  const stats = [
+    {
+      value: "500+",
+      label: "Completed Tasks",
+      icon: <Trophy size={48} weight="fill" />,
+      position: "left",
+      image: "/health-package.png", // Replace with actual illustration paths
+    },
+    {
+      value: "200+",
+      label: "Active Volunteers",
+      icon: <Users size={48} weight="fill" />,
+      position: "right",
+      image: "/family-house.png",
+    },
+    {
+      value: "50+",
+      label: "Charities Helped",
+      icon: <Star size={48} weight="fill" />,
+      position: "left",
+      image: "/family-hands.png",
+    },
+  ];
+
   return (
     <div className="bg-gradient-to-b from-baseSecondary ">
       {/* <Navbar altBackground={true} userId={userInfo?.id} /> */}
@@ -86,7 +110,8 @@ export default function Index() {
           <motion.div
             className="lg:w-1/2 mt-12 lg:mt-0 relative"
             initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             <img src="/pulling-medicare.png" alt="Making an impact" className="w-full h-auto max-w-md mx-auto" />
@@ -97,6 +122,38 @@ export default function Index() {
             >
             </motion.div>
             {/* Background decorative elements */}
+            <motion.div
+              className="absolute z-10 w-72 h-72 bg-accentPrimary/40 rounded-full blur-3xl"
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.4, 0.7, 0.4] // Ensure it never goes below 0.4
+              }}
+              transition={{
+                duration: 8,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              style={{
+                top: '10%',
+                right: '15%',
+              }}
+            />
+            <motion.div
+              className="absolute z-10 w-72 h-72 bg-accentPrimary/40 rounded-full blur-3xl"
+              animate={{
+                scale: [1.2, 1, 1.2],
+                opacity: [0.4, 0.7, 0.4] // Ensure it never goes below 0.4
+              }}
+              transition={{
+                duration: 10,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              style={{
+                bottom: '10%',
+                left: '5%',
+              }}
+            />
 
           </motion.div>
         </div>
@@ -170,7 +227,7 @@ export default function Index() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-gradient-to-br from-basetext-baseSecondary to-basePrimary text-baseSecondary min-h-screen flex items-center">
+      <section className="py-16 bg-baseSecondary min-h-screen flex items-center">
         <div className="container mx-auto px-6">
           <motion.div
             className="text-center mb-16"
@@ -186,39 +243,47 @@ export default function Index() {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-10 max-w-4xl mx-auto">
-            {[
-              { value: "500+", label: "Completed Tasks", icon: <Trophy size={48} weight="fill" /> },
-              { value: "200+", label: "Active Volunteers", icon: <Users size={48} weight="fill" /> },
-              { value: "50+", label: "Charities Helped", icon: <Star size={48} weight="fill" /> }
-            ].map((stat, index) => (
-              <motion.div
-                key={index}
-                className="bg-baseSecondary/80 backdrop-blur-sm rounded-xl p-8 text-center"
-                initial={{ scale: 0.8, opacity: 0 }}
-                whileInView={{ scale: 1, opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.2, duration: 0.6 }}
-                whileHover={{ transform: "translateY(-10px)" }}
-              >
-                <div className="text-accentPrimary mb-4 flex justify-center">{stat.icon}</div>
-                <div className="text-5xl font-bold mb-2 text-accentPrimary">{stat.value}</div>
-                <div className="text-xl opacity-90 text-basePrimary">{stat.label}</div>
-              </motion.div>
-            ))}
-          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto shrink">
+            {/* Stats Cards */}
+            <div className="space-y-8 max-w-md mx-auto w-full">
+              {stats.map((stat, index) => (
+                <motion.div
+                  key={index}
+                  className="bg-baseSecondary/10 backdrop-blur-sm rounded-xl p-8 shadow-lg border  border-accentPrimary"
+                  initial={{ opacity: 0, x: -30 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.2, duration: 0.6 }}
+                >
+                  <div className="flex items-center gap-6">
+                    <div className="flex-shrink-0 text-accentPrimary">
+                      {stat.icon}
+                    </div>
+                    <div>
+                      <div className="text-4xl font-bold text-accentPrimary mb-1">
+                        {stat.value}
+                      </div>
+                      <div className="text-lg text-basePrimary">
+                        {stat.label}
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
 
-          {/* Chart section - Modified to be fully responsive */}
-          <motion.div 
-            className="mt-16 w-full max-w-4xl mx-auto"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3 }}
-          >
-            <div className="p-6 bg-baseSecondary/80 backdrop-blur-sm rounded-xl">
-              <h3 className="text-2xl font-bold mb-6 text-accentPrimary text-center">Impact Growth</h3>
-              <div className="w-full">
+            {/* Graph Card */}
+            <motion.div
+              className="border border-accentPrimary rounded-xl p-8 shadow-lg backdrop-blur-xl w-full "
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+            >
+              <h3 className="text-2xl font-bold mb-8 text-accentPrimary text-center">
+                Impact Growth
+              </h3>
+              <div className="w-full ">
                 <LineGraph
                   data={sampleData}
                   xAxisLabel="Month"
@@ -227,8 +292,8 @@ export default function Index() {
                   axisColor="#F5F5DC"
                 />
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
@@ -264,14 +329,14 @@ export default function Index() {
                 }}
               >
                 <div className={`h-2 ${task.urgency === 'HIGH' ? 'bg-dangerPrimary' :
-                    task.urgency === 'MEDIUM' ? 'bg-accentPrimary' :
-                      'bg-confirmPrimary'
+                  task.urgency === 'MEDIUM' ? 'bg-accentPrimary' :
+                    'bg-confirmPrimary'
                   }`}></div>
                 <div className="p-6">
                   <div className="flex items-center justify-between mb-4">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${task.urgency === 'HIGH' ? 'bg-dangerPrimary/10 text-dangerPrimary' :
-                        task.urgency === 'MEDIUM' ? 'bg-accentPrimary/10 text-accentPrimary' :
-                          'bg-confirmPrimary/10 text-confirmPrimary'
+                      task.urgency === 'MEDIUM' ? 'bg-accentPrimary/10 text-accentPrimary' :
+                        'bg-confirmPrimary/10 text-confirmPrimary'
                       }`}>
                       {task.urgency} URGENCY
                     </span>
@@ -317,9 +382,9 @@ export default function Index() {
               </motion.button>
             </Link>
           </motion.div>
-          <div  className="pt-8">
+          <div className="pt-8">
 
-          <img src="/tent-careworker.png" alt="Making an impact" className="w-full h-auto max-w-md mx-auto" />
+            <img src="/tent-careworker.png" alt="Making an impact" className="w-full h-auto max-w-md mx-auto" />
           </div>
 
         </div>
