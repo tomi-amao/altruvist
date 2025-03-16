@@ -41,8 +41,8 @@ export default {
 
     extend: {
       fontFamily: {
-        header: ['Jomhuria', 'regular'], 
-        primary: ['Inter', 'regular'], 
+        header: ['Poppins', 'regular'], 
+        primary: ['Poppins', 'light'], 
       },
       extend: {
 
