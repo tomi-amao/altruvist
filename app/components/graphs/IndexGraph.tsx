@@ -4,7 +4,6 @@ import { scaleTime, scaleLinear } from '@visx/scale';
 import { AxisLeft, AxisBottom } from '@visx/axis';
 import { curveMonotoneX } from '@visx/curve';
 import { Group } from '@visx/group';
-import { Tooltip } from '@visx/tooltip';
 import { bisector } from 'd3-array';
 import { useViewport } from '../../hooks/useViewport';
 
@@ -129,7 +128,7 @@ const LineGraph: React.FC<LineGraphProps> = ({
   const handleMouseMove = (event: React.TouchEvent<SVGRectElement> | React.MouseEvent<SVGRectElement>) => {
     const isTouchEvent = 'touches' in event;
     const svgRect = svgRef.current?.getBoundingClientRect() || { left: 0, top: 0 };
-    
+
     const clientX = isTouchEvent ? event.touches[0].clientX : event.clientX;
     const clientY = isTouchEvent ? event.touches[0].clientY : event.clientY;
 
@@ -175,7 +174,7 @@ const LineGraph: React.FC<LineGraphProps> = ({
               tickStroke={axisColor}
               label={yAxisLabel}
               numTicks={isMobile ? 5 : 8}
-              
+
               labelProps={{
                 fill: axisColor,
                 textAnchor: 'middle',
@@ -207,7 +206,6 @@ const LineGraph: React.FC<LineGraphProps> = ({
                 textAnchor: 'middle',
                 className: 'text-xs sm:text-sm font-poppins',
                 fontFamily: 'Poppins',
-                dy: 'sm:30 25'
               }}
               tickLabelProps={() => ({
                 fill: axisColor,
@@ -269,7 +267,7 @@ const LineGraph: React.FC<LineGraphProps> = ({
             top: tooltipTop,
             transform: 'translate(-50%, -100%)',
           }}
-          className="bg-white/90 dark:bg-gray-800/90 p-2 rounded shadow-lg backdrop-blur-sm border border-accentPrimary "
+          className="p-2 rounded shadow-lg backdrop-blur-sm border border-accentPrimary "
         >
           <div className="text-xs sm:text-sm space-y-1 text-basePrimary">
             <div className="font-medium">

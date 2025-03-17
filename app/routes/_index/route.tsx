@@ -18,6 +18,9 @@ import Notification from "~/components/cards/NotificationCard";
 import { subDays } from "date-fns/subDays";
 import LandingHeader from "~/components/navigation/LandingHeader";
 import LineGraph from "~/components/graphs/IndexGraph";
+import { useEffect, useRef, useState } from "react";
+import SectionDivider from "./SectionDivider";
+import WaveDivider from "./WaveDivider"
 
 export const meta: MetaFunction = () => {
   return [
@@ -31,6 +34,28 @@ export const meta: MetaFunction = () => {
 
 export default function Index() {
   const { userInfo, error, recentTasks } = useLoaderData<typeof loader>();
+  const [showGraph, setShowGraph] = useState(false);
+  const statsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            // Delay the graph appearance
+            setTimeout(() => setShowGraph(true), 1000);
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    if (statsRef.current) {
+      observer.observe(statsRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   if (error) {
     return <Notification type="error" message={error} />;
@@ -160,7 +185,11 @@ export default function Index() {
 
       </section>
 
+
+
+
       {/* How It Works Section */}
+
       <section className="bg-basetext-baseSecondary min-h-screen flex items-center">
         <div className="container mx-auto px-6 py-16">
           <div className="pb-10">
@@ -243,13 +272,13 @@ export default function Index() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto shrink">
+          <div ref={statsRef} className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto shrink">
             {/* Stats Cards */}
             <div className="space-y-8 max-w-md mx-auto w-full">
               {stats.map((stat, index) => (
                 <motion.div
                   key={index}
-                  className="bg-baseSecondary/90 rounded-xl p-8 shadow-lg border border-accentPrimary"
+                  className="bg-baseSecondary/90 rounded-xl p-8 shadow-lg border border-accentPrimary  "
                   initial={{ opacity: 0, x: -30 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
@@ -260,7 +289,7 @@ export default function Index() {
                       {stat.icon}
                     </div>
                     <div>
-                      <div className="text-4xl font-bold text-accentPrimary mb-1">
+                      <div className="text-2xl md:text-4xl font-bold text-accentPrimary mb-1">
                         {stat.value}
                       </div>
                       <div className="text-lg text-basePrimary">
@@ -272,27 +301,43 @@ export default function Index() {
               ))}
             </div>
 
-            {/* Graph Card */}
-            <motion.div
-              className="border border-accentPrimary rounded-xl p-2 shadow-lg pt-8 backdrop-blur-xl w-full bg-baseSecondary/80 relative"
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-            >
-              <h3 className="text-2xl font-bold mb-4 text-accentPrimary text-center">
-                Impact Growth
-              </h3>
-              <div className="w-full relative" style={{ overflow: 'visible' }}>
-                <LineGraph
-                  data={sampleData}
-                  xAxisLabel="Month"
-                  yAxisLabel="Score"
-                  lineColor="#F5F5DC"
-                  axisColor="#F5F5DC"
+            {/* Graph/Image Container */}
+            <div className="relative h-full">
+              <motion.div
+                className=" inset-0"
+                initial={{ opacity: 1 }}
+                animate={{ opacity: showGraph ? 0 : 1 }}
+                transition={{ duration: 0.8 }}
+              >
+                <img
+                  src="/family-child.png"
+                  alt="Impact Visualization"
+                  className="w-full h-full object-cover rounded-xl"
                 />
-              </div>
-            </motion.div>
+              </motion.div>
+
+              <motion.div
+                className="md:absolute relative -top-32 md:top-0 inset-0"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: showGraph ? 1 : 0 }}
+                transition={{ duration: 0.8 }}
+              >
+                <div className="border border-accentPrimary rounded-xl p-2 shadow-lg pt-8 backdrop-blur-xl w-full h-fit bg-baseSecondary/80">
+                  <h3 className="text-2xl font-bold mb-4 text-accentPrimary text-center">
+                    Impact Growth
+                  </h3>
+                  <div className="w-full h-[calc(100%-4rem)] relative">
+                    <LineGraph
+                      data={sampleData}
+                      xAxisLabel="Month"
+                      yAxisLabel="Score"
+                      lineColor="#F5F5DC"
+                      axisColor="#F5F5DC"
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            </div>
           </div>
         </div>
       </section>
