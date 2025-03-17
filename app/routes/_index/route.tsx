@@ -201,7 +201,7 @@ export default function Index() {
             ].map((step, index) => (
               <motion.div
                 key={index}
-                className="bg-baseSecondary/30 rounded-xl p-8 text-center shadow-lg border border-gray-100 relative"
+                className="bg-baseSecondary/50 rounded-xl p-8 text-center shadow-lg border border-gray-100 relative"
                 whileHover={{ y: -8, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -227,7 +227,7 @@ export default function Index() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-baseSecondary min-h-screen flex items-center">
+      <section className="py-16 bg-baseSecondary/70 min-h-screen flex items-center">
         <div className="container mx-auto px-6">
           <motion.div
             className="text-center mb-16"
@@ -249,7 +249,7 @@ export default function Index() {
               {stats.map((stat, index) => (
                 <motion.div
                   key={index}
-                  className="bg-baseSecondary/10 backdrop-blur-sm rounded-xl p-8 shadow-lg border  border-accentPrimary"
+                  className="bg-baseSecondary/90 rounded-xl p-8 shadow-lg border border-accentPrimary"
                   initial={{ opacity: 0, x: -30 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
@@ -274,16 +274,16 @@ export default function Index() {
 
             {/* Graph Card */}
             <motion.div
-              className="border border-accentPrimary rounded-xl p-8 shadow-lg backdrop-blur-xl w-full "
+              className="border border-accentPrimary rounded-xl p-2 shadow-lg pt-8 backdrop-blur-xl w-full bg-baseSecondary/80 relative"
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.3 }}
             >
-              <h3 className="text-2xl font-bold mb-8 text-accentPrimary text-center">
+              <h3 className="text-2xl font-bold mb-4 text-accentPrimary text-center">
                 Impact Growth
               </h3>
-              <div className="w-full ">
+              <div className="w-full relative" style={{ overflow: 'visible' }}>
                 <LineGraph
                   data={sampleData}
                   xAxisLabel="Month"
@@ -298,7 +298,7 @@ export default function Index() {
       </section>
 
       {/* Recent Tasks Section */}
-      <section className="bg-basetext-baseSecondary min-h-screen flex items-center">
+      <section className="text-baseSecondary min-h-screen flex items-center">
         <div className="container mx-auto px-6 py-16">
           <motion.div
             className="text-center mb-16"
@@ -318,7 +318,7 @@ export default function Index() {
             {recentTasks.map((task, index) => (
               <motion.div
                 key={task.id}
-                className=" rounded-xl overflow-hidden border border-gray-200 shadow-md transform-gpu"
+                className=" rounded-xl overflow-hidden border border-basePrimary shadow-md "
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
