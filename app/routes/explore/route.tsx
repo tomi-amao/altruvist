@@ -347,13 +347,13 @@ export default function Explore() {
     <>
       <Navbar userId={userInfo?.id} />
       <div className="m-auto lg:w-8/12  w-full p-4  ">
-        <h1 className="mt-16"> Make a difference </h1>
+        <h1 className="mt-16 text-3xl lg:text-5xl font-semibold "> Make a difference </h1>
         <h2> Help charities innovate and make a lasting impact </h2>
-        <div className="flex flex-row gap-4  border-b-2 border-b-baseSecondary p-4">
-          <div className="bg-accentPrimary w-4/12 h-60 rounded-md">.</div>
-          <div className="bg-accentPrimary w-4/12 h-60 rounded-md">.</div>
-          <div className="bg-accentPrimary w-4/12 h-60 rounded-md">.</div>
-          <div className="bg-accentPrimary w-4/12 h-60 rounded-md">.</div>
+        <div className="flex flex-row gap-4  justify-center items-center border-b-2 border-b-baseSecondary p-4">
+            <img src="/sewing_charity.png" alt="Placeholder 1" className="w-2/12 h-60 rounded-md object-cover " />
+            <img src="/planting_charity.png" alt="Placeholder 1" className="w-2/12 h-60 rounded-md object-cover" />
+            <img src="/Giving_community.png" alt="Placeholder 1" className="w-2/12 h-60 rounded-md object-cover" />
+            <img src="/skill_sharing.png" alt="Placeholder 1" className="w-2/12 h-60 rounded-md object-cover" />
         </div>
         <div className="flex flex-row gap-2 ">
           <div className="mt-2 flex items-center space-x-2">
@@ -429,7 +429,7 @@ export default function Explore() {
               </svg>
             )}
             {cursor === null && !isLoading && tasks.length > 0 && (
-              <p className="text-gray-500">No more tasks to load</p>
+              <p className="text-basePrimaryDark">No more tasks to load</p>
             )}
           </div>
         </div>

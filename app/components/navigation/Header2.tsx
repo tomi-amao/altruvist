@@ -1,4 +1,4 @@
-import { Form, Link, useFetcher, useNavigate } from "@remix-run/react";
+import { Form, Link, useFetcher, useLocation, useNavigate } from "@remix-run/react";
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { SearchDropdown } from "../utils/selectDropdown";
 import { z } from "zod";
@@ -54,6 +54,7 @@ export default function Navbar({
   const fetcher = useFetcher();
   const navigate = useNavigate();
   const [validationError, setValidationError] = useState<string | null>(null);
+  const location = useLocation()
 
   // console.log(Boolean(searchError));
 
@@ -141,6 +142,7 @@ export default function Navbar({
       });
     }
   };
+  
 
   return (
     <>
@@ -153,16 +155,19 @@ export default function Navbar({
         <div className="flex justify-between h-auto px-2 flex-row items-center gap-4">
           <Link
             to={"/"}
-            className={`text-3xl lg:text-5xl ${altBackground ? "text-accentPrimary" : "text-baseSecondary"} tracking-wide  font-header `}
+            className={`text-3xl   lg:text-4xl pl-4 font-semibold ${altBackground ? "text-accentPrimary" : "text-baseSecondary"} tracking-wide  font-header `}
           >
-            Skillanthropy
+            <img
+              src="/favicon.ico"
+              alt="ZitHive Logo"
+              className=""/>
           </Link>
 
           <Link
-            className={`p-2 px-4  font-primary w-fit text-left transition-colors duration-200 hover:underline hover:underline-offset-8 ${altBackground ? "text-accentPrimary " : "text-baseSecondary"}`}
+            className={`p-2 px-4 hidden md:flex font-primary w-fit text-left transition-colors duration-200 hover:underline hover:underline-offset-8 ${altBackground ? "text-accentPrimary " : "text-baseSecondary"}`}
             to={"/explore"}
           >
-            Explore
+            {location.pathname === "/explore" ? "" : "Explore"}
           </Link>
           <div className="w-full p-4 ">
             <Form
@@ -206,7 +211,6 @@ export default function Navbar({
           </div>
 
           {/* hamburger side menu button */}
-          {userId && (
             <button
               className=" flex px-3 py-2 rounded"
               onClick={toggleDropdown}
@@ -217,10 +221,9 @@ export default function Navbar({
                 color={altBackground ? "#F5F5DC" : "#836953"}
               />
             </button>
-          )}
 
           {/* sign in / join button on large screens */}
-          <div className="w-fit min-w-fit lg:flex flex-row items-center gap-4 text-baseSecondary ">
+          <div className="w-fit min-w-fit lg:flex flex-row items-center gap-4 hidden md:block text-baseSecondary ">
             <NavListAuth altBackground={altBackground} userId={userId} />
           </div>
         </div>
@@ -316,12 +319,13 @@ export const NavListAuth = ({
         <>
           <Link
             to={"/zitlogin"}
-            className={`p-2 px-4 bg-accentPrimary text-baseSecondary font-primary  w-full text-left rounded-md transition-colors duration-200  ${altBackground && "text-accentPrimary"}`}
+            className={`p-2 px-2 md:px-4 bg-accentPrimary text-sm md:text-base text-baseSecondary font-primary  w-full text-left rounded-md transition-colors duration-200  ${altBackground && "text-accentPrimary"}`}
           >
             Sign in
           </Link>
         </>
       )}
+      
     </>
   );
 };

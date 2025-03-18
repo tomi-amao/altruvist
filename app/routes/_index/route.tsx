@@ -19,11 +19,13 @@ import { subDays } from "date-fns/subDays";
 import LandingHeader from "~/components/navigation/LandingHeader";
 import LineGraph from "~/components/graphs/IndexGraph";
 import { useEffect, useRef, useState } from "react";
-import SectionDivider from "./SectionDivider";
-import WaveDivider from "./WaveDivider"
-
+import CompanyLogoBanner from "./LogoBanner";
+import { Modal } from "~/components/utils/Modal2";
+import TaskDetailsCard from "~/components/tasks/taskDetailsCard";
 export const meta: MetaFunction = () => {
+
   return [
+
     { title: "Altruvist" },
     {
       name: "description",
@@ -36,6 +38,8 @@ export default function Index() {
   const { userInfo, error, recentTasks } = useLoaderData<typeof loader>();
   const [showGraph, setShowGraph] = useState(false);
   const statsRef = useRef<HTMLDivElement>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<any>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -95,13 +99,18 @@ export default function Index() {
     },
   ];
 
+  const openTaskDetailsModal = (task: any) => {
+    setSelectedTask(task);
+    setModalOpen(true);
+  };
+
   return (
     <div className="bg-gradient-to-b from-baseSecondary ">
       {/* <Navbar altBackground={true} userId={userInfo?.id} /> */}
       <LandingHeader userId={userInfo?.id} />
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center overflow-hidden">
+      <section className="relative min-h-screen flex items-center overflow-hidden flex-col pt-60">
         <div className="container mx-auto px-6 py-16 flex flex-col lg:flex-row items-center justify-center h-full">
           <motion.div
             className="lg:w-1/2 z-10"
@@ -181,6 +190,11 @@ export default function Index() {
             />
 
           </motion.div>
+
+        </div>
+        <div className="top-28 relative">
+
+          <CompanyLogoBanner />
         </div>
 
       </section>
@@ -230,7 +244,7 @@ export default function Index() {
             ].map((step, index) => (
               <motion.div
                 key={index}
-                className="bg-baseSecondary/50 rounded-xl p-8 text-center shadow-lg border border-gray-100 relative"
+                className="bg-baseSecondary/50 rounded-xl p-8 text-center shadow-lg border  relative"
                 whileHover={{ y: -8, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -256,7 +270,7 @@ export default function Index() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-baseSecondary/70 min-h-screen flex items-center">
+      <section className="py-16 bg-baseSecondary/50 min-h-screen flex items-center">
         <div className="container mx-auto px-6">
           <motion.div
             className="text-center mb-16"
@@ -265,9 +279,9 @@ export default function Index() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-4xl font-bold mb-4 text-accentPrimary/80">Our Impact</h2>
-            <div className="w-24 h-1 bg-accentSecondary mx-auto mb-6"></div>
-            <p className="text-lg max-w-xl mx-auto text-basePrimary">
+            <h2 className="text-4xl font-bold mb-4 text-accentPrimary">Our Impact</h2>
+            <div className="w-24 h-1 bg-accentPrimary mx-auto mb-6"></div>
+            <p className="text-lg max-w-xl mx-auto text-accentPrimary">
               Together we're creating lasting change for charities worldwide.
             </p>
           </motion.div>
@@ -342,6 +356,8 @@ export default function Index() {
         </div>
       </section>
 
+
+      {/* <SuccessStoriesSection/> */}
       {/* Recent Tasks Section */}
       <section className="text-baseSecondary min-h-screen flex items-center">
         <div className="container mx-auto px-6 py-16">
@@ -354,7 +370,7 @@ export default function Index() {
           >
             <h2 className="text-4xl font-bold mb-4 text-baseSecondary">Latest Opportunities</h2>
             <div className="w-24 h-1 bg-accentPrimary mx-auto mb-6"></div>
-            <p className="text-lg text-gray-600 max-w-xl mx-auto">
+            <p className="text-lg  max-w-xl mx-auto">
               Browse some of the most recent projects that need your expertise.
             </p>
           </motion.div>
@@ -385,13 +401,13 @@ export default function Index() {
                       }`}>
                       {task.urgency} URGENCY
                     </span>
-                    <span className="text-sm text-gray-500 flex items-center">
+                    <span className="text-sm  flex items-center">
                       <Clock size={16} className="mr-1" />
                       {task._count.taskApplications} applicants
                     </span>
                   </div>
                   <h3 className="text-xl font-bold mb-2 text-baseSecondary">{task.title}</h3>
-                  <p className="text-gray-600 mb-4 flex items-center">
+                  <p className=" mb-4 flex items-center">
                     <Buildings size={16} className="mr-2" />
                     {task.charity.name}
                   </p>
@@ -399,6 +415,7 @@ export default function Index() {
                     className="w-full py-2 px-4 bg-accentPrimary text-baseSecondary rounded-md hover:bg-accentPrimaryDark transition-colors flex items-center justify-center space-x-2 font-medium"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
+                    onClick={() => openTaskDetailsModal(task)}
                   >
                     <span>View Details</span>
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -417,7 +434,7 @@ export default function Index() {
             viewport={{ once: true }}
             transition={{ delay: 0.3 }}
           >
-            <Link to="/tasks" className="inline-block">
+            <Link to="/explore" className="inline-block">
               <motion.button
                 className="border-2 border-accentPrimary text-accentPrimary hover:bg-accentPrimary hover:text-baseSecondary transition-colors px-6 py-3 rounded-lg font-medium"
                 whileHover={{ scale: 1.05 }}
@@ -449,7 +466,7 @@ export default function Index() {
                 Ready to share your skills for good?
               </motion.h2>
               <motion.p
-                className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto"
+                className="text-lg  mb-8 max-w-2xl mx-auto"
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
@@ -488,7 +505,7 @@ export default function Index() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
             <div>
               <h3 className="text-2xl font-bold mb-6">Altruvist</h3>
-              <p className="text-gray-300 mb-6">Making digital skills count for charity</p>
+              <p className=" mb-6">Making digital skills count for charity</p>
               <div className="flex space-x-4">
                 {/* Social media icons here */}
                 {/* ...existing code... */}
@@ -508,15 +525,15 @@ export default function Index() {
             </div>
             <div>
               <h4 className="font-bold text-lg mb-6">Subscribe</h4>
-              <p className="text-gray-300 mb-4">Stay updated with our latest opportunities</p>
+              <p className=" mb-4">Stay updated with our latest opportunities</p>
               <form className="flex flex-col space-y-2">
                 <input
                   type="email"
                   placeholder="Email address"
-                  className="px-4 py-2 bg-basePrimary/40 rounded-lg text-baseSecondary placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-accentSecondary"
+                  className="px-4 py-2 bg-basePrimary/40 rounded-lg text-baseSecondary placeholder:text-basePrimary focus:outline-none focus:ring-2 focus:ring-accebg-accentPrimary"
                 />
                 <motion.button
-                  className="bg-accentSecondary text-baseSecondary px-4 py-2 rounded-lg hover:bg-accentSecondary/80"
+                  className="bg-accentPrimary text-baseSecondary px-4 py-2 rounded-lg hover:bg-accentPrimary/80"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
@@ -525,11 +542,38 @@ export default function Index() {
               </form>
             </div>
           </div>
-          <div className="border-t border-gray-700 pt-8 text-center text-gray-400 text-sm">
+          <div className="border-t border-basePrimary pt-8 text-center text-basePrimary text-sm">
             <p>© {new Date().getFullYear()} Altruvist. All rights reserved.</p>
           </div>
         </div>
       </footer>
+
+      {/* Task Details Modal */}
+      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)}> and additional details for TaskDetailsCard
+        {selectedTask && (
+          <div className="bg-basePrimary rounded-xl shadow-2xl max-w-4xl w-full">
+            <TaskDetailsCard
+              id={selectedTask.id}
+              title={selectedTask.title}
+              description={selectedTask.description || ""}
+              impact={selectedTask.impact || ""}
+              charityName={selectedTask.charity.name}
+              charityId={selectedTask.charityId}
+              category={selectedTask.category || []}
+              requiredSkills={selectedTask.requiredSkills || []}
+              urgency={selectedTask.urgency}
+              volunteersNeeded={selectedTask.volunteersNeeded || 1}
+              deliverables={selectedTask.deliverables || []}
+              deadline={new Date(selectedTask.deadline)}
+              userId={userInfo?.id || ""}
+              status={selectedTask.status || "OPEN"}
+              resources={selectedTask.resources || []}
+              userRole={userInfo?.roles || []}
+              taskApplications={selectedTask.taskApplications || []}
+            />
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

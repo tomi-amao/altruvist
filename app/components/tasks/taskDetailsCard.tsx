@@ -150,7 +150,7 @@ export default function TaskDetailsCard({
       <div className="bg-basePrimaryDark p-8 border-b border-baseSecondary/20">
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
-            <h1 className="text-3xl md:text-6xl font-header  text-baseSecondary tracking-normal">
+            <h1 className="text-3xl md:text-4xl font-semibold  text-baseSecondary tracking-normal">
               {title}
             </h1>
             <div className="flex items-center gap-2">

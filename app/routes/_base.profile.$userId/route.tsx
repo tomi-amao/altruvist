@@ -139,14 +139,14 @@ export default function ProfilePage() {
 
                 {profileInfo.charity.contactPerson && (
                   <div>
-                    <p className="text-sm text-gray-400">Contact Person</p>
+                    <p className="text-sm text-basePrimary">Contact Person</p>
                     <p>{profileInfo.charity.contactPerson}</p>
                   </div>
                 )}
 
                 {profileInfo.charity.contactEmail && (
                   <div>
-                    <p className="text-sm text-gray-400">Contact Email</p>
+                    <p className="text-sm text-basePrimary">Contact Email</p>
                     <a
                       href={`mailto:${profileInfo.charity.contactEmail}`}
                       className="text-baseSecondary hover:underline"

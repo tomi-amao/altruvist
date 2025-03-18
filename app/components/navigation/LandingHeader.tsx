@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import { Link, useNavigate } from "@remix-run/react";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { List, X, User, SignOut, Bell, CaretDown } from "phosphor-react";
@@ -14,6 +14,7 @@ export default function LandingHeader({ userId }: LandingHeaderProps) {
   
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const toggleUserMenu = () => setUserMenuOpen(!userMenuOpen);
+  const navigate = useNavigate();
   
   // Handle scroll effect
   useEffect(() => {
@@ -26,6 +27,27 @@ export default function LandingHeader({ userId }: LandingHeaderProps) {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
+  const gotToPage = (item: string) => {
+    switch (item) {
+      case "Home":
+        navigate("/");
+        break;
+      case "About":
+        navigate("/about");
+        break;
+      case "Explore":
+        navigate("/explore");
+        console.log("Explore");
+        
+        break;
+      case "Contact":
+        navigate("/contact");
+        break;
+      default:
+        break;
+    }
+  }
   
   return (
     <motion.header 
@@ -37,7 +59,7 @@ export default function LandingHeader({ userId }: LandingHeaderProps) {
       <div className="container mx-auto px-6">
         <div className={`backdrop-blur-md rounded-2xl shadow-lg border transition-all duration-300 ${
           isScrolled 
-            ? 'border-gray-200 bg-white/90 p-2' 
+            ? 'border-basePrimary p-2' 
             : 'border-accentPrimary bg-baseSecondary/80 p-4'
         }`}>
           <div className="flex items-center justify-between">
@@ -58,20 +80,18 @@ export default function LandingHeader({ userId }: LandingHeaderProps) {
             
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-1">
-              {["Home", "About", "Services", "Projects", "Contact"].map((item, index) => (
-                <motion.a 
+              {["Home", "About", "Explore", "Contact"].map((item, index) => (
+                <Link 
                   key={index}
-                  href="#"
-                  className={`px-4 py-2 rounded-lg transition-all font-medium ${
-                    isScrolled 
-                      ? 'text-basePrimaryDark hover:bg-gray-100 hover:text-accentPrimary' 
-                      : 'text-accentPrimary hover:bg-baseSecondary/50'
+                  to={`/${item.toLowerCase()}`}
+                  className={`px-4 py-2 rounded-lg transition-all font-medium hover:scale-105 active:scale-95 ${
+                  isScrolled 
+                    ? 'text-basePrimaryDark  hover:text-accentPrimary' 
+                    : 'text-accentPrimary hover:bg-baseSecondary/50'
                   }`}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
                 >
                   {item}
-                </motion.a>
+                </Link>
               ))}
               
               {/* Conditional rendering based on login status */}
@@ -81,11 +101,12 @@ export default function LandingHeader({ userId }: LandingHeaderProps) {
                   <motion.button
                     className={`px-4 py-2 rounded-lg border font-medium transition-colors ${
                       isScrolled
-                        ? 'border-accentPrimary text-accentPrimary hover:bg-accentPrimary hover:text-white'
+                        ? 'border-accentPrimary text-accentPrimary hover:bg-accentPrimary '
                         : 'border-accentPrimary text-accentPrimary hover:bg-accentPrimary hover:text-baseSecondary'
                     }`}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
+                    onClick={() => navigate("/zitlogin")}
                   >
                     Login
                   </motion.button>
@@ -100,9 +121,9 @@ export default function LandingHeader({ userId }: LandingHeaderProps) {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <button className={`p-2 rounded-full ${isScrolled ? 'hover:bg-gray-100' : 'hover:bg-baseSecondary/70'}`}>
+                    <button className={`p-2 rounded-full ${isScrolled ? '' : 'hover:bg-baseSecondary/70'}`}>
                       <Bell size={24} className={isScrolled ? 'text-basePrimaryDark' : 'text-accentPrimary'} />
-                      <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                      <span className="absolute top-0 right-0 bg-dangerPrimary  text-xs rounded-full w-4 h-4 flex items-center justify-center">
                         3
                       </span>
                     </button>
@@ -114,7 +135,7 @@ export default function LandingHeader({ userId }: LandingHeaderProps) {
                       onClick={toggleUserMenu}
                       className={`flex items-center space-x-2 px-3 py-2 rounded-lg ${
                         isScrolled 
-                          ? 'hover:bg-gray-100' 
+                          ? '' 
                           : 'hover:bg-baseSecondary/70'
                       }`}
                       whileHover={{ scale: 1.02 }}
@@ -132,24 +153,24 @@ export default function LandingHeader({ userId }: LandingHeaderProps) {
                     {userMenuOpen && (
                       <motion.div
                         className={`absolute right-0 mt-2 w-48 rounded-lg shadow-lg overflow-hidden border ${
-                          isScrolled ? 'bg-white border-gray-200' : 'bg-baseSecondary border-accentPrimary/30'
+                          isScrolled ? ' border-basePrimary' : 'bg-baseSecondary border-accentPrimary/30'
                         }`}
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                       >
                         <div className="py-1">
-                          <Link to="/profile" className={`block px-4 py-2 text-sm ${isScrolled ? 'text-basePrimaryDark hover:bg-gray-100' : 'text-accentPrimary hover:bg-baseSecondary/70'}`}>
+                          <Link to="/profile" className={`block px-4 py-2 text-sm ${isScrolled ? 'text-basePrimaryDark ' : 'text-accentPrimary hover:bg-baseSecondary/70'}`}>
                             Profile
                           </Link>
-                          <Link to="/dashboard" className={`block px-4 py-2 text-sm ${isScrolled ? 'text-basePrimaryDark hover:bg-gray-100' : 'text-accentPrimary hover:bg-baseSecondary/70'}`}>
+                          <Link to="/dashboard" className={`block px-4 py-2 text-sm ${isScrolled ? 'text-basePrimaryDark ' : 'text-accentPrimary hover:bg-baseSecondary/70'}`}>
                             Dashboard
                           </Link>
-                          <Link to="/settings" className={`block px-4 py-2 text-sm ${isScrolled ? 'text-basePrimaryDark hover:bg-gray-100' : 'text-accentPrimary hover:bg-baseSecondary/70'}`}>
+                          <Link to="/settings" className={`block px-4 py-2 text-sm ${isScrolled ? 'text-basePrimaryDark ' : 'text-accentPrimary hover:bg-baseSecondary/70'}`}>
                             Settings
                           </Link>
-                          <div className={`border-t my-1 ${isScrolled ? 'border-gray-200' : 'border-accentPrimary/20'}`}></div>
-                          <Link to="/logout" className={`flex items-center px-4 py-2 text-sm ${isScrolled ? 'text-red-600 hover:bg-gray-100' : 'text-red-400 hover:bg-baseSecondary/70'}`}>
+                          <div className={`border-t my-1 ${isScrolled ? 'border-basePrimary' : 'border-accentPrimary/20'}`}></div>
+                          <Link to="/logout" className={`flex items-center px-4 py-2 text-sm ${isScrolled ? 'text-dangerPrimary ' : 'text-dangerPrimary hover:bg-baseSecondary/70'}`}>
                             <SignOut size={16} className="mr-2" />
                             Sign out
                           </Link>
@@ -167,7 +188,7 @@ export default function LandingHeader({ userId }: LandingHeaderProps) {
                 onClick={toggleMenu}
                 className={`p-2 rounded-lg ${
                   isScrolled
-                    ? 'bg-gray-100/80 text-basePrimaryDark hover:bg-gray-200'
+                    ? 'bg-basePrimaryLight/80 text-basePrimaryDark hover:bg-baborder-basePrimary'
                     : 'bg-baseSecondary/50 text-accentPrimary hover:bg-accentPrimary/10'
                 }`}
                 whileTap={{ scale: 0.9 }}
@@ -186,7 +207,7 @@ export default function LandingHeader({ userId }: LandingHeaderProps) {
             <motion.div 
               className={`md:hidden mt-4 rounded-xl overflow-hidden shadow-inner border-t ${
                 isScrolled 
-                  ? 'bg-white border-gray-200'
+                  ? ' border-basePrimary'
                   : 'bg-baseSecondary border-accentPrimary/30'
               }`}
               initial={{ height: 0, opacity: 0 }}
@@ -195,20 +216,19 @@ export default function LandingHeader({ userId }: LandingHeaderProps) {
               transition={{ duration: 0.3 }}
             >
               <div className="px-2 py-3 space-y-1">
-                {["Home", "About", "Services", "Projects", "Contact"].map((item, index) => (
-                  <motion.a
-                    key={index}
-                    href="#"
-                    className={`block px-4 py-3 rounded-lg ${
-                      isScrolled
-                        ? 'text-basePrimaryDark hover:bg-gray-100'
-                        : 'text-accentPrimary hover:bg-baseSecondary/70'
-                    }`}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    {item}
-                  </motion.a>
-                ))}
+              {["Home", "About", "Explore", "Contact"].map((item, index) => (
+                <Link 
+                  key={index}
+                  to={item.toLowerCase() === "home" ? "/" : `/${item.toLowerCase()}`}
+                  className={`px-4 py-2 rounded-lg transition-all font-medium hover:scale-105 active:scale-95 ${
+                  isScrolled 
+                    ? 'text-basePrimaryDark  hover:text-accentPrimary' 
+                    : 'text-accentPrimary hover:bg-baseSecondary/50'
+                  }`}
+                >
+                  {item}
+                </Link>
+              ))}
                 
                 {/* Mobile login/signup or user menu */}
                 {!userId ? (
@@ -220,6 +240,7 @@ export default function LandingHeader({ userId }: LandingHeaderProps) {
                           : 'border-accentPrimary text-accentPrimary hover:bg-accentPrimary/20'
                       }`}
                       whileTap={{ scale: 0.98 }}
+                      onClick={() => navigate("/zitlogin")}
                     >
                       Login
                     </motion.button>
@@ -229,35 +250,35 @@ export default function LandingHeader({ userId }: LandingHeaderProps) {
                   // User profile menu for mobile
                   <div className="pt-2 space-y-1">
                     <div className={`px-4 py-3 flex items-center space-x-3 ${
-                      isScrolled ? 'bg-gray-100/50' : 'bg-baseSecondary/70'
+                      isScrolled ? 'bg-basePrimaryLight/50' : 'bg-baseSecondary/70'
                     } rounded-lg`}>
                       <div className="w-10 h-10 rounded-full bg-accentPrimary/20 flex items-center justify-center">
                         <User size={24} className="text-accentPrimary" weight="fill" />
                       </div>
                       <div className="flex-1">
                         <p className={`font-medium ${isScrolled ? 'text-basePrimaryDark' : 'text-accentPrimary'}`}>User Account</p>
-                        <p className="text-sm text-gray-500">user@example.com</p>
+                        <p className="text-sm text-basePrimaryDark">user@example.com</p>
                       </div>
                     </div>
                     
                     <Link to="/profile" className={`block px-4 py-3 rounded-lg ${
-                      isScrolled ? 'text-basePrimaryDark hover:bg-gray-100' : 'text-accentPrimary hover:bg-baseSecondary/70'
+                      isScrolled ? 'text-basePrimaryDark ' : 'text-accentPrimary hover:bg-baseSecondary/70'
                     }`}>
                       Profile
                     </Link>
                     <Link to="/dashboard" className={`block px-4 py-3 rounded-lg ${
-                      isScrolled ? 'text-basePrimaryDark hover:bg-gray-100' : 'text-accentPrimary hover:bg-baseSecondary/70'
+                      isScrolled ? 'text-basePrimaryDark ' : 'text-accentPrimary hover:bg-baseSecondary/70'
                     }`}>
                       Dashboard
                     </Link>
                     <Link to="/settings" className={`block px-4 py-3 rounded-lg ${
-                      isScrolled ? 'text-basePrimaryDark hover:bg-gray-100' : 'text-accentPrimary hover:bg-baseSecondary/70'
+                      isScrolled ? 'text-basePrimaryDark ' : 'text-accentPrimary hover:bg-baseSecondary/70'
                     }`}>
                       Settings
                     </Link>
-                    <div className={`border-t my-1 ${isScrolled ? 'border-gray-200' : 'border-accentPrimary/20'}`}></div>
+                    <div className={`border-t my-1 ${isScrolled ? 'border-basePrimary' : 'border-accentPrimary/20'}`}></div>
                     <Link to="/logout" className={`flex items-center px-4 py-3 rounded-lg ${
-                      isScrolled ? 'text-red-600 hover:bg-gray-100' : 'text-red-400 hover:bg-baseSecondary/70'
+                      isScrolled ? 'text-dangerPrimary ' : 'text-dangerPrimary hover:bg-baseSecondary/70'
                     }`}>
                       <SignOut size={20} className="mr-2" />
                       Sign out
