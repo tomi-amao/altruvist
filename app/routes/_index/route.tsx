@@ -22,6 +22,7 @@ import { useEffect, useRef, useState } from "react";
 import CompanyLogoBanner from "./LogoBanner";
 import { Modal } from "~/components/utils/Modal2";
 import TaskDetailsCard from "~/components/tasks/taskDetailsCard";
+import { users } from "@prisma/client";
 export const meta: MetaFunction = () => {
 
   return [
@@ -40,6 +41,9 @@ export default function Index() {
   const statsRef = useRef<HTMLDivElement>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<any>(null);
+  const [signedProfilePicture, setSignedProfilePicture] = useState<
+  string | null
+>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -104,10 +108,24 @@ export default function Index() {
     setModalOpen(true);
   };
 
+  useEffect(() => {
+    async function fetchSignedUrl() {
+      const res = await fetch(
+        `/api/s3-get-url?file=${userInfo?.profilePicture}&action=upload`,
+      );
+      const data = await res.json();
+      if (data.url) {
+        setSignedProfilePicture(data.url);
+      }
+    }
+    fetchSignedUrl();
+  }, [userInfo?.profilePicture]);
+
+
   return (
     <div className="bg-gradient-to-b from-baseSecondary ">
       {/* <Navbar altBackground={true} userId={userInfo?.id} /> */}
-      <LandingHeader userId={userInfo?.id} />
+      <LandingHeader userId={userInfo?.id} userInfo={userInfo as unknown as users} profilePicture={signedProfilePicture || undefined}  />
 
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center overflow-hidden flex-col pt-60">

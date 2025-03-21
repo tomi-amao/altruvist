@@ -2,12 +2,16 @@ import { Link, useNavigate } from "@remix-run/react";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { List, X, User, SignOut, Bell, CaretDown } from "phosphor-react";
+import { users } from "@prisma/client";
+import { Avatar } from "../cards/ProfileCard";
 
 interface LandingHeaderProps {
   userId?: string | null;
+  userInfo?: users;
+  profilePicture?: string;
 }
 
-export default function LandingHeader({ userId }: LandingHeaderProps) {
+export default function LandingHeader({ userId, userInfo, profilePicture }: LandingHeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -74,7 +78,7 @@ export default function LandingHeader({ userId }: LandingHeaderProps) {
                 </div>
               </motion.div>
               <span className={`ml-3 text-xl font-bold ${isScrolled ? 'text-basePrimaryDark' : 'text-accentPrimary'}`}>
-                Altruvist
+                Altruvist                         
               </span>
             </Link>
             
@@ -140,11 +144,11 @@ export default function LandingHeader({ userId }: LandingHeaderProps) {
                       }`}
                       whileHover={{ scale: 1.02 }}
                     >
-                      <div className="w-8 h-8 rounded-full bg-accentPrimary/20 flex items-center justify-center text-accentPrimary">
-                        <User size={20} weight="fill" />
+                      <div className="w-8 h-8 rounded-full bg-accentPrimary/20 flex items-center justify-center text-accentPrimary mx-2">
+                        {<Avatar name={userInfo?.name}  src={profilePicture || ""}  />}
                       </div>
                       <span className={`font-medium ${isScrolled ? 'text-basePrimaryDark' : 'text-accentPrimary'}`}>
-                        My Account
+                        {userInfo?.name}
                       </span>
                       <CaretDown size={16} className={isScrolled ? 'text-basePrimaryDark' : 'text-accentPrimary'} />
                     </motion.button>
@@ -160,13 +164,13 @@ export default function LandingHeader({ userId }: LandingHeaderProps) {
                         exit={{ opacity: 0, y: -10 }}
                       >
                         <div className="py-1">
-                          <Link to="/profile" className={`block px-4 py-2 text-sm ${isScrolled ? 'text-basePrimaryDark ' : 'text-accentPrimary hover:bg-baseSecondary/70'}`}>
+                          <Link to={`/profile/${userId}`} className={`block px-4 py-2 text-sm ${isScrolled ? 'text-basePrimaryDark ' : 'text-accentPrimary hover:bg-baseSecondary/70'}`}>
                             Profile
                           </Link>
                           <Link to="/dashboard" className={`block px-4 py-2 text-sm ${isScrolled ? 'text-basePrimaryDark ' : 'text-accentPrimary hover:bg-baseSecondary/70'}`}>
                             Dashboard
                           </Link>
-                          <Link to="/settings" className={`block px-4 py-2 text-sm ${isScrolled ? 'text-basePrimaryDark ' : 'text-accentPrimary hover:bg-baseSecondary/70'}`}>
+                          <Link to="/account/settings" className={`block px-4 py-2 text-sm ${isScrolled ? 'text-basePrimaryDark ' : 'text-accentPrimary hover:bg-baseSecondary/70'}`}>
                             Settings
                           </Link>
                           <div className={`border-t my-1 ${isScrolled ? 'border-basePrimary' : 'border-accentPrimary/20'}`}></div>
@@ -253,15 +257,15 @@ export default function LandingHeader({ userId }: LandingHeaderProps) {
                       isScrolled ? 'bg-basePrimaryLight/50' : 'bg-baseSecondary/70'
                     } rounded-lg`}>
                       <div className="w-10 h-10 rounded-full bg-accentPrimary/20 flex items-center justify-center">
-                        <User size={24} className="text-accentPrimary" weight="fill" />
+                      {<Avatar name={userInfo?.name}  src={profilePicture || ""}/>}
                       </div>
                       <div className="flex-1">
-                        <p className={`font-medium ${isScrolled ? 'text-basePrimaryDark' : 'text-accentPrimary'}`}>User Account</p>
-                        <p className="text-sm text-basePrimaryDark">user@example.com</p>
+                        <p className={`font-medium ${isScrolled ? 'text-basePrimaryDark' : 'text-accentPrimary'}`}>{userInfo?.name}</p>
+                        <p className="text-sm text-basePrimaryDark">{userInfo?.email}</p>
                       </div>
                     </div>
                     
-                    <Link to="/profile" className={`block px-4 py-3 rounded-lg ${
+                    <Link to={`/profile/${userId}`} className={`block px-4 py-3 rounded-lg ${
                       isScrolled ? 'text-basePrimaryDark ' : 'text-accentPrimary hover:bg-baseSecondary/70'
                     }`}>
                       Profile
@@ -271,14 +275,14 @@ export default function LandingHeader({ userId }: LandingHeaderProps) {
                     }`}>
                       Dashboard
                     </Link>
-                    <Link to="/settings" className={`block px-4 py-3 rounded-lg ${
+                    <Link to="/account/settings" className={`block px-4 py-3 rounded-lg ${
                       isScrolled ? 'text-basePrimaryDark ' : 'text-accentPrimary hover:bg-baseSecondary/70'
                     }`}>
                       Settings
                     </Link>
                     <div className={`border-t my-1 ${isScrolled ? 'border-basePrimary' : 'border-accentPrimary/20'}`}></div>
-                    <Link to="/logout" className={`flex items-center px-4 py-3 rounded-lg ${
-                      isScrolled ? 'text-dangerPrimary ' : 'text-dangerPrimary hover:bg-baseSecondary/70'
+                    <Link to="/zitlogout" className={`flex items-center px-4 py-3 rounded-lg  w-fit  ${
+                      isScrolled ? 'text-dangerPrimary ' : 'text-dangerPrimary hover:bg-baseSecondary/50'
                     }`}>
                       <SignOut size={20} className="mr-2" />
                       Sign out
