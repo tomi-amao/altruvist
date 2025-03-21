@@ -174,7 +174,7 @@ export default function LandingHeader({ userId, userInfo, profilePicture }: Land
                             Settings
                           </Link>
                           <div className={`border-t my-1 ${isScrolled ? 'border-basePrimary' : 'border-accentPrimary/20'}`}></div>
-                          <Link to="/logout" className={`flex items-center px-4 py-2 text-sm ${isScrolled ? 'text-dangerPrimary ' : 'text-dangerPrimary hover:bg-baseSecondary/70'}`}>
+                          <Link to="/zitlogout" className={`flex items-center px-4 py-2 text-sm ${isScrolled ? 'text-dangerPrimary ' : 'text-dangerPrimary hover:bg-baseSecondary/70'}`}>
                             <SignOut size={16} className="mr-2" />
                             Sign out
                           </Link>
