@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { IMessage } from '@novu/shared';
-import { ArchiveBox, ArrowCounterClockwise, Envelope, EnvelopeOpen } from 'phosphor-react';
+import { ArchiveBox, ArrowCounterClockwise, Envelope, EnvelopeOpen, Trash } from 'phosphor-react';
 import { Avatar } from './cards/ProfileCard';
 
 interface CustomNotificationProps {
@@ -36,33 +36,35 @@ export const CustomNotification: React.FC<CustomNotificationProps> = ({ notifica
   };
 
   // Parse notification body on component mount
-  // useEffect(() => {
-  //   try {
-  //     if (typeof notification.body === 'string') {
-  //       const bodyData = JSON.parse(notification.body);
-  //       setParsedBody(bodyData);
-        
-  //       // If profilePicture exists in the parsed data, fetch the signed URL
-  //       if (bodyData.profilePicture) {
-  //         fetchSignedUrl(bodyData.profilePicture);
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error('Error parsing notification body:', error);
-  //     // If parsing fails, just use the body as plain text
-  //     setParsedBody({ message: notification.body as string });
-  //   }
-  // }, []); // Add empty dependency array here to run only on mount
+  useEffect(() => {
+    try {
+      if (typeof notification.body === 'string') {
+        // Convert single quotes to double quotes for proper JSON parsing
+        const jsonString = (notification.body as string).replace(/'/g, '"');
+        const bodyData = JSON.parse(jsonString);
+        setParsedBody(bodyData);
+
+        // If avatar exists in the parsed data, fetch the signed URL
+        if (bodyData.avatar) {
+          fetchSignedUrl(bodyData.avatar);
+        }
+      }
+    } catch (error) {
+      console.error('Error parsing notification body:', error);
+      // If parsing fails, just use the body as plain text
+      setParsedBody({ message: notification.body as string });
+    }
+  }, [notification.body]); // Add notification.body as dependency to run when it changes
 
   // Fetch signed URL for profile picture
   const fetchSignedUrl = async (profilePicture: string) => {
     if (!profilePicture) return;
-    
+
     try {
-      
-      const res = await fetch(`/api/s3-get-url?file=${encodeURIComponent(profilePicture)}&action=upload`);
+
+      const res = await fetch(`/api/s3-get-url?file=${encodeURIComponent(parsedBody.avatar)}&action=upload`);
       if (!res.ok) throw new Error('Failed to fetch signed URL');
-      
+
       const data = await res.json();
       if (data.url) {
         setSignedFileUrl(data.url);
@@ -80,6 +82,8 @@ export const CustomNotification: React.FC<CustomNotificationProps> = ({ notifica
     if (notif.cta?.data?.url) {
       window.open(notif.cta.data.url, '_blank');
     }
+    console.log(notif);
+
   };
 
   const handleUnread = async (e: React.MouseEvent, notif: IMessage) => {
@@ -90,6 +94,13 @@ export const CustomNotification: React.FC<CustomNotificationProps> = ({ notifica
       setIsRead(notif.isRead);
     }
   }
+  const handleDelete = async (e: React.MouseEvent, notif: IMessage) => {
+    e.stopPropagation();
+    const result = await fetch(`/api/notifications?action=delete&messageId=${notif.id}`);
+    const data = await result.json();
+    console.log(data);
+
+  } // Prevent triggering the parent click handler
 
   const handleArchive = async (e: React.MouseEvent, notif: IMessage) => {
     e.stopPropagation(); // Prevent triggering the parent click handler
@@ -141,43 +152,57 @@ export const CustomNotification: React.FC<CustomNotificationProps> = ({ notifica
         {parsedBody.message || ''}
       </p>
 
+
+      
       <div className="flex justify-between items-center mt-1">
         <span className="text-xs text-altMidGrey font-primary">
           {getTimeAgo(notification.createdAt)}
         </span>
-        
-        {/* Only render Avatar if we have a valid URL or name */}
 
+        {/* Only render Avatar if we have a valid URL or name */}
+        {/* {JSON.parse(notification.body).message} */}
         <div className="flex items-center space-x-3">
           {/* Archive/Unarchive buttons */}
           {!isArchived ? (
-            <button
-              onClick={(e) => handleArchive(e, notification)}
-              className="text-altMidGrey transition-colors disabled:opacity-50 p-2 hover:bg-baseSecondary rounded"
-              disabled={isArchiving}
-              title="Archive"
-            >
-              <ArchiveBox size={18} />
-            </button>
+            <>
+              <button
+                onClick={(e) => handleArchive(e, notification)}
+                className="text-altMidGrey transition-colors disabled:opacity-50 p-2 hover:bg-baseSecondary rounded"
+                disabled={isArchiving}
+                title="Archive"
+              >
+                <ArchiveBox size={18} />
+              </button>
+
+            </>
+
           ) : (
-            <button
-              onClick={(e) => handleUnarchive(e, notification)}
-              className="text-altMidGrey transition-colors disabled:opacity-50 p-2 hover:bg-baseSecondary rounded"
-              disabled={isUnarchiving}
-              title="Unarchive"
-            >
-              <ArrowCounterClockwise size={18} />
-            </button>
+            <>
+              <button
+                onClick={(e) => handleUnarchive(e, notification)}
+                className="text-altMidGrey transition-colors disabled:opacity-50 p-2 hover:bg-baseSecondary rounded"
+                disabled={isUnarchiving}
+                title="Unarchive"
+              >
+                <ArrowCounterClockwise size={18} />
+              </button>
+              <button onClick={(e) => handleDelete(e, notification)} className='hover:bg-baseSecondary p-2 rounded' title="Delete">
+                <Trash size={18} className="text-dangerPrimary" />
+              </button>
+            </>
           )}
 
           {notification.isRead ? (
-            <button
-              onClick={(e) => handleUnread(e, notification)}
-              className='hover:bg-baseSecondary p-2 rounded'
-              title="Mark as unread"
-            >
-              <EnvelopeOpen size={18} className="text-altMidGrey" />
-            </button>
+            <>
+              <button
+                onClick={(e) => handleUnread(e, notification)}
+                className='hover:bg-baseSecondary p-2 rounded'
+                title="Mark as unread"
+              >
+                <EnvelopeOpen size={18} className="text-altMidGrey" />
+              </button>
+
+            </>
           ) : (
             <button
               onClick={(e) => e.stopPropagation()}
