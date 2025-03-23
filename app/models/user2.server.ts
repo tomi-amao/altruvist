@@ -115,6 +115,20 @@ export const getUserInfo = async (
   }
 };
 
+export const getUserById = async (userId: string) => {
+  console.log("User ID acs:", userId);
+  
+  try {
+    const user = await prisma.users.findUnique({
+      where: { id: userId },
+    });
+    return { user };
+  } catch (error) {
+    console.error("Error in getUserById:", error);
+    throw new Error("Failed to fetch user");
+  }
+}
+
 export const updateUserInfo = async (
   userId: string,
   updateUserData: Prisma.usersUpdateInput,

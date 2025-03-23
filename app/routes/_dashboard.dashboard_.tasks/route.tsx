@@ -17,10 +17,11 @@ import { TaskList } from "~/components/tasks/TaskList";
 import { TaskSearchFilter } from "~/components/tasks/TaskSearchFilter";
 import { TaskDetails } from "~/components/tasks/TaskDetails";
 import { getSession } from "~/services/session.server";
-import { getUserInfo } from "~/models/user2.server";
+import { getUserById, getUserInfo } from "~/models/user2.server";
 import {
   deleteTask,
   deleteUserTaskApplication,
+  getTask,
   getUserTasks,
   removeVolunteerFromTask,
   updateTask,
@@ -37,6 +38,7 @@ import { useEffect, useMemo, useState } from "react";
 import TaskForm from "~/components/tasks/TaskForm";
 import { ServerRuntimeMetaFunction as MetaFunction } from "@remix-run/server-runtime";
 import { getCompanionVars } from "~/services/env.server";
+import { deleteNovuSubscriber, triggerNotification } from "~/services/novu.server";
 
 export const meta: MetaFunction = () => {
   return [
@@ -388,6 +390,7 @@ export async function action({ request }: ActionFunctionArgs) {
   console.log("Action Type:", intent);
   console.log("Task ID:", taskId);
   console.log("User ID:", userId);
+  
 
   try {
     switch (intent) {
@@ -478,6 +481,28 @@ export async function action({ request }: ActionFunctionArgs) {
           "ACCEPTED",
         );
 
+        console.log("task application:", parsedApplication.id);
+        
+        const {user : userInfo} = await getUserById(userId);
+        console.log("taskID:", taskApplication.id);
+        
+        const task = await getTask(taskId);
+        console.log("task:", task);
+
+        await triggerNotification({
+          userInfo,
+          workflowId: "applications-feed",
+          notification: {
+            subject: "New Task Application",
+            body: `${userInfo?.name} has accepted your application for the task ${task?.title}`,
+            type: "applied",
+            taskApplicationId: parsedApplication.id,
+            taskId: task?.id,
+          },
+          type: "Topic",
+          topicKey: task?.notifyTopicId.find(item => item.includes("volunteers"))
+        });
+
         if (result.error) {
           return json({ error: result.message }, { status: 400 });
         }
@@ -494,6 +519,28 @@ export async function action({ request }: ActionFunctionArgs) {
           parsedApplication.id,
           "REJECTED",
         );
+
+        console.log("task application:", parsedApplication.id);
+        
+        const {user : userInfo} = await getUserById(userId);
+        console.log("taskID:", taskApplication.id);
+        
+        const task = await getTask(taskId);
+        console.log("task:", task);
+
+        await triggerNotification({
+          userInfo,
+          workflowId: "applications-feed",
+          notification: {
+            subject: "New Task Application",
+            body: `${userInfo?.name} has rejected your application for the task ${task?.title}`,
+            type: "applied",
+            taskApplicationId: parsedApplication.id,
+            taskId: task?.id,
+          },
+          type: "Topic",
+          topicKey: task?.notifyTopicId.find(item => item.includes("volunteers"))
+        });
 
         if (result.error) {
           return json({ error: result.message }, { status: 400 });
@@ -521,11 +568,31 @@ export async function action({ request }: ActionFunctionArgs) {
         const taskApplication =
           data.get("selectedTaskApplication")?.toString() || "";
         const parsedApplication = JSON.parse(taskApplication);
-
         const result = await updateTaskApplicationStatus(
           parsedApplication.id,
           "PENDING",
         );
+        console.log("task application:", parsedApplication.id);
+        
+        const {user : userInfo} = await getUserById(userId);
+        console.log("taskID:", taskApplication.id);
+        
+        const task = await getTask(taskId);
+        console.log("task:", task);
+        
+        await triggerNotification({
+          userInfo,
+          workflowId: "applications-feed",
+          notification: {
+            subject: "New Task Application",
+            body: `${userInfo?.name} has applied to the task ${task?.title}`,
+            type: "applied",
+            taskApplicationId: parsedApplication.id,
+            taskId: task?.id,
+          },
+          type: "Topic",
+          topicKey: task?.notifyTopicId.find(item => item.includes("charities"))
+        });
 
         if (result.error) {
           return json({ error: result.message }, { status: 400 });
@@ -541,6 +608,10 @@ export async function action({ request }: ActionFunctionArgs) {
         const result = await deleteUserTaskApplication(parsedApplication.id);
 
         console.log(result);
+
+
+        const deleteSubscriberResult = await deleteNovuSubscriber(userId);
+        console.log('Delete Subscriber Result:', deleteSubscriberResult);
 
         if (result.error) {
           return json({ error: result.message }, { status: 400 });

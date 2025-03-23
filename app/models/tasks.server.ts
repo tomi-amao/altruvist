@@ -654,3 +654,11 @@ export const getTaskApplication = async (taskApplicationId: string) => {
     };
   }  
 }
+
+export const getTask = (taskId: string) => {
+  console.log("Server",taskId);
+  
+  return prisma.tasks.findUnique({
+    where: { id: taskId }
+  });
+}

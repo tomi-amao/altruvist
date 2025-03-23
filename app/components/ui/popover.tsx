@@ -28,7 +28,7 @@ export function Popover({ children }: PopoverProps) {
   const content = triggerAndContent[1];
 
   return (
-    <div className="relative inline-block" ref={popoverRef}>
+    <div className="relative inline-block " ref={popoverRef}>
       <div onClick={() => setIsOpen(!isOpen)}>
         {trigger}
       </div>

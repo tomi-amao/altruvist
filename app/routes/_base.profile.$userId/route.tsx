@@ -35,7 +35,7 @@ export default function ProfilePage() {
   useEffect(() => {
     async function fetchSignedUrl() {
       const res = await fetch(
-        `/api/s3-get-url?file=${userInfo?.profilePicture}&action=upload`,
+        `/api/s3-get-url?file=${profileInfo?.profilePicture}&action=upload`,
       );
       const data = await res.json();
       if (data.url) {
@@ -43,7 +43,7 @@ export default function ProfilePage() {
       }
     }
     fetchSignedUrl();
-  }, [userInfo?.profilePicture]);
+  }, [profileInfo?.profilePicture]);
 
   if (!profileInfo) {
     // Handle case when post is not found

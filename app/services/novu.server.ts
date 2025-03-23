@@ -274,3 +274,14 @@ export const deleteNovuMessage = async (messageId: string) => {
     return false;
   }
 }
+
+export const deleteNovuSubscriber = async (subscriberId: string) => {
+  try {
+    const response = await novu.subscribers.delete(subscriberId);
+    console.log('Deleted subscriber:', response.result);
+    return { response };
+  } catch (error) {
+    console.error('Failed to delete subscriber:', error);
+    return false;
+  }
+}

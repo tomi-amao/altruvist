@@ -59,6 +59,8 @@ export function TaskDetails({
       {
         _action: "acceptTaskApplication",
         selectedTaskApplication: JSON.stringify({ id: applicationId }),
+        userId: userId ?? null,
+        taskId: task.id,
       },
       { method: "POST" },
     );
@@ -99,6 +101,8 @@ export function TaskDetails({
       {
         _action: "deleteApplication",
         selectedTaskApplication: JSON.stringify({ id: applicationId }),
+        userId: userId ?? null,
+        taskId: task.id,
       },
       { method: "POST" },
     );
@@ -109,6 +113,8 @@ export function TaskDetails({
       {
         _action: "undoApplicationStatus",
         selectedTaskApplication: JSON.stringify({ id: applicationId }),
+        userId: userId ?? null,
+        taskId: task.id,
       },
       { method: "POST" },
     );
