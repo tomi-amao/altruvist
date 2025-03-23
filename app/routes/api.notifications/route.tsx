@@ -1,13 +1,19 @@
 import { json, LoaderFunction } from '@remix-run/node';
+import { getUserInfo } from '~/models/user2.server';
 import { deleteNovuMessage, getUserNotifications } from '~/services/novu.server';
+import { getSession } from '~/services/session.server';
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
   const subscriberId = url.searchParams.get('subscriberId');
   const action = url.searchParams.get('action');
   console.log('subscriberId:', subscriberId);
+  const session = await getSession(request);
+  const accessToken = session.get("accessToken");
 
-
+  if (!accessToken) {
+    return json({ error: 'Unauthorized' }, { status: 401 });
+  }
 
   try {
     if (action === "delete") {

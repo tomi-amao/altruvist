@@ -1,10 +1,18 @@
 import { json, LoaderFunctionArgs } from "@remix-run/node";
+import { getUserInfo } from "~/models/user2.server";
 import { deleteS3Object, getSignedUrlForFile } from "~/services/s3.server";
+import { getSession } from "~/services/session.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
   const fileUrl = url.searchParams.get("file");
   const action = url.searchParams.get("action");
+  const session = await getSession(request);
+  const accessToken = session.get("accessToken");
+
+  if (!accessToken) {
+    return json({ error: 'Unauthorized' }, { status: 401 });
+  }
 
   if (!fileUrl) {
     return json({ error: "File URL is required" }, { status: 400 });
