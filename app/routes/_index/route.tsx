@@ -44,6 +44,14 @@ export default function Index() {
   const [signedProfilePicture, setSignedProfilePicture] = useState<
   string | null
 >(null);
+  const [clientSideError, setClientSideError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Set the error from the server in client-side state
+    if (error) {
+      setClientSideError(error);
+    }
+  }, [error]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -65,9 +73,6 @@ export default function Index() {
     return () => observer.disconnect();
   }, []);
 
-  if (error) {
-    return <Notification type="error" message={error} />;
-  }
 
   const sampleData = [
     { x: new Date('2023-01-01'), y: 50 },
@@ -139,6 +144,7 @@ export default function Index() {
             <h1 className="text-5xl lg:text-7xl font-bold text-accentPrimary  mb-6">
               Donate Your Skills, Make a Difference
             </h1>
+            {clientSideError && <Notification type="error" message={clientSideError}/>}
             <p className="text-xl text-basePrimary mb-8 max-w-lg">
               Connect with charities and make a real impact with your technical expertise, helping organizations scale their missions.
             </p>

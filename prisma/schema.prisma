@@ -71,6 +71,7 @@ model tasks {
   updatedAt        DateTime           @updatedAt
   taskApplications taskApplications[]
   comments         comment[]
+  notifyTopicId    String[]
 }
 
 model taskApplications {

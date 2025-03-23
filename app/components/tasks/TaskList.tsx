@@ -37,7 +37,7 @@ export function TaskList({
 
     const commonClasses = `text-left block w-full p-4 lg:p-2 border-b-[1px] 
       hover:bg-baseSecondary hover:text-basePrimary rounded cursor-pointer lg:border-dashed
-      ${isSelected ? "bg-baseSecondary text-basePrimaryDark font-semibold" : ""}`;
+      ${isSelected ? "bg-baseSecondary text-basePrimary font-semibold" : ""}`;
 
     const getStatusDisplay = () => {
       if (!taskApplication || userRole === "charity") return task.status;
@@ -65,9 +65,9 @@ export function TaskList({
 
     const content = (
       <>
-        <div className="text-lg font-primary">{task.title}</div>
-        <div className="flex justify-between items-center text-sm">
-          <span>Due: {new Date(task.deadline).toLocaleDateString()}</span>
+        <div className="text-lg font-primary ">{task.title}</div>
+        <div className="flex justify-between items-center text-sm ">
+          <span >Due: {new Date(task.deadline).toLocaleDateString()}</span>
           <span
             className={`px-2 py-1 rounded-full text-xs ${getStatusStyle(getStatusDisplay())}`}
           >

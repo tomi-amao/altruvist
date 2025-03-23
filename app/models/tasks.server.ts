@@ -11,6 +11,7 @@ import { SortOrder } from "~/routes/search/route";
 import { transformUserTaskApplications } from "~/components/utils/DataTransformation";
 import { ObjectIdSchema } from "~/services/validators.server";
 import { INDICES, indexDocument, deleteDocument, isMeilisearchConnected } from "~/services/meilisearch.server";
+import { addNovuSubscriberToTopic, createTopic } from "~/services/novu.server";
 
 export const createTask = async (
   taskData: Partial<tasks>,
@@ -26,6 +27,8 @@ export const createTask = async (
     ) {
       return { message: "No data", error: "400" };
     }
+
+
     const task = await prisma.tasks.create({
       data: {
         title: taskData.title,
@@ -47,6 +50,7 @@ export const createTask = async (
         createdBy: {
           connect: { id: userId },
         },
+        
       },
     });
 
@@ -55,6 +59,23 @@ export const createTask = async (
     if (meiliConnected) {
       await indexDocument(INDICES.TASKS, task);
     }
+
+    // Create a new topic for the task
+    const {topicKey: charityTopicKey} = await createTopic(`tasks:charities:${task.id}`, task.title);
+    const {topicKey: volunteerTopicKey} = await createTopic(`tasks:volunteers:${task.id}`, task.title);
+
+    if (!charityTopicKey || !volunteerTopicKey) {
+      throw new Error("Failed to create topic keys");
+    }
+
+    const addTopicToTask = await prisma.tasks.update({
+      where: { id: task.id },
+      data: { notifyTopicId: [charityTopicKey, volunteerTopicKey] },
+    });
+    // Subscribe the task creator to the task topic
+    console.log("Updated task with topic key:", addTopicToTask.notifyTopicId);
+    await addNovuSubscriberToTopic([userId], charityTopicKey ?? "");
+
 
     return { task, message: "Task successfully created", status: 200 };
   } catch (error) {
@@ -609,3 +630,27 @@ export const removeVolunteerFromTask = async (
     return { updatedTaskApplication: null, status: 500, error };
   }
 };
+
+export const getTaskApplication = async (taskApplicationId: string) => {
+  console.log("Server",taskApplicationId);
+  
+  try {
+    const taskApplication = await prisma.taskApplications.findUnique({
+      where: { id: taskApplicationId }
+    });
+
+    return {
+      taskApplication,
+      message: "Successfully Retrieved Task Applications",
+      error: null,
+      status: 200,
+    };
+  } catch (error) {
+    return {
+      taskApplication: null,
+      message: "No task applications found",
+      error,
+      status: 500,
+    };
+  }  
+}

@@ -6,6 +6,7 @@ import { ObjectIdSchema } from "~/services/validators.server";
 import https from "https";
 import fetch from "node-fetch";
 import { INDICES, indexDocument, deleteDocument, isMeilisearchConnected } from "~/services/meilisearch.server";
+import { createNovuSubscriber } from "~/services/novu.server";
 
 // create a mongodb user document if user from zitadel directory does not exist
 export const createUser = async (user: zitadelUserInfo) => {
@@ -15,12 +16,20 @@ export const createUser = async (user: zitadelUserInfo) => {
   });
 
   if (userExists === 1) {
+
+    const existingUserInfo =  await prisma.users.findUnique({
+      where: { zitadelId: user.sub },
+    });
+    console.log("User already exists", existingUserInfo);
+    // await createNovuSubscriber(existingUserInfo);
+
     return {
       newUser: null,
       error: null,
       status: 202,
       statusText: "user exists",
     };
+    
   }
   try {
     const newUser = await prisma.users.create({
@@ -37,6 +46,8 @@ export const createUser = async (user: zitadelUserInfo) => {
     if (meiliConnected) {
       await indexDocument(INDICES.USERS, newUser);
     }
+
+    await createNovuSubscriber(newUser, false);
 
     return {
       newUser,
