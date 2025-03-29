@@ -71,6 +71,8 @@ export function TaskDetails({
       {
         _action: "rejectTaskApplication",
         selectedTaskApplication: JSON.stringify({ id: applicationId }),
+        userId: userId ?? null,
+        taskId: task.id,
       },
       { method: "POST" },
     );

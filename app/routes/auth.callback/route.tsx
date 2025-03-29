@@ -3,6 +3,8 @@ import { createUser } from "~/models/user2.server";
 import { getZitadelVars } from "~/services/env.server";
 import { getSession, commitSession } from "~/services/session.server";
 import { zitadelUserInfo } from "~/types/zitadelUser";
+import https from "https";
+import fetch from "node-fetch";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
@@ -21,6 +23,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     });
   }
 
+  // const agent = new https.Agent({
+  //   rejectUnauthorized: false, // Disable SSL verification
+  // });
+
   try {
     // Exchange the code for tokens
     const tokenResponse = await fetch(
@@ -31,10 +37,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
         body: new URLSearchParams({
           grant_type: "authorization_code",
           client_id: zitadel.CLIENT_ID,
+          client_secret: zitadel.CLIENT_SECRET,
           code,
           redirect_uri: zitadel.REDIRECT_URI,
           code_verifier: codeVerifier,
         }),
+        // agent,
       },
     );
     // console.log("Token response", await tokenResponse.json());
@@ -50,11 +58,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
     // console.log("Token response headers:", tokenResponse.headers);
     // console.log("Token response ok?:", tokenResponse.ok);
 
-    const { access_token, id_token } = await tokenResponse.json();
+    // const { access_token, id_token } = await tokenResponse.json();
+    const tokenData = await tokenResponse.json();
 
     // Store the tokens in the session
-    session.set("accessToken", access_token);
-    session.set("idToken", id_token);
+    session.set("accessToken", tokenData.access_token);
+    session.set("idToken", tokenData.id_token);
     session.unset("codeVerifier");
 
     // create new mongodb user if none exists upon login
@@ -62,8 +71,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
       `${zitadel.ZITADEL_DOMAIN}/oidc/v1/userinfo`,
       {
         headers: {
-          Authorization: `Bearer ${access_token}`,
+          Authorization: `Bearer ${tokenData.access_token}`,
         },
+        // agent,
       },
     );
 
@@ -72,6 +82,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     }
 
     const userInfo: zitadelUserInfo = await userInfoResponse.json();
+
     const newUser = await createUser(userInfo);
     console.log("Mongodb user", newUser);
 

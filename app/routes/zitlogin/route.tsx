@@ -2,6 +2,8 @@ import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { getZitadelVars } from "~/services/env.server";
 import { generateCodeChallenge, generateCodeVerifier } from "~/services/pkce";
 import { getSession, commitSession } from "~/services/session.server";
+import https from "https";
+import fetch from "node-fetch";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
@@ -16,10 +18,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
       },
     });
   }
-
+  // const agent = new https.Agent({
+  //   rejectUnauthorized: false, // Disable SSL verification
+  // });
   try {
     const response = await fetch(zitadel.ZITADEL_DOMAIN, {
       method: "GET",
+      // agent,
     });
 
     if (!response.ok) {
@@ -53,7 +58,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   authUrl.searchParams.append("redirect_uri", zitadel.REDIRECT_URI);
   authUrl.searchParams.append(
     "scope",
-    "openid profile email urn:zitadel:iam:user:metadata",
+    "openid profile email offline_access urn:zitadel:iam:org:project:roles ",
   );
   authUrl.searchParams.append("code_challenge", codeChallenge);
   authUrl.searchParams.append("code_challenge_method", "S256");

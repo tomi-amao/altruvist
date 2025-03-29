@@ -132,7 +132,7 @@ function extractActionUrl(notification: any): string | undefined {
 interface NotificationTriggerPayload {
   subject: string;
   body: string;
-  type: "message" | "alert" | "update" | "applied" | "approved" | "rejected";
+  type: "message" | "alert" | "update" | "applied" | "approved" | "rejected" | "comment" | "application";
 
   taskApplicationId?: string;
   

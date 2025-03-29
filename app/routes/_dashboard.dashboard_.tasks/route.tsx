@@ -493,9 +493,9 @@ export async function action({ request }: ActionFunctionArgs) {
           userInfo,
           workflowId: "applications-feed",
           notification: {
-            subject: "New Task Application",
+            subject: "Application Update",
             body: `${userInfo?.name} has accepted your application for the task ${task?.title}`,
-            type: "applied",
+            type: "application",
             taskApplicationId: parsedApplication.id,
             taskId: task?.id,
           },
@@ -532,9 +532,9 @@ export async function action({ request }: ActionFunctionArgs) {
           userInfo,
           workflowId: "applications-feed",
           notification: {
-            subject: "New Task Application",
+            subject: "Application Update",
             body: `${userInfo?.name} has rejected your application for the task ${task?.title}`,
-            type: "applied",
+            type: "application",
             taskApplicationId: parsedApplication.id,
             taskId: task?.id,
           },
@@ -586,7 +586,7 @@ export async function action({ request }: ActionFunctionArgs) {
           notification: {
             subject: "New Task Application",
             body: `${userInfo?.name} has applied to the task ${task?.title}`,
-            type: "applied",
+            type: "application",
             taskApplicationId: parsedApplication.id,
             taskId: task?.id,
           },

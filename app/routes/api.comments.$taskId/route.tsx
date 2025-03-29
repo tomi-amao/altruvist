@@ -11,7 +11,9 @@ import {
   createReply,
   deleteComment,
 } from "~/models/comments.server";
+import { getTask } from "~/models/tasks.server";
 import { getUserInfo } from "~/models/user2.server";
+import { triggerNotification } from "~/services/novu.server";
 import { getSession } from "~/services/session.server";
 
 /** Response type for comment-related actions */
@@ -84,6 +86,21 @@ export async function action({ params, request }: ActionFunctionArgs) {
         const fullComment = updatedComments.find(
           (c) => c.id === createdComment.id,
         );
+        const task = await getTask(taskId);
+
+
+        await triggerNotification({
+          userInfo,
+          workflowId: "tasks-feed",
+          notification: {
+            subject: "Task Comment",
+            body: `${userInfo?.name} has commented on the ${task?.title}`,
+            type: "comment",
+            taskId: task?.id,
+          },
+          type: "Topic",
+          topicKey: task?.notifyTopicId.find(item => item.includes("charities"))
+        });
 
         return json<ActionResponse>({
           success: true,
@@ -91,6 +108,7 @@ export async function action({ params, request }: ActionFunctionArgs) {
           comments: updatedComments,
         });
       }
+      
 
       case "editComment": {
         const { commentId, content } = JSON.parse(
