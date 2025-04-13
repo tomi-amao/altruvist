@@ -7,6 +7,7 @@ import { FilePreviewButton, DropdownField } from "../utils/FormField";
 import TaskForm from "./TaskForm";
 import { TaskApplicants } from "./TaskApplicants";
 import { CommentSection } from "../comment/Comment";
+import { Alert } from "../utils/Alert";
 import getColour from "../utils/ColourGenerator";
 import {
   Files,
@@ -17,6 +18,7 @@ import {
   Tag,
   Target,
 } from "phosphor-react";
+
 interface TaskDetailsProps {
   task: tasks & {
     applications?: {
@@ -52,6 +54,7 @@ export function TaskDetails({
   const fetcher = useFetcher();
   const [formData, setFormData] = useState<tasks>(task);
   const [isCommentsExpanded, setIsCommentsExpanded] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const handleAcceptApplication = (applicationId: string) => {
     fetcher.submit(
@@ -588,8 +591,19 @@ export function TaskDetails({
                     <SecondaryButton
                       ariaLabel="delete"
                       text="Delete Task"
-                      action={onDelete}
+                      action={() => setIsDeleteModalOpen(true)}
                     />
+                    {isDeleteModalOpen && (
+                      <Alert
+                        title="Confirm Deletion"
+                        message="Are you sure you want to delete this task? This action cannot be undone."
+                        onConfirm={onDelete}
+                        isOpen={isDeleteModalOpen}
+                        onClose={() => setIsDeleteModalOpen(false)}
+                        confirmText="Delete Task"
+                        variant="danger"
+                      />
+                    )}
                   </>
                 ) : (
                   <>
