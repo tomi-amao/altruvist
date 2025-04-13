@@ -320,10 +320,7 @@ export default function ManageTasks() {
           userRole={userRole[0]}
         />
       </div>
-      {/* 
-      <div className="hidden relative lg:flex items-center px-1">
-        <div className="h-screen w-[1px] bg-baseSecondary" />
-      </div> */}
+
 
       {!showCreateTask && (
         <div className="lg:w-2/3 w-full pt-4 lg:pt-0">

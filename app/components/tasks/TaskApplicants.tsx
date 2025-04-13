@@ -7,6 +7,7 @@ import type {
   ApplicationStatus,
 } from "@prisma/client";
 import { CaretDown, UsersThree } from "phosphor-react";
+import { useViewport } from "~/hooks/useViewport"; // Import useViewport hook
 
 interface TaskApplicantsProps {
   applicants: {
@@ -31,6 +32,7 @@ export function TaskApplicants({
 }: TaskApplicantsProps) {
   const [expandedIds, setExpandedIds] = useState<string[]>([]);
   const [optimisticStatuses, setOptimisticStatuses] = useState<Record<string, ApplicationStatus>>({});
+  const { isMobile } = useViewport(); // Use the viewport hook
 
   const toggleExpand = (id: string) => {
     setExpandedIds((prev) =>
@@ -73,7 +75,7 @@ export function TaskApplicants({
     switch (currentStatus) {
       case "ACCEPTED":
         return (
-          <div className="flex gap-2">
+          <div className={`flex ${isMobile ? 'flex-col w-full' : 'gap-2'}`}>
             <SecondaryButton
               text="Undo Accept"
               action={() => handleUndoStatus(application.id)}
@@ -91,7 +93,7 @@ export function TaskApplicants({
           );
         }
         return (
-          <div className="flex gap-2">
+          <div className={`flex ${isMobile ? 'flex-col w-full gap-2' : 'gap-2'}`}>
             <SecondaryButton
               text="Accept"
               action={() => handleAccept(application.id)}
@@ -124,8 +126,8 @@ export function TaskApplicants({
       className="bg-gradient-to-br from-basePrimary/5 to-basePrimary/10 backdrop-blur-sm
                      border border-baseSecondary/10 transition-all duration-300 rounded-lg p-6"
     >
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center gap-2 ">
+      <div className={`flex ${isMobile ? 'flex-col gap-3' : 'justify-between'} items-center mb-6`}>
+        <div className="flex items-center gap-2">
           <UsersThree
             size={24}
             className="text-baseSecondary/70"
@@ -153,15 +155,15 @@ export function TaskApplicants({
           {applicantsWithData.map(({ application, userData }) => (
             <li
               key={application.id}
-              className="border border-baseSecondary  bg-gradient-to-br from-basePrimary/70 to-basePrimary/80 rounded-lg overflow-hidden"
+              className="border border-baseSecondary bg-gradient-to-br from-basePrimary/70 to-basePrimary/80 rounded-lg overflow-hidden"
             >
               <div className="p-4">
-                <div className="flex items-center justify-between">
+                <div className={`flex items-center ${isMobile ? 'flex-col gap-2' : 'justify-between'}`}>
                   <button
                     onClick={() => toggleExpand(application.id)}
-                    className="flex items-center gap-2 text-baseSecondary hover:text-baseSecondary/80"
+                    className={`flex items-center gap-2 text-baseSecondary hover:text-baseSecondary/80 ${isMobile ? 'w-full justify-between' : ''}`}
                   >
-                    <span className="font-semibold">{userData.name}</span>
+                    <span className="font-semibold truncate">{userData.name}</span>
                     <CaretDown
                       size={20}
                       className={`transform transition-transform ${
@@ -171,7 +173,7 @@ export function TaskApplicants({
                     />
                   </button>
                   <span
-                    className={`px-3 py-1 rounded-full text-basePrimaryLight ${getStatusColor(application.status)}`}
+                    className={`px-3 py-1 rounded-full text-basePrimaryLight ${getStatusColor(application.status)} ${isMobile ? 'self-start' : ''}`}
                     data-testid="application-status"
                   >
                     {application.status}
@@ -182,7 +184,7 @@ export function TaskApplicants({
                   <div className="mt-4 space-y-4">
                     {/* User Title/Role */}
                     <div>
-                      <p className="text-baseSecondary">{userData.userTitle}</p>
+                      <p className="text-baseSecondary break-words">{userData.userTitle}</p>
                     </div>
 
                     {/* Skills */}
@@ -208,7 +210,7 @@ export function TaskApplicants({
                         <h3 className="text-sm font-semibold text-baseSecondary mb-2">
                           Message
                         </h3>
-                        <p className="text-baseSecondary text-sm">
+                        <p className="text-baseSecondary text-sm break-words">
                           {application.message}
                         </p>
                       </div>
@@ -225,7 +227,7 @@ export function TaskApplicants({
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex gap-2 pt-2">
+                    <div className={`${isMobile ? 'w-full' : 'flex gap-2'} pt-2`}>
                       {renderActionButtons(application)}
                     </div>
                   </div>
