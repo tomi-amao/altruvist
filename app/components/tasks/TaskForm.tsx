@@ -7,6 +7,7 @@ import {
   ListInput,
   DropdownField,
 } from "../utils/FormField";
+import LocationInput, { LocationData } from "../utils/LocationInput";
 import { charityTags, techSkills } from "../utils/OptionsForDropdowns";
 import { CancelButton, PrimaryButton } from "../utils/BasicButton";
 import { useEffect, useState } from "react";
@@ -39,6 +40,7 @@ interface TaskFormData {
   deadline: string | Date;
   volunteersNeeded?: number;
   deliverables: string[];
+  location?: LocationData | null;
 }
 
 interface TaskFormProps {
@@ -49,7 +51,8 @@ interface TaskFormProps {
   error?: string;
   serverValidation: ValidationError[];
   isSubmitting: boolean;
-  uploadURL: string
+  uploadURL: string;
+  GCPKey?: string;
 }
 
 const defaultFormData: TaskFormData = {
@@ -63,6 +66,7 @@ const defaultFormData: TaskFormData = {
   deadline: "",
   volunteersNeeded: undefined,
   deliverables: [],
+  location: null,
 };
 
 export default function TaskForm({
@@ -73,6 +77,7 @@ export default function TaskForm({
   serverValidation = [],
   isSubmitting,
   uploadURL,
+  GCPKey,
 }: TaskFormProps) {
   // Initialize form data with initial data if provided
   const [formData, setFormData] = useState<TaskFormData>(() => {
@@ -90,6 +95,13 @@ export default function TaskForm({
           : "",
         deliverables: initialData.deliverables || [],
         resources: initialData.resources || [],
+        location: initialData.location
+          ? {
+              address: initialData.location.address || "",
+              lat: initialData.location.lat || 0,
+              lng: initialData.location.lng || 0,
+            }
+          : null,
       };
     }
     return defaultFormData;
@@ -111,6 +123,13 @@ export default function TaskForm({
           : "",
         deliverables: initialData.deliverables || [],
         resources: initialData.resources || [],
+        location: initialData.location
+          ? {
+              address: initialData.location.address || "",
+              lat: initialData.location.lat || 0,
+              lng: initialData.location.lng || 0,
+            }
+          : null,
       });
     }
   }, [initialData, isEditing]);
@@ -182,11 +201,6 @@ export default function TaskForm({
     }
   };
 
-  // const resetForm = () => {
-  //   setResetField((prev) => !prev);
-  //   setFormData(defaultFormData);
-  // };
-
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -219,7 +233,13 @@ export default function TaskForm({
     console.log("Server validate", serverValidation);
   }, [serverValidation]);
 
-  // Add state for dropdown visibility
+  // Add location handling
+  const handleLocationChange = (locationData: LocationData | null) => {
+    setFormData((prev) => ({
+      ...prev,
+      location: locationData,
+    }));
+  };
 
   return (
     <div className="max-w-full p-6 shadow-lg border border-basePrimaryDark rounded-lg relative">
@@ -289,7 +309,7 @@ export default function TaskForm({
             onInputsChange={(skills) =>
               setFormData((prev) => ({ ...prev, requiredSkills: skills }))
             }
-            placeholder="Enter a  technical Skill"
+            placeholder="Enter a technical Skill"
             availableOptions={techSkills}
             allowCustomOptions={false}
             useDefaultListStyling={false}
@@ -392,6 +412,55 @@ export default function TaskForm({
           backgroundColour="bg-basePrimary"
         />
 
+        <DropdownField
+          htmlFor="location"
+          label="Task Location Type"
+          value={
+            formData.location
+              ? "ONSITE"
+              : formData.location === null
+              ? "REMOTE"
+              : "HYBRID"
+          }
+          onChange={(value) => {
+            if (value === "REMOTE") {
+              setFormData((prev) => ({ ...prev, location: null }));
+            } else if (value === "ONSITE" && !formData.location) {
+              // Only initialize an empty location if there isn't one already
+              setFormData((prev) => ({
+                ...prev,
+                location: { address: "", lat: 0, lng: 0 },
+              }));
+            }
+          }}
+          options={[
+            { value: "REMOTE", label: "Remote" },
+            { value: "ONSITE", label: "On-site" },
+            { value: "HYBRID", label: "Hybrid" },
+          ]}
+          schema={z.enum(["REMOTE", "ONSITE", "HYBRID"])}
+          helperText="Select the location type for this task"
+          serverValidationError={hasServerError("location")}
+          resetField={resetField}
+          required
+          backgroundColour="bg-basePrimary"
+        />
+
+        {/* Only show location input if ONSITE or HYBRID is selected */}
+        {formData.location !== null && (
+          <LocationInput
+            value={formData.location}
+            onChange={handleLocationChange}
+            label="Task Location"
+            helperText="Enter the physical location for this task"
+            serverValidationError={hasServerError("location")}
+            required={formData.location !== null}
+            backgroundColour="bg-basePrimary"
+            GCPKey={GCPKey}
+            
+          />
+        )}
+        {"HELLO"}
         <FormField
           htmlFor="deadline"
           type="date"

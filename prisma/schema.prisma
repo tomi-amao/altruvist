@@ -66,7 +66,7 @@ model tasks {
   createdBy        users              @relation(fields: [userId], references: [id])
   userId           String             @db.ObjectId
   status           TaskStatus?
-  location         TaskLocation?
+  location         location?          // Location information with address, lat, lng
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
   taskApplications taskApplications[]
@@ -103,6 +103,12 @@ type resource {
   type      String?
   size      Int?
   uploadURL String?
+}
+
+type location {
+  address String
+  lat     Float
+  lng     Float
 }
 
 model comment {

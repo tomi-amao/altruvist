@@ -38,3 +38,9 @@ export function getCompanionVars() {
     COMPANION_URL: process.env.COMPANION_URL ?? "",
   };
 }
+
+export function getGCPCredentials() {
+  return {
+    GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY ?? "",
+  };
+}

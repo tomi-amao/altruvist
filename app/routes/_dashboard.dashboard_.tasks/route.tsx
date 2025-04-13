@@ -92,6 +92,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       isLoading: false,
       userName: name,
       uploadURL: companionVars.COMPANION_URL,
+      GCPKey: process.env.GOOGLE_MAPS_API_KEY,
     });
   } catch (error) {
     return json({
@@ -113,6 +114,7 @@ export default function ManageTasks() {
     userId,
     userName,
     uploadURL,
+    GCPKey,
   } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const location = useLocation();
@@ -299,6 +301,7 @@ export default function ManageTasks() {
           onVolunteerFilterChange={setVolunteerFilterType}
           activeVolunteerFilter={volunteerFilterType}
         />
+      
 
         <TaskSearchFilter
           onSearch={setSearchQuery}
@@ -336,6 +339,7 @@ export default function ManageTasks() {
                 serverValidation={fetcher.data?.error || []}
                 isSubmitting={fetcher.state === "submitting"}
                 uploadURL={uploadURL}
+                GCPKey={GCPKey}
               />
             ) : (
               <TaskDetails
@@ -370,6 +374,7 @@ export default function ManageTasks() {
             serverValidation={taskFormFetcher.data?.error || []}
             isSubmitting={taskFormFetcher.state === "submitting"}
             uploadURL={uploadURL}
+            GCPKey={GCPKey}
           />
         </div>
       )}
@@ -383,6 +388,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const taskId = data.get("taskId")?.toString();
   const userId = data.get("userId")?.toString();
   const intent = data.get("_action")?.toString();
+
 
   console.log("Action Type:", intent);
   console.log("Task ID:", taskId);
