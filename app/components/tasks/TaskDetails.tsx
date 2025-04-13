@@ -593,49 +593,49 @@ export function TaskDetails({
                   </>
                 ) : (
                   <>
-                    {task.applications?.length > 0 && task.applications[0]?.application?.status === "REJECTED" && (
+                    { task.taskApplications[0].status === "REJECTED" && (
                       <SecondaryButton
                         ariaLabel="delete-application"
                         text="Delete Application"
                         action={() =>
-                          handleDeleteApplication(task.applications[0].application.id)
+                          handleDeleteApplication(task.taskApplications[0].id)
                         }
                       />
                     )}
-                    {task.applications?.length > 0 && task.applications[0]?.application?.status === "WITHDRAWN" && (
+                    { task.taskApplications[0].status === "WITHDRAWN" && (
                       <>
                         <PrimaryButton
                           ariaLabel="reapply"
                           text="Re-apply for Task"
                           action={() =>
-                            handleReapply(task.applications[0].application.id)
+                            handleReapply(task.taskApplications[0].id)
                           }
                         />
                         <SecondaryButton
                           ariaLabel="delete-application"
                           text="Delete Application"
                           action={() =>
-                            handleDeleteApplication(task.applications[0].application.id)
+                            handleDeleteApplication(task.taskApplications[0].id)
                           }
                         />
                       </>
                     )}
 
-                    {task.applications?.length > 0 && task.applications[0]?.application?.status === "PENDING" && (
+                    { task.taskApplications[0].status === "PENDING" && (
                       <SecondaryButton
                         ariaLabel="withdraw"
                         text="Withdraw Application"
                         action={() =>
-                          handleWithdrawApplication(task.applications[0].application.id)
+                          handleWithdrawApplication(task.taskApplications[0].id)
                         }
                       />
                     )}
-                    {task.applications?.length > 0 && task.applications[0]?.application?.status === "ACCEPTED" && (
+                    { task.taskApplications[0].status === "ACCEPTED" && (
                       <SecondaryButton
                         ariaLabel="withdraw"
                         text="Withdraw Application"
                         action={() =>
-                          handleWithdrawApplication(task.applications[0].application.id)
+                          handleWithdrawApplication(task.taskApplications[0].id)
                         }
                       />
                     )}
@@ -648,7 +648,7 @@ export function TaskDetails({
           {/* Comment Section with Toggle */}
           <div className="mt-3 sm:mt-4">
             {userRole.includes("volunteer") ? (
-              task.applications?.length > 0 && task.applications[0]?.application?.status === "ACCEPTED" && (
+               task.taskApplications[0].status === "ACCEPTED" && (
                 <>
                   <div className="flex items-center justify-between mb-2">
                     <SecondaryButton

@@ -19,7 +19,7 @@ export function InboxNotifications({
   tabs = [
     { label: 'All Notifications', value: [] },
     { label: 'Applications', value: ['applications'] },
-    { label: 'Promotions', value: ['promotions'] },
+    { label: 'Comments', value: ['comments'] },
   ],
   appearance = {
     variables: {

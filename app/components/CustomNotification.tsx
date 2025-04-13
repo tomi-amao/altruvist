@@ -97,10 +97,10 @@ export const CustomNotification: React.FC<CustomNotificationProps> = ({ notifica
       onClick={handleNotificationClick}
     >
       <div className="flex justify-between items-start">
-        <h3 className={`font-header font-semibold ${isArchived ? '' : 'text-darkGrey'} text-sm sm:text-base break-words`}>
+        <h3 className={`font-header font-semibold ${isArchived ? '' : 'text-baseSecondary'} text-sm sm:text-base break-words`}>
           {notification.subject}
         </h3>
-        {!isRead && !isArchived && <span className="bg-indicator-cyan h-3 w-3 rounded-full inline-block ml-2 mt-1 animate-pulse flex-shrink-0"></span>}
+        {!isRead && !isArchived && <span className="bg-confirmPrimary h-3 w-3 rounded-full inline-block ml-2 mt-1 animate-pulse flex-shrink-0"></span>}
       </div>
 
       <p className={`${isArchived ? '' : 'text-midGrey'} my-2 font-primary text-xs sm:text-sm break-words`}>

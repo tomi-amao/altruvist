@@ -88,18 +88,26 @@ export async function action({ params, request }: ActionFunctionArgs) {
         );
         const task = await getTask(taskId);
 
+        // Determine which topic key to notify based on the user's role
+        const isVolunteer = userInfo?.roles?.includes("volunteer");
+        const isCharity = userInfo?.roles?.includes("charity");
+        
+        // Select the appropriate topic key to notify
+        const topicKeyToNotify = isCharity 
+          ? task?.notifyTopicId.find(item => item.includes("volunteers")) // If charity is commenting, notify volunteers
+          : task?.notifyTopicId.find(item => item.includes("charities")); // If volunteer is commenting, notify charities
 
         await triggerNotification({
           userInfo,
-          workflowId: "tasks-feed",
+          workflowId: "comments-feed",
           notification: {
-            subject: "Task Comment",
-            body: `${userInfo?.name} has commented on the ${task?.title}`,
+            subject: `${userInfo?.name} has commented on ${task?.title}`,
+            body: `${newCommentData.content}`,
             type: "comment",
             taskId: task?.id,
           },
           type: "Topic",
-          topicKey: task?.notifyTopicId.find(item => item.includes("charities"))
+          topicKey: topicKeyToNotify
         });
 
         return json<ActionResponse>({
@@ -108,7 +116,6 @@ export async function action({ params, request }: ActionFunctionArgs) {
           comments: updatedComments,
         });
       }
-      
 
       case "editComment": {
         const { commentId, content } = JSON.parse(
@@ -128,6 +135,7 @@ export async function action({ params, request }: ActionFunctionArgs) {
         const replyData = JSON.parse(formData.get("replyData") as string);
         const createdReply = await createReply(replyData);
         const updatedComments = await getCommentsForTask(taskId);
+        const task = await getTask(taskId);
 
         // Find the full reply data including user info
         let fullReply: Comment | null = null;
@@ -139,12 +147,35 @@ export async function action({ params, request }: ActionFunctionArgs) {
           });
         });
 
+        // Determine which topic key to notify based on the user's role
+        const isVolunteer = userInfo?.roles?.includes("volunteer");
+        const isCharity = userInfo?.roles?.includes("charity");
+        
+        // Select the appropriate topic key to notify
+        const topicKeyToNotify = isCharity 
+          ? task?.notifyTopicId.find(item => item.includes("volunteers")) // If charity is replying, notify volunteers
+          : task?.notifyTopicId.find(item => item.includes("charities")); // If volunteer is replying, notify charities
+
+        await triggerNotification({
+          userInfo,
+          workflowId: "comments-feed",
+          notification: {
+            subject: `Comment on ${task?.title}`,
+            body: `${userInfo?.name}: ${replyData.content}`,
+            type: "comment",
+            taskId: task?.id,
+          },
+          type: "Topic",
+          topicKey: topicKeyToNotify
+        });
+
         return json<ActionResponse>({
           success: true,
           comment: fullReply,
           comments: updatedComments,
         });
       }
+
       case "deleteComment": {
         const commentId = formData.get("commentId") as string;
         await deleteComment(commentId);
