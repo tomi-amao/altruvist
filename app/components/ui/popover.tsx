@@ -28,7 +28,7 @@ export function Popover({ children }: PopoverProps) {
   const content = triggerAndContent[1];
 
   return (
-    <div className="relative inline-block " ref={popoverRef}>
+    <div className="relative inline-block" ref={popoverRef}>
       <div onClick={() => setIsOpen(!isOpen)}>
         {trigger}
       </div>
@@ -49,7 +49,9 @@ export function PopoverContent({
   className?: string;
 }) {
   return (
-    <div className={`absolute z-50 mt-2 right-0  rounded-md shadow-lg border border-baseSecondary ${className}`}>
+    <div className={`absolute z-50 mt-10 md:mt-2 sm:right-0 rounded-md shadow-lg border border-baseSecondary 
+      sm:max-w-md md:max-w-lg lg:max-w-xl
+      max-sm:fixed max-sm:top-4 max-sm:right-2 max-sm:left-2 ${className}`}>
       {children}
     </div>
   );

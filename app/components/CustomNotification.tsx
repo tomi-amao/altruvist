@@ -2,9 +2,11 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from "@remix-run/react";
 import { IMessage } from '@novu/shared';
 import { ArchiveBox, ArrowCounterClockwise, Envelope, EnvelopeOpen, Trash, User, Eye } from 'phosphor-react';
+import { useViewport } from '~/hooks/useViewport';
 
 interface CustomNotificationProps {
   notification: IMessage;
+  storageKey?: string;
 }
 
 interface NotificationBody {
@@ -15,9 +17,10 @@ interface NotificationBody {
   userId?: string;
 }
 
-export const CustomNotification: React.FC<CustomNotificationProps> = ({ notification }) => {
+export const CustomNotification: React.FC<CustomNotificationProps> = ({ notification, storageKey }) => {
   const navigate = useNavigate();
   const isMounted = useRef(true);
+  const { isMobile } = useViewport();
 
   // Parse the notification body
   const [parsedBody, setParsedBody] = useState<NotificationBody>({});
@@ -90,74 +93,74 @@ export const CustomNotification: React.FC<CustomNotificationProps> = ({ notifica
 
   return (
     <div
-      className={`bg-basePrimaryLight border-l-4 m-2 p-4 mb-3 rounded-lg shadow hover:shadow-md transition-all duration-200 flex flex-col ${isArchived || isRead ? 'opacity-70 ' : ''}`}
+      className={`bg-basePrimaryLight border-l-4 m-2 p-3 sm:p-4 mb-3 rounded-lg shadow hover:shadow-md transition-all duration-200 flex flex-col ${isArchived || isRead ? 'opacity-70 ' : ''} max-w-full`}
       onClick={handleNotificationClick}
     >
       <div className="flex justify-between items-start">
-        <h3 className={`font-header font-semibold ${isArchived ? '' : 'text-darkGrey'}`}>
+        <h3 className={`font-header font-semibold ${isArchived ? '' : 'text-darkGrey'} text-sm sm:text-base break-words`}>
           {notification.subject}
         </h3>
-        {!isRead && !isArchived && <span className="bg-indicator-cyan h-3 w-3 rounded-full inline-block ml-2 mt-1 animate-pulse"></span>}
+        {!isRead && !isArchived && <span className="bg-indicator-cyan h-3 w-3 rounded-full inline-block ml-2 mt-1 animate-pulse flex-shrink-0"></span>}
       </div>
 
-      <p className={`${isArchived ? '' : 'text-midGrey'} my-2 font-primary text-sm`}>
+      <p className={`${isArchived ? '' : 'text-midGrey'} my-2 font-primary text-xs sm:text-sm break-words`}>
         {parsedBody.message || ''}
       </p>
 
-      <div className="flex space-x-2 my-2">
+      <div className="flex flex-wrap gap-2 my-2">
         {parsedBody.taskId && (
           <button
             onClick={() => navigate(`/dashboard/tasks?taskid=${parsedBody.taskId}`)}
-            className="bg-basePrimary/20 text-basePrimary px-3 py-1 rounded-md flex items-center space-x-1 text-sm hover:bg-basePrimary/30 transition-colors"
+            className="bg-basePrimary/20 text-basePrimary px-2 sm:px-3 py-1 rounded-md flex items-center space-x-1 text-xs sm:text-sm hover:bg-basePrimary/30 transition-colors"
           >
-            <Eye size={16} className='text-darkGrey' />
+            <Eye size={isMobile ? 14 : 16} className='text-darkGrey' />
             <span>View Task</span>
           </button>
         )}
         {parsedBody.userId && (
           <button
             onClick={handleViewProfile}
-            className="text-darkGrey px-3 py-1 rounded-md flex items-center space-x-1 text-sm hover:bg-gray-300 transition-colors"
+            className="text-darkGrey px-2 sm:px-3 py-1 rounded-md flex items-center space-x-1 text-xs sm:text-sm hover:bg-gray-300 transition-colors"
           >
-            <User size={16} />
+            <User size={isMobile ? 14 : 16} />
             <span>View Profile</span>
           </button>
         )}
       </div>
 
-      <div className="flex justify-between items-center mt-1">
+      <div className="flex justify-between items-center mt-1 flex-wrap sm:flex-nowrap">
         <span className="text-xs text-altMidGrey">{getTimeAgo(notification.createdAt)}</span>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center gap-1 sm:gap-3 mt-1 sm:mt-0">
           {!isArchived ? (
-            <button onClick={handleArchive} className="p-2 hover:bg-baseSecondary rounded" title="Archive">
-              <ArchiveBox size={18} />
+            <button onClick={handleArchive} className="p-1 sm:p-2 hover:bg-baseSecondary rounded" title="Archive">
+              <ArchiveBox size={isMobile ? 16 : 18} />
             </button>
           ) : (
             <>
-              <button onClick={handleUnarchive} className="p-2 hover:bg-baseSecondary rounded" title="Unarchive">
-                <ArrowCounterClockwise size={18} />
+              <button onClick={handleUnarchive} className="p-1 sm:p-2 hover:bg-baseSecondary rounded" title="Unarchive">
+                <ArrowCounterClockwise size={isMobile ? 16 : 18} />
               </button>
-              <button onClick={handleDelete} className="hover:bg-baseSecondary p-2 rounded" title="Delete">
-                <Trash size={18} className="text-dangerPrimary" />
+              <button onClick={handleDelete} className="hover:bg-baseSecondary p-1 sm:p-2 rounded" title="Delete">
+                <Trash size={isMobile ? 16 : 18} className="text-dangerPrimary" />
               </button>
             </>
           )}
 
           {isRead ? (
-            <button onClick={handleUnread} className="hover:bg-baseSecondary p-2 rounded" title="Mark as unread">
-              <EnvelopeOpen size={18} className="text-altMidGrey" />
+            <button onClick={handleUnread} className="hover:bg-baseSecondary p-1 sm:p-2 rounded" title="Mark as unread">
+              <EnvelopeOpen size={isMobile ? 16 : 18} className="text-altMidGrey" />
             </button>
           ) : (
-            <button onClick={(e) => e.stopPropagation()} className="hover:bg-baseSecondary p-2 rounded" title="Read">
-              <Envelope size={18} className="text-baseSecondary" />
+            <button onClick={(e) => e.stopPropagation()} className="hover:bg-baseSecondary p-1 sm:p-2 rounded" title="Read">
+              <Envelope size={isMobile ? 16 : 18} className="text-baseSecondary" />
             </button>
           )}
 
           {notification.cta?.data?.url && (
             <a
               href={notification.cta.data.url}
-              className="text-sm text-txtprimary hover:underline transition-all font-primary p-2"
+              className="text-xs sm:text-sm text-txtprimary hover:underline transition-all font-primary p-1 sm:p-2"
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}

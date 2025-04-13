@@ -33,8 +33,9 @@ export function InboxNotifications({
     
   }
 }: InboxNotificationsProps) {
+  // This component wraps the Novu Inbox and provides a custom notification UI
   return (
-    <div className="relative ">
+    <div className="relative">
       <Inbox 
         applicationIdentifier={applicationIdentifier} 
         subscriberId={subscriberId} 
@@ -60,12 +61,14 @@ export function InboxNotifications({
               )} />
             </div>
           </PopoverTrigger>
-          <PopoverContent className="h-[600px] w-[400px] p-0 overflow-hidden">
-            <InboxContent
-              renderNotification={(notification) => (
-                <CustomNotification notification={notification} />
-              )}
-            />
+          <PopoverContent className="p-0 overflow-hidden max-h-[90vh] sm:h-[600px] sm:w-[400px] lg:w-[450px]">
+            <div className="h-full max-h-[90vh] sm:h-[600px] overflow-y-auto">
+              <InboxContent
+                renderNotification={(notification) => (
+                  <CustomNotification notification={notification} />
+                )}
+              />
+            </div>
           </PopoverContent>
         </Popover>
       </Inbox>
