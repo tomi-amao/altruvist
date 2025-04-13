@@ -178,10 +178,10 @@ export function TaskDetails({
   };
 
   return (
-    <div className="bg-basePrimary rounded-lg shadow-lg p-3 sm:p-4 md:p-6 lg:border border-baseSecondary">
+    <div className="bg-basePrimary rounded-lg shadow-lg p-2 sm:p-3 md:p-4 lg:p-6 max-w-full border border-baseSecondary/20 overflow-hidden">
       {/* Error message section */}
       {isError && (
-        <div className="mb-3 sm:mb-4 p-2 sm:p-3 lg:p-4 bg-dangerPrimary/10 border border-dangerPrimary rounded-lg">
+        <div className="mb-3 p-2 sm:p-3 bg-dangerPrimary/10 border border-dangerPrimary rounded-lg">
           <span className="text-dangerPrimary text-sm sm:text-base">
             {error || "An error occurred"}
           </span>
@@ -215,13 +215,13 @@ export function TaskDetails({
           isSubmitting={false}
         />
       ) : (
-        <div className="max-w-7xl mx-auto mt-3 sm:mt-5">
+        <div className="w-full mx-auto mt-3 sm:mt-4">
           {/* Header Section with Key Info */}
-          <div className="bg-basePrimaryLight rounded-xl p-4 sm:p-6 md:p-8 mb-4 sm:mb-6 relative overflow-hidden transform transition-all duration-300 hover:shadow-lg">
+          <div className="bg-basePrimaryLight rounded-xl p-3 sm:p-4 md:p-6 mb-3 sm:mb-4 relative overflow-hidden transform transition-all duration-300 hover:shadow-lg">
             {/* Priority Badge with enhanced visibility and animation */}
-            <div className="absolute top-2 sm:top-4 right-2 sm:right-4 transform transition-transform duration-300 hover:scale-105 z-10">
+            <div className="absolute top-2 right-2 transform transition-transform duration-300 hover:scale-105 z-10">
               <span
-                className={`inline-flex items-center px-2 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-medium
+                className={`inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-medium
                   shadow-md backdrop-blur-sm transition-all duration-300 hover:shadow-lg
                   ${
                     displayData.urgency === "HIGH"
@@ -231,31 +231,31 @@ export function TaskDetails({
                         : "bg-confirmPrimary text-basePrimaryLight"
                   }`}
               >
-                <span className="h-1.5 sm:h-2 w-1.5 sm:w-2 -ml-1 sm:-ml-2 rounded-full animate-pulse"></span>
+                <span className="h-1.5 w-1.5 -ml-1 rounded-full animate-pulse mr-1"></span>
                 {displayData.urgency?.toLowerCase()} priority
               </span>
             </div>
 
-            <div className="space-y-4 sm:space-y-8">
+            <div className="space-y-3 sm:space-y-4">
               {/* Impact Statement with enhanced visual treatment */}
               <div
-                className="relative p-3 sm:p-6 rounded-xl bg-gradient-to-br from-basePrimary/5 to-basePrimary/10 backdrop-blur-sm
+                className="relative p-3 rounded-xl bg-gradient-to-br from-basePrimary/5 to-basePrimary/10 backdrop-blur-sm
                      border border-baseSecondary/10 transition-all duration-300 hover:border-baseSecondary/20"
               >
                 <h3
-                  className="text-sm sm:text-base font-semibold tracking-wider text-baseSecondary mb-2 sm:mb-3
-                   flex items-center gap-1 sm:gap-2"
+                  className="text-sm font-semibold tracking-wider text-baseSecondary mb-2
+                   flex items-center gap-1"
                 >
                   <Target
-                    size={18}
+                    size={16}
                     weight="regular"
                     className="text-baseSecondary/70"
                   />
                   Impact
                 </h3>
                 <p
-                  className="text-baseSecondary text-sm sm:text-base md:text-lg leading-relaxed font-light
-                     [text-wrap:balance] tracking-wide"
+                  className="text-baseSecondary text-sm md:text-base leading-relaxed font-light
+                     [text-wrap:balance] tracking-wide break-words"
                 >
                   {displayData.impact}
                 </p>
@@ -263,38 +263,38 @@ export function TaskDetails({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
             {/* Main Content Column */}
-            <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+            <div className="lg:col-span-2 space-y-3 sm:space-y-4">
               {/* Description Section */}
               <section
-                className="bg-basePrimaryLight rounded-xl p-4 sm:p-6 md:p-8 transition-all duration-300 hover:shadow-lg"
+                className="bg-basePrimaryLight rounded-xl p-3 sm:p-4 md:p-6 transition-all duration-300 hover:shadow-lg"
                 aria-labelledby="task-description-heading"
               >
                 <div
-                  className="relative p-3 sm:p-6 rounded-xl bg-gradient-to-br from-basePrimary/5 to-basePrimary/10 
+                  className="relative p-3 rounded-xl bg-gradient-to-br from-basePrimary/5 to-basePrimary/10 
                   backdrop-blur-sm border border-baseSecondary/10 transition-all duration-300 
                   hover:border-baseSecondary/20 hover:bg-gradient-to-br hover:from-basePrimary/10 hover:to-basePrimary/15"
                 >
-                  <div className="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-4">
+                  <div className="flex items-center gap-1 mb-2">
                     <NotePencil
-                      size={18} 
+                      size={16} 
                       weight="regular"
                       className="text-baseSecondary/70"
                     />
                     <h3
                       id="task-description-heading"
-                      className="text-sm sm:text-base font-semibold tracking-wider text-baseSecondary"
+                      className="text-sm font-semibold tracking-wider text-baseSecondary"
                     >
                       About this task
                     </h3>
                   </div>
 
                   <div className="relative">
-                    <div className="absolute -left-2 sm:-left-3 top-0 bottom-0 w-0.5 sm:w-1 bg-baseSecondary/10 rounded-full"></div>
+                    <div className="absolute -left-2 top-0 bottom-0 w-0.5 bg-baseSecondary/10 rounded-full"></div>
                     <p
-                      className="text-baseSecondary text-sm sm:text-base md:text-lg leading-relaxed font-light tracking-wide
-                    [text-wrap:balance] pl-2 sm:pl-4 transition-all duration-300 group-hover:text-baseSecondary/90"
+                      className="text-baseSecondary text-sm md:text-base leading-relaxed font-light tracking-wide
+                    [text-wrap:balance] pl-2 transition-all duration-300 group-hover:text-baseSecondary/90 break-words"
                     >
                       {displayData.description || "No description provided."}
                     </p>
@@ -306,45 +306,45 @@ export function TaskDetails({
               {displayData.deliverables &&
                 displayData.deliverables.length > 0 && (
                   <section
-                    className="bg-basePrimaryLight rounded-xl p-4 sm:p-6 md:p-8 transition-all duration-300 hover:shadow-lg"
+                    className="bg-basePrimaryLight rounded-xl p-3 sm:p-4 md:p-6 transition-all duration-300 hover:shadow-lg"
                     aria-labelledby="deliverables-heading"
                   >
                     <div
-                      className="relative p-3 sm:p-6 rounded-xl bg-gradient-to-br from-basePrimary/5 to-basePrimary/10 
+                      className="relative p-3 rounded-xl bg-gradient-to-br from-basePrimary/5 to-basePrimary/10 
                       backdrop-blur-sm border border-baseSecondary/10 transition-all duration-300 
                       hover:border-baseSecondary/20"
                     >
-                      <div className="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-4">
+                      <div className="flex items-center gap-1 mb-2">
                         <ListChecks
-                          size={18}
+                          size={16}
                           weight="regular"
                           className="text-baseSecondary/70"
                         />
                         <h3
                           id="deliverables-heading"
-                          className="text-sm sm:text-base font-semibold tracking-wider text-baseSecondary"
+                          className="text-sm font-semibold tracking-wider text-baseSecondary"
                         >
                           Key Deliverables
                         </h3>
                       </div>
 
-                      <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
+                      <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         {displayData.deliverables.map((deliverable, index) => (
                           <li
                             key={index}
-                            className="group relative p-2 sm:p-4 bg-basePrimary rounded-lg border border-baseSecondary/10
+                            className="group relative p-2 bg-basePrimary rounded-lg border border-baseSecondary/10
                               transition-all duration-300 hover:border-baseSecondary/20 hover:shadow-sm"
                           >
-                            <div className="flex items-start gap-2 sm:gap-3">
+                            <div className="flex items-start gap-2">
                               <span
-                                className="w-5 h-5 sm:w-6 sm:h-6 bg-baseSecondary text-basePrimary rounded-full 
-                                flex items-center justify-center flex-shrink-0 font-medium text-xs sm:text-sm
+                                className="w-5 h-5 bg-baseSecondary text-basePrimary rounded-full 
+                                flex items-center justify-center flex-shrink-0 font-medium text-xs
                                  group-hover:scale-110 transition-all duration-300"
                               >
                                 {index + 1}
                               </span>
                               <span
-                                className="text-baseSecondary text-sm sm:text-base leading-relaxed [text-wrap:balance]
+                                className="text-baseSecondary text-sm leading-relaxed [text-wrap:balance] break-words
                                 group-hover:text-baseSecondary/90"
                               >
                                 {deliverable}
@@ -360,7 +360,7 @@ export function TaskDetails({
               <div>
                 {userRole.includes("charity") &&
                   displayData.taskApplications && (
-                    <div className="bg-basePrimaryLight rounded-xl p-6 mt-6">
+                    <div className="bg-basePrimaryLight rounded-xl p-3 sm:p-4 mt-4">
                       <TaskApplicants
                         applicants={displayData.taskApplications
                           .filter((app) =>
@@ -388,31 +388,31 @@ export function TaskDetails({
               {/* Resources Section */}
               {displayData.resources && displayData.resources.length > 0 && (
                 <section
-                  className="bg-basePrimaryLight rounded-xl p-4 sm:p-6 md:p-8 transition-all duration-300 hover:shadow-lg"
+                  className="bg-basePrimaryLight rounded-xl p-3 sm:p-4 md:p-6 transition-all duration-300 hover:shadow-lg"
                   aria-labelledby="resources-heading"
                 >
                   <div
-                    className="relative p-3 sm:p-6 rounded-xl bg-gradient-to-br from-basePrimary/5 to-basePrimary/10 
+                    className="relative p-3 rounded-xl bg-gradient-to-br from-basePrimary/5 to-basePrimary/10 
                     backdrop-blur-sm border border-baseSecondary/10 transition-all duration-300 
                     hover:border-baseSecondary/20"
                   >
-                    <div className="flex items-center gap-1 sm:gap-2 mb-3 sm:mb-6">
+                    <div className="flex items-center gap-1 mb-3">
                       <Files
-                        size={18}
+                        size={16}
                         weight="regular"
                         className="text-baseSecondary/70"
                       />
                       <h2
                         id="resources-heading"
-                        className="text-sm sm:text-base font-semibold tracking-wide text-baseSecondary"
+                        className="text-sm font-semibold tracking-wide text-baseSecondary"
                       >
                         Resources & Materials
                       </h2>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       {displayData.resources.map((resource, index) => (
-                        <div key={index} className="relative">
+                        <div key={index} className="relative max-w-full">
                           <FilePreviewButton
                             fileName={resource.name}
                             fileSize={resource.size}
@@ -425,7 +425,7 @@ export function TaskDetails({
                     </div>
 
                     {displayData.resources.length === 0 && (
-                      <p className="text-baseSecondary/70 text-center py-2 sm:py-4 text-sm sm:text-base">
+                      <p className="text-baseSecondary/70 text-center py-2 text-sm">
                         No resources available for this task
                       </p>
                     )}
@@ -435,33 +435,33 @@ export function TaskDetails({
             </div>
 
             {/* Sidebar Column */}
-            <div className="space-y-4 sm:space-y-6">
+            <div className="space-y-3 sm:space-y-4">
               {/* Quick Stats Card */}
-              <div className="bg-basePrimaryLight rounded-xl p-4 sm:p-6 md:p-8">
+              <div className="bg-basePrimaryLight rounded-xl p-3 sm:p-4 md:p-6">
                 <div
-                  className="bg-gradient-to-br from-basePrimary/5 to-basePrimary/10 rounded-xl p-3 sm:p-6 backdrop-blur-sm
+                  className="bg-gradient-to-br from-basePrimary/5 to-basePrimary/10 rounded-xl p-3 backdrop-blur-sm
                   border border-baseSecondary/10 transition-all duration-300 hover:border-baseSecondary/20"
                 >
                   {/* Header */}
 
-                  <div className="space-y-4 sm:space-y-8">
+                  <div className="space-y-3 sm:space-y-4">
                     {/* Team Size Card */}
                     <div
-                      className="group relative overflow-hidden bg-basePrimary rounded-lg p-3 sm:p-5 
+                      className="group relative overflow-hidden bg-basePrimary rounded-lg p-3 
                     transition-all duration-300 hover:shadow-md"
                     >
                       <div
                         className="absolute inset-0 bg-gradient-to-r from-accentPrimary/5 to-transparent 
                     opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                       />
-                      <h3 className="text-xs sm:text-sm font-medium uppercase tracking-wider text-baseSecondary/70 mb-1 sm:mb-2">
+                      <h3 className="text-xs font-medium uppercase tracking-wider text-baseSecondary/70 mb-1">
                         Team Size
                       </h3>
-                      <div className="flex items-baseline gap-1 sm:gap-2">
-                        <span className="text-xl sm:text-2xl md:text-3xl font-bold text-baseSecondary">
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-xl sm:text-2xl font-bold text-baseSecondary">
                           {displayData.volunteersNeeded}
                         </span>
-                        <span className="text-sm sm:text-base text-baseSecondary/80">
+                        <span className="text-sm text-baseSecondary/80">
                           volunteer
                           {displayData.volunteersNeeded !== 1 ? "s" : ""} needed
                         </span>
@@ -471,32 +471,32 @@ export function TaskDetails({
                     {/* Required Skills Section */}
                     <div>
                       <h3
-                        className="text-xs sm:text-sm font-medium uppercase tracking-wider text-baseSecondary/70 mb-2 sm:mb-4
-                      flex items-center gap-1 sm:gap-2"
+                        className="text-xs font-medium uppercase tracking-wider text-baseSecondary/70 mb-2
+                      flex items-center gap-1"
                       >
                         <Lightbulb
-                          size={18}
+                          size={16}
                           weight="regular"
                           className="text-baseSecondary/70"
                         />
                         Required Skills
                       </h3>
-                      <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                      <div className="flex flex-wrap gap-1.5">
                         {requiredSkills.length > 0 ? (
                           requiredSkills.map((skill, index) => (
                             <span
                               key={index}
-                              className="bg-basePrimary px-2 sm:px-4 py-1 sm:py-2 rounded-lg text-xs sm:text-sm text-baseSecondary
+                              className="bg-basePrimary px-2 py-1 rounded-lg text-xs text-baseSecondary
                         border border-baseSecondary/10 transition-all duration-300
                         hover:border-baseSecondary/20 hover:shadow-sm hover:scale-105
-                        flex items-center gap-1 sm:gap-2"
+                        flex items-center gap-1"
                             >
                               {listDotStyling(skill)}
                               {skill}
                             </span>
                           ))
                         ) : (
-                          <p className="text-baseSecondary/60 text-xs sm:text-sm italic">
+                          <p className="text-baseSecondary/60 text-xs italic">
                             No specific skills required
                           </p>
                         )}
@@ -506,13 +506,13 @@ export function TaskDetails({
 
                   {/* Categories */}
                   {displayData.category && displayData.category.length > 0 && (
-                    <div className="mt-4 sm:mt-8">
+                    <div className="mt-3 sm:mt-4">
                       <h3
-                        className="text-xs sm:text-sm font-medium uppercase tracking-wider text-baseSecondary/70 mb-2 sm:mb-4
-                        flex items-center gap-1 sm:gap-2"
+                        className="text-xs font-medium uppercase tracking-wider text-baseSecondary/70 mb-2
+                        flex items-center gap-1"
                       >
                         <Tag
-                          size={18}
+                          size={16}
                           weight="regular"
                           className="text-baseSecondary/70"
                         />
@@ -520,21 +520,21 @@ export function TaskDetails({
                       </h3>
 
                       <div
-                        className="flex flex-wrap gap-1.5 sm:gap-2"
+                        className="flex flex-wrap gap-1.5"
                         aria-label="Task categories"
                       >
                         {displayData.category.map((cat, index) => (
                           <span
                             key={index}
-                            className="group relative bg-basePrimary px-2 sm:px-4 py-1 sm:py-2 rounded-lg 
+                            className="group relative bg-basePrimary px-2 py-1 rounded-lg 
                               border border-baseSecondary/10 transition-all duration-300
                               hover:border-baseSecondary/20 hover:shadow-sm
-                              flex items-center gap-1 sm:gap-2"
+                              flex items-center gap-1"
                           >
                             {listDotStyling(cat)}
 
                             <span
-                              className="text-xs sm:text-sm font-medium text-baseSecondary/80 
+                              className="text-xs font-medium text-baseSecondary/80 
                               group-hover:text-baseSecondary transition-colors duration-300"
                             >
                               {cat}
@@ -546,13 +546,13 @@ export function TaskDetails({
                   )}
 
                   {userRole.includes("charity") && (
-                    <div className="mt-4 sm:mt-8">
+                    <div className="mt-3 sm:mt-4">
                       <h3
-                        className="text-xs sm:text-sm font-medium uppercase tracking-wider text-baseSecondary/70 mb-2 sm:mb-4
-                        flex items-center gap-1 sm:gap-2"
+                        className="text-xs font-medium uppercase tracking-wider text-baseSecondary/70 mb-2
+                        flex items-center gap-1"
                       >
                         <Info
-                          size={18}
+                          size={16}
                           weight="regular"
                           className="text-baseSecondary/70"
                         />
@@ -577,7 +577,7 @@ export function TaskDetails({
               </div>
 
               {/* Action Buttons - Make sticky on mobile */}
-              <div className="sticky bottom-0 sm:relative bg-basePrimaryLight rounded-xl p-3 sm:p-6 space-y-2 sm:space-y-3 z-10">
+              <div className="sticky bottom-0 sm:relative bg-basePrimaryLight rounded-xl p-3 space-y-2 z-10">
                 {userRole.includes("charity") ? (
                   <>
                     <SecondaryButton
@@ -646,11 +646,11 @@ export function TaskDetails({
           </div>
 
           {/* Comment Section with Toggle */}
-          <div className="mt-4 sm:mt-8">
+          <div className="mt-3 sm:mt-4">
             {userRole.includes("volunteer") ? (
               task.applications?.length > 0 && task.applications[0]?.application?.status === "ACCEPTED" && (
                 <>
-                  <div className="flex items-center justify-between mb-2 sm:mb-4">
+                  <div className="flex items-center justify-between mb-2">
                     <SecondaryButton
                       ariaLabel="toggle-comments"
                       text={
@@ -665,17 +665,7 @@ export function TaskDetails({
                       currentUser={{
                         id: userId || '',
                         name: userName || '',
-                        email: '',
-                        profilePicture: null,
-                        charityId: null,
-                        createdAt: new Date(),
-                        updatedAt: new Date(),
-                        userTitle: null,
-                        zitadelId: '',
-                        skills: [],
-                        preferredCharities: [],
-                        hourlyRate: null,
-                        permissions: []
+
                       }}
                     />
                   )}
@@ -683,7 +673,7 @@ export function TaskDetails({
               )
             ) : (
               <>
-                <div className="flex items-center justify-between mb-2 sm:mb-4">
+                <div className="flex items-center justify-between mb-2">
                   <SecondaryButton
                     ariaLabel="toggle-comments"
                     text={
@@ -698,17 +688,8 @@ export function TaskDetails({
                     currentUser={{
                       id: userId || '',
                       name: userName || '',
-                      email: '',
-                      profilePicture: null,
-                      charityId: null,
-                      createdAt: new Date(),
-                      updatedAt: new Date(),
-                      userTitle: null,
-                      zitadelId: '',
-                      skills: [],
-                      preferredCharities: [],
-                      hourlyRate: null,
-                      permissions: []
+
+
                     }}
                   />
                 )}
