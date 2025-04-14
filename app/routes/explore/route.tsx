@@ -494,6 +494,7 @@ export default function Explore() {
               userName={task.createdBy?.name || ""}
               volunteerDetails={{ taskApplications, userId: userInfo?.id }}
               userRole={userInfo?.roles}
+              location={task.location}
             />
           ))}
 

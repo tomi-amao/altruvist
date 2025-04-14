@@ -1,7 +1,7 @@
 import { tasks } from "@prisma/client";
 import { useState } from "react";
 import { Modal } from "../utils/Modal2";
-import { CalendarBlank, Users } from "phosphor-react";
+import { CalendarBlank, Users, TagSimple, MapPin, Desktop, Buildings, GraduationCap } from "phosphor-react";
 import { SearchResultCardType } from "../cards/searchResultCard";
 import TaskDetailsCard from "./taskDetailsCard";
 
@@ -12,11 +12,30 @@ export const getUrgencyColor = (urgency: string) => {
     case "MEDIUM":
       return "text-baseSecondary bg-accentPrimary";
     case "LOW":
-      return "text-basePrimary bg-basePrimaryLight";
+      return "text-baseSecondary bg-basePrimaryDark";
     default:
-      return "text-baseSecondary bg-basePrimaryLight";
+      return "text-baseSecondary bg-basePrimaryDark";
   }
 };
+
+// Add a function to get color based on task status
+export const getStatusColor = (status: string | null) => {
+  switch (status) {
+    case "COMPLETED":
+      return "bg-indicator-green text-darkGrey border-indicator-green";
+    case "IN_PROGRESS":
+      return "bg-indicator-blue text-darkGrey border-indicator-blue";
+    case "INCOMPLETE":
+      return "bg-indicator-yellow text-darkGrey border-indicator-yellow";
+    case "CANCELLED":
+      return "bg-dangerPrimary text-darkGrey border-dangerPrimary";
+    case "NOT_STARTED":
+      return "bg-indicator-orange text-darkGrey border-indicator-orange";
+    default:
+      return "bg-basePrimaryDark text-baseSecondary";
+  }
+};
+
 interface taskAdditionalDetails
   extends Omit<
     tasks,
@@ -31,12 +50,16 @@ interface taskAdditionalDetails
     status: string;
     userId: string;
   }[];
+  location?: {
+    address: string;
+  };
 }
 
 interface volunteerDetails {
   userId: string;
   taskApplications?: string[];
 }
+
 export default function TaskSummaryCard(task: taskAdditionalDetails) {
   const [showModal, setShowModal] = useState(false);
 
@@ -44,57 +67,133 @@ export default function TaskSummaryCard(task: taskAdditionalDetails) {
     setShowModal(false);
   };
 
+  // Format deadline to a more readable format
+  const formattedDeadline = new Date(task.deadline).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  });
+
+  // Calculate days remaining until deadline
+  const daysRemaining = Math.ceil((task.deadline.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+  const deadlineClass = daysRemaining < 7 ? 'text-dangerPrimary font-medium' : '';
+
+  // Determine if task is remote or InPerson
+  const isInPerson = task.location ? true : false;
+
   return (
     <>
       <button
-        className="lg:w-[19rem] w-[20rem] rounded-xl shadow-md overflow-hidden  hover:shadow-xl bg-basePrimaryLight mt-2"
+        className="lg:w-[19rem] w-[20rem] rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 bg-basePrimaryLight mt-2 border border-basePrimaryLight hover:border-baseSecondary"
         onClick={() => {
           setShowModal(true);
         }}
       >
-        <div className="px-8 py-6">
-          <h2 className="font-semibold py-2 text-base">{task.title}</h2>
-          <div className="flex items-center pb-2 gap-2 ">
-            <span
-              className={`inline-block rounded-full px-4 py-1.5 text-xs font-semibold ${getUrgencyColor(
-                task.urgency || "LOW",
-              )}`}
-            >
-              {task.urgency}
-            </span>
-            <span className="inline-block rounded-full px-4 py-1.5 text-xs font-semibold text-basePrimaryDark bg-baseSecondary">
-              {task.category[0]}
-            </span>
+        <div className="px-6 py-5 flex flex-col h-full">
+          {/* Header with title and urgency badge */}
+          <div className="mb-3">
+            <h2 className="font-bold text-lg mb-2 text-left line-clamp-2">{task.title}</h2>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span
+                className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${getUrgencyColor(
+                  task.urgency || "LOW"
+                )}`}
+              >
+                {task.urgency} PRIORITY
+              </span>
+              {task.category && task.category.length > 0 && (
+                <span className="inline-block rounded-full px-3 py-1 text-xs font-semibold text-basePrimaryDark bg-baseSecondary">
+                  {task.category[0]}
+                </span>
+              )}
+              {/* Remote/InPerson badge */}
+              <span className="inline-block rounded-full px-3 py-1 text-xs font-semibold bg-basePrimaryDark text-baseSecondary flex items-center">
+                {isInPerson ? (
+                  <>
+                    <MapPin className="h-3 w-3 mr-1" weight="fill" />
+                    InPerson
+                  </>
+                ) : (
+                  <>
+                    <Desktop className="h-3 w-3 mr-1" weight="fill" />
+                    REMOTE
+                  </>
+                )}
+              </span>
+            </div>
           </div>
 
-          <div className="flex flex-row items-center justify-start gap-2 pb-4">
-            <div className="flex flex-row items-center">
-              <CalendarBlank className="h-6 w-6 mr-2 text-baseSecondary" />
-              <span>{task.deadline.toLocaleDateString()}</span>
-            </div>
+          {/* Description - limited to 3 lines */}
+          <div className="mb-3 text-left">
+            <p className="line-clamp-3 text-sm opacity-90">{task.description}</p>
+          </div>
 
+          {/* Key information section */}
+          <div className="grid grid-cols-2 gap-2 mb-3 text-sm">
+            <div className="flex items-center col-span-1">
+              <CalendarBlank className="h-4 w-4 mr-1.5 text-baseSecondary" />
+              <span className={deadlineClass}>{formattedDeadline}</span>
+            </div>
+            
             {task.volunteersNeeded > 0 && (
-              <div className="flex flex-row items-center">
-                <Users className="h-5 w-5 mr-2 text-baseSecondary" />
-                <span>{task.volunteersNeeded}</span>
+              <div className="flex items-center col-span-1">
+                <Users className="h-4 w-4 mr-1.5 text-baseSecondary" />
+                <span>{task.volunteersNeeded} volunteer{task.volunteersNeeded !== 1 ? 's' : ''}</span>
+              </div>
+            )}
+            
+            {/* Display location if InPerson */}
+            {isInPerson && task.location && (
+              <div className="flex items-center col-span-2 text-xs mt-1">
+                <MapPin className="h-4 w-4 mr-1.5 text-baseSecondary" />
+                <span className="truncate py-[1px]">{task.location.address}</span>
+              </div>
+            )}
+            
+            {task.charityName && (
+              <div className="flex items-center col-span-2 text-xs mt-1">
+                <Buildings className="h-4 w-4 mr-1.5 text-baseSecondary" />
+                <span className="truncate py-1">{task.charityName}</span>
               </div>
             )}
           </div>
 
-          <div className="pb-4 text-left ">
-            <p className="line-clamp-4  ">{task.description}</p>
-          </div>
+          {/* Improved Skills section */}
+          {task.requiredSkills && task.requiredSkills.length > 0 && (
+            <div className="mt-auto pt-2 border-t border-baseSecondary/20">
+              <div className="text-xs font-medium mb-2 text-left flex items-center">
+                <GraduationCap className="h-3.5 w-3.5 mr-1.5 text-baseSecondary" />
+                <span className="text-baseSecondary">Skills Required:</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {task.requiredSkills.slice(0, 3).map((skill, index) => (
+                  <div
+                    key={index}
+                    className="rounded-md px-2.5 py-1 text-xs font-medium  text-baseSecondary border border-baseSecondary/20 shadow-sm"
+                  >
+                    {skill}
+                  </div>
+                ))}
+                {task.requiredSkills.length > 3 && (
+                  <div 
+                    className="rounded-md px-2.5 py-1 text-xs font-medium  text-baseSecondary border border-baseSecondary/20 shadow-sm flex items-center"
+                  >
+                    <span className="mr-1">+{task.requiredSkills.length - 3}</span>
+                    <span className="text-[10px] opacity-80">more</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
-          <div className="flex flex-wrap items-center">
-            {task.requiredSkills.map((skill, index) => (
-              <span
-                key={index}
-                className="inline-block bg-basePrimaryDark rounded-full px-3 py-1 text-xs font-semibold text-baseSecondary mr-2 mb-2"
-              >
-                {skill}
+          {/* Status indicator if available */}
+          {task.status && (
+            <div className="text-right mt-3">
+              <span className={`text-xs font-medium px-2.5 py-1 rounded-md ${getStatusColor(task.status)}`}>
+                {task.status.replace('_', ' ')}
               </span>
-            ))}
-          </div>
+            </div>
+          )}
         </div>
       </button>
 
@@ -118,6 +217,7 @@ export default function TaskSummaryCard(task: taskAdditionalDetails) {
           userRole={task.userRole}
           volunteerDetails={task.volunteerDetails}
           taskApplications={task.taskApplications || []}
+          location={task.location}
         />
       </Modal>
     </>

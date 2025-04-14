@@ -437,7 +437,7 @@ export default function TaskForm({
 
         <DropdownField
           htmlFor="location"
-          label="Task Location Type"
+          label="Task Location"
           value={
             formData.location
               ? "ONSITE"
@@ -451,7 +451,7 @@ export default function TaskForm({
             { value: "ONSITE", label: "On-site" },
           ]}
           schema={z.enum(["REMOTE", "ONSITE"])}
-          helperText="Select the location type for this task"
+          helperText="Select whether this task is remote or in-person"
           serverValidationError={hasServerError("location")}
           resetField={resetField}
           required

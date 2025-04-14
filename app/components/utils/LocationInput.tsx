@@ -200,7 +200,7 @@ export default function LocationInput({
             onChange={handleInputChange}
             className={`${backgroundColour} w-full p-2 border ${
               serverValidationError ? "border-dangerPrimary" : "border-baseSecondaryLight"
-            } rounded-md focus:outline-none border-baseSecondary transition-all duration-300`}
+            } rounded-md focus:outline-none border-baseSecondary text-baseSecondary transition-all placeholder:text-baseSecondary/50 placeholder:text-sm duration-300`}
             placeholder={placeholder}
             id={`location-input-${location.pathname.replace(/\//g, '-')}`}
             aria-describedby={`${label}-helper`}
