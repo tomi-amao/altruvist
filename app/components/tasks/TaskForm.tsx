@@ -235,10 +235,33 @@ export default function TaskForm({
 
   // Add location handling
   const handleLocationChange = (locationData: LocationData | null) => {
-    setFormData((prev) => ({
-      ...prev,
-      location: locationData,
-    }));
+    // If locationData is an object with empty address, it means the user cleared the input
+    if (locationData && locationData.address === "" && locationData.lat === 0 && locationData.lng === 0) {
+      // Keep the current location structure but with empty values
+      setFormData((prev) => ({
+        ...prev,
+        location: locationData,
+      }));
+    } else {
+      // Normal case - update location with selected place data
+      setFormData((prev) => ({
+        ...prev,
+        location: locationData,
+      }));
+    }
+  };
+
+  // Add a separate handler for location type changes
+  const handleLocationTypeChange = (value: string) => {
+    if (value === "REMOTE") {
+      // For REMOTE, we set location to null
+      setFormData((prev) => ({ ...prev, location: null }));
+    } else if ((value === "ONSITE") && !formData.location) {
+      setFormData((prev) => ({
+        ...prev,
+        location: { address: "", lat: 0, lng: 0 },
+      }));
+    }
   };
 
   return (
@@ -420,25 +443,14 @@ export default function TaskForm({
               ? "ONSITE"
               : formData.location === null
               ? "REMOTE"
-              : "HYBRID"
+              : "REMOTE"
           }
-          onChange={(value) => {
-            if (value === "REMOTE") {
-              setFormData((prev) => ({ ...prev, location: null }));
-            } else if (value === "ONSITE" && !formData.location) {
-              // Only initialize an empty location if there isn't one already
-              setFormData((prev) => ({
-                ...prev,
-                location: { address: "", lat: 0, lng: 0 },
-              }));
-            }
-          }}
+          onChange={handleLocationTypeChange}
           options={[
             { value: "REMOTE", label: "Remote" },
             { value: "ONSITE", label: "On-site" },
-            { value: "HYBRID", label: "Hybrid" },
           ]}
-          schema={z.enum(["REMOTE", "ONSITE", "HYBRID"])}
+          schema={z.enum(["REMOTE", "ONSITE"])}
           helperText="Select the location type for this task"
           serverValidationError={hasServerError("location")}
           resetField={resetField}
@@ -446,18 +458,17 @@ export default function TaskForm({
           backgroundColour="bg-basePrimary"
         />
 
-        {/* Only show location input if ONSITE or HYBRID is selected */}
+        {/* Only show location input if ONSITE is selected */}
         {formData.location !== null && (
           <LocationInput
             value={formData.location}
             onChange={handleLocationChange}
-            label="Task Location"
+            label=""
             helperText="Enter the physical location for this task"
             serverValidationError={hasServerError("location")}
             required={formData.location !== null}
             backgroundColour="bg-basePrimary"
             GCPKey={GCPKey}
-            
           />
         )}
         <FormField

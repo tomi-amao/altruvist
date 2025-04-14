@@ -17,7 +17,6 @@ interface LocationInputProps {
   helperText?: string;
   backgroundColour?: string;
   serverValidationError?: boolean;
-  required?: boolean;
   GCPKey: string;
 }
 
@@ -51,11 +50,13 @@ const autocompleteStyles = `
   
   .pac-icon {
     margin-right: 10px;
+    color: #666;
   }
   
   .pac-item-query {
     font-size: 14px;
     color: #333;
+    font-family: 'Poppins', sans-serif;
   }
   
   .pac-matched {
@@ -65,6 +66,7 @@ const autocompleteStyles = `
   .pac-description {
     font-size: 12px;
     color: #666;
+    font-family: 'Poppins', sans-serif;
   }
 `;
 
@@ -76,7 +78,6 @@ export default function LocationInput({
   helperText = "Enter the location for this task",
   backgroundColour = "bg-basePrimary",
   serverValidationError = false,
-  required = false,
   GCPKey,
 }: LocationInputProps) {
   const { isLoaded } = useLoadScript({
@@ -98,7 +99,9 @@ export default function LocationInput({
       
       return () => {
         // Clean up styles when component unmounts
-        document.head.removeChild(styleTag);
+        if (styleTag.parentNode) {
+          document.head.removeChild(styleTag);
+        }
       };
     }
   }, [isLoaded]);
@@ -107,7 +110,7 @@ export default function LocationInput({
     if (value?.address && value.address !== inputValue) {
       setInputValue(value.address);
     }
-  }, [value]);
+  }, [value, inputValue]);
 
   const handlePlaceSelect = () => {
     const place = autocompleteRef.current?.getPlace();
@@ -126,9 +129,18 @@ export default function LocationInput({
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
-    if (!e.target.value) {
-      onChange(null);
+    const newValue = e.target.value;
+    setInputValue(newValue);
+    
+
+    if (!newValue) {
+      // Instead of changing location to null (which would change type to REMOTE),
+      // keep the location object but with empty values
+      onChange({
+        address: "",
+        lat: 0,
+        lng: 0
+      });
     }
   };
 
@@ -149,19 +161,24 @@ export default function LocationInput({
     return (
       <div className="mb-4">
         <label className="block text-baseSecondary text-sm font-bold mb-2">
-          {label} {required && <span className="text-dangerPrimary">*</span>}
+          {label} 
         </label>
-        <input
-          type="text"
-          value={inputValue}
-          onChange={handleInputChange}
-          className={`${backgroundColour} w-full p-2 border ${
-            serverValidationError ? "border-dangerPrimary" : "border-baseSecondaryLight"
-          } rounded-md`}
-          placeholder="Loading location search..."
-          disabled
-        />
-        <p className="text-baseSecondary text-xs mt-1">{helperText}</p>
+        <div className="relative">
+          <input
+            type="text"
+            value={inputValue}
+            onChange={handleInputChange}
+            className={`${backgroundColour} w-full p-2 border ${
+              serverValidationError ? "border-dangerPrimary" : "border-baseSecondaryLight"
+            } rounded-md transition-all duration-300`}
+            placeholder="Loading location search..."
+            disabled
+          />
+          <div className="absolute top-1/2 right-3 transform -translate-y-1/2">
+            <div className="h-4 w-4 rounded-full border-2 border-baseSecondary/50 border-t-transparent animate-spin"></div>
+          </div>
+        </div>
+        <p className="text-baseSecondary text-xs mt-1 font-light">{helperText}</p>
       </div>
     );
   }
@@ -169,27 +186,30 @@ export default function LocationInput({
   return (
     <div className="mb-4 relative">
       <label className="block text-baseSecondary text-sm font-bold mb-2">
-        {label} {required && <span className="text-dangerPrimary">*</span>}
+        {label} 
       </label>
-      <Autocomplete
-        onLoad={handleAutocompleteLoad}
-        onPlaceChanged={handlePlaceSelect}
-        restrictions={{ country: ["us", "ca", "gb"] }}
-      >
-        <input
-          type="text"
-          value={inputValue}
-          onChange={handleInputChange}
-          className={`${backgroundColour} w-full p-2 border ${
-            serverValidationError ? "border-dangerPrimary" : "border-baseSecondaryLight"
-          } rounded-md`}
-          placeholder={placeholder}
-          id={`location-input-${location.pathname.replace(/\//g, '-')}`}
-        />
-      </Autocomplete>
-      <p className="text-baseSecondary text-xs mt-1">{helperText}</p>
-      {value && (
-        <div className="text-xs text-baseSecondary mt-1">
+      <div className="relative group">
+        <Autocomplete
+          onLoad={handleAutocompleteLoad}
+          onPlaceChanged={handlePlaceSelect}
+          restrictions={{ country: ["us", "ca", "gb"] }}
+        >
+          <input
+            type="text"
+            value={inputValue}
+            onChange={handleInputChange}
+            className={`${backgroundColour} w-full p-2 border ${
+              serverValidationError ? "border-dangerPrimary" : "border-baseSecondaryLight"
+            } rounded-md focus:outline-none border-baseSecondary transition-all duration-300`}
+            placeholder={placeholder}
+            id={`location-input-${location.pathname.replace(/\//g, '-')}`}
+            aria-describedby={`${label}-helper`}
+          />
+        </Autocomplete>
+      </div>
+      <p className="text-baseSecondary text-xs mt-1 font-light" id={`${label}-helper`}>{helperText}</p>
+      {value && value.lat !== 0 && value.lng !== 0 && (
+        <div className="text-xs text-baseSecondary/70 mt-1 font-light">
           Selected coordinates: {value.lat.toFixed(6)}, {value.lng.toFixed(6)}
         </div>
       )}

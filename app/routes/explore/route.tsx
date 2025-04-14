@@ -9,6 +9,7 @@ import {
   SecondaryButtonAlt,
 } from "~/components/utils/BasicButton";
 import {
+  locationTypeOptions,
   statusOptions,
   taskCategoryFilterOptions,
   taskCharityCategories,
@@ -44,9 +45,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const skills = url.searchParams.get("skills")?.split(",") || [];
   const [urgency] = url.searchParams.get("urgency")?.split(",") || [];
   const [status] = url.searchParams.get("status")?.split(",") || [];
-  const [deadline] = url.searchParams.get("deadline")?.split(",") || "";
-  const [createdAt] = url.searchParams.get("createdAt")?.split(",") || "";
-  const [updatedAt] = url.searchParams.get("updatedAt")?.split(",") || "";
+  const [deadline] = url.searchParams.get("deadline")?.split(",") || [];
+  const [createdAt] = url.searchParams.get("createdAt")?.split(",") || [];
+  const [updatedAt] = url.searchParams.get("updatedAt")?.split(",") || [];
+  const [locationType] = url.searchParams.get("locationType")?.split(",") || [];
 
   const { tasks, nextCursor } = await getExploreTasks(
     cursor,
@@ -58,6 +60,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     deadline,
     createdAt,
     updatedAt,
+    locationType,
   );
 
   const { userInfo } = await getUserInfo(accessToken);
@@ -89,6 +92,64 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 }
 
+// ActiveFilters component to display and allow users to remove active filters
+const ActiveFilters = ({ 
+  filters, 
+  onRemoveFilter 
+}: { 
+  filters: Record<string, string[]>, 
+  onRemoveFilter: (filterType: string, value: string) => void 
+}) => {
+  // Filter display names for better readability
+  const filterDisplayNames: Record<string, string> = {
+    skills: "Skill",
+    charity: "Charity",
+    urgency: "Urgency",
+    status: "Status",
+    locationType: "Location",
+    deadline: "Deadline",
+    createdAt: "Created",
+    updatedAt: "Updated"
+  };
+
+  // Helper to transform sort values to be more readable
+  const formatSortValue = (filterType: string, value: string) => {
+    if (['deadline', 'createdAt', 'updatedAt'].includes(filterType)) {
+      return value === 'asc' ? 'Oldest first' : 'Newest first';
+    }
+    return value;
+  };
+
+  // Get all active filters as {type, value} pairs
+  const activeFilters = Object.entries(filters)
+    .filter(([_, values]) => values.length > 0 && values[0] !== "")
+    .flatMap(([filterType, values]) => 
+      values.map(value => ({ type: filterType, value }))
+    );
+
+  if (activeFilters.length === 0) return null;
+
+  return (
+    <div className="flex flex-wrap gap-2 mt-3 mb-4">
+
+      {activeFilters.map(({ type, value }) => (
+        <button
+          key={`${type}-${value}`}
+          onClick={() => onRemoveFilter(type, value)}
+          className="bg-basePrimaryLight text-baseSecondary px-3 py-1 rounded-full 
+                    text-xs flex items-center gap-1 border border-baseSecondary/20
+                    hover:bg-basePrimaryDark transition-colors duration-200 group"
+          aria-label={`Remove ${filterDisplayNames[type]} filter: ${value}`}
+        >
+          <span>{filterDisplayNames[type]}:</span> 
+          <span className="font-medium">{formatSortValue(type, value)}</span>
+          <X size={12} className="ml-1 group-hover:text-dangerPrimary" />
+        </button>
+      ))}
+    </div>
+  );
+};
+
 export default function Explore() {
   const {
     userInfo,
@@ -110,6 +171,7 @@ export default function Explore() {
     charity: [],
     urgency: [],
     status: [],
+    locationType: [],
     deadline: [],
     createdAt: [],
     updatedAt: [],
@@ -129,6 +191,7 @@ export default function Explore() {
       charity: filters.charity.join(","),
       status: filters.status.join(","),
       urgency: filters.urgency.join(","),
+      locationType: filters.locationType.join(","),
       deadline: filters.deadline.join(","),
       createdAt: filters.createdAt.join(","),
       updatedAt: filters.updatedAt.join(","),
@@ -179,9 +242,28 @@ export default function Explore() {
       charity: [],
       urgency: [],
       status: [],
+      locationType: [],
       deadline: [],
       createdAt: [],
       updatedAt: [],
+    });
+  };
+
+  const handleRemoveFilter = (filterType: string, value: string) => {
+    setFilters(prevFilters => {
+      // If this is a single-select filter, clear it completely
+      if (!['charity', 'skills'].includes(filterType)) {
+        return {
+          ...prevFilters,
+          [filterType]: []
+        };
+      }
+      
+      // For multi-select filters, remove just the selected value
+      return {
+        ...prevFilters,
+        [filterType]: prevFilters[filterType].filter(item => item !== value)
+      };
     });
   };
 
@@ -313,6 +395,15 @@ export default function Explore() {
       horizontal={true}
       defaultSelected={filters.status}
     />,
+    <Dropdown
+      key="locationType"
+      options={locationTypeOptions}
+      placeholder="Location Type"
+      onSelect={(option, selected) => onSelect(option, selected, "locationType")}
+      multipleSelect={false}
+      horizontal={true}
+      defaultSelected={filters.locationType}
+    />,
   ];
   const sortOptions = [
     <Dropdown
@@ -375,6 +466,7 @@ export default function Explore() {
             )}
           </div>
         </div>
+        <ActiveFilters filters={filters} onRemoveFilter={handleRemoveFilter} />
         <div className="flex flex-row gap-2 flex-wrap m-auto w-full justify-center">
           {tasks?.map((task) => (
             <TaskSummaryCard

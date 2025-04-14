@@ -134,6 +134,7 @@ export async function getExploreTasks(
   deadline: string,
   createdAt: string,
   updatedAt: string,
+  locationType?: string
 ) {
   if (cursor === "null") {
     cursor = null;
@@ -145,6 +146,21 @@ export async function getExploreTasks(
     ...(urgency !== "" && { urgency: { equals: urgency as TaskUrgency } }),
     ...(status !== "" && { status: { equals: status as TaskStatus } }),
   };
+
+  // Add location type filter based on whether the location field exists
+  if (locationType && locationType !== "") {
+    if (locationType === "REMOTE") {
+      // For REMOTE tasks, the location field doesn't exist
+      whereClause.location = {
+        isSet: false
+      };
+    } else if (locationType === "ONSITE" ) {
+      // For ONSITE tasks, the location field exists
+      whereClause.location = {
+        isSet: true
+      };
+    }
+  }
 
   // for type safety, ensure order value is either asc or desc
   const getOrderDirection = (value: string): SortOrder | undefined => {

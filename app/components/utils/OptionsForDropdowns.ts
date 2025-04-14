@@ -229,6 +229,8 @@ export const charityTags = [
   "Volunteerism",
 ];
 
+export const locationTypeOptions = ["REMOTE", "ONSITE"];
+
 export const getTags = (type: string) => {
   switch (type) {
     case "charityTags":

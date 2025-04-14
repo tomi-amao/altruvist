@@ -69,7 +69,7 @@ export type SearchState = z.infer<typeof SearchSchema>;
 
 export const TaskUrgency = z.enum(["LOW", "MEDIUM", "HIGH"]);
 export const TaskStatus = z.enum(["OPEN", "IN_PROGRESS", "COMPLETED"]);
-export const TaskLocation = z.enum(["REMOTE", "ONSITE", "HYBRID"]);
+export const TaskLocation = z.enum(["REMOTE", "ONSITE"]);
 
 // Define location schema for validation
 export const LocationSchema = z.object({
