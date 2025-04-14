@@ -17,6 +17,8 @@ import {
   NotePencil,
   Tag,
   Target,
+  MapPin,
+  MapTrifold,
 } from "phosphor-react";
 
 interface TaskDetailsProps {
@@ -544,6 +546,64 @@ export function TaskDetails({
                             </span>
                           </span>
                         ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Location Section */}
+                  {displayData.location && (
+                    <div className="mt-3 sm:mt-4">
+                      <h3
+                        className="text-xs font-medium uppercase tracking-wider text-baseSecondary/70 mb-2
+                        flex items-center gap-1"
+                      >
+                        <MapPin
+                          size={16}
+                          weight="regular"
+                          className="text-baseSecondary/70"
+                        />
+                        Location
+                      </h3>
+
+                      <div className="bg-basePrimary rounded-lg p-3 border border-baseSecondary/10 transition-all duration-300 hover:border-baseSecondary/20">
+                        <p className="text-sm text-baseSecondary mb-2">
+                          {displayData.location.address}
+                        </p>
+                        
+                        {/* Display a link to Google Maps */}
+                        <a
+                          href={`https://www.google.com/maps/search/?api=1&query=${displayData.location.lat},${displayData.location.lng}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs text-baseSecondary hover:underline"
+                        >
+                          <MapTrifold  size={12} />
+                          View on Google Maps
+                        </a>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Remote Label when no location */}
+                  {!displayData.location && (
+                    <div className="mt-3 sm:mt-4">
+                      <h3
+                        className="text-xs font-medium uppercase tracking-wider text-baseSecondary/70 mb-2
+                        flex items-center gap-1"
+                      >
+                        <MapPin
+                          size={16}
+                          weight="regular"
+                          className="text-baseSecondary/70"
+                        />
+                        Location
+                      </h3>
+
+                      <div className="bg-basePrimary rounded-lg p-3 border border-baseSecondary/10">
+                        <p className="text-sm text-baseSecondary flex items-center gap-1">
+                          <span className="inline-block w-2 h-2 rounded-full bg-confirmPrimary"></span>
+                          Remote task
+                        </p>
                       </div>
                     </div>
                   )}

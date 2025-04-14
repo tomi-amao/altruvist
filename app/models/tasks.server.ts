@@ -34,6 +34,7 @@ export const createTask = async (
         title: taskData.title,
         category: taskData.category,
         impact: taskData.impact,
+        location: taskData.location,
         deadline: taskData.deadline,
         urgency: taskData.urgency,
         deliverables: taskData.deliverables,

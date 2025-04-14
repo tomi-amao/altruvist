@@ -27,9 +27,16 @@ export async function action({ request }: ActionFunctionArgs) {
 
   try {
     const newTask = JSON.parse(data.get("formData") as string);
+    console.log("New Task Data", newTask);
+    
     const validatedData = TaskSchema.parse({
       ...newTask,
       deadline: newTask.deadline,
+      location: {
+        address: newTask.location.address,
+        lat: newTask.location.lat,
+        lng: newTask.location.lng,
+      },
       resources: (
         newTask.resources as unknown as UppyFile<Meta, Record<string, never>>[]
       ).map((upload) => ({
@@ -41,7 +48,7 @@ export async function action({ request }: ActionFunctionArgs) {
       })),
     });
 
-    console.log("Data", validatedData);
+    console.log("Validated Task Data", validatedData);
 
     const task = await createTask(
       validatedData,

@@ -71,6 +71,17 @@ export const TaskUrgency = z.enum(["LOW", "MEDIUM", "HIGH"]);
 export const TaskStatus = z.enum(["OPEN", "IN_PROGRESS", "COMPLETED"]);
 export const TaskLocation = z.enum(["REMOTE", "ONSITE", "HYBRID"]);
 
+// Define location schema for validation
+export const LocationSchema = z.object({
+  address: z.string().min(1, "Address is required"),
+  lat: z.number().refine(lat => lat >= -90 && lat <= 90, {
+    message: "Latitude must be between -90 and 90"
+  }),
+  lng: z.number().refine(lng => lng >= -180 && lng <= 180, {
+    message: "Longitude must be between -180 and 180"
+  })
+});
+
 export const TaskSchema = z.object({
   title: z
     .string()
@@ -106,6 +117,7 @@ export const TaskSchema = z.object({
   deadline: z.coerce.date().refine((date) => date > new Date(), {
     message: "Deadline must be in the future",
   }),
+  location: LocationSchema.nullable().optional(),
   resources: z
     .array(
       z.object({

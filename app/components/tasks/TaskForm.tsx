@@ -253,7 +253,7 @@ export default function TaskForm({
           }
         }}
       >
-        <h2 className="text-5xl mb-4 font-header tracking-wide text-baseSecondary">
+        <h2 className="text-5xl mb-4 font-primary font-semibold text-baseSecondary">
           {isEditing ? "Edit Task" : "Create a Task"}
         </h2>
 
@@ -460,7 +460,6 @@ export default function TaskForm({
             
           />
         )}
-        {"HELLO"}
         <FormField
           htmlFor="deadline"
           type="date"

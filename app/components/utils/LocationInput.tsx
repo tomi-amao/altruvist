@@ -1,6 +1,6 @@
 import { useLoadScript, Autocomplete } from "@react-google-maps/api";
+import { useLocation } from "@remix-run/react";
 import { useRef, useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
 
 // Define the structure for location data
 export interface LocationData {
@@ -31,7 +31,7 @@ const autocompleteStyles = `
     border: 1px solid #e0e0e0;
     margin-top: 4px;
     font-family: 'Poppins', sans-serif;
-    background-color: white;
+    background-color: #E8E8E8;
     padding: 8px 0;
   }
   
