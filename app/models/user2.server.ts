@@ -237,3 +237,33 @@ export const getProfileInfo = async (userId: string) => {
 
   return profile;
 };
+
+// Function to fetch user's task applications by userId
+export async function getUserTaskApplications(userId: string) {
+  try {
+    // Ensure we have a valid userId
+    if (!userId) {
+      return { error: "User ID is required", taskApplications: [] };
+    }
+
+    // Query the database for the user's task applications
+    const taskApplications = await prisma.taskApplications.findMany({
+      where: {
+        userId: userId,
+      },
+      orderBy: {
+        createdAt: 'desc', // Sort by most recent first
+      },
+    });
+    
+
+    if (taskApplications.length === 0) {
+      console.warn("No task applications found for user:", userId);
+    }
+
+    return { taskApplications };
+  } catch (error) {
+    console.error("Error fetching user task applications:", error);
+    return { error: "Failed to fetch task applications", taskApplications: [] };
+  }
+}

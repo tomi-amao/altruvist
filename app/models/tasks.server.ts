@@ -676,6 +676,10 @@ export const getTask = (taskId: string) => {
   console.log("Server",taskId);
   
   return prisma.tasks.findUnique({
-    where: { id: taskId }
+    where: { id: taskId },
+    include: {
+      charity: true,
+      taskApplications: true
+    },
   });
 }

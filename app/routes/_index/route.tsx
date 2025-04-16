@@ -590,7 +590,7 @@ export default function Index() {
               deliverables={selectedTask.deliverables || []}
               deadline={new Date(selectedTask.deadline)}
               userId={userInfo?.id || ""}
-              status={selectedTask.status || "OPEN"}
+              status={selectedTask.status || "NOT_STARTED"}
               resources={selectedTask.resources || []}
               userRole={userInfo?.roles || []}
               taskApplications={selectedTask.taskApplications || []}

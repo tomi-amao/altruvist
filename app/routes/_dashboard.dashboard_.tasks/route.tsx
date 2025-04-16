@@ -604,23 +604,52 @@ export async function action({ request }: ActionFunctionArgs) {
         return json({ success: true, application: result.data });
       }
       case "deleteApplication": {
-        const taskApplication =
-          data.get("selectedTaskApplication")?.toString() || "";
-        const parsedApplication = JSON.parse(taskApplication);
+        // Handle both direct application and application ID scenarios
+        if (data.has("selectedTaskApplication")) {
+          // Handle selected task application case
+          const taskApplication = data.get("selectedTaskApplication")?.toString() || "";
+          const parsedApplication = JSON.parse(taskApplication);
+          const result = await deleteUserTaskApplication(parsedApplication.id);
+          
+          console.log(result);
 
-        const result = await deleteUserTaskApplication(parsedApplication.id);
+          const deleteSubscriberResult = await deleteNovuSubscriber(userId);
+          console.log('Delete Subscriber Result:', deleteSubscriberResult);
 
-        console.log(result);
+          if (result.error) {
+            return json({ error: result.message }, { status: 400 });
+          }
 
-
-        const deleteSubscriberResult = await deleteNovuSubscriber(userId);
-        console.log('Delete Subscriber Result:', deleteSubscriberResult);
-
-        if (result.error) {
-          return json({ error: result.message }, { status: 400 });
+          return json({ success: true, application: result.data });
+        } else if (taskId && userId) {
+          // Handle direct task ID and user ID case (from TaskDetailsCard)
+          console.log("Deleting application for task:", taskId, "and user:", userId);
+          
+          // Find the task application by taskId and userId
+          const task = await getTask(taskId);
+          if (!task || !task.taskApplications) {
+            return json({ error: "Task or task applications not found" }, { status: 404 });
+          }
+          
+          const taskApplication = task.taskApplications.find(app => app.userId === userId);
+          if (!taskApplication) {
+            return json({ error: "Task application not found" }, { status: 404 });
+          }
+          
+          const result = await deleteUserTaskApplication(taskApplication.id);
+          
+          if (result.error) {
+            return json({ error: result.message }, { status: 400 });
+          }
+          
+          return json({ 
+            success: true, 
+            message: "Application withdrawn successfully", 
+            application: result.deletedApplication 
+          });
+        } else {
+          return json({ error: "Missing required information" }, { status: 400 });
         }
-
-        return json({ success: true, application: result.data });
       }
 
       default:

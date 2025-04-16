@@ -7,7 +7,7 @@ import TaskDetailsCard from "~/components/tasks/taskDetailsCard";
 import Navbar from "~/components/navigation/Header2";
 import { Modal } from "~/components/utils/Modal2";
 import { CombinedCollections } from "~/types/tasks";
-import { getUserInfo } from "~/models/user2.server";
+import { getUserInfo, getUserTaskApplications } from "~/models/user2.server";
 import { getSession } from "~/services/session.server";
 import { searchMultipleIndices } from "~/services/meilisearch.server";
 
@@ -27,16 +27,23 @@ export async function loader({ request }: LoaderFunctionArgs) {
     : null;
 
   const searchResults = await searchMultipleIndices(query ?? "");
+  const { taskApplications = [] } = await getUserTaskApplications(userInfo?.id || "") || {};
+  const userTaskApplicationsIds = taskApplications.map(application => application.taskId);
+  console.log("User Task Applications ID:", userTaskApplicationsIds);
+  
+
+  
 
   return {
     page,
     userInfo,
     searchResults,
+    userTaskApplicationsIds,
   };
 }
 
 export default function SearchResults() {
-  const { userInfo, searchResults } = useLoaderData<typeof loader>();
+  const { userInfo, searchResults, userTaskApplicationsIds } = useLoaderData<typeof loader>();
   const [showCollections, setShowCollections] = useState({
     all: true,
     tasks: false,
@@ -50,6 +57,7 @@ export default function SearchResults() {
 
   const handleSelectedSearchItem = (selectedItemData: CombinedCollections) => {
     setShowSelectedSearchItem((preValue) => !preValue);
+    console.log("Selected Item Data:", selectedItemData);
 
     setSelectedSearchItem(selectedItemData);
     console.log(
@@ -162,26 +170,13 @@ export default function SearchResults() {
       <Modal isOpen={showSelectedSearchItem} onClose={handleCloseModal}>
         <div>
           <TaskDetailsCard
-            category={selectedSearchItem?.category}
-            charityName={selectedSearchItem}
-            id={selectedSearchItem}
-            charityId={null}
-            description={selectedSearchItem?.description}
-            title={selectedSearchItem?.title}
-            impact={selectedSearchItem?.impact}
-            requiredSkills={selectedSearchItem?.requiredSkills}
-            urgency={selectedSearchItem?.urgency}
-            volunteersNeeded={selectedSearchItem?.volunteersNeeded}
-            deliverables={selectedSearchItem?.deliverables}
-            deadline={new Date(selectedSearchItem?.deadline)}
-            userId={selectedSearchItem?.userId}
-            status={selectedSearchItem?.status}
-            resources={JSON.parse(selectedSearchItem?.resources || '[]')}
+            taskId={selectedSearchItem?.id}
+            userRole={userInfo?.roles}
+            volunteerDetails={{ userId: userInfo?.id, taskApplications: userTaskApplicationsIds }}
           />
         </div>
       </Modal>
 
-      {/* <SearchResultCard /> */}
     </>
   );
 }

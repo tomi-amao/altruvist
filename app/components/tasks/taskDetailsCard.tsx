@@ -4,7 +4,7 @@ import { useFetcher, useNavigate } from "@remix-run/react";
 import { PrimaryButton, SecondaryButton } from "../utils/BasicButton";
 import { FilePreviewButton } from "../utils/FormField";
 import { Clock, Users, Target, Tag, Lightbulb, MapPin, NotePencil, ListChecks, Files } from "phosphor-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface Resource {
   name: string;
@@ -13,7 +13,7 @@ interface Resource {
   extension: string;
 }
 
-interface TaskDetailsCardProps {
+interface TaskDetailsData {
   category: string[];
   charityName: string;
   charityId: string | null;
@@ -46,30 +46,71 @@ interface TaskDetailsCardProps {
   } | null;
 }
 
-export default function TaskDetailsCard({
-  category,
-  charityName,
-  charityId,
-  id,
-  description,
-  title,
-  impact,
-  requiredSkills,
-  urgency,
-  volunteersNeeded,
-  deliverables,
-  deadline,
-  status,
-  resources,
-  userRole,
-  volunteerDetails,
-  taskApplications = [],
-  location,
-}: TaskDetailsCardProps) {
+// Props that only need taskId
+interface TaskDetailsCardProps {
+  taskId: string;
+  userRole?: string[];
+  volunteerDetails?: {
+    userId: string;
+    taskApplications?: string[];
+  };
+}
+
+// Expanded props for when full data is provided directly
+interface ExpandedTaskDetailsCardProps extends TaskDetailsData {}
+
+// Union type to accept either minimal or full props
+type CombinedTaskDetailsCardProps = 
+  | TaskDetailsCardProps 
+  | ExpandedTaskDetailsCardProps;
+
+export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
   const fetcher = useFetcher();
+  const taskFetcher = useFetcher();
   const navigate = useNavigate();
   const [showMessage, setShowMessage] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [taskData, setTaskData] = useState<TaskDetailsData | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Check if we're using the minimal props version with just taskId
+  const isMinimalProps = 'taskId' in props && !('title' in props);
+  const taskId = isMinimalProps ? (props as TaskDetailsCardProps).taskId : '';
+
+  // If minimal props, fetch the task data
+  useEffect(() => {
+    if (isMinimalProps && !isLoading && !taskData) {
+      setIsLoading(true);
+      taskFetcher.load(`/api/task/${taskId}`);
+    } else if (!isMinimalProps) {
+      // If full props, use them directly
+      setTaskData(props as TaskDetailsData);
+    }
+  }, [isMinimalProps, taskId, isLoading, taskData, taskFetcher]);
+
+  // Handle task data fetching response
+  useEffect(() => {
+    if (taskFetcher.data) {
+      if (taskFetcher.data.error) {
+        setError(taskFetcher.data.error);
+      } else if (taskFetcher.data.task) {
+        const fetchedTask = taskFetcher.data.task;
+        
+        // Transform fetched data to match the expected TaskDetailsData structure
+        setTaskData({
+          ...fetchedTask,
+          charityName: fetchedTask.charity?.name || '',
+          charityId: fetchedTask.charity?.id || null,
+          userRole: isMinimalProps ? (props as TaskDetailsCardProps).userRole || [] : [],
+          volunteerDetails: isMinimalProps ? (props as TaskDetailsCardProps).volunteerDetails : undefined,
+          resources: fetchedTask.resources || [],
+          taskApplications: fetchedTask.taskApplications || [],
+        });
+      }
+      setIsLoading(false);
+    }
+  }, [taskFetcher.data, isMinimalProps]);
 
   const handleApply = (taskId: string, charityId: string) => {
     fetcher.submit(
@@ -89,23 +130,50 @@ export default function TaskDetailsCard({
     );
   };
 
+  // Return loading state if data is not ready yet
+  if (isLoading || (!taskData && !error)) {
+    return (
+      <div className="bg-basePrimary rounded-xl shadow-lg p-8 flex justify-center items-center h-64">
+        <div className="flex flex-col items-center">
+          <div className="w-10 h-10 border-4 border-baseSecondary/30 border-t-baseSecondary rounded-full animate-spin mb-4"></div>
+          <p className="text-baseSecondary/80">Loading task details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Return error state if there was an error fetching the data
+  if (error) {
+    return (
+      <div className="bg-basePrimary rounded-xl shadow-lg p-8 flex justify-center items-center h-64">
+        <div className="flex flex-col items-center text-dangerPrimary">
+          <p className="font-semibold mb-2">Error loading task</p>
+          <p className="text-sm">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If we have data, render the card
+  if (!taskData) return null;
+
   // Check if user has already applied
-  const hasApplied = volunteerDetails?.taskApplications?.includes(id);
+  const hasApplied = taskData.volunteerDetails?.taskApplications?.includes(taskData.id);
 
   // Count accepted applications
-  const acceptedApplications = taskApplications.filter(
+  const acceptedApplications = taskData.taskApplications?.filter(
     (app) => app.status === "ACCEPTED",
-  ).length;
+  ).length || 0;
 
   // Use volunteersNeeded as the total volunteer capacity
-  const totalVolunteersNeeded = volunteersNeeded;
+  const totalVolunteersNeeded = taskData.volunteersNeeded;
   const isTaskFull = acceptedApplications >= totalVolunteersNeeded;
 
   // Calculate spots remaining
   const spotsRemaining = totalVolunteersNeeded - acceptedApplications;
 
   const renderActionButton = () => {
-    if (!userRole?.includes("volunteer")) {
+    if (!taskData.userRole?.includes("volunteer")) {
       return (
         <div className="px-4 py-2 rounded-md bg-basePrimaryDark text-baseSecondary/80 border border-baseSecondary/20 text-sm flex items-center justify-center">
           <span className="mr-1.5">👋</span> Only volunteers can apply to tasks
@@ -116,7 +184,7 @@ export default function TaskDetailsCard({
     if (isTaskFull) {
       return (
         <div className="px-4 py-2 rounded-md bg-basePrimaryDark text-baseSecondary/80 border border-baseSecondary/20 text-sm flex items-center justify-center">
-          <span className="mr-1.5">🔒</span> Task full ({acceptedApplications}/{volunteersNeeded} volunteers)
+          <span className="mr-1.5">🔒</span> Task full ({acceptedApplications}/{taskData.volunteersNeeded} volunteers)
         </div>
       );
     }
@@ -127,12 +195,12 @@ export default function TaskDetailsCard({
           <SecondaryButton
             text="Go to Task"
             ariaLabel="go to task"
-            action={() => navigate(`/dashboard/tasks?taskid=${id}`)}
+            action={() => navigate(`/dashboard/tasks?taskid=${taskData.id}`)}
           />
           <SecondaryButton
             text="Withdraw"
             ariaLabel="withdraw application" 
-            action={() => handleWithdraw(id, volunteerDetails?.userId || "")}
+            action={() => handleWithdraw(taskData.id, taskData.volunteerDetails?.userId || "")}
           />
         </div>
       );
@@ -141,7 +209,7 @@ export default function TaskDetailsCard({
       <PrimaryButton
         text="Volunteer Now"
         ariaLabel="volunteer for task"
-        action={() => handleApply(id, charityId || "")}
+        action={() => handleApply(taskData.id, taskData.charityId || "")}
       />
     );
   };
@@ -178,12 +246,12 @@ export default function TaskDetailsCard({
         <div className="space-y-4 relative z-10">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
             <h1 className="text-2xl md:text-3xl font-semibold text-baseSecondary tracking-tight">
-              {title}
+              {taskData.title}
             </h1>
             <div className="flex items-center gap-2">
               <span
                 className={`
-                ${getUrgencyColor(urgency)} 
+                ${getUrgencyColor(taskData.urgency)} 
                 px-3 py-1.5 
                 rounded-full 
                 text-txtsecondary 
@@ -194,8 +262,8 @@ export default function TaskDetailsCard({
                 flex items-center
               `}
               >
-                {urgency === "HIGH" && <span className="h-2 w-2 rounded-full bg-txtsecondary animate-pulse mr-1.5"></span>}
-                {urgency.toLowerCase()} priority
+                {taskData.urgency === "HIGH" && <span className="h-2 w-2 rounded-full bg-txtsecondary animate-pulse mr-1.5"></span>}
+                {taskData.urgency.toLowerCase()} priority
               </span>
             </div>
           </div>
@@ -203,21 +271,21 @@ export default function TaskDetailsCard({
           <div className="flex flex-wrap items-center gap-6 text-baseSecondary/80">
             <span className="flex items-center gap-2 text-sm hover:text-baseSecondary transition-colors">
               <Clock className="w-4 h-4" />
-              Due {format(deadline, "MMM dd, yyyy")}
+              Due {format(new Date(taskData.deadline), "MMM dd, yyyy")}
             </span>
             <span className="flex items-center gap-2 text-sm">
               <Users className="w-4 h-4" />
-              <span className="font-medium">{volunteersNeeded}</span>
-              volunteer{volunteersNeeded !== 1 ? "s" : ""} needed
+              <span className="font-medium">{taskData.volunteersNeeded}</span>
+              volunteer{taskData.volunteersNeeded !== 1 ? "s" : ""} needed
             </span>
             <span className="flex items-center gap-2 text-sm">
-              <span className={`inline-block w-2 h-2 rounded-full ${status === "COMPLETED" ? "bg-confirmPrimary" : "bg-baseSecondary"}`}></span>
-              {status}
+              <span className={`inline-block w-2 h-2 rounded-full ${taskData.status === "COMPLETED" ? "bg-confirmPrimary" : "bg-baseSecondary"}`}></span>
+              {taskData.status}
             </span>
-            {location && (
+            {taskData.location && (
               <span className="flex items-center gap-2 text-sm">
                 <MapPin className="w-4 h-4" />
-                {location.address.length > 20 ? location.address.substring(0, 20) + '...' : location.address}
+                {taskData.location.address.length > 20 ? taskData.location.address.substring(0, 20) + '...' : taskData.location.address}
               </span>
             )}
           </div>
@@ -228,11 +296,11 @@ export default function TaskDetailsCard({
       <div className="bg-basePrimaryLight px-6 py-3 border-b border-baseSecondary/10">
         <div className="flex justify-between items-center">
           <span className="text-sm text-baseSecondary/80">
-            Posted by <span className="font-medium text-baseSecondary">{charityName}</span>
+            Posted by <span className="font-medium text-baseSecondary">{taskData.charityName}</span>
           </span>
           
           <div className="text-sm text-baseSecondary/80">
-            {status !== "COMPLETED" && (
+            {taskData.status !== "COMPLETED" && (
               <span className="flex items-center gap-1">
                 <span className={`w-2 h-2 rounded-full ${spotsRemaining > 0 ? "bg-confirmPrimary" : "bg-dangerPrimary"}`}></span>
                 {spotsRemaining} spot{spotsRemaining !== 1 ? "s" : ""} remaining
@@ -254,7 +322,7 @@ export default function TaskDetailsCard({
                 Impact
               </h3>
             </div>
-            <p className="text-baseSecondary/90 leading-relaxed">{impact}</p>
+            <p className="text-baseSecondary/90 leading-relaxed">{taskData.impact}</p>
           </div>
         </section>
 
@@ -272,13 +340,13 @@ export default function TaskDetailsCard({
                   </h3>
                 </div>
                 <p className="text-baseSecondary/90 leading-relaxed whitespace-pre-wrap">
-                  {description}
+                  {taskData.description}
                 </p>
               </div>
             </section>
 
             {/* Deliverables */}
-            {deliverables && deliverables.length > 0 && (
+            {taskData.deliverables && taskData.deliverables.length > 0 && (
               <section className="bg-basePrimaryLight rounded-lg p-5 space-y-3 relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-1 h-full bg-baseSecondary opacity-30"></div>
                 <div className="ml-2">
@@ -289,7 +357,7 @@ export default function TaskDetailsCard({
                     </h3>
                   </div>
                   <ul className="grid sm:grid-cols-2 gap-3">
-                    {deliverables.map((deliverable, index) => (
+                    {taskData.deliverables.map((deliverable, index) => (
                       <li
                         key={index}
                         className="flex items-start gap-3 p-3 
@@ -311,7 +379,7 @@ export default function TaskDetailsCard({
             )}
 
             {/* Resources Grid */}
-            {resources && resources.length > 0 && (
+            {taskData.resources && taskData.resources.length > 0 && (
               <section className="bg-basePrimaryLight rounded-lg p-5 space-y-3 relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-1 h-full bg-baseSecondary opacity-20"></div>
                 <div className="ml-2">
@@ -322,7 +390,7 @@ export default function TaskDetailsCard({
                     </h3>
                   </div>
                   <div className="grid sm:grid-cols-2 lg:grid-cols-2 gap-3">
-                    {resources.map((resource, index) => (
+                    {taskData.resources.map((resource, index) => (
                       <FilePreviewButton
                         key={index}
                         fileName={resource.name}
@@ -348,8 +416,8 @@ export default function TaskDetailsCard({
                 </h3>
               </div>
               <div className="flex flex-wrap gap-2">
-                {requiredSkills.length > 0 ? (
-                  requiredSkills.map((skill, index) => (
+                {taskData.requiredSkills.length > 0 ? (
+                  taskData.requiredSkills.map((skill, index) => (
                     <span
                       key={index}
                       className="bg-basePrimaryDark px-3 py-1.5 rounded-full
@@ -376,7 +444,7 @@ export default function TaskDetailsCard({
                 </h3>
               </div>
               <div className="flex flex-wrap gap-2">
-                {category.map((cat, index) => (
+                {taskData.category.map((cat, index) => (
                   <span
                     key={index}
                     className="bg-basePrimaryDark px-3 py-1.5 rounded-full
@@ -392,7 +460,7 @@ export default function TaskDetailsCard({
             </section>
 
             {/* Location if available */}
-            {location && (
+            {taskData.location && (
               <section className="bg-basePrimaryLight rounded-lg p-5">
                 <div className="flex items-center gap-1.5 mb-3">
                   <MapPin className="w-4 h-4 text-baseSecondary/70" />
@@ -400,10 +468,10 @@ export default function TaskDetailsCard({
                     Location
                   </h3>
                 </div>
-                <p className="text-baseSecondary/90 text-sm mb-2">{location.address}</p>
-                {location.lat && location.lng && (
+                <p className="text-baseSecondary/90 text-sm mb-2">{taskData.location.address}</p>
+                {taskData.location.lat && taskData.location.lng && (
                   <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${location.lat},${location.lng}`}
+                    href={`https://www.google.com/maps/search/?api=1&query=${taskData.location.lat},${taskData.location.lng}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-xs text-baseSecondary hover:underline flex items-center gap-1"
@@ -423,7 +491,7 @@ export default function TaskDetailsCard({
               <div className="space-y-2">
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-baseSecondary/80">Positions:</span>
-                  <span className="font-medium text-baseSecondary">{volunteersNeeded}</span>
+                  <span className="font-medium text-baseSecondary">{taskData.volunteersNeeded}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-baseSecondary/80">Filled:</span>
@@ -437,11 +505,11 @@ export default function TaskDetailsCard({
                   <div className="w-full bg-basePrimary rounded-full h-2.5">
                     <div 
                       className="bg-baseSecondary h-2.5 rounded-full" 
-                      style={{ width: `${(acceptedApplications / volunteersNeeded) * 100}%` }}
+                      style={{ width: `${(acceptedApplications / taskData.volunteersNeeded) * 100}%` }}
                     ></div>
                   </div>
                   <p className="text-xs text-center mt-1 text-baseSecondary/70">
-                    {Math.round((acceptedApplications / volunteersNeeded) * 100)}% filled
+                    {Math.round((acceptedApplications / taskData.volunteersNeeded) * 100)}% filled
                   </p>
                 </div>
               </div>
@@ -451,7 +519,7 @@ export default function TaskDetailsCard({
       </div>
 
       {/* Expand/Collapse Button for long content */}
-      {description.length > 300 && (
+      {taskData.description.length > 300 && (
         <div className="px-6 pb-3 flex justify-center">
           <button 
             onClick={() => setIsExpanded(!isExpanded)}
