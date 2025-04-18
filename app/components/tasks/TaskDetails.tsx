@@ -621,7 +621,6 @@ export function TaskDetails({
                         />
                         Task Status
                       </h3>
-
                       <DropdownField
                         htmlFor="urgency"
                         value={formData.status || ""}
@@ -640,7 +639,7 @@ export function TaskDetails({
               </div>
 
               {/* Action Buttons - Make sticky on mobile */}
-              <div className="sticky bottom-0 sm:relative bg-basePrimaryLight rounded-xl p-3 space-y-2 z-10">
+              <div className=" bottom-0 sm:relative bg-basePrimaryLight rounded-xl p-3 space-y-2 z-[5]">
                 {userRole.includes("charity") ? (
                   <>
                     <SecondaryButton
