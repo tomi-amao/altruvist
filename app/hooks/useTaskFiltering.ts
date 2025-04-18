@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import {
   applicationStatusOptions,
   statusOptions,
-} from "~/components/utils/OptionsForDropdowns";
+} from "~/constants/dropdownOptions";
 import type { Task, FilterSortState } from "~/types/tasks";
 
 export function useTaskFiltering(initialTasks: Task[]) {

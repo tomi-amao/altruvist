@@ -18,7 +18,7 @@ import {
   TextAreaField,
 } from "~/components/utils/FormField";
 import React, { useEffect, useRef, useState } from "react";
-import { getTags } from "~/components/utils/OptionsForDropdowns";
+import { getTags } from "~/constants/dropdownOptions";
 import FileUpload from "~/components/utils/FileUpload";
 import { Meta, UppyFile } from "@uppy/core";
 import { SecondaryButton } from "~/components/utils/BasicButton";

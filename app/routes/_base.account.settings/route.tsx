@@ -21,7 +21,7 @@ import {
   TextAreaField,
   ListInput,
 } from "~/components/utils/FormField";
-import { getTags, techSkills } from "~/components/utils/OptionsForDropdowns";
+import { getTags, techSkills } from "~/constants/dropdownOptions";
 import FileUpload from "~/components/utils/FileUpload";
 import { Meta, UppyFile } from "@uppy/core";
 import { SecondaryButton } from "~/components/utils/BasicButton";

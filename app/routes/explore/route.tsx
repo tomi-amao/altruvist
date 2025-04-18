@@ -14,7 +14,7 @@ import {
   taskCategoryFilterOptions,
   taskCharityCategories,
   urgencyOptions,
-} from "~/components/utils/OptionsForDropdowns";
+} from "~/constants/dropdownOptions";
 import Dropdown from "~/components/utils/selectDropdown";
 import { getExploreTasks, getUserTasks } from "~/models/tasks.server";
 import { getUserInfo } from "~/models/user2.server";
