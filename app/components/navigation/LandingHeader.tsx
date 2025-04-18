@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "@remix-run/react";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { List, X, User, SignOut, Bell, CaretDown } from "phosphor-react";
+import { List, X, SignOut, Bell, CaretDown } from "phosphor-react";
 import { users } from "@prisma/client";
 import { Avatar } from "../cards/ProfileCard";
 
@@ -31,27 +31,6 @@ export default function LandingHeader({ userId, userInfo, profilePicture }: Land
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
-
-  const gotToPage = (item: string) => {
-    switch (item) {
-      case "Home":
-        navigate("/");
-        break;
-      case "About":
-        navigate("/about");
-        break;
-      case "Explore":
-        navigate("/explore");
-        console.log("Explore");
-        
-        break;
-      case "Contact":
-        navigate("/contact");
-        break;
-      default:
-        break;
-    }
-  }
   
   return (
     <motion.header 

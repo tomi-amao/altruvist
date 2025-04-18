@@ -1,8 +1,7 @@
-import { chromium, type FullConfig } from "@playwright/test";
+import { chromium } from "@playwright/test";
 
-async function globalSetup(config: FullConfig) {
+async function globalSetup() {
   const browser = await chromium.launch();
-  const page = await browser.newPage();
 
   await browser.close();
 }

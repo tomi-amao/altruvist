@@ -17,14 +17,13 @@ import {
   RadioOption,
   TextAreaField,
 } from "~/components/utils/FormField";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { getTags } from "~/components/utils/OptionsForDropdowns";
 import FileUpload from "~/components/utils/FileUpload";
 import { Meta, UppyFile } from "@uppy/core";
 import { SecondaryButton } from "~/components/utils/BasicButton";
 import { createCharity } from "~/models/charities.server";
 import { charities, users } from "@prisma/client";
-import React from "react";
 import { getCompanionVars } from "~/services/env.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {

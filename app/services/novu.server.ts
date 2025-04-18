@@ -24,6 +24,22 @@ export interface NotificationItem {
   templateId?: string;
 }
 
+// Define a type for Novu notification response
+interface NovuNotification {
+  _id: string;
+  title?: string;
+  content?: string;
+  createdAt: string;
+  read?: boolean;
+  templateId?: string;
+  cta?: Array<{
+    type: string;
+    data?: {
+      url?: string;
+    };
+  }>;
+}
+
 /**
  * Fetch notifications for a user from Novu
  */
@@ -36,8 +52,6 @@ export async function getUserNotifications(subscriberId: string): Promise<Notifi
       limit: 20,
     });
 
-
-
     // Early return if no data
     if (!response?.result?.data) {
       console.warn('No notifications data received from Novu');
@@ -48,7 +62,7 @@ export async function getUserNotifications(subscriberId: string): Promise<Notifi
     console.log("Received notifications:", notifications);
 
     // Transform the Novu response to our NotificationItem format
-    return (notifications || []).map((notification: any) => {
+    return (notifications || []).map((notification: NovuNotification) => {
       // Extract template ID to determine notification type
       const templateId = notification.templateId || '';
 
@@ -107,7 +121,7 @@ function mapTemplateToType(templateId: string): 'message' | 'alert' | 'update' |
   const type = templateTypeMap[templateId];
 
   if (type && ['message', 'alert', 'update', 'invitation'].includes(type)) {
-    return type as any;
+    return type as 'message' | 'alert' | 'update' | 'invitation';
   }
 
   // Default to 'alert' if the template type is unknown
@@ -117,17 +131,15 @@ function mapTemplateToType(templateId: string): 'message' | 'alert' | 'update' |
 /**
  * Extract action URL from notification payload if available
  */
-function extractActionUrl(notification: any): string | undefined {
+function extractActionUrl(notification: NovuNotification): string | undefined {
   try {
     // Find the first action that has a redirect URL
-    const action = notification.cta?.find((action: any) => action.type === 'redirect');
+    const action = notification.cta?.find((action) => action.type === 'redirect');
     return action?.data?.url;
   } catch {
     return undefined;
   }
 }
-
-
 
 interface NotificationTriggerPayload {
   subject: string;
@@ -140,7 +152,6 @@ interface NotificationTriggerPayload {
   primaryActionLabel?: string;
   secondaryActionLabel?: string;
 }
-
 
 interface NotificationTriggerParams {
   userInfo: users;

@@ -1,4 +1,3 @@
-import { TaskStatus, TaskUrgency } from "@prisma/client";
 import { LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { useState } from "react";

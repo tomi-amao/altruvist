@@ -3,7 +3,7 @@ import { createUser } from "~/models/user2.server";
 import { getZitadelVars } from "~/services/env.server";
 import { getSession, commitSession } from "~/services/session.server";
 import { zitadelUserInfo } from "~/types/zitadelUser";
-import https from "https";
+// import https from "https";
 import fetch from "node-fetch";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -45,20 +45,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
         // agent,
       },
     );
-    // console.log("Token response", await tokenResponse.json());
-    // console.log("response ok?", tokenResponse.ok);
-
-    // if (!tokenResponse.ok) {
-    //   throw new Error("Failed to exchange code for tokens");
-    // }
-
-    // console.log("Token response status:", tokenResponse.status);
-    // console.log("Token response status text:", tokenResponse.statusText);
-    // console.log("Token response text:", await tokenResponse.text());
-    // console.log("Token response headers:", tokenResponse.headers);
-    // console.log("Token response ok?:", tokenResponse.ok);
-
-    // const { access_token, id_token } = await tokenResponse.json();
     const tokenData = await tokenResponse.json();
 
     // Store the tokens in the session

@@ -1,7 +1,7 @@
 import { tasks } from "@prisma/client";
 import { useState } from "react";
 import { Modal } from "../utils/Modal2";
-import { CalendarBlank, Users, TagSimple, MapPin, Desktop, Buildings, GraduationCap } from "phosphor-react";
+import { CalendarBlank, Users, MapPin, Desktop, Buildings, GraduationCap } from "phosphor-react";
 import { SearchResultCardType } from "../cards/searchResultCard";
 import TaskDetailsCard from "./taskDetailsCard";
 

@@ -1,5 +1,4 @@
 import { json, LoaderFunctionArgs } from "@remix-run/node";
-import { getUserInfo } from "~/models/user2.server";
 import { deleteS3Object, getSignedUrlForFile } from "~/services/s3.server";
 import { getSession } from "~/services/session.server";
 

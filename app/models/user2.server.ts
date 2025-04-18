@@ -3,7 +3,7 @@ import { getZitadelVars } from "~/services/env.server";
 import type { zitadelUserInfo } from "~/types/zitadelUser";
 import type { Prisma } from "@prisma/client";
 import { ObjectIdSchema } from "~/services/validators.server";
-import https from "https";
+// import https from "https";
 import fetch from "node-fetch";
 import { INDICES, indexDocument, deleteDocument, isMeilisearchConnected } from "~/services/meilisearch.server";
 import { createNovuSubscriber } from "~/services/novu.server";

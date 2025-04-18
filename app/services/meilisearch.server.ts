@@ -1,6 +1,5 @@
 import { MeiliSearch } from "meilisearch";
 import { getMeiliVars } from "./env.server";
-import { users } from "@prisma/client";
 
 // Get Meilisearch configuration from environment variables
 const meiliVars = getMeiliVars();
@@ -36,10 +35,10 @@ export const isMeilisearchConnected = async (): Promise<boolean> => {
  * Prepare document for Meilisearch by serializing complex data types
  * This is crucial for handling Date objects and nested objects
  */
-export const prepareDocumentForMeilisearch = <T extends Record<string, any>>(
+export const prepareDocumentForMeilisearch = <T extends Record<string, unknown>>(
   doc: T,
-): Record<string, any> => {
-  const prepared: Record<string, any> = {};
+): Record<string, unknown> => {
+  const prepared: Record<string, unknown> = {};
 
   // Process each field in the document
   for (const [key, value] of Object.entries(doc)) {
@@ -275,7 +274,7 @@ export const initializeMeilisearch = async () => {
         client.createIndex(INDICES.CHARITIES, { primaryKey: "id" }),
         client.createIndex(INDICES.TASK_APPLICATIONS, { primaryKey: "id" }),
       ]);
-    } catch (createError) {
+    } catch {
       // Ignore errors if indices already exist
       console.log(
         "Some indices may already exist, continuing with configuration...",

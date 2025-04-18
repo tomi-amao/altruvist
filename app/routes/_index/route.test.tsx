@@ -3,6 +3,7 @@ import { prisma } from "~/services/db.server";
 import { getSession, commitSession } from "~/services/session.server";
 import { getUserInfo } from "~/models/user2.server";
 import { describe, it, expect, beforeEach, vi } from "vitest";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 
 // Mock all external dependencies to isolate the loader function for testing
 // This prevents actual database calls or session management during tests
@@ -61,7 +62,7 @@ describe("Index route loader", () => {
     // Execute: Call the loader with a mock request
     const response = await loader({
       request: new Request("http://test.com"),
-    } as any);
+    } as LoaderFunctionArgs);
     const data = await response.json();
 
     // Assert: Verify expected behavior for anonymous users
@@ -90,7 +91,7 @@ describe("Index route loader", () => {
     // Execute: Call the loader
     const response = await loader({
       request: new Request("http://test.com"),
-    } as any);
+    } as LoaderFunctionArgs);
     const data = await response.json();
 
     // Assert: Verify authenticated user response
@@ -117,7 +118,7 @@ describe("Index route loader", () => {
     // Execute: Call the loader
     const response = await loader({
       request: new Request("http://test.com"),
-    } as any);
+    } as LoaderFunctionArgs);
     const data = await response.json();
 
     // Assert: Verify error handling
@@ -135,7 +136,7 @@ describe("Index route loader", () => {
     // Execute: Call the loader
     const response = await loader({
       request: new Request("http://test.com"),
-    } as any);
+    } as LoaderFunctionArgs);
     const data = await response.json();
 
     // Assert: Verify task sorting and limiting

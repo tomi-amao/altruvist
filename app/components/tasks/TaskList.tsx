@@ -1,6 +1,6 @@
 import { Link, useLocation } from "@remix-run/react";
 import type { tasks } from "@prisma/client";
-import { Calendar, CheckCircle, CircleNotch, ClockClockwise, Spinner, XCircle } from "phosphor-react";
+import { Calendar, CheckCircle, CircleNotch, ClockClockwise, XCircle } from "phosphor-react";
 
 interface TaskListProps {
   tasks: (tasks & {
@@ -154,6 +154,7 @@ export function TaskList({
         <button 
           onClick={() => onTaskSelect?.(task)} 
           className={commonClasses}
+          role="tab"
           aria-selected={isSelected}
           aria-label={`Select task: ${task.title}`}
         >

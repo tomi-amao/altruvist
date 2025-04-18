@@ -12,7 +12,18 @@ export default [
   js.configs.recommended,
   {
     files: ["**/*.{js,jsx,ts,tsx}"],
-    ignores: ["**/node_modules/*", ".server/*", ".client/*"],
+    ignores: [
+      "**/node_modules/*", 
+      ".server/*", 
+      ".client/*",
+      "**/build/**",
+      "**/playwright-report/**",
+      "**/test-results/**",
+      "**/coverage/**",
+      "**/dist/**",
+      "**/.cache/**",
+      "**/public/build/**"
+    ],
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "module",

@@ -6,7 +6,6 @@ import {
   ArrowBendUpLeft,
   Check,
   PaperPlane,
-  PaperPlaneRight,
   PencilSimple,
   TrashSimple,
 } from "phosphor-react";

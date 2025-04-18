@@ -130,7 +130,6 @@ const LineGraph: React.FC<LineGraphProps> = ({
     const svgRect = svgRef.current?.getBoundingClientRect() || { left: 0, top: 0 };
 
     const clientX = isTouchEvent ? event.touches[0].clientX : event.clientX;
-    const clientY = isTouchEvent ? event.touches[0].clientY : event.clientY;
 
     const svgX = clientX - svgRect.left - margin.left;
     const x0 = xScale.invert(svgX);

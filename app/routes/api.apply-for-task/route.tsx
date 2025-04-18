@@ -59,7 +59,7 @@ export async function action({ request }: ActionFunctionArgs) {
     const task = await prisma.tasks.findUnique({ where: { id: taskId } });
     await addNovuSubscriberToTopic([userId], task?.notifyTopicId.find(item => item.includes("volunteers")) ?? "");
     
-    const notificationResult = await triggerNotification({
+    await triggerNotification({
       userInfo,
       workflowId: "applications-feed",
       notification: {

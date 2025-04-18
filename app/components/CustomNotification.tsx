@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from "@remix-run/react";
 import { IMessage } from '@novu/shared';
 import { ArchiveBox, ArrowCounterClockwise, Envelope, EnvelopeOpen, Trash, User, Eye } from 'phosphor-react';
@@ -6,7 +6,6 @@ import { useViewport } from '~/hooks/useViewport';
 
 interface CustomNotificationProps {
   notification: IMessage;
-  storageKey?: string;
 }
 
 interface NotificationBody {
@@ -17,9 +16,8 @@ interface NotificationBody {
   userId?: string;
 }
 
-export const CustomNotification: React.FC<CustomNotificationProps> = ({ notification, storageKey }) => {
+export const CustomNotification: React.FC<CustomNotificationProps> = ({ notification }) => {
   const navigate = useNavigate();
-  const isMounted = useRef(true);
   const { isMobile } = useViewport();
 
   // Parse the notification body
@@ -95,6 +93,9 @@ export const CustomNotification: React.FC<CustomNotificationProps> = ({ notifica
     <div
       className={`bg-basePrimaryLight border-l-4 m-2 p-3 sm:p-4 mb-3 rounded-lg shadow hover:shadow-md transition-all duration-200 flex flex-col ${isArchived || isRead ? 'opacity-70 ' : ''} max-w-full`}
       onClick={handleNotificationClick}
+      onKeyDown={(e) => e.key === 'Enter' && handleNotificationClick()}
+      role="button"
+      tabIndex={0}
     >
       <div className="flex justify-between items-start">
         <h3 className={`font-header font-semibold ${isArchived ? '' : 'text-baseSecondary'} text-sm sm:text-base break-words`}>

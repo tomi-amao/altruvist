@@ -2,7 +2,7 @@ import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { getZitadelVars } from "~/services/env.server";
 import { generateCodeChallenge, generateCodeVerifier } from "~/services/pkce";
 import { getSession, commitSession } from "~/services/session.server";
-import https from "https";
+// import https from "https";
 import fetch from "node-fetch";
 
 export async function loader({ request }: LoaderFunctionArgs) {

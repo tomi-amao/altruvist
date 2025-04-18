@@ -122,7 +122,7 @@ const ActiveFilters = ({
 
   // Get all active filters as {type, value} pairs
   const activeFilters = Object.entries(filters)
-    .filter(([_, values]) => values.length > 0 && values[0] !== "")
+    .filter(([, values]) => values.length > 0 && values[0] !== "")
     .flatMap(([filterType, values]) => 
       values.map(value => ({ type: filterType, value }))
     );

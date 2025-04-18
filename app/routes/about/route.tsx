@@ -87,7 +87,7 @@ export default function AboutRoute() {
               <div className="space-y-4">
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-baseSecondary">Our Mission</h2>
                 <p className="text-midGrey text-lg">
-                  We're on a mission to create a world where professional skills are shared freely with those working to solve our most pressing social and environmental challenges.
+                  We&apos;re on a mission to create a world where professional skills are shared freely with those working to solve our most pressing social and environmental challenges.
                 </p>
                 <ul className="space-y-2 text-midGrey">
                   <li className="flex items-center">
@@ -224,7 +224,7 @@ export default function AboutRoute() {
                   transition={{ duration: 0.5 }}
                 >
                   <blockquote className="mb-4 text-lg italic text-midGrey">
-                    "{testimonial.quote}"
+                    &ldquo;{testimonial.quote}&rdquo;
                   </blockquote>
                   <cite className="text-baseSecondary font-semibold">{testimonial.author}</cite>
                   <p className="text-sm text-altMidGrey">{testimonial.title}</p>

@@ -56,8 +56,8 @@ interface TaskDetailsCardProps {
   };
 }
 
-// Expanded props for when full data is provided directly
-interface ExpandedTaskDetailsCardProps extends TaskDetailsData {}
+// Type alias for full prop data 
+type ExpandedTaskDetailsCardProps = TaskDetailsData;
 
 // Union type to accept either minimal or full props
 type CombinedTaskDetailsCardProps = 
@@ -73,6 +73,16 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
   const [taskData, setTaskData] = useState<TaskDetailsData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Effect to automatically hide success/error messages after 5 seconds
+  useEffect(() => {
+    if (fetcher.data && showMessage) {
+      const timer = setTimeout(() => {
+        setShowMessage(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [fetcher.data, showMessage]);
 
   // Check if we're using the minimal props version with just taskId
   const isMinimalProps = 'taskId' in props && !('title' in props);

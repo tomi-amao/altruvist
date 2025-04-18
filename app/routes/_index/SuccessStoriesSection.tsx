@@ -89,7 +89,7 @@ export const SuccessStoriesSection = () => {
                                             </div>
                                             <div>
                                                 <p className="text-baseSecondary italic mb-2">
-                                                    "The volunteer team's work revolutionized how we track endangered species. What would have cost us $50,000+ was done with passion and expertise."
+                                                    &ldquo;The volunteer team&apos;s work revolutionized how we track endangered species. What would have cost us $50,000+ was done with passion and expertise.&rdquo;
                                                 </p>
                                                 <p className="text-baseSecondary font-medium">Dr. Sarah Chen, Conservation Director at GlobalWild</p>
                                             </div>

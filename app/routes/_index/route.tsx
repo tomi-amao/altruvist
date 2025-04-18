@@ -23,6 +23,8 @@ import CompanyLogoBanner from "./LogoBanner";
 import { Modal } from "~/components/utils/Modal2";
 import TaskDetailsCard from "~/components/tasks/taskDetailsCard";
 import { users } from "@prisma/client";
+import type { Task } from "~/types/tasks";
+
 export const meta: MetaFunction = () => {
 
   return [
@@ -40,7 +42,7 @@ export default function Index() {
   const [showGraph, setShowGraph] = useState(false);
   const statsRef = useRef<HTMLDivElement>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedTask, setSelectedTask] = useState<any>(null);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [signedProfilePicture, setSignedProfilePicture] = useState<
   string | null
 >(null);
@@ -108,7 +110,7 @@ export default function Index() {
     },
   ];
 
-  const openTaskDetailsModal = (task: any) => {
+  const openTaskDetailsModal = (task: Task) => {
     setSelectedTask(task);
     setModalOpen(true);
   };
@@ -306,7 +308,7 @@ export default function Index() {
             <h2 className="text-4xl font-bold mb-4 text-accentPrimary">Our Impact</h2>
             <div className="w-24 h-1 bg-accentPrimary mx-auto mb-6"></div>
             <p className="text-lg max-w-xl mx-auto text-accentPrimary">
-              Together we're creating lasting change for charities worldwide.
+              Together we&apos;re creating lasting change for charities worldwide.
             </p>
           </motion.div>
 

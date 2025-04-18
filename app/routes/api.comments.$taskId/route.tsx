@@ -88,8 +88,7 @@ export async function action({ params, request }: ActionFunctionArgs) {
         );
         const task = await getTask(taskId);
 
-        // Determine which topic key to notify based on the user's role
-        const isVolunteer = userInfo?.roles?.includes("volunteer");
+        // Determine who to notify based on the user's role
         const isCharity = userInfo?.roles?.includes("charity");
         
         // Select the appropriate topic key to notify
@@ -147,8 +146,7 @@ export async function action({ params, request }: ActionFunctionArgs) {
           });
         });
 
-        // Determine which topic key to notify based on the user's role
-        const isVolunteer = userInfo?.roles?.includes("volunteer");
+        // Determine who to notify based on the user's role
         const isCharity = userInfo?.roles?.includes("charity");
         
         // Select the appropriate topic key to notify

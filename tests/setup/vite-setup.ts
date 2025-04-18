@@ -7,8 +7,11 @@ expect.extend(matchers);
 
 // Declare the matchers for TypeScript
 declare module "vitest" {
-  interface Assertion<T = any>
-    extends matchers.TestingLibraryMatchers<T, void> {}
+  interface Assertion<T = unknown>
+    extends matchers.TestingLibraryMatchers<T, void> {
+    // Adding at least one property to prevent empty interface error
+    toBeDefined(): void;
+  }
 }
 
 // Mock CSS modules

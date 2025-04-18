@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, within } from "~/../tests/test-utils";
+import { render, screen } from "~/../tests/test-utils";
 import { ListItem, Section } from "./DashboardSection";
 
 describe("ListItem Component", () => {

@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Form,
   MetaFunction,
@@ -35,7 +34,6 @@ import { getSignedUrlForFile } from "~/services/s3.server";
 import {
   Bell,
   Buildings,
-  Heart,
   ShieldCheck,
   UserCircle,
   Warning,

@@ -16,7 +16,7 @@ export default function SearchTestPage() {
   const navigation = useNavigation();
   const loaderData = useLoaderData<LoaderReturn>();
   const actionData = useActionData<ActionReturn>();
-  const [testResult, setTestResult] = useState<any>(null);
+  const [testResult, setTestResult] = useState<unknown>(null);
 
   const isSubmitting = navigation.state === "submitting";
 
@@ -60,7 +60,7 @@ export default function SearchTestPage() {
               </thead>
               <tbody>
                 {Object.entries(loaderData.indicesStats).map(
-                  ([indexName, stats]: [string, any]) => (
+                  ([indexName, stats]: [string, Record<string, unknown>]) => (
                     <tr key={indexName} className="border-b">
                       <td className="py-2">{indexName}</td>
                       <td className="py-2">{stats.numberOfDocuments}</td>
@@ -133,8 +133,9 @@ export default function SearchTestPage() {
           <Form method="post" className="mb-4">
             <input type="hidden" name="action" value="index-task" />
             <div className="mb-4">
-              <label className="block mb-2">Select Task:</label>
+              <label htmlFor="taskId" className="block mb-2">Select Task:</label>
               <select
+                id="taskId"
                 name="taskId"
                 className="border rounded py-1 px-2 w-full bg-basePrimaryDark"
                 required
@@ -159,8 +160,9 @@ export default function SearchTestPage() {
           <Form method="post" className="mb-4">
             <input type="hidden" name="action" value="index-user" />
             <div className="mb-4">
-              <label className="block mb-2">Select User:</label>
+              <label htmlFor="userId" className="block mb-2">Select User:</label>
               <select
+                id="userId"
                 name="userId"
                 className="border rounded py-1 px-2 w-full bg-basePrimaryDark"
                 required
@@ -185,8 +187,9 @@ export default function SearchTestPage() {
           <Form method="post">
             <input type="hidden" name="action" value="index-charity" />
             <div className="mb-4">
-              <label className="block mb-2">Select Charity:</label>
+              <label htmlFor="charityId" className="block mb-2">Select Charity:</label>
               <select
+                id="charityId"
                 name="charityId"
                 className="border rounded py-1 px-2 w-full bg-basePrimaryDark"
                 required
@@ -216,8 +219,9 @@ export default function SearchTestPage() {
           <Form method="post" className="mb-6">
             <input type="hidden" name="action" value="delete-document" />
             <div className="mb-4">
-              <label className="block mb-2">Index:</label>
+              <label htmlFor="deleteIndexName" className="block mb-2">Index:</label>
               <select
+                id="deleteIndexName"
                 name="indexName"
                 className="border rounded py-1 px-2 w-full bg-basePrimaryDark"
                 required
@@ -235,8 +239,9 @@ export default function SearchTestPage() {
               </select>
             </div>
             <div className="mb-4">
-              <label className="block mb-2">Document ID:</label>
+              <label htmlFor="deleteDocId" className="block mb-2">Document ID:</label>
               <input
+                id="deleteDocId"
                 type="text"
                 name="docId"
                 className="border rounded py-1 px-2 w-full bg-basePrimaryDark"
@@ -257,8 +262,9 @@ export default function SearchTestPage() {
           <Form method="post">
             <input type="hidden" name="action" value="delete-all-documents" />
             <div className="mb-4">
-              <label className="block mb-2">Index:</label>
+              <label htmlFor="deleteAllIndexName" className="block mb-2">Index:</label>
               <select
+                id="deleteAllIndexName"
                 name="indexName"
                 className="border rounded py-1 px-2 w-full bg-basePrimaryDark"
                 required
@@ -304,8 +310,9 @@ export default function SearchTestPage() {
           <Form method="post">
             <input type="hidden" name="action" value="search-tasks" />
             <div className="mb-4">
-              <label className="block mb-2">Query:</label>
+              <label htmlFor="searchTasksQuery" className="block mb-2">Query:</label>
               <input
+                id="searchTasksQuery"
                 type="text"
                 name="query"
                 className="border rounded py-1 px-2 w-full bg-basePrimaryDark"
@@ -314,8 +321,9 @@ export default function SearchTestPage() {
               />
             </div>
             <div className="mb-4">
-              <label className="block mb-2">Task IDs (comma separated):</label>
+              <label htmlFor="searchTaskIds" className="block mb-2">Task IDs (comma separated):</label>
               <input
+                id="searchTaskIds"
                 type="text"
                 name="taskIds"
                 className="border rounded py-1 px-2 w-full bg-basePrimaryDark"
@@ -341,8 +349,9 @@ export default function SearchTestPage() {
           <Form method="post">
             <input type="hidden" name="action" value="search-all" />
             <div className="mb-4">
-              <label className="block mb-2">Query:</label>
+              <label htmlFor="searchAllQuery" className="block mb-2">Query:</label>
               <input
+                id="searchAllQuery"
                 type="text"
                 name="query"
                 className="border rounded py-1 px-2 w-full bg-basePrimaryDark"

@@ -1,10 +1,13 @@
+import { tasks, users, charities } from "@prisma/client";
+import { INDICES } from "~/constants/search";
+
 export type LoaderReturn = {
   isConnected: boolean;
-  sampleTasks: Array<any>;
-  sampleUsers: Array<any>;
-  sampleCharities: Array<any>;
-  indicesStats: Record<string, any> | null;
-  indices: typeof import("~/constants/search").INDICES;
+  sampleTasks: Array<Partial<tasks>>;
+  sampleUsers: Array<Partial<users>>;
+  sampleCharities: Array<Partial<charities>>;
+  indicesStats: Record<string, unknown> | null;
+  indices: typeof INDICES;
 };
 
 export type ActionReturn = {
@@ -13,6 +16,6 @@ export type ActionReturn = {
   action: string;
   error?: string;
   errorDetails?: string;
-  result?: any;
-  details?: any;
+  result?: unknown;
+  details?: unknown;
 };

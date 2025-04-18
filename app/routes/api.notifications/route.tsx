@@ -1,6 +1,5 @@
 import { json, LoaderFunction } from '@remix-run/node';
-import { getUserInfo } from '~/models/user2.server';
-import { deleteNovuMessage, getUserNotifications } from '~/services/novu.server';
+import { deleteNovuMessage } from '~/services/novu.server';
 import { getSession } from '~/services/session.server';
 
 export const loader: LoaderFunction = async ({ request }) => {
