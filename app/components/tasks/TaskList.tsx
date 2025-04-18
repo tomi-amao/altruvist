@@ -74,8 +74,7 @@ export function TaskList({
   const TaskItem = ({ task }: { task: TaskListProps["tasks"][0] }) => {
     const isSelected = task.id === selectedTaskId;
     const taskApplication = task.taskApplications?.[0];
-
-    // Enhanced styling for task items with responsive design
+    // Touch-friendly styling for mobile
     const commonClasses = `text-left block w-full px-4 py-3 sm:py-4 mb-2 
       transition-all duration-200 ease-in-out
       border border-baseSecondary/10 hover:border-baseSecondary/30

@@ -11,6 +11,7 @@ import {
   useNavigate,
   useSearchParams,
 } from "@remix-run/react";
+import { motion, AnimatePresence } from "framer-motion";
 import type { TaskListData } from "~/types/tasks";
 import { useTaskFiltering } from "~/hooks/useTaskFiltering";
 import { TaskList } from "~/components/tasks/TaskList";
@@ -42,6 +43,8 @@ import {
   deleteNovuSubscriber,
   triggerNotification,
 } from "~/services/novu.server";
+import { ArrowLeft } from "phosphor-react";
+import { useViewport } from "~/hooks/useViewport";
 
 export const meta: MetaFunction = () => {
   return [
@@ -125,6 +128,7 @@ export default function ManageTasks() {
   const taskFormFetcher = useFetcher<typeof action>();
   const [showCreateTask, setShowCreateTask] = useState(false);
   const [searchParams] = useSearchParams();
+  const { isMobile } = useViewport();
 
   // Local state for UI management
   const [isEditing, setIsEditing] = useState(false);
@@ -136,6 +140,8 @@ export default function ManageTasks() {
   const [volunteerFilterType, setVolunteerFilterType] = useState<
     "APPLICATIONS" | "ACTIVE_TASKS"
   >("ACTIVE_TASKS");
+
+  const [isDetailsView, setIsDetailsView] = useState(false);
 
   // Handle URL updates
   useEffect(() => {
@@ -204,6 +210,9 @@ export default function ManageTasks() {
     setSelectedTaskId(task.id);
     setShowCreateTask(false);
     setIsEditing(false);
+    if (isMobile) {
+      setIsDetailsView(true);
+    }
   };
 
   const handleDelete = (taskId: string) => {
@@ -305,73 +314,108 @@ export default function ManageTasks() {
 
   return (
     <div className="flex flex-col lg:flex-row w-full lg:min-h-screen p-4 -mt-8">
-      <div className="lg:w-1/3 w-full p-4 shadow-md space-y-4 rounded-md border border-basePrimaryDark overflow-auto">
-        <TaskManagementActions
-          userRole={userRole}
-          onCreateTask={handleCreateTask}
-          isLoading={fetcher.state !== "idle"}
-          selectedTaskId={selectedTaskId}
-          onVolunteerFilterChange={setVolunteerFilterType}
-          activeVolunteerFilter={volunteerFilterType}
-        />
+      <AnimatePresence mode="wait">
+        {!isDetailsView && (
+          <motion.div 
+            className="lg:w-1/3 w-full p-4 shadow-md space-y-4 rounded-md border border-basePrimaryDark overflow-auto"
+            initial={{ opacity: 0, x: isMobile ? -40 : 0 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -40 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            key="task-list"
+          >
+            <TaskManagementActions
+              userRole={userRole}
+              onCreateTask={handleCreateTask}
+              isLoading={fetcher.state !== "idle"}
+              selectedTaskId={selectedTaskId}
+              onVolunteerFilterChange={setVolunteerFilterType}
+              activeVolunteerFilter={volunteerFilterType}
+            />
 
-        <TaskSearchFilter
-          onSearch={setSearchQuery}
-          searchQuery={searchQuery}
-          filterSort={filterSort}
-          onFilterChange={handleFilterChange}
-          userRole={userRole}
-          statusOptions={statusOptions}
-          applicationStatusOptions={applicationStatusOptions}
-          filterType={volunteerFilterType}
-        />
+            <TaskSearchFilter
+              onSearch={setSearchQuery}
+              searchQuery={searchQuery}
+              filterSort={filterSort}
+              onFilterChange={handleFilterChange}
+              userRole={userRole}
+              statusOptions={statusOptions}
+              applicationStatusOptions={applicationStatusOptions}
+              filterType={volunteerFilterType}
+            />
 
-        <TaskList
-          tasks={filteredAndTypedTasks}
-          isLoading={false}
-          error={!filteredAndTypedTasks ? "Error fetching tasks" : undefined}
-          onTaskSelect={handleTaskSelect}
-          selectedTaskId={selectedTaskId}
-          userRole={userRole[0]}
-        />
-      </div>
+            <TaskList
+              tasks={filteredAndTypedTasks}
+              isLoading={false}
+              error={!filteredAndTypedTasks ? "Error fetching tasks" : undefined}
+              onTaskSelect={handleTaskSelect}
+              selectedTaskId={selectedTaskId}
+              userRole={userRole[0]}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {!showCreateTask && (
-        <div className="lg:w-2/3 w-full pt-4 lg:pt-0">
-          {optimisticTask ? (
-            isEditing ? (
-              <TaskForm
-                initialData={optimisticTask}
-                onSubmit={(formData) =>
-                  handleTaskEdit({ ...optimisticTask, ...formData })
-                }
-                onCancel={() => setIsEditing(false)}
-                isEditing={true}
-                serverValidation={fetcher.data?.error || []}
-                isSubmitting={fetcher.state === "submitting"}
-                uploadURL={uploadURL}
-                GCPKey={GCPKey}
-              />
+        <AnimatePresence mode="wait">
+          <motion.div 
+            className="lg:w-2/3 w-full pt-4 lg:pt-0"
+            initial={{ opacity: 0, x: isMobile ? 40 : 0 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            key={isDetailsView ? "task-detail-view" : "task-detail-default"}
+          >
+            {isDetailsView && isMobile && (
+              <motion.button
+                className="flex items-center space-x-2 text-baseSecondary mb-4 p-2 hover:bg-basePrimaryLight rounded-lg transition-colors"
+                onClick={() => setIsDetailsView(false)}
+                aria-label="Go back to task list"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <ArrowLeft size={20} />
+                <span>Back to tasks</span>
+              </motion.button>
+            )}
+            {optimisticTask ? (
+              isEditing ? (
+                <TaskForm
+                  initialData={optimisticTask}
+                  onSubmit={(formData) =>
+                    handleTaskEdit({ ...optimisticTask, ...formData })
+                  }
+                  onCancel={() => setIsEditing(false)}
+                  isEditing={true}
+                  serverValidation={fetcher.data?.error || []}
+                  isSubmitting={fetcher.state === "submitting"}
+                  uploadURL={uploadURL}
+                  GCPKey={GCPKey}
+                />
+              ) : (
+                <TaskDetails
+                  task={optimisticTask}
+                  userRole={userRole}
+                  userId={userId}
+                  onEdit={() => setIsEditing(true)}
+                  onDelete={() => handleDelete(optimisticTask.id)}
+                  isEditing={isEditing}
+                  error={fetcher.data?.error}
+                  isError={Boolean(fetcher.data?.error)}
+                  userName={userName}
+                  uploadURL={uploadURL}
+                />
+              )
             ) : (
-              <TaskDetails
-                task={optimisticTask}
-                userRole={userRole}
-                userId={userId}
-                onEdit={() => setIsEditing(true)}
-                onDelete={() => handleDelete(optimisticTask.id)}
-                isEditing={isEditing}
-                error={fetcher.data?.error}
-                isError={Boolean(fetcher.data?.error)}
-                userName={userName}
-                uploadURL={uploadURL}
-              />
-            )
-          ) : (
-            <div className="flex items-center justify-center h-full text-baseSecondary">
-              Select a task to view details
-            </div>
-          )}
-        </div>
+              <div className="flex items-center justify-center h-full text-baseSecondary">
+                Select a task to view details
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
       )}
 
       {showCreateTask && (

@@ -1,5 +1,6 @@
 import { useState, useEffect, SetStateAction, Dispatch } from "react";
 import { useFetcher } from "@remix-run/react";
+import { motion } from "framer-motion";
 import DashboardBanner from "../cards/BannerSummaryCard";
 import { SecondaryButton, PrimaryButton } from "../utils/BasicButton";
 import type { taskApplications, tasks, users } from "@prisma/client";
@@ -9,6 +10,7 @@ import { TaskApplicants } from "./TaskApplicants";
 import { CommentSection } from "../comment/Comment";
 import { Alert } from "../utils/Alert";
 import getColour from "../utils/ColourGenerator";
+import { useViewport } from "~/hooks/useViewport";
 import {
   Files,
   Info,
@@ -57,6 +59,7 @@ export function TaskDetails({
   const [formData, setFormData] = useState<tasks>(task);
   const [isCommentsExpanded, setIsCommentsExpanded] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const { isMobile } = useViewport();
 
   const handleAcceptApplication = (applicationId: string) => {
     fetcher.submit(
@@ -183,7 +186,13 @@ export function TaskDetails({
   };
 
   return (
-    <div className="bg-basePrimary rounded-lg shadow-lg p-2 sm:p-3 md:p-4 lg:p-6 max-w-full border border-baseSecondary/20 overflow-hidden">
+    <motion.div 
+      className="bg-basePrimary rounded-lg shadow-lg p-2 sm:p-3 md:p-4 lg:p-6 max-w-full border border-baseSecondary/20 overflow-hidden"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+    >
       {/* Error message section */}
       {isError && (
         <div className="mb-3 p-2 sm:p-3 bg-dangerPrimary/10 border border-dangerPrimary rounded-lg">
@@ -768,6 +777,6 @@ export function TaskDetails({
           </div>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }
