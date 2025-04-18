@@ -8,7 +8,7 @@ import {
   DropdownField,
 } from "../utils/FormField";
 import LocationInput, { LocationData } from "../utils/LocationInput";
-import { charityTags, techSkills } from "../utils/OptionsForDropdowns";
+import { charityTags, techSkills } from "../../constants/dropdownOptions";
 import { CancelButton, PrimaryButton } from "../utils/BasicButton";
 import { useEffect, useState } from "react";
 import FileUpload from "../utils/FileUpload";
