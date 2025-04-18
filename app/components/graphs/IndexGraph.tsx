@@ -1,11 +1,11 @@
-import React, { useMemo, useState, useRef, useEffect } from 'react';
-import { LinePath } from '@visx/shape';
-import { scaleTime, scaleLinear } from '@visx/scale';
-import { AxisLeft, AxisBottom } from '@visx/axis';
-import { curveMonotoneX } from '@visx/curve';
-import { Group } from '@visx/group';
-import { bisector } from 'd3-array';
-import { useViewport } from '../../hooks/useViewport';
+import React, { useMemo, useState, useRef, useEffect } from "react";
+import { LinePath } from "@visx/shape";
+import { scaleTime, scaleLinear } from "@visx/scale";
+import { AxisLeft, AxisBottom } from "@visx/axis";
+import { curveMonotoneX } from "@visx/curve";
+import { Group } from "@visx/group";
+import { bisector } from "d3-array";
+import { useViewport } from "../../hooks/useViewport";
 
 // Define the data point structure
 interface DataPoint {
@@ -33,10 +33,10 @@ const LineGraph: React.FC<LineGraphProps> = ({
   height: propHeight,
   data,
   margin: propMargin,
-  xAxisLabel = 'Date',
-  yAxisLabel = 'Value',
-  lineColor = '#3b82f6',
-  axisColor = '#6b7280',
+  xAxisLabel = "Date",
+  yAxisLabel = "Value",
+  lineColor = "#3b82f6",
+  axisColor = "#6b7280",
 }) => {
   const { isMobile, isClient } = useViewport();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -45,16 +45,19 @@ const LineGraph: React.FC<LineGraphProps> = ({
   // State for container dimensions
   const [dimensions, setDimensions] = useState({
     width: propWidth || 500,
-    height: propHeight || 300
+    height: propHeight || 300,
   });
 
   // Responsive margins using Tailwind breakpoints
-  const margin = useMemo(() => ({
-    top: 40,
-    right: 60,
-    bottom: 60,
-    left: propMargin?.left || (isClient && isMobile ? 40 : 60)
-  }), [propMargin, isMobile, isClient]);
+  const margin = useMemo(
+    () => ({
+      top: 40,
+      right: 60,
+      bottom: 60,
+      left: propMargin?.left || (isClient && isMobile ? 40 : 60),
+    }),
+    [propMargin, isMobile, isClient],
+  );
 
   // Define state for tooltip
   const [tooltipData, setTooltipData] = useState<DataPoint | null>(null);
@@ -77,7 +80,10 @@ const LineGraph: React.FC<LineGraphProps> = ({
           const maxHeight = 400;
           const aspectRatio = 0.5; // 2:1 aspect ratio
 
-          const height = Math.max(minHeight, Math.min(maxHeight, width * aspectRatio));
+          const height = Math.max(
+            minHeight,
+            Math.min(maxHeight, width * aspectRatio),
+          );
           setDimensions({ width, height });
         }
       };
@@ -85,21 +91,21 @@ const LineGraph: React.FC<LineGraphProps> = ({
       handleResize(); // Set initial size
 
       // Use ResizeObserver for more accurate resizing if supported
-      if (typeof ResizeObserver !== 'undefined' && containerRef.current) {
+      if (typeof ResizeObserver !== "undefined" && containerRef.current) {
         const resizeObserver = new ResizeObserver(handleResize);
         resizeObserver.observe(containerRef.current);
         return () => resizeObserver.disconnect();
       } else {
         // Fallback to window resize
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
       }
     }
     // If props are provided, use those dimensions
     else {
       setDimensions({
         width: propWidth,
-        height: propHeight
+        height: propHeight,
       });
     }
   }, [propWidth, propHeight, containerRef.current]);
@@ -108,10 +114,13 @@ const LineGraph: React.FC<LineGraphProps> = ({
   const xScale = useMemo(
     () =>
       scaleTime<number>({
-        domain: [Math.min(...data.map((d) => d.x.getTime())), Math.max(...data.map((d) => d.x.getTime()))],
+        domain: [
+          Math.min(...data.map((d) => d.x.getTime())),
+          Math.max(...data.map((d) => d.x.getTime())),
+        ],
         range: [0, innerWidth],
       }),
-    [data, innerWidth]
+    [data, innerWidth],
   );
 
   const yScale = useMemo(
@@ -121,13 +130,18 @@ const LineGraph: React.FC<LineGraphProps> = ({
         range: [innerHeight, 0],
         nice: true,
       }),
-    [data, innerHeight]
+    [data, innerHeight],
   );
 
   // Modify handle mouse move to better handle tooltip positioning
-  const handleMouseMove = (event: React.TouchEvent<SVGRectElement> | React.MouseEvent<SVGRectElement>) => {
-    const isTouchEvent = 'touches' in event;
-    const svgRect = svgRef.current?.getBoundingClientRect() || { left: 0, top: 0 };
+  const handleMouseMove = (
+    event: React.TouchEvent<SVGRectElement> | React.MouseEvent<SVGRectElement>,
+  ) => {
+    const isTouchEvent = "touches" in event;
+    const svgRect = svgRef.current?.getBoundingClientRect() || {
+      left: 0,
+      top: 0,
+    };
 
     const clientX = isTouchEvent ? event.touches[0].clientX : event.clientX;
 
@@ -139,7 +153,8 @@ const LineGraph: React.FC<LineGraphProps> = ({
 
     const d0 = data[index - 1];
     const d1 = data[index];
-    const point = x0.getTime() - d0.x.getTime() > d1.x.getTime() - x0.getTime() ? d1 : d0;
+    const point =
+      x0.getTime() - d0.x.getTime() > d1.x.getTime() - x0.getTime() ? d1 : d0;
 
     setTooltipData(point);
     setTooltipLeft(xScale(point.x) + margin.left);
@@ -173,21 +188,20 @@ const LineGraph: React.FC<LineGraphProps> = ({
               tickStroke={axisColor}
               label={yAxisLabel}
               numTicks={isMobile ? 5 : 8}
-
               labelProps={{
                 fill: axisColor,
-                textAnchor: 'middle',
-                fontSize: 'sm:12 text-10',
-                fontFamily: 'Poppins',
-                className: 'text-xs sm:text-sm'
+                textAnchor: "middle",
+                fontSize: "sm:12 text-10",
+                fontFamily: "Poppins",
+                className: "text-xs sm:text-sm",
               }}
               strokeWidth={1.5}
               tickLabelProps={() => ({
                 fill: axisColor,
-                className: 'text-[8px] sm:text-[12px]',
-                textAnchor: 'end',
-                dx: '-0.5em',
-                dy: '0.3em'
+                className: "text-[8px] sm:text-[12px]",
+                textAnchor: "end",
+                dx: "-0.5em",
+                dy: "0.3em",
               })}
             />
 
@@ -202,15 +216,15 @@ const LineGraph: React.FC<LineGraphProps> = ({
               labelOffset={20}
               labelProps={{
                 fill: axisColor,
-                textAnchor: 'middle',
-                className: 'text-xs sm:text-sm font-poppins',
-                fontFamily: 'Poppins',
+                textAnchor: "middle",
+                className: "text-xs sm:text-sm font-poppins",
+                fontFamily: "Poppins",
               }}
               tickLabelProps={() => ({
                 fill: axisColor,
-                className: 'text-[8px] sm:text-[12px]',
-                textAnchor: 'middle',
-                dy: '0.33em'
+                className: "text-[8px] sm:text-[12px]",
+                textAnchor: "middle",
+                dy: "0.33em",
               })}
               strokeWidth={1.5}
               tickLength={isMobile ? 4 : 6}
@@ -261,10 +275,10 @@ const LineGraph: React.FC<LineGraphProps> = ({
       {isClient && tooltipData && tooltipLeft != null && tooltipTop != null && (
         <div
           style={{
-            position: 'absolute',
+            position: "absolute",
             left: tooltipLeft,
             top: tooltipTop,
-            transform: 'translate(-50%, -100%)',
+            transform: "translate(-50%, -100%)",
           }}
           className="p-2 rounded shadow-lg backdrop-blur-sm border border-accentPrimary "
         >

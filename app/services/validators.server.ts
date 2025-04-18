@@ -74,12 +74,12 @@ export const TaskLocation = z.enum(["REMOTE", "ONSITE"]);
 // Define location schema for validation
 export const LocationSchema = z.object({
   address: z.string().min(1, "Address is required"),
-  lat: z.number().refine(lat => lat >= -90 && lat <= 90, {
-    message: "Latitude must be between -90 and 90"
+  lat: z.number().refine((lat) => lat >= -90 && lat <= 90, {
+    message: "Latitude must be between -90 and 90",
   }),
-  lng: z.number().refine(lng => lng >= -180 && lng <= 180, {
-    message: "Longitude must be between -180 and 180"
-  })
+  lng: z.number().refine((lng) => lng >= -180 && lng <= 180, {
+    message: "Longitude must be between -180 and 180",
+  }),
 });
 
 export const TaskSchema = z.object({

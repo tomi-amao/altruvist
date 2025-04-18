@@ -1,7 +1,14 @@
 import { tasks } from "@prisma/client";
 import { useState } from "react";
 import { Modal } from "../utils/Modal2";
-import { CalendarBlank, Users, MapPin, Desktop, Buildings, GraduationCap } from "phosphor-react";
+import {
+  CalendarBlank,
+  Users,
+  MapPin,
+  Desktop,
+  Buildings,
+  GraduationCap,
+} from "phosphor-react";
 import { SearchResultCardType } from "../cards/searchResultCard";
 import TaskDetailsCard from "./taskDetailsCard";
 
@@ -68,15 +75,21 @@ export default function TaskSummaryCard(task: taskAdditionalDetails) {
   };
 
   // Format deadline to a more readable format
-  const formattedDeadline = new Date(task.deadline).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric'
-  });
+  const formattedDeadline = new Date(task.deadline).toLocaleDateString(
+    "en-US",
+    {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    },
+  );
 
   // Calculate days remaining until deadline
-  const daysRemaining = Math.ceil((task.deadline.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-  const deadlineClass = daysRemaining < 7 ? 'text-dangerPrimary font-medium' : '';
+  const daysRemaining = Math.ceil(
+    (task.deadline.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24),
+  );
+  const deadlineClass =
+    daysRemaining < 7 ? "text-dangerPrimary font-medium" : "";
 
   // Determine if task is remote or InPerson
   const isInPerson = task.location ? true : false;
@@ -92,11 +105,13 @@ export default function TaskSummaryCard(task: taskAdditionalDetails) {
         <div className="px-6 py-5 flex flex-col h-full">
           {/* Header with title and urgency badge */}
           <div className="mb-3">
-            <h2 className="font-bold text-lg mb-2 text-left line-clamp-2">{task.title}</h2>
+            <h2 className="font-bold text-lg mb-2 text-left line-clamp-2">
+              {task.title}
+            </h2>
             <div className="flex items-center gap-2 flex-wrap">
               <span
                 className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${getUrgencyColor(
-                  task.urgency || "LOW"
+                  task.urgency || "LOW",
                 )}`}
               >
                 {task.urgency} PRIORITY
@@ -125,7 +140,9 @@ export default function TaskSummaryCard(task: taskAdditionalDetails) {
 
           {/* Description - limited to 3 lines */}
           <div className="mb-3 text-left">
-            <p className="line-clamp-3 text-sm opacity-90">{task.description}</p>
+            <p className="line-clamp-3 text-sm opacity-90">
+              {task.description}
+            </p>
           </div>
 
           {/* Key information section */}
@@ -134,22 +151,27 @@ export default function TaskSummaryCard(task: taskAdditionalDetails) {
               <CalendarBlank className="h-4 w-4 mr-1.5 text-baseSecondary" />
               <span className={deadlineClass}>{formattedDeadline}</span>
             </div>
-            
+
             {task.volunteersNeeded > 0 && (
               <div className="flex items-center col-span-1">
                 <Users className="h-4 w-4 mr-1.5 text-baseSecondary" />
-                <span>{task.volunteersNeeded} volunteer{task.volunteersNeeded !== 1 ? 's' : ''}</span>
+                <span>
+                  {task.volunteersNeeded} volunteer
+                  {task.volunteersNeeded !== 1 ? "s" : ""}
+                </span>
               </div>
             )}
-            
+
             {/* Display location if InPerson */}
             {isInPerson && task.location && (
               <div className="flex items-center col-span-2 text-xs mt-1">
                 <MapPin className="h-4 w-4 mr-1.5 text-baseSecondary" />
-                <span className="truncate py-[1px]">{task.location.address}</span>
+                <span className="truncate py-[1px]">
+                  {task.location.address}
+                </span>
               </div>
             )}
-            
+
             {task.charityName && (
               <div className="flex items-center col-span-2 text-xs mt-1">
                 <Buildings className="h-4 w-4 mr-1.5 text-baseSecondary" />
@@ -175,10 +197,10 @@ export default function TaskSummaryCard(task: taskAdditionalDetails) {
                   </div>
                 ))}
                 {task.requiredSkills.length > 3 && (
-                  <div 
-                    className="rounded-md px-2.5 py-1 text-xs font-medium  text-baseSecondary border border-baseSecondary/20 shadow-sm flex items-center"
-                  >
-                    <span className="mr-1">+{task.requiredSkills.length - 3}</span>
+                  <div className="rounded-md px-2.5 py-1 text-xs font-medium  text-baseSecondary border border-baseSecondary/20 shadow-sm flex items-center">
+                    <span className="mr-1">
+                      +{task.requiredSkills.length - 3}
+                    </span>
                     <span className="text-[10px] opacity-80">more</span>
                   </div>
                 )}
@@ -189,8 +211,10 @@ export default function TaskSummaryCard(task: taskAdditionalDetails) {
           {/* Status indicator if available */}
           {task.status && (
             <div className="text-right mt-3">
-              <span className={`text-xs font-medium px-2.5 py-1 rounded-md ${getStatusColor(task.status)}`}>
-                {task.status.replace('_', ' ')}
+              <span
+                className={`text-xs font-medium px-2.5 py-1 rounded-md ${getStatusColor(task.status)}`}
+              >
+                {task.status.replace("_", " ")}
               </span>
             </div>
           )}

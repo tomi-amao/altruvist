@@ -5,7 +5,12 @@ import type { Prisma } from "@prisma/client";
 import { ObjectIdSchema } from "~/services/validators.server";
 // import https from "https";
 import fetch from "node-fetch";
-import { INDICES, indexDocument, deleteDocument, isMeilisearchConnected } from "~/services/meilisearch.server";
+import {
+  INDICES,
+  indexDocument,
+  deleteDocument,
+  isMeilisearchConnected,
+} from "~/services/meilisearch.server";
 import { createNovuSubscriber } from "~/services/novu.server";
 
 // create a mongodb user document if user from zitadel directory does not exist
@@ -16,8 +21,7 @@ export const createUser = async (user: zitadelUserInfo) => {
   });
 
   if (userExists === 1) {
-
-    const existingUserInfo =  await prisma.users.findUnique({
+    const existingUserInfo = await prisma.users.findUnique({
       where: { zitadelId: user.sub },
     });
     console.log("User already exists", existingUserInfo);
@@ -29,7 +33,6 @@ export const createUser = async (user: zitadelUserInfo) => {
       status: 202,
       statusText: "user exists",
     };
-    
   }
   try {
     const newUser = await prisma.users.create({
@@ -117,7 +120,7 @@ export const getUserInfo = async (
 
 export const getUserById = async (userId: string) => {
   console.log("User ID acs:", userId);
-  
+
   try {
     const user = await prisma.users.findUnique({
       where: { id: userId },
@@ -127,7 +130,7 @@ export const getUserById = async (userId: string) => {
     console.error("Error in getUserById:", error);
     throw new Error("Failed to fetch user");
   }
-}
+};
 
 export const updateUserInfo = async (
   userId: string,
@@ -142,7 +145,6 @@ export const updateUserInfo = async (
     if (!user) {
       return { message: "No user Found" };
     }
-
 
     const updatedUserInfo = await prisma.users.update({
       where: { id: userId },
@@ -252,10 +254,9 @@ export async function getUserTaskApplications(userId: string) {
         userId: userId,
       },
       orderBy: {
-        createdAt: 'desc', // Sort by most recent first
+        createdAt: "desc", // Sort by most recent first
       },
     });
-    
 
     if (taskApplications.length === 0) {
       console.warn("No task applications found for user:", userId);

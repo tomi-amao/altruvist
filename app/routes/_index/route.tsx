@@ -9,7 +9,7 @@ import {
   Users,
   Star,
   Clock,
-  Buildings
+  Buildings,
 } from "phosphor-react";
 import { getUserInfo } from "~/models/user2.server";
 import { getSession, commitSession } from "~/services/session.server";
@@ -26,13 +26,12 @@ import { users } from "@prisma/client";
 import type { Task } from "~/types/tasks";
 
 export const meta: MetaFunction = () => {
-
   return [
-
     { title: "Altruvist" },
     {
       name: "description",
-      content: "Donate your digital skills to make a difference. Join Altruvist today!"
+      content:
+        "Donate your digital skills to make a difference. Join Altruvist today!",
     },
   ];
 };
@@ -44,8 +43,8 @@ export default function Index() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [signedProfilePicture, setSignedProfilePicture] = useState<
-  string | null
->(null);
+    string | null
+  >(null);
   const [clientSideError, setClientSideError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -65,7 +64,7 @@ export default function Index() {
           }
         });
       },
-      { threshold: 0.5 }
+      { threshold: 0.5 },
     );
 
     if (statsRef.current) {
@@ -75,15 +74,14 @@ export default function Index() {
     return () => observer.disconnect();
   }, []);
 
-
   const sampleData = [
-    { x: new Date('2023-01-01'), y: 50 },
-    { x: new Date('2023-02-01'), y: 60 },
-    { x: new Date('2023-03-01'), y: 45 },
-    { x: new Date('2023-04-01'), y: 70 },
-    { x: new Date('2023-05-01'), y: 65 },
-    { x: new Date('2023-06-01'), y: 85 },
-    { x: new Date('2023-07-01'), y: 90 },
+    { x: new Date("2023-01-01"), y: 50 },
+    { x: new Date("2023-02-01"), y: 60 },
+    { x: new Date("2023-03-01"), y: 45 },
+    { x: new Date("2023-04-01"), y: 70 },
+    { x: new Date("2023-05-01"), y: 65 },
+    { x: new Date("2023-06-01"), y: 85 },
+    { x: new Date("2023-07-01"), y: 90 },
   ];
 
   const stats = [
@@ -128,11 +126,14 @@ export default function Index() {
     fetchSignedUrl();
   }, [userInfo?.profilePicture]);
 
-
   return (
     <div className="bg-gradient-to-b from-baseSecondary ">
       {/* <Navbar altBackground={true} userId={userInfo?.id} /> */}
-      <LandingHeader userId={userInfo?.id} userInfo={userInfo as unknown as users} profilePicture={signedProfilePicture || undefined}  />
+      <LandingHeader
+        userId={userInfo?.id}
+        userInfo={userInfo as unknown as users}
+        profilePicture={signedProfilePicture || undefined}
+      />
 
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center overflow-hidden flex-col pt-60">
@@ -146,9 +147,12 @@ export default function Index() {
             <h1 className="text-5xl lg:text-7xl font-bold text-accentPrimary  mb-6">
               Donate Your Skills, Make a Difference
             </h1>
-            {clientSideError && <Notification type="error" message={clientSideError}/>}
+            {clientSideError && (
+              <Notification type="error" message={clientSideError} />
+            )}
             <p className="text-xl text-basePrimary mb-8 max-w-lg">
-              Connect with charities and make a real impact with your technical expertise, helping organizations scale their missions.
+              Connect with charities and make a real impact with your technical
+              expertise, helping organizations scale their missions.
             </p>
             <div className="flex flex-wrap gap-4">
               <motion.button
@@ -174,19 +178,22 @@ export default function Index() {
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <img src="/pulling-medicare.png" alt="Making an impact" className="w-full h-auto max-w-md mx-auto" />
+            <img
+              src="/pulling-medicare.png"
+              alt="Making an impact"
+              className="w-full h-auto max-w-md mx-auto"
+            />
             <motion.div
               animate={{ y: [0, -15, 0] }}
               transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
               className="relative z-10"
-            >
-            </motion.div>
+            ></motion.div>
             {/* Background decorative elements */}
             <motion.div
               className="absolute z-10 w-72 h-72 bg-accentPrimary/40 rounded-full blur-3xl"
               animate={{
                 scale: [1, 1.2, 1],
-                opacity: [0.4, 0.7, 0.4] // Ensure it never goes below 0.4
+                opacity: [0.4, 0.7, 0.4], // Ensure it never goes below 0.4
               }}
               transition={{
                 duration: 8,
@@ -194,15 +201,15 @@ export default function Index() {
                 ease: "easeInOut",
               }}
               style={{
-                top: '10%',
-                right: '15%',
+                top: "10%",
+                right: "15%",
               }}
             />
             <motion.div
               className="absolute z-10 w-72 h-72 bg-accentPrimary/40 rounded-full blur-3xl"
               animate={{
                 scale: [1.2, 1, 1.2],
-                opacity: [0.4, 0.7, 0.4] // Ensure it never goes below 0.4
+                opacity: [0.4, 0.7, 0.4], // Ensure it never goes below 0.4
               }}
               transition={{
                 duration: 10,
@@ -210,30 +217,27 @@ export default function Index() {
                 ease: "easeInOut",
               }}
               style={{
-                bottom: '10%',
-                left: '5%',
+                bottom: "10%",
+                left: "5%",
               }}
             />
-
           </motion.div>
-
         </div>
         <div className="top-28 relative">
-
           <CompanyLogoBanner />
         </div>
-
       </section>
-
-
-
 
       {/* How It Works Section */}
 
       <section className="bg-basetext-baseSecondary min-h-screen flex items-center">
         <div className="container mx-auto px-6 py-16">
           <div className="pb-10">
-            <img src="/hugging-old.png" alt="Making an impact" className="w-full h-auto max-w-md mx-auto" />
+            <img
+              src="/hugging-old.png"
+              alt="Making an impact"
+              className="w-full h-auto max-w-md mx-auto"
+            />
           </div>
           <motion.div
             className="text-center mb-16"
@@ -242,36 +246,45 @@ export default function Index() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-4xl font-bold mb-4  text-accentPrimary/80">How It Works</h2>
+            <h2 className="text-4xl font-bold mb-4  text-accentPrimary/80">
+              How It Works
+            </h2>
             <div className="w-24 h-1 bg-accentPrimary mx-auto mb-6"></div>
             <p className="text-lg text-basePrimary max-w-xl mx-auto">
-              Join our platform in three simple steps and start making an impact through your technical skills.
+              Join our platform in three simple steps and start making an impact
+              through your technical skills.
             </p>
           </motion.div>
-
 
           <div className="grid md:grid-cols-3 gap-10 max-w-5xl mx-auto text-basePrimary">
             {[
               {
                 title: "Register",
                 icon: <Target size={32} weight="fill" />,
-                description: "Create your account and list your unique technical skills and availability."
+                description:
+                  "Create your account and list your unique technical skills and availability.",
               },
               {
                 title: "Find Projects",
                 icon: <MagnifyingGlass size={32} weight="fill" />,
-                description: "Browse charitable projects that match your expertise and interests."
+                description:
+                  "Browse charitable projects that match your expertise and interests.",
               },
               {
                 title: "Make Impact",
                 icon: <Sparkle size={32} weight="fill" />,
-                description: "Contribute your skills and help charities achieve their digital goals."
-              }
+                description:
+                  "Contribute your skills and help charities achieve their digital goals.",
+              },
             ].map((step, index) => (
               <motion.div
                 key={index}
                 className="bg-baseSecondary/50 rounded-xl p-8 text-center shadow-lg border  relative"
-                whileHover={{ y: -8, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
+                whileHover={{
+                  y: -8,
+                  boxShadow:
+                    "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+                }}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -280,7 +293,9 @@ export default function Index() {
                 <div className="w-16 h-16 rounded-full bg-accentPrimary/10 text-accentPrimary flex items-center justify-center mb-6 mx-auto">
                   {step.icon}
                 </div>
-                <h3 className="text-2xl font-bold mb-4 text-accentPrimary/90">{step.title}</h3>
+                <h3 className="text-2xl font-bold mb-4 text-accentPrimary/90">
+                  {step.title}
+                </h3>
                 <p className="text-basePrimary">{step.description}</p>
 
                 {/* Step number indicator */}
@@ -289,10 +304,8 @@ export default function Index() {
                 </div>
               </motion.div>
             ))}
-
           </div>
         </div>
-
       </section>
 
       {/* Stats Section */}
@@ -305,14 +318,20 @@ export default function Index() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-4xl font-bold mb-4 text-accentPrimary">Our Impact</h2>
+            <h2 className="text-4xl font-bold mb-4 text-accentPrimary">
+              Our Impact
+            </h2>
             <div className="w-24 h-1 bg-accentPrimary mx-auto mb-6"></div>
             <p className="text-lg max-w-xl mx-auto text-accentPrimary">
-              Together we&apos;re creating lasting change for charities worldwide.
+              Together we&apos;re creating lasting change for charities
+              worldwide.
             </p>
           </motion.div>
 
-          <div ref={statsRef} className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto shrink">
+          <div
+            ref={statsRef}
+            className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto shrink"
+          >
             {/* Stats Cards */}
             <div className="space-y-8 max-w-md mx-auto w-full">
               {stats.map((stat, index) => (
@@ -382,7 +401,6 @@ export default function Index() {
         </div>
       </section>
 
-
       {/* <SuccessStoriesSection/> */}
       {/* Recent Tasks Section */}
       <section className="text-baseSecondary min-h-screen flex items-center">
@@ -394,7 +412,9 @@ export default function Index() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-4xl font-bold mb-4 text-baseSecondary">Latest Opportunities</h2>
+            <h2 className="text-4xl font-bold mb-4 text-baseSecondary">
+              Latest Opportunities
+            </h2>
             <div className="w-24 h-1 bg-accentPrimary mx-auto mb-6"></div>
             <p className="text-lg  max-w-xl mx-auto">
               Browse some of the most recent projects that need your expertise.
@@ -412,19 +432,30 @@ export default function Index() {
                 transition={{ delay: index * 0.15, duration: 0.5 }}
                 whileHover={{
                   y: -8,
-                  boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+                  boxShadow:
+                    "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
                 }}
               >
-                <div className={`h-2 ${task.urgency === 'HIGH' ? 'bg-dangerPrimary' :
-                  task.urgency === 'MEDIUM' ? 'bg-accentPrimary' :
-                    'bg-confirmPrimary'
-                  }`}></div>
+                <div
+                  className={`h-2 ${
+                    task.urgency === "HIGH"
+                      ? "bg-dangerPrimary"
+                      : task.urgency === "MEDIUM"
+                        ? "bg-accentPrimary"
+                        : "bg-confirmPrimary"
+                  }`}
+                ></div>
                 <div className="p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${task.urgency === 'HIGH' ? 'bg-dangerPrimary/10 text-dangerPrimary' :
-                      task.urgency === 'MEDIUM' ? 'bg-accentPrimary/10 text-accentPrimary' :
-                        'bg-confirmPrimary/10 text-confirmPrimary'
-                      }`}>
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        task.urgency === "HIGH"
+                          ? "bg-dangerPrimary/10 text-dangerPrimary"
+                          : task.urgency === "MEDIUM"
+                            ? "bg-accentPrimary/10 text-accentPrimary"
+                            : "bg-confirmPrimary/10 text-confirmPrimary"
+                      }`}
+                    >
                       {task.urgency} URGENCY
                     </span>
                     <span className="text-sm  flex items-center">
@@ -432,7 +463,9 @@ export default function Index() {
                       {task._count.taskApplications} applicants
                     </span>
                   </div>
-                  <h3 className="text-xl font-bold mb-2 text-baseSecondary">{task.title}</h3>
+                  <h3 className="text-xl font-bold mb-2 text-baseSecondary">
+                    {task.title}
+                  </h3>
                   <p className=" mb-4 flex items-center">
                     <Buildings size={16} className="mr-2" />
                     {task.charity.name}
@@ -444,8 +477,18 @@ export default function Index() {
                     onClick={() => openTaskDetailsModal(task)}
                   >
                     <span>View Details</span>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M14 5l7 7m0 0l-7 7m7-7H3"
+                      ></path>
                     </svg>
                   </motion.button>
                 </div>
@@ -471,10 +514,12 @@ export default function Index() {
             </Link>
           </motion.div>
           <div className="pt-8">
-
-            <img src="/tent-careworker.png" alt="Making an impact" className="w-full h-auto max-w-md mx-auto" />
+            <img
+              src="/tent-careworker.png"
+              alt="Making an impact"
+              className="w-full h-auto max-w-md mx-auto"
+            />
           </div>
-
         </div>
       </section>
 
@@ -498,7 +543,8 @@ export default function Index() {
                 viewport={{ once: true }}
                 transition={{ delay: 0.2 }}
               >
-                Join our community today and help charities achieve their missions through your unique digital expertise.
+                Join our community today and help charities achieve their
+                missions through your unique digital expertise.
               </motion.p>
               <motion.div
                 className="flex flex-col sm:flex-row gap-4 justify-center"
@@ -514,11 +560,13 @@ export default function Index() {
                 >
                   Make an Impact
                 </motion.button>
-
               </motion.div>
               <div className="pt-8">
-
-                <img src="/flooded-house.png" alt="Making an impact" className="w-full h-auto max-w-md mx-auto" />
+                <img
+                  src="/flooded-house.png"
+                  alt="Making an impact"
+                  className="w-full h-auto max-w-md mx-auto"
+                />
               </div>
             </div>
           </div>
@@ -539,19 +587,17 @@ export default function Index() {
             </div>
             <div>
               <h4 className="font-bold text-lg mb-6">Quick Links</h4>
-              <ul className="space-y-3">
-                {/* ...existing code... */}
-              </ul>
+              <ul className="space-y-3">{/* ...existing code... */}</ul>
             </div>
             <div>
               <h4 className="font-bold text-lg mb-6">Resources</h4>
-              <ul className="space-y-3">
-                {/* ...existing code... */}
-              </ul>
+              <ul className="space-y-3">{/* ...existing code... */}</ul>
             </div>
             <div>
               <h4 className="font-bold text-lg mb-6">Subscribe</h4>
-              <p className=" mb-4">Stay updated with our latest opportunities</p>
+              <p className=" mb-4">
+                Stay updated with our latest opportunities
+              </p>
               <form className="flex flex-col space-y-2">
                 <input
                   type="email"
@@ -575,7 +621,9 @@ export default function Index() {
       </footer>
 
       {/* Task Details Modal */}
-      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)}> and additional details for TaskDetailsCard
+      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)}>
+        {" "}
+        and additional details for TaskDetailsCard
         {selectedTask && (
           <div className="bg-basePrimary rounded-xl shadow-2xl max-w-4xl w-full">
             <TaskDetailsCard
@@ -640,8 +688,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   // Only commit session if there was a flash message
   const headers = flashError
     ? {
-      "Set-Cookie": await commitSession(session),
-    }
+        "Set-Cookie": await commitSession(session),
+      }
     : undefined;
 
   let userInfoResult = null;

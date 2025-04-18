@@ -13,8 +13,8 @@ export default [
   {
     files: ["**/*.{js,jsx,ts,tsx}"],
     ignores: [
-      "**/node_modules/*", 
-      ".server/*", 
+      "**/node_modules/*",
+      ".server/*",
       ".client/*",
       "**/build/**",
       "**/playwright-report/**",
@@ -22,7 +22,7 @@ export default [
       "**/coverage/**",
       "**/dist/**",
       "**/.cache/**",
-      "**/public/build/**"
+      "**/public/build/**",
     ],
     languageOptions: {
       ecmaVersion: "latest",

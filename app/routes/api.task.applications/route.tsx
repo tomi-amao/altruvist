@@ -1,5 +1,12 @@
 import { ActionFunctionArgs, json } from "@remix-run/node";
-import { updateTask, deleteTask, updateTaskApplicationStatus, removeVolunteerFromTask, deleteUserTaskApplication, getTaskApplication } from "~/models/tasks.server";
+import {
+  updateTask,
+  deleteTask,
+  updateTaskApplicationStatus,
+  removeVolunteerFromTask,
+  deleteUserTaskApplication,
+  getTaskApplication,
+} from "~/models/tasks.server";
 
 export async function action({ request }: ActionFunctionArgs) {
   const data = await request.formData();
@@ -14,31 +21,39 @@ export async function action({ request }: ActionFunctionArgs) {
 
   try {
     switch (intent) {
-
       case "getTaskApplication": {
-        const selectedTaskApplication = data.get("selectedTaskApplication")?.toString() || "";
-        
+        const selectedTaskApplication =
+          data.get("selectedTaskApplication")?.toString() || "";
+
         try {
           const parsedApplication = JSON.parse(selectedTaskApplication);
-          
+
           if (!parsedApplication.id) {
-            return json({ error: "Task application ID is required" }, { status: 400 });
+            return json(
+              { error: "Task application ID is required" },
+              { status: 400 },
+            );
           }
-          
+
           console.log("Getting Task Application:", parsedApplication.id);
-          const taskApplicationResult = await getTaskApplication(parsedApplication.id);
-          
-          return json({ 
+          const taskApplicationResult = await getTaskApplication(
+            parsedApplication.id,
+          );
+
+          return json({
             taskApplication: taskApplicationResult,
-            success: true 
+            success: true,
           });
         } catch (error) {
           console.error("Error getting task application:", error);
-          return json({ 
-            error: "Failed to get task application" 
-          }, { status: 500 });
+          return json(
+            {
+              error: "Failed to get task application",
+            },
+            { status: 500 },
+          );
         }
-      }  
+      }
       case "updateTask": {
         if (!taskId || !updateTaskData) {
           throw new Error("Task ID and update data are required");

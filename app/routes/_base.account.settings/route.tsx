@@ -69,7 +69,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   }
 
-
   return { userInfo, signedProfilePicture, FEATURE_FLAG, COMPANION_URL };
 }
 
@@ -257,7 +256,8 @@ export const meta: MetaFunction = () => {
 };
 
 export default function AccountSettings() {
-  const { userInfo, FEATURE_FLAG, COMPANION_URL } = useLoaderData<typeof loader>();
+  const { userInfo, FEATURE_FLAG, COMPANION_URL } =
+    useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
@@ -293,30 +293,30 @@ export default function AccountSettings() {
     },
     ...(FEATURE_FLAG
       ? [
-        {
-          id: "security",
-          label: "Security",
-          icon: <ShieldCheck weight="fill" size={24} />,
-        },
-      ]
+          {
+            id: "security",
+            label: "Security",
+            icon: <ShieldCheck weight="fill" size={24} />,
+          },
+        ]
       : []),
     ...(FEATURE_FLAG
       ? [
-        {
-          id: "notifications",
-          label: "Notifications",
-          icon: <Bell weight="fill" size={24} />,
-        },
-      ]
+          {
+            id: "notifications",
+            label: "Notifications",
+            icon: <Bell weight="fill" size={24} />,
+          },
+        ]
       : []),
     ...(userInfo?.roles?.includes("charity")
       ? [
-        {
-          id: "charity",
-          label: "Charity",
-          icon: <Buildings weight="fill" size={24} />,
-        },
-      ]
+          {
+            id: "charity",
+            label: "Charity",
+            icon: <Buildings weight="fill" size={24} />,
+          },
+        ]
       : []),
     {
       id: "danger",
@@ -447,10 +447,11 @@ export default function AccountSettings() {
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`w-full text-left px-4 py-3 rounded-md transition-colors duration-200 flex items-center gap-3
-              ${activeTab === tab.id
-                      ? "bg-baseSecondary text-basePrimary"
-                      : "text-baseSecondary hover:bg-basePrimaryLight"
-                    }`}
+              ${
+                activeTab === tab.id
+                  ? "bg-baseSecondary text-basePrimary"
+                  : "text-baseSecondary hover:bg-basePrimaryLight"
+              }`}
                 >
                   <span
                     className={
@@ -650,22 +651,23 @@ export default function AccountSettings() {
                     )}
                     {actionData?.errors?.find((error) => error.field === "form")
                       ?.message && (
-                        <p className="text-dangerPrimary">
-                          ⚠{" "}
-                          {
-                            actionData.errors.find(
-                              (error) => error.field === "form",
-                            )?.message
-                          }
-                        </p>
-                      )}
+                      <p className="text-dangerPrimary">
+                        ⚠{" "}
+                        {
+                          actionData.errors.find(
+                            (error) => error.field === "form",
+                          )?.message
+                        }
+                      </p>
+                    )}
                     <button
                       type="submit"
                       disabled={isSubmitting}
                       className={`px-4 py-2 bg-baseSecondary text-basePrimary rounded-md transition-colors
-                        ${isSubmitting
-                          ? "opacity-70 cursor-not-allowed"
-                          : "hover:bg-baseSecondary/90"
+                        ${
+                          isSubmitting
+                            ? "opacity-70 cursor-not-allowed"
+                            : "hover:bg-baseSecondary/90"
                         }`}
                     >
                       {isSubmitting ? "Saving..." : "Save Changes"}
@@ -831,9 +833,10 @@ export default function AccountSettings() {
                       type="submit"
                       disabled={isSubmitting}
                       className={`px-4 py-2 bg-baseSecondary text-basePrimary rounded-md transition-colors
-                        ${isSubmitting
-                          ? "opacity-70 cursor-not-allowed"
-                          : "hover:bg-baseSecondary/90"
+                        ${
+                          isSubmitting
+                            ? "opacity-70 cursor-not-allowed"
+                            : "hover:bg-baseSecondary/90"
                         }`}
                     >
                       {isSubmitting ? "Saving..." : "Save Changes"}

@@ -1,4 +1,10 @@
-import { Form, Link, useFetcher, useLocation, useNavigate } from "@remix-run/react";
+import {
+  Form,
+  Link,
+  useFetcher,
+  useLocation,
+  useNavigate,
+} from "@remix-run/react";
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { SearchDropdown } from "../utils/selectDropdown";
 import { z } from "zod";
@@ -23,8 +29,6 @@ export default function Navbar({
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
-
-
 
   useEffect(() => {
     const handleScroll = () => {
@@ -57,7 +61,7 @@ export default function Navbar({
   const fetcher = useFetcher();
   const navigate = useNavigate();
   const [validationError, setValidationError] = useState<string | null>(null);
-  const location = useLocation()
+  const location = useLocation();
 
   // console.log(Boolean(searchError));
 
@@ -146,12 +150,12 @@ export default function Navbar({
     }
   };
 
-
   return (
     <>
       <div
-        className={`fixed w-full transition-transform duration-300 ease-in-out z-50 ${showNavbar ? "transform translate-y-0" : "transform -translate-y-full"
-          } border-b-[1px] border-b-baseSecondary h-fit ${altBackground && "bg-baseSecondary"}  bg-basePrimary`}
+        className={`fixed w-full transition-transform duration-300 ease-in-out z-50 ${
+          showNavbar ? "transform translate-y-0" : "transform -translate-y-full"
+        } border-b-[1px] border-b-baseSecondary h-fit ${altBackground && "bg-baseSecondary"}  bg-basePrimary`}
         ref={ref}
       >
         <div className="flex justify-between h-auto px-2 flex-row items-center gap-4">
@@ -159,10 +163,7 @@ export default function Navbar({
             to={"/"}
             className={`text-3xl   lg:text-4xl pl-4 font-semibold ${altBackground ? "text-accentPrimary" : "text-baseSecondary"} tracking-wide  font-header `}
           >
-            <img
-              src="/favicon.ico"
-              alt="ZitHive Logo"
-              className="" />
+            <img src="/favicon.ico" alt="ZitHive Logo" className="" />
           </Link>
 
           <Link
@@ -216,12 +217,8 @@ export default function Navbar({
           <InboxNotifications
             applicationIdentifier="rrCIU_4tFdsZ"
             subscriberId={userId ?? ""}
-
           />
-          <button
-            className=" flex px-3 py-2 rounded"
-            onClick={toggleDropdown}
-          >
+          <button className=" flex px-3 py-2 rounded" onClick={toggleDropdown}>
             <List
               size={24}
               weight="bold"
@@ -236,8 +233,9 @@ export default function Navbar({
         </div>
 
         <div
-          className={`fixed right-0 h-screen w-64 transform transition-transform duration-300 ease-in-out ${isDropdownOpen ? "translate-x-0" : "translate-x-full"
-            }  bg-basePrimaryLight z-10 font-primary rounded-md`}
+          className={`fixed right-0 h-screen w-64 transform transition-transform duration-300 ease-in-out ${
+            isDropdownOpen ? "translate-x-0" : "translate-x-full"
+          }  bg-basePrimaryLight z-10 font-primary rounded-md`}
         >
           <nav className="flex flex-col p-4 gap-2 text-baseSecondary">
             <NavListPages userId={userId} />
@@ -331,7 +329,6 @@ export const NavListAuth = ({
           </Link>
         </>
       )}
-
     </>
   );
 };

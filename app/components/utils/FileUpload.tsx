@@ -15,7 +15,6 @@ import "@uppy/dashboard/dist/style.css";
 import "@uppy/image-editor/dist/style.css";
 import "@uppy/progress-bar/dist/style.css";
 
-
 const FileUpload = ({
   formTarget,
   uppyId,
@@ -32,7 +31,7 @@ const FileUpload = ({
 }) => {
   const [uppyInstance, setUppyInstance] = useState<Uppy | null>(null);
   const [error, setError] = useState<string | null>(null);
-  
+
   useEffect(() => {
     async function initializeUppy() {
       try {

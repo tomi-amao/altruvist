@@ -1,7 +1,10 @@
 import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
 import { getUserInfo } from "~/models/user2.server";
 import { prisma } from "~/services/db.server";
-import { addNovuSubscriberToTopic, triggerNotification } from "~/services/novu.server";
+import {
+  addNovuSubscriberToTopic,
+  triggerNotification,
+} from "~/services/novu.server";
 import { getSession } from "~/services/session.server";
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -53,12 +56,13 @@ export async function action({ request }: ActionFunctionArgs) {
     });
 
     console.log("Application created:", createApplication);
-    
 
-    
     const task = await prisma.tasks.findUnique({ where: { id: taskId } });
-    await addNovuSubscriberToTopic([userId], task?.notifyTopicId.find(item => item.includes("volunteers")) ?? "");
-    
+    await addNovuSubscriberToTopic(
+      [userId],
+      task?.notifyTopicId.find((item) => item.includes("volunteers")) ?? "",
+    );
+
     await triggerNotification({
       userInfo,
       workflowId: "applications-feed",
@@ -70,9 +74,8 @@ export async function action({ request }: ActionFunctionArgs) {
         taskId: task?.id,
       },
       type: "Topic",
-      topicKey: task?.notifyTopicId.find(item => item.includes("charities"))
+      topicKey: task?.notifyTopicId.find((item) => item.includes("charities")),
     });
-    
 
     return json(
       {

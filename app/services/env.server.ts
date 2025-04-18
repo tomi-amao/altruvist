@@ -32,7 +32,6 @@ export function getMeiliVars() {
   };
 }
 
-
 export function getCompanionVars() {
   return {
     COMPANION_URL: process.env.COMPANION_URL ?? "",

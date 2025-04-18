@@ -11,14 +11,17 @@ export function Popover({ children }: PopoverProps) {
   // Close the popover when clicking outside of it
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
+      if (
+        popoverRef.current &&
+        !popoverRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -28,19 +31,19 @@ export function Popover({ children }: PopoverProps) {
   const content = triggerAndContent[1];
 
   const handleToggle = () => setIsOpen(!isOpen);
-  
+
   const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === 'Enter' || event.key === ' ') {
+    if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       setIsOpen(!isOpen);
-    } else if (event.key === 'Escape' && isOpen) {
+    } else if (event.key === "Escape" && isOpen) {
       setIsOpen(false);
     }
   };
 
   return (
     <div className="relative inline-block" ref={popoverRef}>
-      <div 
+      <div
         onClick={handleToggle}
         onKeyDown={handleKeyDown}
         role="button"
@@ -59,15 +62,15 @@ export function PopoverTrigger({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-export function PopoverContent({ 
-  children, 
-  className = "" 
-}: { 
+export function PopoverContent({
+  children,
+  className = "",
+}: {
   children: React.ReactNode;
   className?: string;
 }) {
   return (
-    <div 
+    <div
       className={`absolute z-50 mt-10 md:mt-2 sm:right-0 rounded-md shadow-lg border border-baseSecondary 
       sm:max-w-md md:max-w-lg lg:max-w-xl
       max-sm:fixed max-sm:top-4 max-sm:right-2 max-sm:left-2 ${className}`}

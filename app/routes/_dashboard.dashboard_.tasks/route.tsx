@@ -38,7 +38,10 @@ import { useEffect, useMemo, useState } from "react";
 import TaskForm from "~/components/tasks/TaskForm";
 import { ServerRuntimeMetaFunction as MetaFunction } from "@remix-run/server-runtime";
 import { getCompanionVars } from "~/services/env.server";
-import { deleteNovuSubscriber, triggerNotification } from "~/services/novu.server";
+import {
+  deleteNovuSubscriber,
+  triggerNotification,
+} from "~/services/novu.server";
 
 export const meta: MetaFunction = () => {
   return [
@@ -102,7 +105,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       error: error.message,
       isLoading: false,
       userName: null,
-      uploadURL: null
+      uploadURL: null,
     });
   }
 }
@@ -301,7 +304,6 @@ export default function ManageTasks() {
           onVolunteerFilterChange={setVolunteerFilterType}
           activeVolunteerFilter={volunteerFilterType}
         />
-      
 
         <TaskSearchFilter
           onSearch={setSearchQuery}
@@ -323,7 +325,6 @@ export default function ManageTasks() {
           userRole={userRole[0]}
         />
       </div>
-
 
       {!showCreateTask && (
         <div className="lg:w-2/3 w-full pt-4 lg:pt-0">
@@ -389,11 +390,9 @@ export async function action({ request }: ActionFunctionArgs) {
   const userId = data.get("userId")?.toString();
   const intent = data.get("_action")?.toString();
 
-
   console.log("Action Type:", intent);
   console.log("Task ID:", taskId);
   console.log("User ID:", userId);
-  
 
   try {
     switch (intent) {
@@ -485,10 +484,10 @@ export async function action({ request }: ActionFunctionArgs) {
         );
 
         console.log("task application:", parsedApplication.id);
-        
-        const {user : userInfo} = await getUserById(userId);
+
+        const { user: userInfo } = await getUserById(userId);
         console.log("taskID:", taskApplication.id);
-        
+
         const task = await getTask(taskId);
         console.log("task:", task);
 
@@ -503,7 +502,9 @@ export async function action({ request }: ActionFunctionArgs) {
             taskId: task?.id,
           },
           type: "Topic",
-          topicKey: task?.notifyTopicId.find(item => item.includes("volunteers"))
+          topicKey: task?.notifyTopicId.find((item) =>
+            item.includes("volunteers"),
+          ),
         });
 
         if (result.error) {
@@ -524,10 +525,10 @@ export async function action({ request }: ActionFunctionArgs) {
         );
 
         console.log("task application:", parsedApplication.id);
-        
-        const {user : userInfo} = await getUserById(userId);
+
+        const { user: userInfo } = await getUserById(userId);
         console.log("taskID:", taskApplication.id);
-        
+
         const task = await getTask(taskId);
         console.log("task:", task);
 
@@ -542,7 +543,9 @@ export async function action({ request }: ActionFunctionArgs) {
             taskId: task?.id,
           },
           type: "Topic",
-          topicKey: task?.notifyTopicId.find(item => item.includes("volunteers"))
+          topicKey: task?.notifyTopicId.find((item) =>
+            item.includes("volunteers"),
+          ),
         });
 
         if (result.error) {
@@ -576,13 +579,13 @@ export async function action({ request }: ActionFunctionArgs) {
           "PENDING",
         );
         console.log("task application:", parsedApplication.id);
-        
-        const {user : userInfo} = await getUserById(userId);
+
+        const { user: userInfo } = await getUserById(userId);
         console.log("taskID:", taskApplication.id);
-        
+
         const task = await getTask(taskId);
         console.log("task:", task);
-        
+
         await triggerNotification({
           userInfo,
           workflowId: "applications-feed",
@@ -594,7 +597,9 @@ export async function action({ request }: ActionFunctionArgs) {
             taskId: task?.id,
           },
           type: "Topic",
-          topicKey: task?.notifyTopicId.find(item => item.includes("charities"))
+          topicKey: task?.notifyTopicId.find((item) =>
+            item.includes("charities"),
+          ),
         });
 
         if (result.error) {
@@ -607,14 +612,15 @@ export async function action({ request }: ActionFunctionArgs) {
         // Handle both direct application and application ID scenarios
         if (data.has("selectedTaskApplication")) {
           // Handle selected task application case
-          const taskApplication = data.get("selectedTaskApplication")?.toString() || "";
+          const taskApplication =
+            data.get("selectedTaskApplication")?.toString() || "";
           const parsedApplication = JSON.parse(taskApplication);
           const result = await deleteUserTaskApplication(parsedApplication.id);
-          
+
           console.log(result);
 
           const deleteSubscriberResult = await deleteNovuSubscriber(userId);
-          console.log('Delete Subscriber Result:', deleteSubscriberResult);
+          console.log("Delete Subscriber Result:", deleteSubscriberResult);
 
           if (result.error) {
             return json({ error: result.message }, { status: 400 });
@@ -623,32 +629,48 @@ export async function action({ request }: ActionFunctionArgs) {
           return json({ success: true, application: result.data });
         } else if (taskId && userId) {
           // Handle direct task ID and user ID case (from TaskDetailsCard)
-          console.log("Deleting application for task:", taskId, "and user:", userId);
-          
+          console.log(
+            "Deleting application for task:",
+            taskId,
+            "and user:",
+            userId,
+          );
+
           // Find the task application by taskId and userId
           const task = await getTask(taskId);
           if (!task || !task.taskApplications) {
-            return json({ error: "Task or task applications not found" }, { status: 404 });
+            return json(
+              { error: "Task or task applications not found" },
+              { status: 404 },
+            );
           }
-          
-          const taskApplication = task.taskApplications.find(app => app.userId === userId);
+
+          const taskApplication = task.taskApplications.find(
+            (app) => app.userId === userId,
+          );
           if (!taskApplication) {
-            return json({ error: "Task application not found" }, { status: 404 });
+            return json(
+              { error: "Task application not found" },
+              { status: 404 },
+            );
           }
-          
+
           const result = await deleteUserTaskApplication(taskApplication.id);
-          
+
           if (result.error) {
             return json({ error: result.message }, { status: 400 });
           }
-          
-          return json({ 
-            success: true, 
-            message: "Application withdrawn successfully", 
-            application: result.deletedApplication 
+
+          return json({
+            success: true,
+            message: "Application withdrawn successfully",
+            application: result.deletedApplication,
           });
         } else {
-          return json({ error: "Missing required information" }, { status: 400 });
+          return json(
+            { error: "Missing required information" },
+            { status: 400 },
+          );
         }
       }
 

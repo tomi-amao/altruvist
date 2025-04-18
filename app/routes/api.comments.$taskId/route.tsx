@@ -90,11 +90,11 @@ export async function action({ params, request }: ActionFunctionArgs) {
 
         // Determine who to notify based on the user's role
         const isCharity = userInfo?.roles?.includes("charity");
-        
+
         // Select the appropriate topic key to notify
-        const topicKeyToNotify = isCharity 
-          ? task?.notifyTopicId.find(item => item.includes("volunteers")) // If charity is commenting, notify volunteers
-          : task?.notifyTopicId.find(item => item.includes("charities")); // If volunteer is commenting, notify charities
+        const topicKeyToNotify = isCharity
+          ? task?.notifyTopicId.find((item) => item.includes("volunteers")) // If charity is commenting, notify volunteers
+          : task?.notifyTopicId.find((item) => item.includes("charities")); // If volunteer is commenting, notify charities
 
         await triggerNotification({
           userInfo,
@@ -106,7 +106,7 @@ export async function action({ params, request }: ActionFunctionArgs) {
             taskId: task?.id,
           },
           type: "Topic",
-          topicKey: topicKeyToNotify
+          topicKey: topicKeyToNotify,
         });
 
         return json<ActionResponse>({
@@ -148,11 +148,11 @@ export async function action({ params, request }: ActionFunctionArgs) {
 
         // Determine who to notify based on the user's role
         const isCharity = userInfo?.roles?.includes("charity");
-        
+
         // Select the appropriate topic key to notify
-        const topicKeyToNotify = isCharity 
-          ? task?.notifyTopicId.find(item => item.includes("volunteers")) // If charity is replying, notify volunteers
-          : task?.notifyTopicId.find(item => item.includes("charities")); // If volunteer is replying, notify charities
+        const topicKeyToNotify = isCharity
+          ? task?.notifyTopicId.find((item) => item.includes("volunteers")) // If charity is replying, notify volunteers
+          : task?.notifyTopicId.find((item) => item.includes("charities")); // If volunteer is replying, notify charities
 
         await triggerNotification({
           userInfo,
@@ -164,7 +164,7 @@ export async function action({ params, request }: ActionFunctionArgs) {
             taskId: task?.id,
           },
           type: "Topic",
-          topicKey: topicKeyToNotify
+          topicKey: topicKeyToNotify,
         });
 
         return json<ActionResponse>({

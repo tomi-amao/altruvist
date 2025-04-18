@@ -10,7 +10,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const accessToken = session.get("accessToken");
 
   if (!accessToken) {
-    return json({ error: 'Unauthorized' }, { status: 401 });
+    return json({ error: "Unauthorized" }, { status: 401 });
   }
 
   if (!fileUrl) {
@@ -25,7 +25,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         return json({ error: "File name is required" }, { status: 400 });
       }
 
-      const signedUrl = await getSignedUrlForFile(decodeURIComponent(fileName), true);
+      const signedUrl = await getSignedUrlForFile(
+        decodeURIComponent(fileName),
+        true,
+      );
       return json({ message: "Upload successful", url: signedUrl });
     }
     case "delete": {

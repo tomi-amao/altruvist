@@ -32,7 +32,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const isNew = session.get("isNew");
   const { COMPANION_URL } = getCompanionVars();
 
-
   if (!accessToken) {
     return redirect("/zitlogin");
   }
@@ -339,13 +338,17 @@ const PictureStep = ({ updateFields, formData, uploadURL }: StepProps) => {
   const handleUploadedPicture = (
     successfulFiles: UppyFile<Meta, Record<string, never>>[],
   ) => {
-    successfulFiles.forEach(upload => updateFields({ picture: upload.uploadURL }));
+    successfulFiles.forEach((upload) =>
+      updateFields({ picture: upload.uploadURL }),
+    );
   };
 
   const showFileUpload = () => updateFields({ picture: undefined });
   useEffect(() => {
     async function fetchSignedUrl() {
-      const res = await fetch(`/api/s3-get-url?file=${formData.picture}&action=upload`);
+      const res = await fetch(
+        `/api/s3-get-url?file=${formData.picture}&action=upload`,
+      );
       const data = await res.json();
       if (data.url) {
         setSignedFileUrl(data.url);
@@ -563,53 +566,57 @@ export default function NewUserForm() {
   const formSteps: FormStep[] =
     formData.role === "volunteer"
       ? [
-        {
-          id: "role",
-          title: "Choose Your Role",
-          component: RoleSelectionStep,
-        },
-        { id: "title", title: "Job Title", component: TitleStep },
-        {
-          id: "bioDescription",
-          title: "Bio Description",
-          component: DescriptionStep,
-        },
-        {
-          id: "picture",
-          title: "Picture",
-          component: (props) => <PictureStep {...props} uploadURL={COMPANION_URL} />
-        },
-        { id: "tags", title: "tags", component: TagsStep },
-        {
-          id: "preferredCharities",
-          title: "Preferred Charities",
-          component: PreferredCharities,
-        },
-      ]
+          {
+            id: "role",
+            title: "Choose Your Role",
+            component: RoleSelectionStep,
+          },
+          { id: "title", title: "Job Title", component: TitleStep },
+          {
+            id: "bioDescription",
+            title: "Bio Description",
+            component: DescriptionStep,
+          },
+          {
+            id: "picture",
+            title: "Picture",
+            component: (props) => (
+              <PictureStep {...props} uploadURL={COMPANION_URL} />
+            ),
+          },
+          { id: "tags", title: "tags", component: TagsStep },
+          {
+            id: "preferredCharities",
+            title: "Preferred Charities",
+            component: PreferredCharities,
+          },
+        ]
       : [
-        {
-          id: "role",
-          title: "Choose Your Role",
-          component: RoleSelectionStep,
-        },
-        {
-          id: "picture",
-          title: "Picture",
-          component: (props) => <PictureStep {...props} uploadURL={COMPANION_URL} />
-        },
-        { id: "charityName", title: "Charity Name", component: TitleStep },
-        {
-          id: "charityDescription",
-          title: "Charity Description",
-          component: DescriptionStep,
-        },
-        {
-          id: "charityWebsite",
-          title: "Charity Website",
-          component: CharityWebsiteStep,
-        },
-        { id: "charityTags", title: "tags", component: TagsStep },
-      ];
+          {
+            id: "role",
+            title: "Choose Your Role",
+            component: RoleSelectionStep,
+          },
+          {
+            id: "picture",
+            title: "Picture",
+            component: (props) => (
+              <PictureStep {...props} uploadURL={COMPANION_URL} />
+            ),
+          },
+          { id: "charityName", title: "Charity Name", component: TitleStep },
+          {
+            id: "charityDescription",
+            title: "Charity Description",
+            component: DescriptionStep,
+          },
+          {
+            id: "charityWebsite",
+            title: "Charity Website",
+            component: CharityWebsiteStep,
+          },
+          { id: "charityTags", title: "tags", component: TagsStep },
+        ];
 
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
@@ -696,8 +703,9 @@ export default function NewUserForm() {
                   );
                 }}
                 disabled={isSubmitting}
-                className={`px-4 py-2 rounded-md text-basePrimaryLight font-semibold transition-colors ${isSubmitting ? " cursor-not-allowed" : "bg-baseSecondary"
-                  }`}
+                className={`px-4 py-2 rounded-md text-basePrimaryLight font-semibold transition-colors ${
+                  isSubmitting ? " cursor-not-allowed" : "bg-baseSecondary"
+                }`}
               >
                 {isSubmitting ? "Submitting..." : "Submit"}
               </button>
@@ -751,7 +759,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const volunteerData: Partial<users> = {
       bio: data.bio,
       skills: data.tags,
-      preferredCharities: data.preferredCharities, 
+      preferredCharities: data.preferredCharities,
     };
     const addNewUserInfo = await updateUserInfo(
       userId.toString(),
@@ -760,12 +768,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     console.log(addNewUserInfo);
   }
 
-
   const updatedUser = await updateUserInfo(userId?.toString(), {
     roles: [data.role],
     profilePicture: data.picture,
     userTitle: data.title,
-
   });
   console.log(updatedUser);
 

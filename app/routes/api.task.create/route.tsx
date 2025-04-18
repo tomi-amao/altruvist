@@ -28,7 +28,7 @@ export async function action({ request }: ActionFunctionArgs) {
   try {
     const newTask = JSON.parse(data.get("formData") as string);
     console.log("New Task Data", newTask);
-    
+
     const validatedData = TaskSchema.parse({
       ...newTask,
       deadline: newTask.deadline,

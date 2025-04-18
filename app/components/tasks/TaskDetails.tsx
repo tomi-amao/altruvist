@@ -283,7 +283,7 @@ export function TaskDetails({
                 >
                   <div className="flex items-center gap-1 mb-2">
                     <NotePencil
-                      size={16} 
+                      size={16}
                       weight="regular"
                       className="text-baseSecondary/70"
                     />
@@ -569,7 +569,7 @@ export function TaskDetails({
                         <p className="text-sm text-baseSecondary mb-2">
                           {displayData.location.address}
                         </p>
-                        
+
                         {/* Display a link to Google Maps */}
                         <a
                           href={`https://www.google.com/maps/search/?api=1&query=${displayData.location.lat},${displayData.location.lng}`}
@@ -577,7 +577,7 @@ export function TaskDetails({
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1 text-xs text-baseSecondary hover:underline"
                         >
-                          <MapTrifold  size={12} />
+                          <MapTrifold size={12} />
                           View on Google Maps
                         </a>
                       </div>
@@ -624,7 +624,7 @@ export function TaskDetails({
 
                       <DropdownField
                         htmlFor="urgency"
-                        value={formData.status || ''}
+                        value={formData.status || ""}
                         onChange={(value) => handleUpdateTaskStatus(value)}
                         options={[
                           { value: "NOT_STARTED", label: "Not Started" },
@@ -667,7 +667,7 @@ export function TaskDetails({
                   </>
                 ) : (
                   <>
-                    { task.taskApplications[0].status === "REJECTED" && (
+                    {task.taskApplications[0].status === "REJECTED" && (
                       <SecondaryButton
                         ariaLabel="delete-application"
                         text="Delete Application"
@@ -676,7 +676,7 @@ export function TaskDetails({
                         }
                       />
                     )}
-                    { task.taskApplications[0].status === "WITHDRAWN" && (
+                    {task.taskApplications[0].status === "WITHDRAWN" && (
                       <>
                         <PrimaryButton
                           ariaLabel="reapply"
@@ -695,7 +695,7 @@ export function TaskDetails({
                       </>
                     )}
 
-                    { task.taskApplications[0].status === "PENDING" && (
+                    {task.taskApplications[0].status === "PENDING" && (
                       <SecondaryButton
                         ariaLabel="withdraw"
                         text="Withdraw Application"
@@ -704,7 +704,7 @@ export function TaskDetails({
                         }
                       />
                     )}
-                    { task.taskApplications[0].status === "ACCEPTED" && (
+                    {task.taskApplications[0].status === "ACCEPTED" && (
                       <SecondaryButton
                         ariaLabel="withdraw"
                         text="Withdraw Application"
@@ -722,7 +722,7 @@ export function TaskDetails({
           {/* Comment Section with Toggle */}
           <div className="mt-3 sm:mt-4">
             {userRole.includes("volunteer") ? (
-               task.taskApplications[0].status === "ACCEPTED" && (
+              task.taskApplications[0].status === "ACCEPTED" && (
                 <>
                   <div className="flex items-center justify-between mb-2">
                     <SecondaryButton
@@ -737,9 +737,8 @@ export function TaskDetails({
                     <CommentSection
                       taskId={task.id}
                       currentUser={{
-                        id: userId || '',
-                        name: userName || '',
-
+                        id: userId || "",
+                        name: userName || "",
                       }}
                     />
                   )}
@@ -760,10 +759,8 @@ export function TaskDetails({
                   <CommentSection
                     taskId={task.id}
                     currentUser={{
-                      id: userId || '',
-                      name: userName || '',
-
-
+                      id: userId || "",
+                      name: userName || "",
                     }}
                   />
                 )}

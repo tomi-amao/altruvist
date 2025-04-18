@@ -10,7 +10,12 @@ import { prisma } from "~/services/db.server";
 import { SortOrder } from "~/routes/search/route";
 import { transformUserTaskApplications } from "~/components/utils/DataTransformation";
 import { ObjectIdSchema } from "~/services/validators.server";
-import { INDICES, indexDocument, deleteDocument, isMeilisearchConnected } from "~/services/meilisearch.server";
+import {
+  INDICES,
+  indexDocument,
+  deleteDocument,
+  isMeilisearchConnected,
+} from "~/services/meilisearch.server";
 import { addNovuSubscriberToTopic, createTopic } from "~/services/novu.server";
 
 export const createTask = async (
@@ -27,7 +32,6 @@ export const createTask = async (
     ) {
       return { message: "No data", error: "400" };
     }
-
 
     const task = await prisma.tasks.create({
       data: {
@@ -51,7 +55,6 @@ export const createTask = async (
         createdBy: {
           connect: { id: userId },
         },
-        
       },
     });
 
@@ -62,8 +65,14 @@ export const createTask = async (
     }
 
     // Create a new topic for the task
-    const {topicKey: charityTopicKey} = await createTopic(`tasks:charities:${task.id}`, task.title);
-    const {topicKey: volunteerTopicKey} = await createTopic(`tasks:volunteers:${task.id}`, task.title);
+    const { topicKey: charityTopicKey } = await createTopic(
+      `tasks:charities:${task.id}`,
+      task.title,
+    );
+    const { topicKey: volunteerTopicKey } = await createTopic(
+      `tasks:volunteers:${task.id}`,
+      task.title,
+    );
 
     if (!charityTopicKey || !volunteerTopicKey) {
       throw new Error("Failed to create topic keys");
@@ -76,7 +85,6 @@ export const createTask = async (
     // Subscribe the task creator to the task topic
     console.log("Updated task with topic key:", addTopicToTask.notifyTopicId);
     await addNovuSubscriberToTopic([userId], charityTopicKey ?? "");
-
 
     return { task, message: "Task successfully created", status: 200 };
   } catch (error) {
@@ -134,7 +142,7 @@ export async function getExploreTasks(
   deadline: string,
   createdAt: string,
   updatedAt: string,
-  locationType?: string
+  locationType?: string,
 ) {
   if (cursor === "null") {
     cursor = null;
@@ -152,12 +160,12 @@ export async function getExploreTasks(
     if (locationType === "REMOTE") {
       // For REMOTE tasks, the location field doesn't exist
       whereClause.location = {
-        isSet: false
+        isSet: false,
       };
-    } else if (locationType === "ONSITE" ) {
+    } else if (locationType === "ONSITE") {
       // For ONSITE tasks, the location field exists
       whereClause.location = {
-        isSet: true
+        isSet: true,
       };
     }
   }
@@ -649,11 +657,11 @@ export const removeVolunteerFromTask = async (
 };
 
 export const getTaskApplication = async (taskApplicationId: string) => {
-  console.log("Server",taskApplicationId);
-  
+  console.log("Server", taskApplicationId);
+
   try {
     const taskApplication = await prisma.taskApplications.findUnique({
-      where: { id: taskApplicationId }
+      where: { id: taskApplicationId },
     });
 
     return {
@@ -669,17 +677,17 @@ export const getTaskApplication = async (taskApplicationId: string) => {
       error,
       status: 500,
     };
-  }  
-}
+  }
+};
 
 export const getTask = (taskId: string) => {
-  console.log("Server",taskId);
-  
+  console.log("Server", taskId);
+
   return prisma.tasks.findUnique({
     where: { id: taskId },
     include: {
       charity: true,
-      taskApplications: true
+      taskApplications: true,
     },
   });
-}
+};

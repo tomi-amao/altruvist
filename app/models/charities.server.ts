@@ -1,6 +1,11 @@
 import { charities, type Prisma } from "@prisma/client";
 import { prisma } from "~/services/db.server";
-import { INDICES, indexDocument, deleteDocument, isMeilisearchConnected } from "~/services/meilisearch.server";
+import {
+  INDICES,
+  indexDocument,
+  deleteDocument,
+  isMeilisearchConnected,
+} from "~/services/meilisearch.server";
 
 export const createCharity = async (
   charityData: Partial<charities>,

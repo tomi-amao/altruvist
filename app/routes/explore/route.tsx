@@ -93,12 +93,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 // ActiveFilters component to display and allow users to remove active filters
-const ActiveFilters = ({ 
-  filters, 
-  onRemoveFilter 
-}: { 
-  filters: Record<string, string[]>, 
-  onRemoveFilter: (filterType: string, value: string) => void 
+const ActiveFilters = ({
+  filters,
+  onRemoveFilter,
+}: {
+  filters: Record<string, string[]>;
+  onRemoveFilter: (filterType: string, value: string) => void;
 }) => {
   // Filter display names for better readability
   const filterDisplayNames: Record<string, string> = {
@@ -109,13 +109,13 @@ const ActiveFilters = ({
     locationType: "Location",
     deadline: "Deadline",
     createdAt: "Created",
-    updatedAt: "Updated"
+    updatedAt: "Updated",
   };
 
   // Helper to transform sort values to be more readable
   const formatSortValue = (filterType: string, value: string) => {
-    if (['deadline', 'createdAt', 'updatedAt'].includes(filterType)) {
-      return value === 'asc' ? 'Oldest first' : 'Newest first';
+    if (["deadline", "createdAt", "updatedAt"].includes(filterType)) {
+      return value === "asc" ? "Oldest first" : "Newest first";
     }
     return value;
   };
@@ -123,15 +123,14 @@ const ActiveFilters = ({
   // Get all active filters as {type, value} pairs
   const activeFilters = Object.entries(filters)
     .filter(([, values]) => values.length > 0 && values[0] !== "")
-    .flatMap(([filterType, values]) => 
-      values.map(value => ({ type: filterType, value }))
+    .flatMap(([filterType, values]) =>
+      values.map((value) => ({ type: filterType, value })),
     );
 
   if (activeFilters.length === 0) return null;
 
   return (
     <div className="flex flex-wrap gap-2 mt-3 mb-4">
-
       {activeFilters.map(({ type, value }) => (
         <button
           key={`${type}-${value}`}
@@ -141,7 +140,7 @@ const ActiveFilters = ({
                     hover:bg-basePrimaryDark transition-colors duration-200 group"
           aria-label={`Remove ${filterDisplayNames[type]} filter: ${value}`}
         >
-          <span>{filterDisplayNames[type]}:</span> 
+          <span>{filterDisplayNames[type]}:</span>
           <span className="font-medium">{formatSortValue(type, value)}</span>
           <X size={12} className="ml-1 group-hover:text-dangerPrimary" />
         </button>
@@ -250,19 +249,19 @@ export default function Explore() {
   };
 
   const handleRemoveFilter = (filterType: string, value: string) => {
-    setFilters(prevFilters => {
+    setFilters((prevFilters) => {
       // If this is a single-select filter, clear it completely
-      if (!['charity', 'skills'].includes(filterType)) {
+      if (!["charity", "skills"].includes(filterType)) {
         return {
           ...prevFilters,
-          [filterType]: []
+          [filterType]: [],
         };
       }
-      
+
       // For multi-select filters, remove just the selected value
       return {
         ...prevFilters,
-        [filterType]: prevFilters[filterType].filter(item => item !== value)
+        [filterType]: prevFilters[filterType].filter((item) => item !== value),
       };
     });
   };
@@ -399,7 +398,9 @@ export default function Explore() {
       key="locationType"
       options={locationTypeOptions}
       placeholder="Location Type"
-      onSelect={(option, selected) => onSelect(option, selected, "locationType")}
+      onSelect={(option, selected) =>
+        onSelect(option, selected, "locationType")
+      }
       multipleSelect={false}
       horizontal={true}
       defaultSelected={filters.locationType}
@@ -438,13 +439,32 @@ export default function Explore() {
     <>
       <Navbar userId={userInfo?.id} />
       <div className="m-auto lg:w-8/12  w-full p-4  ">
-        <h1 className="mt-16 text-3xl lg:text-5xl font-semibold "> Make a difference </h1>
+        <h1 className="mt-16 text-3xl lg:text-5xl font-semibold ">
+          {" "}
+          Make a difference{" "}
+        </h1>
         <h2> Help charities innovate and make a lasting impact </h2>
         <div className="flex flex-row gap-4  justify-center items-center border-b-2 border-b-baseSecondary p-4">
-            <img src="/sewing_charity.png" alt="Placeholder 1" className="w-2/12 h-60 rounded-md object-cover " />
-            <img src="/planting_charity.png" alt="Placeholder 1" className="w-2/12 h-60 rounded-md object-cover" />
-            <img src="/Giving_community.png" alt="Placeholder 1" className="w-2/12 h-60 rounded-md object-cover" />
-            <img src="/skill_sharing.png" alt="Placeholder 1" className="w-2/12 h-60 rounded-md object-cover" />
+          <img
+            src="/sewing_charity.png"
+            alt="Placeholder 1"
+            className="w-2/12 h-60 rounded-md object-cover "
+          />
+          <img
+            src="/planting_charity.png"
+            alt="Placeholder 1"
+            className="w-2/12 h-60 rounded-md object-cover"
+          />
+          <img
+            src="/Giving_community.png"
+            alt="Placeholder 1"
+            className="w-2/12 h-60 rounded-md object-cover"
+          />
+          <img
+            src="/skill_sharing.png"
+            alt="Placeholder 1"
+            className="w-2/12 h-60 rounded-md object-cover"
+          />
         </div>
         <div className="flex flex-row gap-2 ">
           <div className="mt-2 flex items-center space-x-2">

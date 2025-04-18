@@ -26,12 +26,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
     : null;
 
   const searchResults = await searchMultipleIndices(query ?? "");
-  const { taskApplications = [] } = await getUserTaskApplications(userInfo?.id || "") || {};
-  const userTaskApplicationsIds = taskApplications.map(application => application.taskId);
+  const { taskApplications = [] } =
+    (await getUserTaskApplications(userInfo?.id || "")) || {};
+  const userTaskApplicationsIds = taskApplications.map(
+    (application) => application.taskId,
+  );
   console.log("User Task Applications ID:", userTaskApplicationsIds);
-  
-
-  
 
   return {
     page,
@@ -42,7 +42,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function SearchResults() {
-  const { userInfo, searchResults, userTaskApplicationsIds } = useLoaderData<typeof loader>();
+  const { userInfo, searchResults, userTaskApplicationsIds } =
+    useLoaderData<typeof loader>();
   const [showCollections, setShowCollections] = useState({
     all: true,
     tasks: false,
@@ -171,11 +172,13 @@ export default function SearchResults() {
           <TaskDetailsCard
             taskId={selectedSearchItem?.id}
             userRole={userInfo?.roles}
-            volunteerDetails={{ userId: userInfo?.id, taskApplications: userTaskApplicationsIds }}
+            volunteerDetails={{
+              userId: userInfo?.id,
+              taskApplications: userTaskApplicationsIds,
+            }}
           />
         </div>
       </Modal>
-
     </>
   );
 }

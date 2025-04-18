@@ -27,14 +27,13 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
               {/* mobile view component */}
               <div
                 className="flex  text-left items-center m-auto  rounded-md space-x-2 hover:bg-basePrimaryLight w-full p-2 md:font-semibold"
-              // onClick={() => handleSelectedSearchItem(searchResults.data)}
+                // onClick={() => handleSelectedSearchItem(searchResults.data)}
               >
                 <span>
                   <Buildings size={24} weight="regular" />
                 </span>
                 <div>
                   <p className="font-semibold md:text-lg">
-
                     {searchResults.data.name}
                   </p>
                   <p className="text-xs md:text-sm mb-1">
@@ -84,7 +83,7 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
               {/* mobile view component */}
               <div
                 className="flex  text-left items-center m-auto  rounded-md space-x-2 hover:bg-basePrimaryLight w-full p-2  "
-              // onClick={() => handleSelectedSearchItem(searchResults.data)}
+                // onClick={() => handleSelectedSearchItem(searchResults.data)}
               >
                 <span>
                   <ClipboardText size={24} weight="regular" />
@@ -174,18 +173,16 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
                   {/* mobile view component */}
                   <div
                     className="flex  text-left items-center m-auto  rounded-md space-x-2 hover:bg-basePrimaryLight w-full p-2 md:font-semibold"
-                  // onClick={() => handleSelectedSearchItem(searchResults.data)}
+                    // onClick={() => handleSelectedSearchItem(searchResults.data)}
                   >
                     <span>
                       <User size={24} weight="regular" />
                     </span>
                     <div>
                       <p className="font-semibold md:text-lg">
-
                         {searchResults.data.name}
                       </p>
                       <p className="text-xs md:text-sm mb-1">
-
                         {searchResults.data.userTitle}
                       </p>
 
@@ -194,8 +191,12 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
                           <li className="text-xs md:text-sm font-semibold">
                             Type:
                             <span className="font-normal md:text-sm ml-1 text-xs">
-                              {searchResults.data.roles[0]?.charAt(0)?.toUpperCase() +
-                                searchResults.data.roles[0]?.slice(1)?.toLowerCase()}
+                              {searchResults.data.roles[0]
+                                ?.charAt(0)
+                                ?.toUpperCase() +
+                                searchResults.data.roles[0]
+                                  ?.slice(1)
+                                  ?.toLowerCase()}
                             </span>
                           </li>
                         )}
@@ -217,7 +218,8 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
                   </div>
 
                   {/* laptop/desktop screen component */}
-                </button>)}
+                </button>
+              )}
             </>
           );
         }

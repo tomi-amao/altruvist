@@ -133,7 +133,9 @@ export default function SearchTestPage() {
           <Form method="post" className="mb-4">
             <input type="hidden" name="action" value="index-task" />
             <div className="mb-4">
-              <label htmlFor="taskId" className="block mb-2">Select Task:</label>
+              <label htmlFor="taskId" className="block mb-2">
+                Select Task:
+              </label>
               <select
                 id="taskId"
                 name="taskId"
@@ -160,7 +162,9 @@ export default function SearchTestPage() {
           <Form method="post" className="mb-4">
             <input type="hidden" name="action" value="index-user" />
             <div className="mb-4">
-              <label htmlFor="userId" className="block mb-2">Select User:</label>
+              <label htmlFor="userId" className="block mb-2">
+                Select User:
+              </label>
               <select
                 id="userId"
                 name="userId"
@@ -187,7 +191,9 @@ export default function SearchTestPage() {
           <Form method="post">
             <input type="hidden" name="action" value="index-charity" />
             <div className="mb-4">
-              <label htmlFor="charityId" className="block mb-2">Select Charity:</label>
+              <label htmlFor="charityId" className="block mb-2">
+                Select Charity:
+              </label>
               <select
                 id="charityId"
                 name="charityId"
@@ -219,7 +225,9 @@ export default function SearchTestPage() {
           <Form method="post" className="mb-6">
             <input type="hidden" name="action" value="delete-document" />
             <div className="mb-4">
-              <label htmlFor="deleteIndexName" className="block mb-2">Index:</label>
+              <label htmlFor="deleteIndexName" className="block mb-2">
+                Index:
+              </label>
               <select
                 id="deleteIndexName"
                 name="indexName"
@@ -239,7 +247,9 @@ export default function SearchTestPage() {
               </select>
             </div>
             <div className="mb-4">
-              <label htmlFor="deleteDocId" className="block mb-2">Document ID:</label>
+              <label htmlFor="deleteDocId" className="block mb-2">
+                Document ID:
+              </label>
               <input
                 id="deleteDocId"
                 type="text"
@@ -262,7 +272,9 @@ export default function SearchTestPage() {
           <Form method="post">
             <input type="hidden" name="action" value="delete-all-documents" />
             <div className="mb-4">
-              <label htmlFor="deleteAllIndexName" className="block mb-2">Index:</label>
+              <label htmlFor="deleteAllIndexName" className="block mb-2">
+                Index:
+              </label>
               <select
                 id="deleteAllIndexName"
                 name="indexName"
@@ -310,7 +322,9 @@ export default function SearchTestPage() {
           <Form method="post">
             <input type="hidden" name="action" value="search-tasks" />
             <div className="mb-4">
-              <label htmlFor="searchTasksQuery" className="block mb-2">Query:</label>
+              <label htmlFor="searchTasksQuery" className="block mb-2">
+                Query:
+              </label>
               <input
                 id="searchTasksQuery"
                 type="text"
@@ -321,7 +335,9 @@ export default function SearchTestPage() {
               />
             </div>
             <div className="mb-4">
-              <label htmlFor="searchTaskIds" className="block mb-2">Task IDs (comma separated):</label>
+              <label htmlFor="searchTaskIds" className="block mb-2">
+                Task IDs (comma separated):
+              </label>
               <input
                 id="searchTaskIds"
                 type="text"
@@ -349,7 +365,9 @@ export default function SearchTestPage() {
           <Form method="post">
             <input type="hidden" name="action" value="search-all" />
             <div className="mb-4">
-              <label htmlFor="searchAllQuery" className="block mb-2">Query:</label>
+              <label htmlFor="searchAllQuery" className="block mb-2">
+                Query:
+              </label>
               <input
                 id="searchAllQuery"
                 type="text"

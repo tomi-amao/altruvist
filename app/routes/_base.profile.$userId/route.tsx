@@ -12,8 +12,14 @@ import { Avatar } from "~/components/cards/ProfileCard";
 import { getFeatureFlags } from "~/services/env.server";
 import { ErrorCard } from "~/components/utils/ErrorCard";
 import { PrimaryButton, SecondaryButton } from "~/components/utils/BasicButton";
-import { User, Globe, Envelope, ChartBar, FileText, Buildings } from "phosphor-react";
-
+import {
+  User,
+  Globe,
+  Envelope,
+  ChartBar,
+  FileText,
+  Buildings,
+} from "phosphor-react";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Profile" }];
@@ -34,7 +40,6 @@ export default function ProfilePage() {
   const [signedProfilePicture, setSignedProfilePicture] = useState<
     string | null
   >(null);
-  const [activeTab, setActiveTab] = useState("about");
 
   useEffect(() => {
     async function fetchSignedUrl() {
@@ -77,37 +82,43 @@ export default function ProfilePage() {
   return (
     <div className="max-w-6xl mx-auto">
       {/* Header Card with Avatar and Basic Info */}
-      <div className="bg-basePrimaryDark rounded-xl overflow-hidden shadow-lg mb-8">
+      <div className="bg-basePrimaryLight rounded-xl overflow-hidden shadow-lg mb-8">
         {/* Background Banner */}
         <div className="h-32 bg-gradient-to-r from-baseSecondary/60 to-baseSecondary/90"></div>
-        
+
         <div className="px-6 pb-6 relative">
           {/* Profile Avatar */}
-          <div className="absolute -top-16 left-6 border-4 border-basePrimaryDark rounded-full ">
+          <div className="absolute -top-16 left-6 border-4 border-basePrimaryLight rounded-full ">
             <Avatar
               src={signedProfilePicture || profileInfo?.profilePicture}
               name={profileInfo.name}
               size={130}
             />
           </div>
-          
+
           {/* Profile Header Info */}
           <div className="flex flex-col sm:flex-row justify-between items-start pt-20 sm:items-center ">
             <div>
-              <h1 className="text-3xl font-bold text-baseSecondary mb-1">{profileInfo?.name}</h1>
+              <h1 className="text-3xl font-bold text-baseSecondary mb-1">
+                {profileInfo?.name}
+              </h1>
               <div className="flex items-center gap-2 text-baseSecondary/70">
                 {isCharity ? (
-                  <Buildings  size={18} weight="regular" />
+                  <Buildings size={18} weight="regular" />
                 ) : (
                   <User size={18} weight="regular" />
                 )}
-                <span className="capitalize text-baseSecondary/80">{profileInfo.roles[0]}</span>
+                <span className="capitalize text-baseSecondary/80">
+                  {profileInfo.roles[0]}
+                </span>
                 {isCharity && profileInfo.charity && (
-                  <span className="text-baseSecondary/80">· {profileInfo.charity.name}</span>
+                  <span className="text-baseSecondary/80">
+                    · {profileInfo.charity.name}
+                  </span>
                 )}
               </div>
             </div>
-            
+
             <div className="flex gap-2 mt-4 sm:mt-0">
               {isMyProfile && (
                 <Link to="/account/settings">
@@ -117,26 +128,25 @@ export default function ProfilePage() {
                   />
                 </Link>
               )}
-              
+
               {FEATURE_FLAG && !isMyProfile && (
-                <PrimaryButton
-                  text="Message"
-                  ariaLabel="Send a message"
-                />
+                <PrimaryButton text="Message" ariaLabel="Send a message" />
               )}
             </div>
           </div>
         </div>
       </div>
-      
+
       {/* Main Content */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Left Column - Profile Info */}
         <div className="md:col-span-1 space-y-6">
           {/* About Card */}
-          <div className="bg-basePrimaryDark rounded-xl shadow-md overflow-hidden">
+          <div className="bg-basePrimaryLight rounded-xl shadow-md overflow-hidden">
             <div className="px-6 py-5 border-b border-baseSecondary/10">
-              <h2 className="text-xl font-semibold text-baseSecondary">About</h2>
+              <h2 className="text-xl font-semibold text-baseSecondary">
+                About
+              </h2>
             </div>
             <div className="p-6">
               <p className="text-baseSecondary/90 whitespace-pre-line">
@@ -144,19 +154,26 @@ export default function ProfilePage() {
               </p>
             </div>
           </div>
-          
+
           {/* Contact & Details Card */}
           {isCharity && profileInfo.charity && (
-            <div className="bg-basePrimaryDark rounded-xl shadow-md overflow-hidden">
+            <div className="bg-basePrimaryLight rounded-xl shadow-md overflow-hidden">
               <div className="px-6 py-5 border-b border-baseSecondary/10">
-                <h2 className="text-xl font-semibold text-baseSecondary">Charity Details</h2>
+                <h2 className="text-xl font-semibold text-baseSecondary">
+                  Charity Details
+                </h2>
               </div>
               <div className="p-6 space-y-4">
                 {profileInfo.charity.website && (
                   <div className="flex items-start gap-3">
-                    <Globe size={20} className="text-baseSecondary/70 mt-0.5 flex-shrink-0" />
+                    <Globe
+                      size={20}
+                      className="text-baseSecondary/70 mt-0.5 flex-shrink-0"
+                    />
                     <div>
-                      <p className="text-sm font-medium text-baseSecondary/70 mb-1">Website</p>
+                      <p className="text-sm font-medium text-baseSecondary/70 mb-1">
+                        Website
+                      </p>
                       <a
                         href={profileInfo.charity.website}
                         target="_blank"
@@ -168,22 +185,34 @@ export default function ProfilePage() {
                     </div>
                   </div>
                 )}
-                
+
                 {profileInfo.charity.contactPerson && (
                   <div className="flex items-start gap-3">
-                    <User size={20} className="text-baseSecondary/70 mt-0.5 flex-shrink-0" />
+                    <User
+                      size={20}
+                      className="text-baseSecondary/70 mt-0.5 flex-shrink-0"
+                    />
                     <div>
-                      <p className="text-sm font-medium text-baseSecondary/70 mb-1">Contact Person</p>
-                      <p className="text-baseSecondary">{profileInfo.charity.contactPerson}</p>
+                      <p className="text-sm font-medium text-baseSecondary/70 mb-1">
+                        Contact Person
+                      </p>
+                      <p className="text-baseSecondary">
+                        {profileInfo.charity.contactPerson}
+                      </p>
                     </div>
                   </div>
                 )}
-                
+
                 {profileInfo.charity.contactEmail && (
                   <div className="flex items-start gap-3">
-                    <Envelope size={20} className="text-baseSecondary/70 mt-0.5 flex-shrink-0" />
+                    <Envelope
+                      size={20}
+                      className="text-baseSecondary/70 mt-0.5 flex-shrink-0"
+                    />
                     <div>
-                      <p className="text-sm font-medium text-baseSecondary/70 mb-1">Contact Email</p>
+                      <p className="text-sm font-medium text-baseSecondary/70 mb-1">
+                        Contact Email
+                      </p>
                       <a
                         href={`mailto:${profileInfo.charity.contactEmail}`}
                         className="text-baseSecondary hover:text-baseSecondary/80 hover:underline transition-colors"
@@ -196,17 +225,21 @@ export default function ProfilePage() {
               </div>
             </div>
           )}
-          
+
           {/* Skills & Interests Card for Volunteers */}
           {isVolunteer && (
-            <div className="bg-basePrimaryDark rounded-xl shadow-md overflow-hidden">
+            <div className="bg-basePrimaryLight rounded-xl shadow-md overflow-hidden">
               <div className="px-6 py-5 border-b border-baseSecondary/10">
-                <h2 className="text-xl font-semibold text-baseSecondary">Skills & Interests</h2>
+                <h2 className="text-xl font-semibold text-baseSecondary">
+                  Skills & Interests
+                </h2>
               </div>
               <div className="p-6 space-y-4">
                 {profileInfo.skills.length > 0 && (
                   <div>
-                    <p className="text-sm font-medium text-baseSecondary/70 mb-2">Skills</p>
+                    <p className="text-sm font-medium text-baseSecondary/70 mb-2">
+                      Skills
+                    </p>
                     <div className="flex flex-wrap gap-2">
                       {profileInfo.skills.map((skill, index) => (
                         <span
@@ -219,10 +252,12 @@ export default function ProfilePage() {
                     </div>
                   </div>
                 )}
-                
+
                 {profileInfo.preferredCharities?.length > 0 && (
                   <div>
-                    <p className="text-sm font-medium text-baseSecondary/70 mb-2">Preferred Charities</p>
+                    <p className="text-sm font-medium text-baseSecondary/70 mb-2">
+                      Preferred Charities
+                    </p>
                     <div className="flex flex-wrap gap-2">
                       {profileInfo.preferredCharities.map((charity, index) => (
                         <span
@@ -238,12 +273,14 @@ export default function ProfilePage() {
               </div>
             </div>
           )}
-          
+
           {/* Tags Card for Charities */}
           {isCharity && profileInfo.charity?.tags?.length > 0 && (
-            <div className="bg-basePrimaryDark rounded-xl shadow-md overflow-hidden">
+            <div className="bg-basePrimaryLight rounded-xl shadow-md overflow-hidden">
               <div className="px-6 py-5 border-b border-baseSecondary/10">
-                <h2 className="text-xl font-semibold text-baseSecondary">Focus Areas</h2>
+                <h2 className="text-xl font-semibold text-baseSecondary">
+                  Focus Areas
+                </h2>
               </div>
               <div className="p-6">
                 <div className="flex flex-wrap gap-2">
@@ -259,10 +296,10 @@ export default function ProfilePage() {
               </div>
             </div>
           )}
-          
+
           {/* Stats Card for Volunteers */}
           {isVolunteer && (
-            <div className="bg-basePrimaryDark rounded-xl shadow-md overflow-hidden">
+            <div className="bg-basePrimaryLight rounded-xl shadow-md overflow-hidden">
               <div className="px-6 py-5 border-b border-baseSecondary/10">
                 <h2 className="text-xl font-semibold text-baseSecondary">
                   <div className="flex items-center gap-2">
@@ -274,11 +311,17 @@ export default function ProfilePage() {
               <div className="p-6">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-basePrimary rounded-lg p-4 flex flex-col items-center justify-center">
-                    <p className="text-3xl font-bold text-baseSecondary mb-1">{completedTasks?.length || 0}</p>
-                    <p className="text-sm text-baseSecondary/70">Completed Tasks</p>
+                    <p className="text-3xl font-bold text-baseSecondary mb-1">
+                      {completedTasks?.length || 0}
+                    </p>
+                    <p className="text-sm text-baseSecondary/70">
+                      Completed Tasks
+                    </p>
                   </div>
                   <div className="bg-basePrimary rounded-lg p-4 flex flex-col items-center justify-center">
-                    <p className="text-3xl font-bold text-baseSecondary mb-1">{profileInfo.skills.length}</p>
+                    <p className="text-3xl font-bold text-baseSecondary mb-1">
+                      {profileInfo.skills.length}
+                    </p>
                     <p className="text-sm text-baseSecondary/70">Skills</p>
                   </div>
                 </div>
@@ -286,36 +329,40 @@ export default function ProfilePage() {
             </div>
           )}
         </div>
-        
+
         {/* Right Column - Tasks */}
         <div className="md:col-span-2">
-          <div className="bg-basePrimaryDark rounded-xl shadow-md overflow-hidden">
+          <div className="bg-basePrimaryLight rounded-xl shadow-md overflow-hidden">
             <div className="px-6 py-5 border-b border-baseSecondary/10">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold text-baseSecondary flex items-center gap-2">
                   <FileText size={22} />
-                  <span>
-                    {isCharity
-                      ? "Created Tasks"
-                      : "Completed Tasks"}
-                  </span>
+                  <span>{isCharity ? "Created Tasks" : "Completed Tasks"}</span>
                 </h2>
                 <span className="bg-basePrimary rounded-full px-3 py-1 text-sm font-medium text-baseSecondary">
-                  {(isCharity ? createdTasks?.length : completedTasks?.length) || 0} Tasks
+                  {(isCharity
+                    ? createdTasks?.length
+                    : completedTasks?.length) || 0}{" "}
+                  Tasks
                 </span>
               </div>
             </div>
-            
+
             <div className="p-6">
               {isCharity && createdTasks?.length === 0 && (
-                <p className="text-center py-6 text-baseSecondary/70">No tasks created yet.</p>
+                <p className="text-center py-6 text-baseSecondary/70">
+                  No tasks created yet.
+                </p>
               )}
-              
+
               {isVolunteer && completedTasks?.length === 0 && (
-                <p className="text-center py-6 text-baseSecondary/70">No completed tasks yet.</p>
+                <p className="text-center py-6 text-baseSecondary/70">
+                  No completed tasks yet.
+                </p>
               )}
-              
-              {((isCharity && createdTasks?.length > 0) || (isVolunteer && completedTasks?.length > 0)) && (
+
+              {((isCharity && createdTasks?.length > 0) ||
+                (isVolunteer && completedTasks?.length > 0)) && (
                 <DataTable
                   data={isCharity ? createdTasks : completedTasks}
                   handleRowClick={(item) => handleRowClick(item)}
@@ -394,11 +441,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   if (profileRole === "volunteer") {
-    const { tasks, status } = await getUserTasks(
-      profileRole,
-      "ACCEPTED",
-      profileId,
-    );
+    const { tasks } = await getUserTasks(profileRole, "ACCEPTED", profileId);
 
     const completedTasks = tasks?.filter((task) => task.status === "COMPLETED");
 

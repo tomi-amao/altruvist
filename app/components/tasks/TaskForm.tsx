@@ -236,7 +236,12 @@ export default function TaskForm({
   // Add location handling
   const handleLocationChange = (locationData: LocationData | null) => {
     // If locationData is an object with empty address, it means the user cleared the input
-    if (locationData && locationData.address === "" && locationData.lat === 0 && locationData.lng === 0) {
+    if (
+      locationData &&
+      locationData.address === "" &&
+      locationData.lat === 0 &&
+      locationData.lng === 0
+    ) {
       // Keep the current location structure but with empty values
       setFormData((prev) => ({
         ...prev,
@@ -256,7 +261,7 @@ export default function TaskForm({
     if (value === "REMOTE") {
       // For REMOTE, we set location to null
       setFormData((prev) => ({ ...prev, location: null }));
-    } else if ((value === "ONSITE") && !formData.location) {
+    } else if (value === "ONSITE" && !formData.location) {
       setFormData((prev) => ({
         ...prev,
         location: { address: "", lat: 0, lng: 0 },
@@ -442,8 +447,8 @@ export default function TaskForm({
             formData.location
               ? "ONSITE"
               : formData.location === null
-              ? "REMOTE"
-              : "REMOTE"
+                ? "REMOTE"
+                : "REMOTE"
           }
           onChange={handleLocationTypeChange}
           options={[

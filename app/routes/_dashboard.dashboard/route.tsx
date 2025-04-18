@@ -7,7 +7,6 @@ import { getSession, commitSession } from "~/services/session.server";
 import { getUserInfo } from "~/models/user2.server";
 import { Section } from "~/components/cards/DashboardSection";
 
-
 export const meta: MetaFunction = () => {
   return [{ title: "Dashboard", description: "Dashboard for Skillanthropy" }];
 };
@@ -29,7 +28,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirect("/zitlogin");
   }
 
-
   const userRole = userInfo.roles[0];
   const { tasks: rawTasks } = await getUserTasks(
     userRole,
@@ -41,7 +39,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     undefined,
     10,
   );
-  const { allTasks: rawAllTasks } = await getAllTasks({ skip: 0, take: 1000000 });
+  const { allTasks: rawAllTasks } = await getAllTasks({
+    skip: 0,
+    take: 1000000,
+  });
 
   // Ensure tasks and allTasks are arrays
   const tasks = rawTasks || [];
@@ -61,8 +62,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
       (a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime(),
     );
 
-  const notStartedTasks = tasks.filter((task) => task?.status === "NOT_STARTED");
-  const inProgressTasks = tasks.filter((task) => task?.status === "IN_PROGRESS");
+  const notStartedTasks = tasks.filter(
+    (task) => task?.status === "NOT_STARTED",
+  );
+  const inProgressTasks = tasks.filter(
+    (task) => task?.status === "IN_PROGRESS",
+  );
   const completedTasks = tasks.filter((task) => task?.status === "COMPLETED");
 
   // Calculate statistics for banner
@@ -74,8 +79,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     session.set("isNew", true);
     return redirect("/newuser", {
       headers: {
-        "Set-Cookie": await commitSession(session)
-      }
+        "Set-Cookie": await commitSession(session),
+      },
     });
   }
   if (userRole === "volunteer") {
@@ -88,9 +93,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
           task?.taskApplications?.every((app) => app?.userId !== userInfo.id),
       )
       .map((task) => {
-        const matchingSkills = task?.requiredSkills?.filter((skill) =>
-          userInfo?.skills?.includes(skill),
-        ) || [];
+        const matchingSkills =
+          task?.requiredSkills?.filter((skill) =>
+            userInfo?.skills?.includes(skill),
+          ) || [];
         return {
           task,
           matchScore: matchingSkills.length,

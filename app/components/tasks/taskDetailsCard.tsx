@@ -3,7 +3,17 @@ import { format } from "date-fns";
 import { useFetcher, useNavigate } from "@remix-run/react";
 import { PrimaryButton, SecondaryButton } from "../utils/BasicButton";
 import { FilePreviewButton } from "../utils/FormField";
-import { Clock, Users, Target, Tag, Lightbulb, MapPin, NotePencil, ListChecks, Files } from "phosphor-react";
+import {
+  Clock,
+  Users,
+  Target,
+  Tag,
+  Lightbulb,
+  MapPin,
+  NotePencil,
+  ListChecks,
+  Files,
+} from "phosphor-react";
 import { useEffect, useState } from "react";
 
 interface Resource {
@@ -56,12 +66,12 @@ interface TaskDetailsCardProps {
   };
 }
 
-// Type alias for full prop data 
+// Type alias for full prop data
 type ExpandedTaskDetailsCardProps = TaskDetailsData;
 
 // Union type to accept either minimal or full props
-type CombinedTaskDetailsCardProps = 
-  | TaskDetailsCardProps 
+type CombinedTaskDetailsCardProps =
+  | TaskDetailsCardProps
   | ExpandedTaskDetailsCardProps;
 
 export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
@@ -85,8 +95,8 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
   }, [fetcher.data, showMessage]);
 
   // Check if we're using the minimal props version with just taskId
-  const isMinimalProps = 'taskId' in props && !('title' in props);
-  const taskId = isMinimalProps ? (props as TaskDetailsCardProps).taskId : '';
+  const isMinimalProps = "taskId" in props && !("title" in props);
+  const taskId = isMinimalProps ? (props as TaskDetailsCardProps).taskId : "";
 
   // If minimal props, fetch the task data
   useEffect(() => {
@@ -106,14 +116,18 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
         setError(taskFetcher.data.error);
       } else if (taskFetcher.data.task) {
         const fetchedTask = taskFetcher.data.task;
-        
+
         // Transform fetched data to match the expected TaskDetailsData structure
         setTaskData({
           ...fetchedTask,
-          charityName: fetchedTask.charity?.name || '',
+          charityName: fetchedTask.charity?.name || "",
           charityId: fetchedTask.charity?.id || null,
-          userRole: isMinimalProps ? (props as TaskDetailsCardProps).userRole || [] : [],
-          volunteerDetails: isMinimalProps ? (props as TaskDetailsCardProps).volunteerDetails : undefined,
+          userRole: isMinimalProps
+            ? (props as TaskDetailsCardProps).userRole || []
+            : [],
+          volunteerDetails: isMinimalProps
+            ? (props as TaskDetailsCardProps).volunteerDetails
+            : undefined,
           resources: fetchedTask.resources || [],
           taskApplications: fetchedTask.taskApplications || [],
         });
@@ -168,12 +182,14 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
   if (!taskData) return null;
 
   // Check if user has already applied
-  const hasApplied = taskData.volunteerDetails?.taskApplications?.includes(taskData.id);
+  const hasApplied = taskData.volunteerDetails?.taskApplications?.includes(
+    taskData.id,
+  );
 
   // Count accepted applications
-  const acceptedApplications = taskData.taskApplications?.filter(
-    (app) => app.status === "ACCEPTED",
-  ).length || 0;
+  const acceptedApplications =
+    taskData.taskApplications?.filter((app) => app.status === "ACCEPTED")
+      .length || 0;
 
   // Use volunteersNeeded as the total volunteer capacity
   const totalVolunteersNeeded = taskData.volunteersNeeded;
@@ -194,7 +210,8 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
     if (isTaskFull) {
       return (
         <div className="px-4 py-2 rounded-md bg-basePrimaryDark text-baseSecondary/80 border border-baseSecondary/20 text-sm flex items-center justify-center">
-          <span className="mr-1.5">🔒</span> Task full ({acceptedApplications}/{taskData.volunteersNeeded} volunteers)
+          <span className="mr-1.5">🔒</span> Task full ({acceptedApplications}/
+          {taskData.volunteersNeeded} volunteers)
         </div>
       );
     }
@@ -209,8 +226,13 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
           />
           <SecondaryButton
             text="Withdraw"
-            ariaLabel="withdraw application" 
-            action={() => handleWithdraw(taskData.id, taskData.volunteerDetails?.userId || "")}
+            ariaLabel="withdraw application"
+            action={() =>
+              handleWithdraw(
+                taskData.id,
+                taskData.volunteerDetails?.userId || "",
+              )
+            }
           />
         </div>
       );
@@ -240,8 +262,21 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
   // For generating colored dots for category and skills
   const getColorDot = (value: string) => {
     // Simple hash function to get consistent colors for the same string
-    const hash = value.split("").reduce((acc, char) => char.charCodeAt(0) + acc, 0);
-    const colors = ["red", "blue", "green", "yellow", "purple", "pink", "indigo", "orange", "teal", "cyan"];
+    const hash = value
+      .split("")
+      .reduce((acc, char) => char.charCodeAt(0) + acc, 0);
+    const colors = [
+      "red",
+      "blue",
+      "green",
+      "yellow",
+      "purple",
+      "pink",
+      "indigo",
+      "orange",
+      "teal",
+      "cyan",
+    ];
     const colorIndex = hash % colors.length;
     return `bg-indicator-${colors[colorIndex]}`;
   };
@@ -252,7 +287,7 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
       <div className="bg-basePrimaryDark p-6 border-b border-baseSecondary/10 relative overflow-hidden">
         {/* Background pattern for visual interest */}
         <div className="absolute inset-0 opacity-5 pattern-dots pattern-baseSecondary pattern-bg-transparent pattern-size-2"></div>
-        
+
         <div className="space-y-4 relative z-10">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
             <h1 className="text-2xl md:text-3xl font-semibold text-baseSecondary tracking-tight">
@@ -272,7 +307,9 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
                 flex items-center
               `}
               >
-                {taskData.urgency === "HIGH" && <span className="h-2 w-2 rounded-full bg-txtsecondary animate-pulse mr-1.5"></span>}
+                {taskData.urgency === "HIGH" && (
+                  <span className="h-2 w-2 rounded-full bg-txtsecondary animate-pulse mr-1.5"></span>
+                )}
                 {taskData.urgency.toLowerCase()} priority
               </span>
             </div>
@@ -289,13 +326,17 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
               volunteer{taskData.volunteersNeeded !== 1 ? "s" : ""} needed
             </span>
             <span className="flex items-center gap-2 text-sm">
-              <span className={`inline-block w-2 h-2 rounded-full ${taskData.status === "COMPLETED" ? "bg-confirmPrimary" : "bg-baseSecondary"}`}></span>
+              <span
+                className={`inline-block w-2 h-2 rounded-full ${taskData.status === "COMPLETED" ? "bg-confirmPrimary" : "bg-baseSecondary"}`}
+              ></span>
               {taskData.status}
             </span>
             {taskData.location && (
               <span className="flex items-center gap-2 text-sm">
                 <MapPin className="w-4 h-4" />
-                {taskData.location.address.length > 20 ? taskData.location.address.substring(0, 20) + '...' : taskData.location.address}
+                {taskData.location.address.length > 20
+                  ? taskData.location.address.substring(0, 20) + "..."
+                  : taskData.location.address}
               </span>
             )}
           </div>
@@ -306,13 +347,18 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
       <div className="bg-basePrimaryLight px-6 py-3 border-b border-baseSecondary/10">
         <div className="flex justify-between items-center">
           <span className="text-sm text-baseSecondary/80">
-            Posted by <span className="font-medium text-baseSecondary">{taskData.charityName}</span>
+            Posted by{" "}
+            <span className="font-medium text-baseSecondary">
+              {taskData.charityName}
+            </span>
           </span>
-          
+
           <div className="text-sm text-baseSecondary/80">
             {taskData.status !== "COMPLETED" && (
               <span className="flex items-center gap-1">
-                <span className={`w-2 h-2 rounded-full ${spotsRemaining > 0 ? "bg-confirmPrimary" : "bg-dangerPrimary"}`}></span>
+                <span
+                  className={`w-2 h-2 rounded-full ${spotsRemaining > 0 ? "bg-confirmPrimary" : "bg-dangerPrimary"}`}
+                ></span>
                 {spotsRemaining} spot{spotsRemaining !== 1 ? "s" : ""} remaining
               </span>
             )}
@@ -321,7 +367,9 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
       </div>
 
       {/* Main Content */}
-      <div className={`p-6 space-y-6 ${!isExpanded ? "max-h-[700px] overflow-hidden" : ""} transition-all duration-500`}>
+      <div
+        className={`p-6 space-y-6 ${!isExpanded ? "max-h-[700px] overflow-hidden" : ""} transition-all duration-500`}
+      >
         {/* Impact Card */}
         <section className="bg-basePrimaryLight rounded-lg p-5 transform transition-all hover:scale-[1.01] relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-baseSecondary"></div>
@@ -332,7 +380,9 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
                 Impact
               </h3>
             </div>
-            <p className="text-baseSecondary/90 leading-relaxed">{taskData.impact}</p>
+            <p className="text-baseSecondary/90 leading-relaxed">
+              {taskData.impact}
+            </p>
           </div>
         </section>
 
@@ -380,7 +430,9 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
                         >
                           {index + 1}
                         </span>
-                        <p className="text-baseSecondary/90 text-sm">{deliverable}</p>
+                        <p className="text-baseSecondary/90 text-sm">
+                          {deliverable}
+                        </p>
                       </li>
                     ))}
                   </ul>
@@ -435,12 +487,16 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
                         hover:bg-baseSecondary hover:text-basePrimary
                         cursor-default flex items-center gap-1.5"
                     >
-                      <span className={`inline-block w-2 h-2 rounded-full ${getColorDot(skill)}`}></span>
+                      <span
+                        className={`inline-block w-2 h-2 rounded-full ${getColorDot(skill)}`}
+                      ></span>
                       {skill}
                     </span>
                   ))
                 ) : (
-                  <p className="text-baseSecondary/70 italic text-sm">No specific skills required</p>
+                  <p className="text-baseSecondary/70 italic text-sm">
+                    No specific skills required
+                  </p>
                 )}
               </div>
             </section>
@@ -462,7 +518,9 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
                       hover:bg-baseSecondary hover:text-basePrimary
                       cursor-default flex items-center gap-1.5"
                   >
-                    <span className={`inline-block w-2 h-2 rounded-full ${getColorDot(cat)}`}></span>
+                    <span
+                      className={`inline-block w-2 h-2 rounded-full ${getColorDot(cat)}`}
+                    ></span>
                     {cat}
                   </span>
                 ))}
@@ -478,7 +536,9 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
                     Location
                   </h3>
                 </div>
-                <p className="text-baseSecondary/90 text-sm mb-2">{taskData.location.address}</p>
+                <p className="text-baseSecondary/90 text-sm mb-2">
+                  {taskData.location.address}
+                </p>
                 {taskData.location.lat && taskData.location.lng && (
                   <a
                     href={`https://www.google.com/maps/search/?api=1&query=${taskData.location.lat},${taskData.location.lng}`}
@@ -501,25 +561,36 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
               <div className="space-y-2">
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-baseSecondary/80">Positions:</span>
-                  <span className="font-medium text-baseSecondary">{taskData.volunteersNeeded}</span>
+                  <span className="font-medium text-baseSecondary">
+                    {taskData.volunteersNeeded}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-baseSecondary/80">Filled:</span>
-                  <span className="font-medium text-baseSecondary">{acceptedApplications}</span>
+                  <span className="font-medium text-baseSecondary">
+                    {acceptedApplications}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-baseSecondary/80">Remaining:</span>
-                  <span className="font-medium text-baseSecondary">{spotsRemaining}</span>
+                  <span className="font-medium text-baseSecondary">
+                    {spotsRemaining}
+                  </span>
                 </div>
                 <div className="mt-3 pt-3 border-t border-baseSecondary/10">
                   <div className="w-full bg-basePrimary rounded-full h-2.5">
-                    <div 
-                      className="bg-baseSecondary h-2.5 rounded-full" 
-                      style={{ width: `${(acceptedApplications / taskData.volunteersNeeded) * 100}%` }}
+                    <div
+                      className="bg-baseSecondary h-2.5 rounded-full"
+                      style={{
+                        width: `${(acceptedApplications / taskData.volunteersNeeded) * 100}%`,
+                      }}
                     ></div>
                   </div>
                   <p className="text-xs text-center mt-1 text-baseSecondary/70">
-                    {Math.round((acceptedApplications / taskData.volunteersNeeded) * 100)}% filled
+                    {Math.round(
+                      (acceptedApplications / taskData.volunteersNeeded) * 100,
+                    )}
+                    % filled
                   </p>
                 </div>
               </div>
@@ -531,14 +602,18 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
       {/* Expand/Collapse Button for long content */}
       {taskData.description.length > 300 && (
         <div className="px-6 pb-3 flex justify-center">
-          <button 
+          <button
             onClick={() => setIsExpanded(!isExpanded)}
             className="text-sm text-baseSecondary hover:text-baseSecondary/80 flex items-center gap-1.5 transition-colors"
           >
             {isExpanded ? (
-              <>Show less <span className="text-xs">↑</span></>
+              <>
+                Show less <span className="text-xs">↑</span>
+              </>
             ) : (
-              <>Show more <span className="text-xs">↓</span></>
+              <>
+                Show more <span className="text-xs">↓</span>
+              </>
             )}
           </button>
         </div>
@@ -546,9 +621,7 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
 
       {/* Footer with CTA */}
       <div className="bg-basePrimaryDark p-6 border-t border-baseSecondary/10">
-        <div>
-          {renderActionButton()}
-        </div>
+        <div>{renderActionButton()}</div>
 
         {/* Processing state */}
         {fetcher.state !== "idle" && (
@@ -567,7 +640,9 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-full shadow-sm
               ${fetcher.data.error ? "bg-dangerPrimary/10 text-dangerPrimary" : "bg-confirmPrimary/10 text-confirmPrimary"}`}
             >
-              <span className={`w-2 h-2 rounded-full ${fetcher.data.error ? "bg-dangerPrimary" : "bg-confirmPrimary"}`}></span>
+              <span
+                className={`w-2 h-2 rounded-full ${fetcher.data.error ? "bg-dangerPrimary" : "bg-confirmPrimary"}`}
+              ></span>
               <span className="text-sm">{fetcher.data.message}</span>
             </div>
           </div>

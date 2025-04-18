@@ -32,7 +32,7 @@ export async function action({ request }: ActionFunctionArgs) {
   if (role !== "Admin") {
     throw new Error("You are not authorized to access this page");
   }
-  
+
   const formData = await request.formData();
   const action = formData.get("action") as string;
 

@@ -35,7 +35,9 @@ export const isMeilisearchConnected = async (): Promise<boolean> => {
  * Prepare document for Meilisearch by serializing complex data types
  * This is crucial for handling Date objects and nested objects
  */
-export const prepareDocumentForMeilisearch = <T extends Record<string, unknown>>(
+export const prepareDocumentForMeilisearch = <
+  T extends Record<string, unknown>,
+>(
   doc: T,
 ): Record<string, unknown> => {
   const prepared: Record<string, unknown> = {};
@@ -212,10 +214,12 @@ export const searchMultipleIndices = async (query: string) => {
       data: hit,
     }));
 
-    const usersDocuments = usersResults.hits.map((hit) => ({
-      collection: INDICES.USERS,
-      data: hit.roles && hit.roles[0] !== null ? hit : null, // filter out users with no roles
-    })).filter(doc => doc.data !== null); // remove null entries
+    const usersDocuments = usersResults.hits
+      .map((hit) => ({
+        collection: INDICES.USERS,
+        data: hit.roles && hit.roles[0] !== null ? hit : null, // filter out users with no roles
+      }))
+      .filter((doc) => doc.data !== null); // remove null entries
 
     const charitiesDocuments = charitiesResults.hits.map((hit) => ({
       collection: INDICES.CHARITIES,

@@ -8,7 +8,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
   if (!taskId) {
     return json({
       error: "Task ID is required",
-      status: 400
+      status: 400,
     });
   }
 
@@ -19,19 +19,19 @@ export async function loader({ params }: LoaderFunctionArgs) {
     if (!task) {
       return json({
         error: "Task not found",
-        status: 404
+        status: 404,
       });
     }
 
     return json({
       task,
-      status: 200
+      status: 200,
     });
   } catch (error) {
     console.error("Error fetching task:", error);
     return json({
       error: "Failed to fetch task details",
-      status: 500
+      status: 500,
     });
   }
 }
