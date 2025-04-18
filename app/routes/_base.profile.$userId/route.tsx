@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { MetaFunction, useLoaderData } from "@remix-run/react";
+import { MetaFunction, useLoaderData, Link } from "@remix-run/react";
 import { getProfileInfo, getUserInfo } from "~/models/user2.server";
 import { getSession } from "~/services/session.server";
 import DataTable from "~/components/cards/DataTable";
@@ -11,6 +11,9 @@ import { getUserTasks } from "~/models/tasks.server";
 import { Avatar } from "~/components/cards/ProfileCard";
 import { getFeatureFlags } from "~/services/env.server";
 import { ErrorCard } from "~/components/utils/ErrorCard";
+import { PrimaryButton, SecondaryButton } from "~/components/utils/BasicButton";
+import { User, Globe, Envelope, ChartBar, FileText, Buildings } from "phosphor-react";
+
 
 export const meta: MetaFunction = () => {
   return [{ title: "Profile" }];
@@ -31,22 +34,24 @@ export default function ProfilePage() {
   const [signedProfilePicture, setSignedProfilePicture] = useState<
     string | null
   >(null);
+  const [activeTab, setActiveTab] = useState("about");
 
   useEffect(() => {
     async function fetchSignedUrl() {
-      const res = await fetch(
-        `/api/s3-get-url?file=${profileInfo?.profilePicture}&action=upload`,
-      );
-      const data = await res.json();
-      if (data.url) {
-        setSignedProfilePicture(data.url);
+      if (profileInfo?.profilePicture) {
+        const res = await fetch(
+          `/api/s3-get-url?file=${profileInfo.profilePicture}&action=upload`,
+        );
+        const data = await res.json();
+        if (data.url) {
+          setSignedProfilePicture(data.url);
+        }
       }
     }
     fetchSignedUrl();
   }, [profileInfo?.profilePicture]);
 
   if (!profileInfo) {
-    // Handle case when post is not found
     return (
       <ErrorCard
         message="Search for another profile"
@@ -65,176 +70,264 @@ export default function ProfilePage() {
     setSelectedTask(selectedTaskData);
   };
 
+  const isMyProfile = userInfo?.id === profileInfo.id;
+  const isCharity = profileInfo.roles[0] === "charity";
+  const isVolunteer = profileInfo.roles[0] === "volunteer";
+
   return (
-    <>
-      <div className="md:flex-row md:flex flex-col items-center md:items-start">
-        <div className="bg-basePrimaryDark md:w-8/12 flex flex-col md:flex-shrink-0 p-4 rounded-md ">
-          <div className="flex items-center gap-2 justify-between flex-row ">
+    <div className="max-w-6xl mx-auto">
+      {/* Header Card with Avatar and Basic Info */}
+      <div className="bg-basePrimaryDark rounded-xl overflow-hidden shadow-lg mb-8">
+        {/* Background Banner */}
+        <div className="h-32 bg-gradient-to-r from-baseSecondary/60 to-baseSecondary/90"></div>
+        
+        <div className="px-6 pb-6 relative">
+          {/* Profile Avatar */}
+          <div className="absolute -top-16 left-6 border-4 border-basePrimaryDark rounded-full ">
             <Avatar
               src={signedProfilePicture || profileInfo?.profilePicture}
               name={profileInfo.name}
               size={130}
             />
-            <div className="flex-col  w-full">
-              <p className="font-bold text-2xl "> {profileInfo?.name}</p>
-              <p>{profileInfo.charity?.name || "Profile Title Placeholder"}</p>
-              <p>{profileInfo?.roles[0]}</p>
-            </div>
-            {FEATURE_FLAG && (
-              <div className="bg-basePrimaryLight rounded-md md:flex  w-fit md:self-end self-start  flex-wrap hidden">
-                <button className="text-right w-fit py-2 px-8 text-baseSecondary   font-semibold">
-                  Message
-                </button>
-              </div>
-            )}
           </div>
-          <div className="p-2 py-4">
-            <p className="font-semibold border-b-[1px]">About</p>
-            <p className="mt-2">
-              {profileInfo?.bio || "Profile Bio Placeholder"}
-            </p>
+          
+          {/* Profile Header Info */}
+          <div className="flex flex-col sm:flex-row justify-between items-start pt-20 sm:items-center ">
+            <div>
+              <h1 className="text-3xl font-bold text-baseSecondary mb-1">{profileInfo?.name}</h1>
+              <div className="flex items-center gap-2 text-baseSecondary/70">
+                {isCharity ? (
+                  <Buildings  size={18} weight="regular" />
+                ) : (
+                  <User size={18} weight="regular" />
+                )}
+                <span className="capitalize text-baseSecondary/80">{profileInfo.roles[0]}</span>
+                {isCharity && profileInfo.charity && (
+                  <span className="text-baseSecondary/80">· {profileInfo.charity.name}</span>
+                )}
+              </div>
+            </div>
+            
+            <div className="flex gap-2 mt-4 sm:mt-0">
+              {isMyProfile && (
+                <Link to="/account/settings">
+                  <SecondaryButton
+                    text="Edit Profile"
+                    ariaLabel="Edit your profile"
+                  />
+                </Link>
+              )}
+              
+              {FEATURE_FLAG && !isMyProfile && (
+                <PrimaryButton
+                  text="Message"
+                  ariaLabel="Send a message"
+                />
+              )}
+            </div>
           </div>
         </div>
-        <div className="w-full flex flex-col gap-4">
-          {/* Charity Details Card */}
-          {profileInfo.roles[0] === "charity" && profileInfo.charity && (
-            <div className="bg-basePrimaryDark md:mx-4 rounded-md p-4 flex-col space-y-4">
-              <h2 className="font-semibold border-b-[1px] pb-2">
-                {profileInfo.charity.name}
-              </h2>
-
-              <div className="space-y-2">
-                <div>
-                  <p className="text-sm text-baseSecondary font-bold">
-                    Description
-                  </p>
-                  <p>{profileInfo.charity.description}</p>
-                </div>
-
+      </div>
+      
+      {/* Main Content */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* Left Column - Profile Info */}
+        <div className="md:col-span-1 space-y-6">
+          {/* About Card */}
+          <div className="bg-basePrimaryDark rounded-xl shadow-md overflow-hidden">
+            <div className="px-6 py-5 border-b border-baseSecondary/10">
+              <h2 className="text-xl font-semibold text-baseSecondary">About</h2>
+            </div>
+            <div className="p-6">
+              <p className="text-baseSecondary/90 whitespace-pre-line">
+                {profileInfo?.bio || "No bio information available."}
+              </p>
+            </div>
+          </div>
+          
+          {/* Contact & Details Card */}
+          {isCharity && profileInfo.charity && (
+            <div className="bg-basePrimaryDark rounded-xl shadow-md overflow-hidden">
+              <div className="px-6 py-5 border-b border-baseSecondary/10">
+                <h2 className="text-xl font-semibold text-baseSecondary">Charity Details</h2>
+              </div>
+              <div className="p-6 space-y-4">
                 {profileInfo.charity.website && (
-                  <div>
-                    <p className="text-sm font-bold">Website</p>
-                    <a
-                      href={profileInfo.charity.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-baseSecondary hover:underline"
-                    >
-                      {profileInfo.charity.website}
-                    </a>
+                  <div className="flex items-start gap-3">
+                    <Globe size={20} className="text-baseSecondary/70 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-baseSecondary/70 mb-1">Website</p>
+                      <a
+                        href={profileInfo.charity.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-baseSecondary hover:text-baseSecondary/80 hover:underline transition-colors"
+                      >
+                        {profileInfo.charity.website}
+                      </a>
+                    </div>
                   </div>
                 )}
-
-                <div>
-                  <p className="text-sm font-bold">Tags</p>
-                  {profileInfo.charity?.tags?.slice(0, 2).map((tag) => (
+                
+                {profileInfo.charity.contactPerson && (
+                  <div className="flex items-start gap-3">
+                    <User size={20} className="text-baseSecondary/70 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-baseSecondary/70 mb-1">Contact Person</p>
+                      <p className="text-baseSecondary">{profileInfo.charity.contactPerson}</p>
+                    </div>
+                  </div>
+                )}
+                
+                {profileInfo.charity.contactEmail && (
+                  <div className="flex items-start gap-3">
+                    <Envelope size={20} className="text-baseSecondary/70 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-baseSecondary/70 mb-1">Contact Email</p>
+                      <a
+                        href={`mailto:${profileInfo.charity.contactEmail}`}
+                        className="text-baseSecondary hover:text-baseSecondary/80 hover:underline transition-colors"
+                      >
+                        {profileInfo.charity.contactEmail}
+                      </a>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          
+          {/* Skills & Interests Card for Volunteers */}
+          {isVolunteer && (
+            <div className="bg-basePrimaryDark rounded-xl shadow-md overflow-hidden">
+              <div className="px-6 py-5 border-b border-baseSecondary/10">
+                <h2 className="text-xl font-semibold text-baseSecondary">Skills & Interests</h2>
+              </div>
+              <div className="p-6 space-y-4">
+                {profileInfo.skills.length > 0 && (
+                  <div>
+                    <p className="text-sm font-medium text-baseSecondary/70 mb-2">Skills</p>
+                    <div className="flex flex-wrap gap-2">
+                      {profileInfo.skills.map((skill, index) => (
+                        <span
+                          key={index}
+                          className="bg-basePrimary rounded-full px-3 py-1 text-sm text-baseSecondary"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {profileInfo.preferredCharities?.length > 0 && (
+                  <div>
+                    <p className="text-sm font-medium text-baseSecondary/70 mb-2">Preferred Charities</p>
+                    <div className="flex flex-wrap gap-2">
+                      {profileInfo.preferredCharities.map((charity, index) => (
+                        <span
+                          key={index}
+                          className="bg-basePrimary rounded-full px-3 py-1 text-sm text-baseSecondary"
+                        >
+                          {charity}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          
+          {/* Tags Card for Charities */}
+          {isCharity && profileInfo.charity?.tags?.length > 0 && (
+            <div className="bg-basePrimaryDark rounded-xl shadow-md overflow-hidden">
+              <div className="px-6 py-5 border-b border-baseSecondary/10">
+                <h2 className="text-xl font-semibold text-baseSecondary">Focus Areas</h2>
+              </div>
+              <div className="p-6">
+                <div className="flex flex-wrap gap-2">
+                  {profileInfo.charity.tags.map((tag, index) => (
                     <span
-                      key={tag}
-                      className="bg-basePrimary rounded-md p-1 px-2"
+                      key={index}
+                      className="bg-basePrimary rounded-full px-3 py-1 text-sm text-baseSecondary"
                     >
                       {tag}
                     </span>
                   ))}
                 </div>
-
-                {profileInfo.charity.contactPerson && (
-                  <div>
-                    <p className="text-sm text-basePrimary">Contact Person</p>
-                    <p>{profileInfo.charity.contactPerson}</p>
-                  </div>
-                )}
-
-                {profileInfo.charity.contactEmail && (
-                  <div>
-                    <p className="text-sm text-basePrimary">Contact Email</p>
-                    <a
-                      href={`mailto:${profileInfo.charity.contactEmail}`}
-                      className="text-baseSecondary hover:underline"
-                    >
-                      {profileInfo.charity.contactEmail}
-                    </a>
-                  </div>
-                )}
               </div>
             </div>
           )}
-
-          {/* Volunteer Details Card */}
-          {profileInfo.roles[0] === "volunteer" && (
-            <div className="bg-basePrimaryDark md:mx-4 rounded-md p-4 flex-col space-y-4">
-              <h2 className="font-semibold border-b-[1px] pb-2">
-                Volunteer Statistics
-              </h2>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-baseSecondary font-bold">
-                    Completed Tasks
-                  </p>
-                  <p className="text-xl">{completedTasks?.length || 0}</p>
-                </div>
-
-                <div>
-                  <p className="text-sm text-baseSecondary font-bold">
-                    Preferred Charities
-                  </p>
-                  <div className="flex flex-wrap gap-1">
-                    {profileInfo.preferredCharities
-                      ?.slice(0, 2)
-                      .map((charity) => (
-                        <span
-                          key={charity}
-                          className="bg-basePrimary rounded-md p-1 px-2 text-sm"
-                        >
-                          {charity}
-                        </span>
-                      ))}
+          
+          {/* Stats Card for Volunteers */}
+          {isVolunteer && (
+            <div className="bg-basePrimaryDark rounded-xl shadow-md overflow-hidden">
+              <div className="px-6 py-5 border-b border-baseSecondary/10">
+                <h2 className="text-xl font-semibold text-baseSecondary">
+                  <div className="flex items-center gap-2">
+                    <ChartBar size={20} />
+                    <span>Statistics</span>
                   </div>
-                </div>
-                <div>
-                  <p className="text-sm text-baseSecondary font-bold">Skills</p>
-                  <div className="flex flex-wrap gap-1">
-                    {profileInfo.skills.map((skill, index) => (
-                      <span
-                        className="bg-basePrimary rounded-md p-1 px-2 text-sm"
-                        key={index}
-                      >
-                        {skill}
-                      </span>
-                    ))}
+                </h2>
+              </div>
+              <div className="p-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-basePrimary rounded-lg p-4 flex flex-col items-center justify-center">
+                    <p className="text-3xl font-bold text-baseSecondary mb-1">{completedTasks?.length || 0}</p>
+                    <p className="text-sm text-baseSecondary/70">Completed Tasks</p>
+                  </div>
+                  <div className="bg-basePrimary rounded-lg p-4 flex flex-col items-center justify-center">
+                    <p className="text-3xl font-bold text-baseSecondary mb-1">{profileInfo.skills.length}</p>
+                    <p className="text-sm text-baseSecondary/70">Skills</p>
                   </div>
                 </div>
               </div>
             </div>
           )}
+        </div>
+        
+        {/* Right Column - Tasks */}
+        <div className="md:col-span-2">
+          <div className="bg-basePrimaryDark rounded-xl shadow-md overflow-hidden">
+            <div className="px-6 py-5 border-b border-baseSecondary/10">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-baseSecondary flex items-center gap-2">
+                  <FileText size={22} />
+                  <span>
+                    {isCharity
+                      ? "Created Tasks"
+                      : "Completed Tasks"}
+                  </span>
+                </h2>
+                <span className="bg-basePrimary rounded-full px-3 py-1 text-sm font-medium text-baseSecondary">
+                  {(isCharity ? createdTasks?.length : completedTasks?.length) || 0} Tasks
+                </span>
+              </div>
+            </div>
+            
+            <div className="p-6">
+              {isCharity && createdTasks?.length === 0 && (
+                <p className="text-center py-6 text-baseSecondary/70">No tasks created yet.</p>
+              )}
+              
+              {isVolunteer && completedTasks?.length === 0 && (
+                <p className="text-center py-6 text-baseSecondary/70">No completed tasks yet.</p>
+              )}
+              
+              {((isCharity && createdTasks?.length > 0) || (isVolunteer && completedTasks?.length > 0)) && (
+                <DataTable
+                  data={isCharity ? createdTasks : completedTasks}
+                  handleRowClick={(item) => handleRowClick(item)}
+                  itemsPerPage={5}
+                />
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
-      {
-        <div className="py-4">
-          {completedTasks?.length === 0 ? (
-            <p className="text-center">No completed tasks yet</p>
-          ) : (
-            <>
-              <h1 className="">
-                {profileInfo.roles[0] === "charity"
-                  ? "Created Tasks"
-                  : "Completed Tasks"}
-              </h1>
-              <DataTable
-                data={
-                  profileInfo.roles[0] === "charity"
-                    ? createdTasks
-                    : completedTasks
-                }
-                handleRowClick={(item) => handleRowClick(item)}
-                itemsPerPage={5}
-              />
-            </>
-          )}
-        </div>
-      }
-
+      {/* Task Details Modal */}
       <Modal isOpen={showSelectedTask} onClose={handleCloseModal}>
         <div>
           <TaskDetailsCard
@@ -262,7 +355,7 @@ export default function ProfilePage() {
           />
         </div>
       </Modal>
-    </>
+    </div>
   );
 }
 
@@ -306,17 +399,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
       "ACCEPTED",
       profileId,
     );
-    console.log("Status", status);
 
     const completedTasks = tasks?.filter((task) => task.status === "COMPLETED");
-
-    // Make sure task applications are included in the task data
-    // const tasksWithApplications = completedTasks?.map(task => ({
-    //   ...task,
-    //   taskApplications: task.taskApplications || []
-    // }));
-
-    // console.log("Completed Tasks", completedTasks);
 
     return {
       userInfo,

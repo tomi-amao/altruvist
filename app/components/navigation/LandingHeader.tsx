@@ -99,18 +99,7 @@ export default function LandingHeader({ userId, userInfo, profilePicture }: Land
                 // User is logged in
                 <div className="ml-4 flex items-center space-x-3">
                   {/* Notifications */}
-                  <motion.div 
-                    className="relative"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <button className={`p-2 rounded-full ${isScrolled ? '' : 'hover:bg-baseSecondary/70'}`}>
-                      <Bell size={24} className={isScrolled ? 'text-basePrimaryDark' : 'text-accentPrimary'} />
-                      <span className="absolute top-0 right-0 bg-dangerPrimary  text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                        3
-                      </span>
-                    </button>
-                  </motion.div>
+
                   
                   {/* User menu dropdown */}
                   <div className="relative">
