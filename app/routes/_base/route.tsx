@@ -11,14 +11,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const { userInfo } = await getUserInfo(accessToken);
 
-  return { userInfo };
+  const novuAppId = process.env.NOVU_APP_ID;
+
+  return { userInfo, novuAppId };
 }
 
 export default function BaseTemplate() {
-  const { userInfo } = useLoaderData<typeof loader>();
+  const { userInfo, novuAppId } = useLoaderData<typeof loader>();
   return (
     <>
-      <Navbar userId={userInfo?.id} />
+      <Navbar userId={userInfo?.id} novuAppId={novuAppId ?? ""} />
 
       <div className="m-auto lg:w-9/12  w-full py-4 px-2 ">
         <h1 className="mt-16"> </h1>

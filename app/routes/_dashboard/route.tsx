@@ -10,6 +10,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
   const accessToken = session.get("accessToken"); //retrieve access token from session to be used as bearer token
   let returnTo: string;
+  const novuAppId = process.env.NOVU_APP_ID;
 
   if (request.headers.get("referer") !== "/" || null) {
     returnTo = "/";
@@ -28,10 +29,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirect("/zitlogin");
   }
 
-  return { userInfo, error };
+  return { userInfo, error, novuAppId };
 }
 export default function Dashboard() {
-  const { userInfo } = useLoaderData<typeof loader>();
+  const { userInfo, novuAppId } = useLoaderData<typeof loader>();
   const role = userInfo.roles[0];
   const location = useLocation();
   const [signedProfilePicture, setSignedProfilePicture] = useState<
@@ -79,7 +80,7 @@ export default function Dashboard() {
   return (
     <>
       <div className="h-full lg:h-screen flex flex-row">
-        <Navbar userId={userInfo.id} />
+        <Navbar userId={userInfo.id} novuAppId={novuAppId ?? ""} />
         <div className="hidden lg:flex w-3/12 lg:max-w-48 flex-col mt-[3.8rem] lg:mt-[4rem] p-4 min-h-full lg:fixed shadow-md bg-basePrimary">
           {/* Profile section */}
           <div className="mb-6">

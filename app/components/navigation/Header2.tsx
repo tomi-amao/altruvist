@@ -14,9 +14,11 @@ import { InboxNotifications } from "../InboxNotifications";
 export default function Navbar({
   altBackground,
   userId,
+  novuAppId,
 }: {
   altBackground?: boolean;
   userId: string | undefined;
+  novuAppId: string | undefined;
   handleSearch?: (e: ChangeEvent<HTMLInputElement>, property: string) => void;
   searchValue?: {
     query: string;
@@ -215,7 +217,7 @@ export default function Navbar({
 
           {/* hamburger side menu button */}
           <InboxNotifications
-            applicationIdentifier="rrCIU_4tFdsZ"
+            applicationIdentifier={novuAppId ?? ""}
             subscriberId={userId ?? ""}
           />
           <button className=" flex px-3 py-2 rounded" onClick={toggleDropdown}>

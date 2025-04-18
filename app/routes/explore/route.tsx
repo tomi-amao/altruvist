@@ -62,6 +62,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     updatedAt,
     locationType,
   );
+  const novuAppId = process.env.NOVU_APP_ID;
 
   const { userInfo } = await getUserInfo(accessToken);
   const userRole = userInfo?.roles[0];
@@ -81,6 +82,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       userInfo,
       nextCursor,
       taskApplications,
+      novuAppId,
     };
   } else {
     return {
@@ -88,6 +90,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       userInfo,
       nextCursor,
       taskApplications: null,
+      novuAppId,
     };
   }
 }
@@ -155,6 +158,7 @@ export default function Explore() {
     tasks: initialTasks,
     nextCursor: initialCursor,
     taskApplications,
+    novuAppId
   } = useLoaderData<typeof loader>();
   const fetchTasks = useFetcher();
   const [tasks, setTasks] = useState<Task[]>();
@@ -437,7 +441,7 @@ export default function Explore() {
   ];
   return (
     <>
-      <Navbar userId={userInfo?.id} />
+      <Navbar userId={userInfo?.id} novuAppId={novuAppId ?? ""}/>
       <div className="m-auto lg:w-8/12  w-full p-4  ">
         <h1 className="mt-16 text-3xl lg:text-5xl font-semibold ">
           {" "}

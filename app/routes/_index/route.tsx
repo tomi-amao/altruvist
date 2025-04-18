@@ -128,7 +128,6 @@ export default function Index() {
 
   return (
     <div className="bg-gradient-to-b from-baseSecondary ">
-      {/* <Navbar altBackground={true} userId={userInfo?.id} /> */}
       <LandingHeader
         userId={userInfo?.id}
         userInfo={userInfo as unknown as users}

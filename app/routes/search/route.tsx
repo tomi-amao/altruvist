@@ -15,6 +15,7 @@ export type SortOrder = "asc" | "desc";
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
   const accessToken = session.get("accessToken");
+  const novuAppId = process.env.NOVU_APP_ID;
 
   const { userInfo } = await getUserInfo(accessToken);
 
@@ -38,11 +39,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
     userInfo,
     searchResults,
     userTaskApplicationsIds,
+    novuAppId,
   };
 }
 
 export default function SearchResults() {
-  const { userInfo, searchResults, userTaskApplicationsIds } =
+  const { userInfo, searchResults, userTaskApplicationsIds, novuAppId } =
     useLoaderData<typeof loader>();
   const [showCollections, setShowCollections] = useState({
     all: true,
@@ -74,7 +76,7 @@ export default function SearchResults() {
 
   return (
     <>
-      <Navbar userId={userInfo?.id} />
+      <Navbar userId={userInfo?.id} novuAppId={novuAppId ?? ""}/>
       <div className="m-auto lg:w-9/12  w-full py-4 px-2 ">
         <h1 className="mt-16"> Search Results </h1>
 
