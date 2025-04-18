@@ -409,12 +409,28 @@ export const updateTask = async (
   taskId: string,
   updateTaskData: Prisma.tasksUpdateInput,
 ) => {
+  console.log("Update Task Data Pre", updateTaskData);
+
   try {
+    // Ensure location field is explicitly included in the update
+    // This prevents the location field from being filtered out when it's null
+    const dataToUpdate = {
+      ...updateTaskData,
+      // If location is explicitly null, we want to keep it that way
+      // This ensures REMOTE tasks have their location set to null
+      ...(Object.prototype.hasOwnProperty.call(updateTaskData, "location")
+        ? {
+            location: updateTaskData.location,
+          }
+        : { location: null }),
+    };
+
+    console.log("Final update data with location:", dataToUpdate);
+
     const updatedTask = await prisma.tasks.update({
       where: { id: taskId },
-      data: updateTaskData,
+      data: dataToUpdate,
     });
-    console.log(updatedTask);
 
     // Update the task in Meilisearch
     const meiliConnected = await isMeilisearchConnected();

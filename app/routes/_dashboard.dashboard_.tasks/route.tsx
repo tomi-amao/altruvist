@@ -249,6 +249,10 @@ export default function ManageTasks() {
 
   const handleTaskEdit = (taskData?: tasks) => {
     if (taskData) {
+      console.log("Editing task data:", taskData);
+      console.log("Location data:", taskData.location);
+
+      // Prepare resources
       const trimmedAttachments = taskData.resources.map((upload) => {
         return {
           name: upload.name || null,
@@ -259,6 +263,8 @@ export default function ManageTasks() {
         };
       });
 
+      // Prepare the update data, explicitly including the location field
+      // Note: We're explicitly passing location: null when it's null
       const updateData = {
         title: taskData.title,
         description: taskData.description,
@@ -270,7 +276,11 @@ export default function ManageTasks() {
         deliverables: taskData.deliverables,
         resources: trimmedAttachments,
         urgency: taskData.urgency,
+        // Explicitly include location, even when it's null
+        location: taskData.location,
       };
+
+      console.log("Update data being sent:", updateData);
 
       fetcher.submit(
         {
@@ -402,6 +412,7 @@ export async function action({ request }: ActionFunctionArgs) {
         }
 
         const parsedUpdateTaskData = JSON.parse(updateTaskData);
+        console.log("Parsed Update Task Data:", parsedUpdateTaskData);
 
         // Include all fields in the update operation
         const updateData = Object.fromEntries(
@@ -419,6 +430,7 @@ export async function action({ request }: ActionFunctionArgs) {
             resources: parsedUpdateTaskData.resources,
             urgency: parsedUpdateTaskData.urgency,
             status: parsedUpdateTaskData.status,
+            location: parsedUpdateTaskData.location,
           }).filter(([, value]) => value),
         );
 

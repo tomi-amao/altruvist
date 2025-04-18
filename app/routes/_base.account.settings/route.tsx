@@ -21,7 +21,7 @@ import {
   TextAreaField,
   ListInput,
 } from "~/components/utils/FormField";
-import { getTags, techSkills } from "~/constants/dropdownOptions";
+import { getTags, volunteeringSkills } from "~/constants/dropdownOptions";
 import FileUpload from "~/components/utils/FileUpload";
 import { Meta, UppyFile } from "@uppy/core";
 import { SecondaryButton } from "~/components/utils/BasicButton";
@@ -606,7 +606,7 @@ export default function AccountSettings() {
                             ) || false
                           }
                           resetField={false}
-                          availableOptions={techSkills}
+                          availableOptions={volunteeringSkills}
                           inputLimit={5}
                           allowCustomOptions={false}
                         />
@@ -635,7 +635,7 @@ export default function AccountSettings() {
                             ) || false
                           }
                           resetField={false}
-                          availableOptions={getTags("charityTags")}
+                          availableOptions={getTags("charityCategories")}
                           inputLimit={5}
                           allowCustomOptions={false}
                         />
@@ -811,7 +811,7 @@ export default function AccountSettings() {
                         }
                         // serverValidationError={actionData?.errors?.some((error) => error.field === "tags") || false}
                         resetField={false}
-                        availableOptions={getTags("charityTags")}
+                        availableOptions={getTags("charityCategories")}
                         inputLimit={5}
                         allowCustomOptions={false}
                       />

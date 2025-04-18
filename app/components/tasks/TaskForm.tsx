@@ -8,7 +8,10 @@ import {
   DropdownField,
 } from "../utils/FormField";
 import LocationInput, { LocationData } from "../utils/LocationInput";
-import { charityTags, techSkills } from "../../constants/dropdownOptions";
+import {
+  charityCategories,
+  volunteeringSkills,
+} from "../../constants/dropdownOptions";
 import { CancelButton, PrimaryButton } from "../utils/BasicButton";
 import { useEffect, useState } from "react";
 import FileUpload from "../utils/FileUpload";
@@ -229,31 +232,15 @@ export default function TaskForm({
     return serverValidation.some((error) => error.path[0] === fieldName);
   };
 
-  useEffect(() => {
-    console.log("Server validate", serverValidation);
-  }, [serverValidation]);
-
   // Add location handling
   const handleLocationChange = (locationData: LocationData | null) => {
-    // If locationData is an object with empty address, it means the user cleared the input
-    if (
-      locationData &&
-      locationData.address === "" &&
-      locationData.lat === 0 &&
-      locationData.lng === 0
-    ) {
-      // Keep the current location structure but with empty values
-      setFormData((prev) => ({
-        ...prev,
-        location: locationData,
-      }));
-    } else {
-      // Normal case - update location with selected place data
-      setFormData((prev) => ({
-        ...prev,
-        location: locationData,
-      }));
-    }
+    console.log("Location change received:", locationData);
+
+    // Always directly update the location
+    setFormData((prev) => ({
+      ...prev,
+      location: locationData,
+    }));
   };
 
   // Add a separate handler for location type changes
@@ -261,12 +248,15 @@ export default function TaskForm({
     if (value === "REMOTE") {
       // For REMOTE, we set location to null
       setFormData((prev) => ({ ...prev, location: null }));
-    } else if (value === "ONSITE" && !formData.location) {
+    } else if (value === "ONSITE") {
+      // Always create a fresh location object when switching to ONSITE
+      // This ensures we can always edit the location
       setFormData((prev) => ({
         ...prev,
         location: { address: "", lat: 0, lng: 0 },
       }));
     }
+    console.log("Form Data", formData);
   };
 
   return (
@@ -338,7 +328,7 @@ export default function TaskForm({
               setFormData((prev) => ({ ...prev, requiredSkills: skills }))
             }
             placeholder="Enter a technical Skill"
-            availableOptions={techSkills}
+            availableOptions={volunteeringSkills}
             allowCustomOptions={false}
             useDefaultListStyling={false}
             helperText="List the skills necessary to complete this task"
@@ -372,7 +362,7 @@ export default function TaskForm({
               setFormData((prev) => ({ ...prev, category: categories }))
             }
             placeholder="Enter the charitable category"
-            availableOptions={charityTags}
+            availableOptions={charityCategories}
             allowCustomOptions={false}
             useDefaultListStyling={false}
             helperText="List the relevant charitable categories"

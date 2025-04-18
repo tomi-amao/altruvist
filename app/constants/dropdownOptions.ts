@@ -31,30 +31,6 @@ export const taskSortOptions = [
   },
 ];
 
-export const taskCategoryFilterOptions = [
-  "Web Development",
-  "Mobile Development",
-  "Data Analysis",
-  "UX/UI Design",
-];
-
-export const taskCharityCategories = [
-  "Environmental",
-  "Health and Wellbeing",
-  "Humanitarian Aid",
-  "Social services",
-  "Education",
-  "Animal welfare",
-  "Arts and Culture",
-];
-
-export const requiredSkillsOptions = [
-  "Web Development",
-  "Mobile Development",
-  "Data Analysis",
-  "UX/UI Design",
-];
-
 export const urgencyOptions = ["LOW", "MEDIUM", "HIGH"];
 export const statusOptions = [
   "NOT_STARTED",
@@ -68,32 +44,8 @@ export const applicationStatusOptions = [
   "REJECTED",
   "WITHDRAWN",
 ];
-export const techSkills = [
-  "JavaScript",
-  "Python",
-  "Java",
-  "C++",
-  "React",
-  "Node.js",
-  "TypeScript",
-  "AWS",
-  "Docker",
-  "Kubernetes",
-  "SQL",
-  "NoSQL",
-  "DevOps",
-  "Git",
-  "Machine Learning",
-  "Data Science",
-  "UI/UX Design",
-  "Agile Methodology",
-  "Cloud Computing",
-  "Cybersecurity",
-  "Blockchain",
-  "Mobile Development",
-];
 
-export const charityTags = [
+export const charityCategories = [
   // Health and Medical
   "Healthcare",
   "Medical Research",
@@ -231,12 +183,81 @@ export const charityTags = [
 
 export const locationTypeOptions = ["REMOTE", "ONSITE"];
 
+export const volunteeringSkills = [
+  // Interpersonal & Communication
+  "Mentoring & Teaching",
+
+  // Administrative & Organizational
+  "Data Entry & Filing",
+  "Event & Volunteer Coordination",
+  "Project Management",
+
+  // Community & Field Service
+  "Cleaning & Sanitizing",
+  "Construction & Repairs",
+  "Cooking & Meal Delivery",
+  "Disaster & Crisis Response",
+  "Gardening & Landscaping",
+  "Shelter & Food Support",
+
+  // Health & Wellness
+  "CPR & First Aid",
+  "Elderly & Personal Care",
+  "Mental Health Support",
+
+  // Education & Literacy
+  "Tutoring & Reading Support",
+  "Curriculum & Special Education",
+  "ESL & Language Translation",
+  "Library & Research Support",
+  "STEM Instruction",
+
+  // Creative & Media
+  "Art & Music Instruction",
+  "Content & Social Media",
+  "Graphic & Web Design",
+  "Photography & Video",
+  "Writing & Editing",
+
+  // Technical & Practical Skills
+  "Carpentry & Plumbing",
+  "Driving & Vehicle Maintenance",
+  "Electrical & Mechanical Work",
+  "Sewing & Painting",
+  "Equipment Operation",
+
+  // Fundraising & Outreach
+  "Donor & Public Relations",
+  "Fundraising & Grant Writing",
+  "Marketing & Sales",
+  "Newsletter & Outreach",
+
+  // Animal Care
+  "Animal Handling & Grooming",
+  "Dog Walking & Pet Socialization",
+  "Habitat & Wildlife Support",
+
+  // Environmental
+  "Conservation & Sustainability",
+  "Environmental Education",
+  "Recycling & Waste Reduction",
+  "Trail & Habitat Maintenance",
+
+  //software development
+  "Software Development",
+  "Web & Mobile Development",
+  "Data Analysis & Visualization",
+  "Cybersecurity & IT Support",
+  "Cloud Computing & DevOps",
+  "Research & Development",
+];
+
 export const getTags = (type: string) => {
   switch (type) {
-    case "charityTags":
-      return charityTags;
-    case "techSkills":
-      return techSkills;
+    case "charityCategories":
+      return charityCategories;
+    case "volunteeringSkills":
+      return volunteeringSkills;
     default:
       return [];
   }

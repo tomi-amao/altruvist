@@ -106,11 +106,15 @@ export default function LocationInput({
     }
   }, [isLoaded]);
 
+  // This effect ensures input value stays in sync with the value prop
   useEffect(() => {
-    if (value?.address && value.address !== inputValue) {
+    // Important: This needs to update whenever the value prop changes
+    if (value?.address !== undefined) {
       setInputValue(value.address);
+    } else {
+      setInputValue("");
     }
-  }, [value, inputValue]);
+  }, [value]);
 
   const handlePlaceSelect = () => {
     const place = autocompleteRef.current?.getPlace();
@@ -132,9 +136,8 @@ export default function LocationInput({
     const newValue = e.target.value;
     setInputValue(newValue);
 
+    // Only if input is cleared completely, reset the location to empty values
     if (!newValue) {
-      // Instead of changing location to null (which would change type to REMOTE),
-      // keep the location object but with empty values
       onChange({
         address: "",
         lat: 0,
@@ -226,11 +229,11 @@ export default function LocationInput({
       >
         {helperText}
       </p>
-      {value && value.lat !== 0 && value.lng !== 0 && (
+      {/* {value && value.lat !== 0 && value.lng !== 0 && (
         <div className="text-xs text-baseSecondary/70 mt-1 font-light">
           Selected coordinates: {value.lat.toFixed(6)}, {value.lng.toFixed(6)}
         </div>
-      )}
+      )} */}
     </div>
   );
 }

@@ -11,17 +11,17 @@ import {
 import {
   locationTypeOptions,
   statusOptions,
-  taskCategoryFilterOptions,
-  taskCharityCategories,
+  charityCategories,
   urgencyOptions,
+  volunteeringSkills,
 } from "~/constants/dropdownOptions";
-import Dropdown from "~/components/utils/selectDropdown";
 import { getExploreTasks, getUserTasks } from "~/models/tasks.server";
 import { getUserInfo } from "~/models/user2.server";
 import { getSession } from "~/services/session.server";
 import type { Task } from "~/types/tasks";
 import { ServerRuntimeMetaFunction as MetaFunction } from "@remix-run/server-runtime";
 import { Funnel, FunnelSimple, X } from "phosphor-react";
+import { Dropdown } from "~/components/utils/selectDropdown";
 
 export const meta: MetaFunction = () => {
   return [
@@ -158,7 +158,7 @@ export default function Explore() {
     tasks: initialTasks,
     nextCursor: initialCursor,
     taskApplications,
-    novuAppId
+    novuAppId,
   } = useLoaderData<typeof loader>();
   const fetchTasks = useFetcher();
   const [tasks, setTasks] = useState<Task[]>();
@@ -364,21 +364,23 @@ export default function Explore() {
   const filterOptions = [
     <Dropdown
       key="charity"
-      options={taskCharityCategories}
+      options={charityCategories}
       placeholder="Charity"
       onSelect={(option, selected) => onSelect(option, selected, "charity")}
       multipleSelect={true}
       horizontal={true}
       defaultSelected={filters.charity}
+      showSearch={true} // Enable search for charity categories
     />,
     <Dropdown
       key="skills"
-      options={taskCategoryFilterOptions}
+      options={volunteeringSkills}
       placeholder="Skills"
       onSelect={(option, selected) => onSelect(option, selected, "skills")}
       multipleSelect={true}
       horizontal={true}
       defaultSelected={filters.skills}
+      showSearch={true} // Enable search for volunteering skills
     />,
     <Dropdown
       key="urgency"
@@ -388,6 +390,7 @@ export default function Explore() {
       multipleSelect={false}
       horizontal={true}
       defaultSelected={filters.urgency}
+      showSearch={false} // Disable search for smaller lists
     />,
     <Dropdown
       key="status"
@@ -397,6 +400,7 @@ export default function Explore() {
       multipleSelect={false}
       horizontal={true}
       defaultSelected={filters.status}
+      showSearch={false} // Disable search for smaller lists
     />,
     <Dropdown
       key="locationType"
@@ -408,6 +412,7 @@ export default function Explore() {
       multipleSelect={false}
       horizontal={true}
       defaultSelected={filters.locationType}
+      showSearch={false} // Disable search for smaller lists
     />,
   ];
   const sortOptions = [
@@ -419,6 +424,7 @@ export default function Explore() {
       multipleSelect={false}
       horizontal={true}
       defaultSelected={filters.createdAt}
+      showSearch={false} // Disable search for smaller lists
     />,
     <Dropdown
       key="deadline"
@@ -428,6 +434,7 @@ export default function Explore() {
       multipleSelect={false}
       horizontal={true}
       defaultSelected={filters.deadline}
+      showSearch={false} // Disable search for smaller lists
     />,
     <Dropdown
       key="updatedAt"
@@ -437,11 +444,12 @@ export default function Explore() {
       multipleSelect={false}
       horizontal={true}
       defaultSelected={filters.updatedAt}
+      showSearch={false} // Disable search for smaller lists
     />,
   ];
   return (
     <>
-      <Navbar userId={userInfo?.id} novuAppId={novuAppId ?? ""}/>
+      <Navbar userId={userInfo?.id} novuAppId={novuAppId ?? ""} />
       <div className="m-auto lg:w-8/12  w-full p-4  ">
         <h1 className="mt-16 text-3xl lg:text-5xl font-semibold ">
           {" "}

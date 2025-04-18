@@ -200,9 +200,9 @@ export const TagsStep = ({ updateFields, formData }: StepProps) => {
   }, []);
   let tags = [];
   if (formData.role === "volunteer") {
-    tags = getTags("techSkills");
+    tags = getTags("volunteeringSkills");
   } else {
-    tags = getTags("charityTags");
+    tags = getTags("charityCategories");
   }
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -414,7 +414,7 @@ const PreferredCharities = ({ updateFields, formData }: StepProps) => {
     };
   }, []);
 
-  const categories = getTags("charityTags");
+  const categories = getTags("charityCategories");
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -615,7 +615,7 @@ export default function NewUserForm() {
             title: "Charity Website",
             component: CharityWebsiteStep,
           },
-          { id: "charityTags", title: "tags", component: TagsStep },
+          { id: "charityCategories", title: "tags", component: TagsStep },
         ];
 
   const actionData = useActionData<typeof action>();
