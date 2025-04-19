@@ -15,20 +15,73 @@ const s3 = new S3Client({
     secretAccessKey: SECRET_ACCESS_KEY,
   },
 });
+
 export async function getSignedUrlForFile(
   fileName: string,
   extractFileName: boolean = false,
 ) {
-  if (extractFileName) {
-    fileName = decodeURIComponent(fileName.split(".com/")[1]);
+  
+  let keyToSign = fileName;
+  
+  if (extractFileName && fileName) {
+    try {
+      
+      if (typeof fileName === 'string' && fileName.includes('.com/')) {
+        const parts = fileName.split(".com/");
+        if (parts.length > 1) {
+          // First decode using decodeURIComponent
+          let decodedKey = decodeURIComponent(parts[1]);
+          
+          // Then manually replace any remaining '+' with spaces
+          // This is needed because some URL-encoded spaces might be represented as '+'
+          // and decodeURIComponent doesn't convert '+' to spaces
+          decodedKey = decodedKey.replace(/\+/g, ' ');
+          
+          keyToSign = decodedKey;
+        } else {
+          console.warn("Could not extract key from fileName:", fileName);
+          keyToSign = fileName; // Fallback to original
+        }
+      } else {
+        console.warn("fileName doesn't contain '.com/' or is not a string:", fileName);
+        // If it's just a raw key, also check for '+' that might need replacing
+        if (typeof fileName === 'string' && fileName.includes('+')) {
+          keyToSign = fileName.replace(/\+/g, ' ');
+        } else {
+          keyToSign = fileName;
+        }
+      }
+    } catch (error) {
+      console.error("Error extracting/decoding key:", error);
+      console.error("Original fileName that caused error:", fileName);
+      return null;
+    }
+  } else {
+    // Even when not extracting, check for '+' characters that might need replacing
+    if (typeof keyToSign === 'string' && keyToSign.includes('+')) {
+      keyToSign = keyToSign.replace(/\+/g, ' ');
+    }
+  }
+  
+  // Safety check for empty keys
+  if (!keyToSign) {
+    console.error("Empty key after processing. Original fileName:", fileName);
+    return null;
   }
 
   const command = new GetObjectCommand({
     Bucket: "skillanthropy-uploads",
-    Key: fileName,
+    Key: keyToSign,
   });
 
-  return getSignedUrl(s3, command, { expiresIn: 3600 }); // 1-hour expiry
+  try {
+    const signedUrl = await getSignedUrl(s3, command, { expiresIn: 3600 }); // 1-hour expiry
+    return signedUrl;
+  } catch (error) {
+    console.error("Error generating signed URL for key:", keyToSign);
+    console.error("Error details:", error);
+    return null; // Return null instead of throwing to avoid breaking the UI
+  }
 }
 
 export async function deleteS3Object(fileName: string) {

@@ -1,14 +1,14 @@
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { Link, Outlet, useLoaderData, useLocation } from "@remix-run/react";
-import { useEffect, useState } from "react";
 import { SimpleProfileCard } from "~/components/cards/ProfileCard";
 import Navbar from "~/components/navigation/Header2";
 import { getUserInfo } from "~/models/user2.server";
 import { getSession } from "~/services/session.server";
+import { getSignedUrlForFile } from "~/services/s3.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
-  const accessToken = session.get("accessToken"); //retrieve access token from session to be used as bearer token
+  const accessToken = session.get("accessToken");
   let returnTo: string;
   const novuAppId = process.env.NOVU_APP_ID;
 
@@ -29,15 +29,22 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirect("/zitlogin");
   }
 
-  return { userInfo, error, novuAppId };
+  let signedProfilePictureUrl: string | null = null;
+  if (userInfo.profilePicture) {
+    try {
+      signedProfilePictureUrl = await getSignedUrlForFile(userInfo.profilePicture, true);
+    } catch (e) {
+      console.error("Failed to get signed URL for profile picture:", e);
+    }
+  }
+
+  return { userInfo, error, novuAppId, signedProfilePictureUrl };
 }
+
 export default function Dashboard() {
-  const { userInfo, novuAppId } = useLoaderData<typeof loader>();
+  const { userInfo, novuAppId, signedProfilePictureUrl } = useLoaderData<typeof loader>();
   const role = userInfo.roles[0];
   const location = useLocation();
-  const [signedProfilePicture, setSignedProfilePicture] = useState<
-    string | null
-  >(null);
 
   const getSideBarMenu = (role: string) => {
     switch (role) {
@@ -64,19 +71,6 @@ export default function Dashboard() {
     }
   };
 
-  useEffect(() => {
-    async function fetchSignedUrl() {
-      const res = await fetch(
-        `/api/s3-get-url?file=${userInfo.profilePicture}&action=upload`,
-      );
-      const data = await res.json();
-      if (data.url) {
-        setSignedProfilePicture(data.url);
-      }
-    }
-    fetchSignedUrl();
-  }, [userInfo.profilePicture]);
-
   return (
     <>
       <div className="h-full lg:h-screen flex flex-row">
@@ -87,7 +81,7 @@ export default function Dashboard() {
             <SimpleProfileCard
               name={userInfo?.name}
               userTitle={userInfo?.userTitle}
-              profilePicture={signedProfilePicture || userInfo?.profilePicture}
+              profilePicture={signedProfilePictureUrl}
               className="hover:shadow-md transition-shadow duration-200"
             />
           </div>
@@ -111,8 +105,6 @@ export default function Dashboard() {
               ))}
             </ul>
           </nav>
-
-          {/* Logout section - Now separate from the main navigation */}
         </div>
 
         <div className="w-full mt-20 lg:ml-48">

@@ -186,7 +186,7 @@ export function TaskList({
   };
 
   return (
-    <ul className="space-y-2 overflow-y-auto max-h-[60vh] pb-2 px-1">
+    <ul className="space-y-2 overflow-y-auto max-h-[60vh] md:max-h-[100vh] pb-2 px-1">
       {tasks.map((task) => (
         <li key={task.id}>
           <TaskItem task={task} />

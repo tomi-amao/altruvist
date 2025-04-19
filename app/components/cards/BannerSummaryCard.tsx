@@ -8,7 +8,8 @@ import {
   CheckCircle,
   ChartBar,
   HandWaving,
-  HandHeart,
+  HandHeart
+
 } from "@phosphor-icons/react";
 
 export interface BannerItemProps {

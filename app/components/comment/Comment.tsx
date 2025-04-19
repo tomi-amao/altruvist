@@ -11,8 +11,10 @@ import {
 } from "@phosphor-icons/react";
 
 /** Extended comment type including user and nested replies */
-interface CommentType extends comment {
-  user: users;
+interface CommentType extends Omit<comment, "user" | "replies"> {
+  user: users & {
+    signedProfilePictureUrl?: string | null;
+  };
   replies: CommentType[];
 }
 
@@ -106,7 +108,7 @@ export default function Comment({
         <div className="flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
           <div className="w-10 h-10 rounded-full bg-baseSecondary/10 text-basePrimary flex items-center justify-center overflow-hidden ring-2 ring-baseSecondary/20 group-hover:ring-baseSecondary/40 transition-all duration-200">
             <Avatar
-              src={comment.user.profilePicture || undefined}
+              src={comment.user.signedProfilePictureUrl || undefined}
               name={comment.user.name}
             />
           </div>
@@ -391,6 +393,7 @@ export const CommentSection = ({
         id: currentUser.id,
         name: currentUser.name,
         profilePicture: currentUser.profilePicture,
+        signedProfilePictureUrl: currentUser.profilePicture,
         email: currentUser.email, // Required by users type
       },
       replies: [],
@@ -480,6 +483,7 @@ export const CommentSection = ({
         id: currentUser.id,
         name: currentUser.name,
         profilePicture: currentUser.profilePicture,
+        signedProfilePictureUrl: currentUser.profilePicture,
         email: currentUser.email, // Required by users type
       },
       replies: [],
