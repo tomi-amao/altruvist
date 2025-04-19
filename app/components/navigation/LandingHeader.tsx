@@ -148,7 +148,7 @@ export default function LandingHeader({
                     {/* User dropdown menu */}
                     {userMenuOpen && (
                       <motion.div
-                        className={`absolute right-0 mt-2 w-48 rounded-lg shadow-lg overflow-hidden border ${
+                        className={`absolute right-0 mt-2 w-48  rounded-lg shadow-lg overflow-hidden border ${
                           isScrolled
                             ? " border-basePrimary"
                             : "bg-baseSecondary border-accentPrimary/30"
@@ -157,7 +157,7 @@ export default function LandingHeader({
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                       >
-                        <div className="py-1">
+                        <div className="py-1 bg-baseSecondary/90">
                           <Link
                             to={`/profile/${userId}`}
                             className={`block px-4 py-2 text-sm ${isScrolled ? "text-basePrimaryDark " : "text-accentPrimary hover:bg-baseSecondary/70"}`}
@@ -195,12 +195,12 @@ export default function LandingHeader({
             </nav>
 
             {/* Mobile Menu Button */}
-            <div className="md:hidden">
+            <div className="md:hidden ">
               <motion.button
                 onClick={toggleMenu}
                 className={`p-2 rounded-lg ${
                   isScrolled
-                    ? "bg-basePrimaryLight/80 text-basePrimaryDark hover:bg-baborder-basePrimary"
+                    ? "bg-basePrimaryLight/80 text-basePrimaryDark hover:bg-basePrimary border-basePrimary"
                     : "bg-baseSecondary/50 text-accentPrimary hover:bg-accentPrimary/10"
                 }`}
                 whileTap={{ scale: 0.9 }}
@@ -227,7 +227,7 @@ export default function LandingHeader({
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <div className="px-2 py-3 space-y-1">
+              <div className="px-2 py-3 space-y-1 bg-baseSecondary/90">
                 {["Home", "About", "Explore", "Contact"].map((item, index) => (
                   <Link
                     key={index}

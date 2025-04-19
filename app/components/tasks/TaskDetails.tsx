@@ -20,6 +20,7 @@ import {
   Target,
   MapPin,
   MapTrifold,
+  HandWithdraw,
 } from "@phosphor-icons/react";
 
 interface TaskDetailsProps {
@@ -244,12 +245,11 @@ export function TaskDetails({
               <span
                 className={`inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-medium
                   shadow-md backdrop-blur-sm transition-all duration-300 hover:shadow-lg
-                  ${
-                    displayData.urgency === "HIGH"
-                      ? "bg-dangerPrimary text-basePrimaryLight"
-                      : displayData.urgency === "MEDIUM"
-                        ? "bg-accentPrimary text-baseSecondary"
-                        : "bg-confirmPrimary text-basePrimaryLight"
+                  ${displayData.urgency === "HIGH"
+                    ? "bg-dangerPrimary text-basePrimaryLight"
+                    : displayData.urgency === "MEDIUM"
+                      ? "bg-accentPrimary text-baseSecondary"
+                      : "bg-confirmPrimary text-basePrimaryLight"
                   }`}
               >
                 <span className="h-1.5 w-1.5 -ml-1 rounded-full animate-pulse mr-1"></span>
@@ -720,13 +720,15 @@ export function TaskDetails({
                       />
                     )}
                     {task.taskApplications[0].status === "ACCEPTED" && (
-                      <SecondaryButton
-                        ariaLabel="withdraw"
-                        text="Withdraw Application"
-                        action={() =>
-                          handleWithdrawApplication(task.taskApplications[0].id)
-                        }
-                      />
+                      <div>
+                        <SecondaryButton
+                          ariaLabel="withdraw"
+                          text="Withdraw From Task"
+                          action={() =>
+                            handleWithdrawApplication(task.taskApplications[0].id)
+                          }
+                        />
+                      </div>
                     )}
                   </>
                 )}

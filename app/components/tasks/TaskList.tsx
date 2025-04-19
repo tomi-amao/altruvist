@@ -5,6 +5,7 @@ import {
   CheckCircle,
   CircleNotch,
   ClockClockwise,
+  HandWithdraw,
   XCircle,
 } from "@phosphor-icons/react";
 
@@ -93,7 +94,7 @@ export function TaskList({
       switch (status) {
         case "COMPLETED":
           return "bg-confirmPrimary text-basePrimaryLight";
-        case "IN_PROGRESS":
+        case "NOT_STARTED":
           return "bg-accentPrimary text-basePrimaryLight";
         case "ACCEPTED":
           return "bg-confirmPrimary text-basePrimaryLight";
@@ -121,8 +122,11 @@ export function TaskList({
           return <CheckCircle size={16} weight="fill" />;
         case "PENDING":
           return <ClockClockwise size={16} weight="fill" />;
-        case "REJECTED":
+        case "WITHDRAWN":
+          return <HandWithdraw size={16} weight="fill" />;
+        case "CANCELLED":
           return <XCircle size={16} weight="fill" />;
+
         default:
           return null;
       }
@@ -157,7 +161,7 @@ export function TaskList({
                 shadow-sm transition-all duration-200 ${getStatusStyle(displayStatus)}`}
             >
               {getStatusIcon(displayStatus)}
-              <span className="ml-1">{displayStatus}</span>
+              <span className="ml-1 ">{displayStatus}</span>
             </div>
           </div>
         </div>
