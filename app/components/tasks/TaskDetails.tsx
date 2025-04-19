@@ -10,7 +10,6 @@ import { TaskApplicants } from "./TaskApplicants";
 import { CommentSection } from "../comment/Comment";
 import { Alert } from "../utils/Alert";
 import getColour from "../utils/ColourGenerator";
-import { useViewport } from "~/hooks/useViewport";
 import {
   Files,
   Info,
@@ -21,7 +20,7 @@ import {
   Target,
   MapPin,
   MapTrifold,
-} from "phosphor-react";
+} from "@phosphor-icons/react";
 
 interface TaskDetailsProps {
   task: tasks & {
@@ -59,7 +58,6 @@ export function TaskDetails({
   const [formData, setFormData] = useState<tasks>(task);
   const [isCommentsExpanded, setIsCommentsExpanded] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const { isMobile } = useViewport();
 
   const handleAcceptApplication = (applicationId: string) => {
     fetcher.submit(
@@ -186,7 +184,7 @@ export function TaskDetails({
   };
 
   return (
-    <motion.div 
+    <motion.div
       className="bg-basePrimary rounded-lg shadow-lg p-2 sm:p-3 md:p-4 lg:p-6 max-w-full border border-baseSecondary/20 overflow-hidden"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -205,15 +203,24 @@ export function TaskDetails({
       {/* Banner with key information */}
       <DashboardBanner
         bannerItems={[
-          { title: "Title", value: displayData.title ?? "N/A" },
+          { title: "Title", value: displayData.title ?? "N/A", type: "task" },
           {
             title: "Deadline",
             value: displayData.deadline
               ? new Date(displayData.deadline).toLocaleDateString()
               : "N/A",
+            type: "date",
           },
-          { title: "Status", value: displayData.status ?? "N/A" },
-          { title: "Charity", value: displayData.charity.name ?? "N/A" },
+          {
+            title: "Status",
+            value: displayData.status ?? "N/A",
+            type: "circleNotch",
+          },
+          {
+            title: "Charity",
+            value: displayData.charity.name ?? "N/A",
+            type: "charity",
+          },
         ]}
       />
 

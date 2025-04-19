@@ -1,6 +1,12 @@
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { z } from "zod";
-import { CaretDown, Eye, Info, Trash, WarningCircle } from "phosphor-react";
+import {
+  CaretDown,
+  Eye,
+  Info,
+  Trash,
+  WarningCircle,
+} from "@phosphor-icons/react";
 
 interface FormFieldProps<T> {
   htmlFor: string;

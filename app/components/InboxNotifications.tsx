@@ -1,5 +1,5 @@
 import { Bell, Inbox, InboxContent } from "@novu/react";
-import { Bell as BellIcon, BellRinging } from "phosphor-react";
+import { Bell as BellIcon, BellRinging } from "@phosphor-icons/react";
 import {
   Popover,
   PopoverContent,

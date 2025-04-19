@@ -2,7 +2,7 @@ import { ChangeEvent, useEffect } from "react";
 import { DropdownCard } from "../cards/FilterCard";
 import { SecondaryButtonAlt } from "../utils/BasicButton";
 import type { FilterSortState } from "~/types/tasks";
-import { Funnel, FunnelSimple } from "phosphor-react";
+import { Funnel, FunnelSimple } from "@phosphor-icons/react";
 import { Dropdown } from "../utils/selectDropdown";
 
 interface TaskSearchFilterProps {

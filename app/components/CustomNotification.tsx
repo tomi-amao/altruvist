@@ -9,7 +9,7 @@ import {
   Trash,
   User,
   Eye,
-} from "phosphor-react";
+} from "@phosphor-icons/react";
 import { useViewport } from "~/hooks/useViewport";
 
 interface CustomNotificationProps {

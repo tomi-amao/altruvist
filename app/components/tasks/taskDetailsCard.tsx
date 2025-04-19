@@ -13,7 +13,7 @@ import {
   NotePencil,
   ListChecks,
   Files,
-} from "phosphor-react";
+} from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 
 interface Resource {

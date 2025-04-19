@@ -6,7 +6,7 @@ import {
   CircleNotch,
   ClockClockwise,
   XCircle,
-} from "phosphor-react";
+} from "@phosphor-icons/react";
 
 interface TaskListProps {
   tasks: (tasks & {

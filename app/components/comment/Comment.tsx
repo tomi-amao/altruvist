@@ -8,7 +8,7 @@ import {
   PaperPlane,
   PencilSimple,
   TrashSimple,
-} from "phosphor-react";
+} from "@phosphor-icons/react";
 
 /** Extended comment type including user and nested replies */
 interface CommentType extends comment {

@@ -43,7 +43,7 @@ import {
   deleteNovuSubscriber,
   triggerNotification,
 } from "~/services/novu.server";
-import { ArrowLeft } from "phosphor-react";
+import { ArrowLeft } from "@phosphor-icons/react";
 import { useViewport } from "~/hooks/useViewport";
 
 export const meta: MetaFunction = () => {
@@ -316,7 +316,7 @@ export default function ManageTasks() {
     <div className="flex flex-col lg:flex-row w-full lg:min-h-screen p-4 -mt-8">
       <AnimatePresence mode="wait">
         {!isDetailsView && (
-          <motion.div 
+          <motion.div
             className="lg:w-1/3 w-full p-4 shadow-md space-y-4 rounded-md border border-basePrimaryDark overflow-auto"
             initial={{ opacity: 0, x: isMobile ? -40 : 0 }}
             animate={{ opacity: 1, x: 0 }}
@@ -347,7 +347,9 @@ export default function ManageTasks() {
             <TaskList
               tasks={filteredAndTypedTasks}
               isLoading={false}
-              error={!filteredAndTypedTasks ? "Error fetching tasks" : undefined}
+              error={
+                !filteredAndTypedTasks ? "Error fetching tasks" : undefined
+              }
               onTaskSelect={handleTaskSelect}
               selectedTaskId={selectedTaskId}
               userRole={userRole[0]}
@@ -358,7 +360,7 @@ export default function ManageTasks() {
 
       {!showCreateTask && (
         <AnimatePresence mode="wait">
-          <motion.div 
+          <motion.div
             className="lg:w-2/3 w-full pt-4 lg:pt-0"
             initial={{ opacity: 0, x: isMobile ? 40 : 0 }}
             animate={{ opacity: 1, x: 0 }}

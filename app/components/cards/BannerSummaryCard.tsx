@@ -1,6 +1,20 @@
+import { motion } from "framer-motion";
+import {
+  CircleNotch,
+  Medal,
+  Rocket,
+  Calendar,
+  Lightning,
+  CheckCircle,
+  ChartBar,
+  HandWaving,
+  HandHeart,
+} from "@phosphor-icons/react";
+
 export interface BannerItemProps {
   title: string;
   value: string;
+  type?: "task" | "metric" | "achievement" | "date" | "circleNotch" | "charity";
 }
 
 interface DashboardBannerProps {
@@ -15,53 +29,147 @@ export default function DashboardBanner({
   showWelcome = true,
 }: DashboardBannerProps) {
   return (
-    <div
-      className="w-full bg-basePrimary rounded-lg shadow-lg p-6"
-      data-testid="banner-card"
-    >
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        {showWelcome && date ? (
-          <div className="flex-shrink-0" data-testid="welcome-section">
-            <h1 className="text-2xl font-semibold font-primary text-baseSecondary">
-              Welcome Back
-            </h1>
-            <p className="text-altMidGrey mt-1" data-testid="date-display">
-              {date}
-            </p>
+    <div className="w-full overflow-hidden" data-testid="banner-card">
+      <div className="bg-basePrimary rounded-xl shadow-lg overflow-hidden">
+        {/* Main content */}
+        <div>
+          {/* Header section */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-5 border-b border-baseSecondary/10">
+            {showWelcome && date ? (
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4 }}
+                className="mb-4 md:mb-0 flex items-center"
+                data-testid="welcome-section"
+              >
+                <div className="mr-3">
+                  <div className="p-2 bg-baseSecondary/10 rounded-full">
+                    <HandWaving
+                      weight="duotone"
+                      size={28}
+                      className="text-baseSecondary"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <h1 className="text-2xl font-header font-semibold text-baseSecondary">
+                    Welcome Back
+                  </h1>
+                  <p
+                    className="text-altMidGrey text-sm"
+                    data-testid="date-display"
+                  >
+                    {date}
+                  </p>
+                </div>
+              </motion.div>
+            ) : null}
           </div>
-        ) : null}
-        <div
-          className="flex flex-col md:flex-row gap-4 w-full flex-wrap"
-          data-testid="banner-items"
-        >
-          {bannerItems.map((item, index) => (
-            <BannerItem key={index} {...item} />
-          ))}
+
+          {/* Metrics Section */}
+          <div className="p-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+              {bannerItems.map((item, index) => (
+                <BannerItem key={index} {...item} index={index} />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-function BannerItem({ title, value }: BannerItemProps) {
+interface BannerItemWithIndex extends BannerItemProps {
+  index: number;
+}
+
+function BannerItem({
+  title,
+  value,
+  type = "metric",
+  index,
+}: BannerItemWithIndex) {
+  // Choose icon based on type or title keywords
+  const getIcon = () => {
+    // First check specific type
+    if (type === "task")
+      return (
+        <Lightning weight="duotone" size={20} className="text-baseSecondary" />
+      );
+    if (type === "achievement")
+      return (
+        <Medal weight="duotone" size={20} className="text-baseSecondary" />
+      );
+    if (type === "date")
+      return (
+        <Calendar weight="duotone" size={20} className="text-baseSecondary" />
+      );
+    if (type === "circleNotch")
+      return (
+        <CircleNotch
+          weight="duotone"
+          size={20}
+          className="text-baseSecondary"
+        />
+      );
+    if (type === "charity")
+      return (
+        <HandHeart weight="duotone" size={20} className="text-baseSecondary" />
+      );
+
+    // Then look for keywords in the title
+    const lowerTitle = title.toLowerCase();
+    if (lowerTitle.includes("task"))
+      return (
+        <CheckCircle
+          weight="duotone"
+          size={20}
+          className="text-baseSecondary"
+        />
+      );
+    if (lowerTitle.includes("help"))
+      return (
+        <Medal weight="duotone" size={20} className="text-baseSecondary" />
+      );
+    if (lowerTitle.includes("recommend"))
+      return (
+        <Rocket weight="duotone" size={20} className="text-baseSecondary" />
+      );
+
+    // Default for metrics
+    return (
+      <ChartBar weight="duotone" size={20} className="text-baseSecondary" />
+    );
+  };
+
   return (
-    <div
-      className="bg-basePrimaryLight p-4 rounded-lg md:flex-1 w-full md:w-auto border-l-2 border-baseSecondary"
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: index * 0.1 }}
+      className="bg-basePrimaryLight rounded-lg p-4 hover:shadow-md transition-all duration-200
+                border-l-2 border-baseSecondary group hover:bg-basePrimary"
       data-testid="banner-item"
     >
-      <h3
-        className="text-baseSecondary/85 font-primary font-medium text-sm"
-        data-testid="banner-item-title"
-      >
-        {title}
-      </h3>
+      <div className="flex justify-between items-center mb-2">
+        <h3
+          className="text-baseSecondary/85 font-primary font-medium text-sm flex items-center gap-2"
+          data-testid="banner-item-title"
+        >
+          {getIcon()}
+          <span>{title}</span>
+        </h3>
+      </div>
+
       <p
-        className="text-lg mt-1 font-semibold truncate text-baseSecondary"
+        className="text-lg mt-1 font-semibold truncate text-baseSecondary group-hover:text-baseSecondary/90 transition-colors duration-200"
         title={value}
         data-testid="banner-item-value"
       >
         {value}
       </p>
-    </div>
+    </motion.div>
   );
 }

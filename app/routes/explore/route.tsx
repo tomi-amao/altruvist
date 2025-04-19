@@ -20,7 +20,7 @@ import { getUserInfo } from "~/models/user2.server";
 import { getSession } from "~/services/session.server";
 import type { Task } from "~/types/tasks";
 import { ServerRuntimeMetaFunction as MetaFunction } from "@remix-run/server-runtime";
-import { Funnel, FunnelSimple, X } from "phosphor-react";
+import { Funnel, FunnelSimple, X } from "@phosphor-icons/react";
 import { Dropdown } from "~/components/utils/selectDropdown";
 
 export const meta: MetaFunction = () => {

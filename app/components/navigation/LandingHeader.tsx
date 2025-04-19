@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "@remix-run/react";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { List, X, SignOut, CaretDown } from "phosphor-react";
+import { List, X, SignOut, CaretDown } from "@phosphor-icons/react";
 import { users } from "@prisma/client";
 import { Avatar } from "../cards/ProfileCard";
 

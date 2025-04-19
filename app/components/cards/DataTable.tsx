@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { TaskSummaryCardMobile } from "../tasks/taskCard";
-import { CaretRight, CaretLeft } from "phosphor-react";
+import { CaretRight, CaretLeft } from "@phosphor-icons/react";
 
 type TaskData = {
   title: string;

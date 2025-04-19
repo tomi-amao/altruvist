@@ -9,7 +9,7 @@ import {
   Buildings,
   ClipboardText,
   MagnifyingGlass,
-} from "phosphor-react";
+} from "@phosphor-icons/react";
 
 interface DropdownProps {
   options: string[];

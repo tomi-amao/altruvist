@@ -6,7 +6,7 @@ import type {
   taskApplications,
   ApplicationStatus,
 } from "@prisma/client";
-import { CaretDown, UsersThree } from "phosphor-react";
+import { CaretDown, UsersThree } from "@phosphor-icons/react";
 import { useViewport } from "~/hooks/useViewport"; // Import useViewport hook
 
 interface TaskApplicantsProps {

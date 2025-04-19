@@ -8,7 +8,7 @@ import {
   Desktop,
   Buildings,
   GraduationCap,
-} from "phosphor-react";
+} from "@phosphor-icons/react";
 import { SearchResultCardType } from "../cards/searchResultCard";
 import TaskDetailsCard from "./taskDetailsCard";
 

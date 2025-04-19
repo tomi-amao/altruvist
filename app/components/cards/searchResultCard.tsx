@@ -2,7 +2,7 @@ import { CombinedCollections, MultiSearchDocuments } from "~/types/tasks";
 
 import { useNavigate } from "@remix-run/react";
 import { getUrgencyColor } from "../tasks/taskCard";
-import { Buildings, ClipboardText, User } from "phosphor-react";
+import { Buildings, ClipboardText, User } from "@phosphor-icons/react";
 
 export interface SearchResultCardType extends MultiSearchDocuments {
   all: boolean;

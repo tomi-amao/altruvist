@@ -19,7 +19,7 @@ import {
   ChartBar,
   FileText,
   Buildings,
-} from "phosphor-react";
+} from "@phosphor-icons/react";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Profile" }];

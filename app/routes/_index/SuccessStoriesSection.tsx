@@ -1,5 +1,12 @@
 import { motion } from "framer-motion";
-import { Target, Users, Clock, Trophy, Buildings, Link } from "phosphor-react";
+import {
+  Target,
+  Users,
+  Clock,
+  Trophy,
+  Buildings,
+  Link,
+} from "@phosphor-icons/react";
 
 export const SuccessStoriesSection = () => {
   return (

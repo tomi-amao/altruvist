@@ -10,7 +10,7 @@ import {
   Star,
   Clock,
   Buildings,
-} from "phosphor-react";
+} from "@phosphor-icons/react";
 import { getUserInfo } from "~/models/user2.server";
 import { getSession, commitSession } from "~/services/session.server";
 import { prisma } from "~/services/db.server";

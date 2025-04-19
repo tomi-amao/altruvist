@@ -8,7 +8,7 @@ import {
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { SearchDropdown } from "../utils/selectDropdown";
 import { z } from "zod";
-import { List, MagnifyingGlass } from "phosphor-react";
+import { List, MagnifyingGlass } from "@phosphor-icons/react";
 import { InboxNotifications } from "../InboxNotifications";
 
 export default function Navbar({

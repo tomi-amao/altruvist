@@ -37,7 +37,7 @@ import {
   ShieldCheck,
   UserCircle,
   Warning,
-} from "phosphor-react";
+} from "@phosphor-icons/react";
 
 // Add this type definition at the top of the file
 type ActionResponse = {
