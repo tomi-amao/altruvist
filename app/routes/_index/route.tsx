@@ -19,7 +19,6 @@ import { subDays } from "date-fns/subDays";
 import LandingHeader from "~/components/navigation/LandingHeader";
 import LineGraph from "~/components/graphs/IndexGraph";
 import { useEffect, useRef, useState } from "react";
-import CompanyLogoBanner from "./LogoBanner";
 import { Modal } from "~/components/utils/Modal2";
 import TaskDetailsCard from "~/components/tasks/taskDetailsCard";
 import { users } from "@prisma/client";

@@ -2,6 +2,7 @@ import { json } from "@remix-run/node";
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { z } from "zod";
 import { getEmailServiceVars } from "~/services/env.server";
+import { verifyReCaptchaToken } from "~/services/recaptcha.server";
 
 // Email validation schema with GDPR consent and reCAPTCHA token
 const subscribeSchema = z.object({
@@ -16,26 +17,11 @@ export async function action({ request }: ActionFunctionArgs) {
   console.log("[API:Subscribe] Received subscription request");
 
   // Get API keys from environment variables
-  const RECAPTCHA_SECRET_KEY = process.env.GOOGLE_RECAPTCHA_SECRET_KEY;
 
-  // Log configuration state (without exposing sensitive keys)
-  console.log("[API:Subscribe] Configuration check:", {
-    hasBrevoKey: !!process.env.SMTP_API_KEY,
-    hasRecaptchaKey: !!RECAPTCHA_SECRET_KEY,
-  });
-
-  // Check if API keys are configured
+  // Check if API key is configured
   if (!process.env.SMTP_API_KEY) {
     console.error("[API:Subscribe] Email service API key not configured");
     return json({ error: "Email service not configured" }, { status: 500 });
-  }
-
-  if (!RECAPTCHA_SECRET_KEY) {
-    console.error("[API:Subscribe] reCAPTCHA secret key not configured");
-    return json(
-      { error: "reCAPTCHA verification not configured" },
-      { status: 500 },
-    );
   }
 
   try {
@@ -65,49 +51,25 @@ export async function action({ request }: ActionFunctionArgs) {
       return json({ error: errorMessage }, { status: 400 });
     }
 
-    // Verify reCAPTCHA token
-    console.log("[API:Subscribe] Verifying reCAPTCHA token...");
-    const recaptchaVerifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${RECAPTCHA_SECRET_KEY}&response=${recaptchaToken}`;
+    // Verify reCAPTCHA token using our utility
+    const recaptchaResult = await verifyReCaptchaToken(
+      recaptchaToken,
+      "subscribe",
+    );
 
-    const recaptchaResponse = await fetch(recaptchaVerifyUrl, {
-      method: "POST",
-    });
-
-    const recaptchaData = await recaptchaResponse.json();
-
-    console.log("[API:Subscribe] reCAPTCHA verification result:", {
-      success: recaptchaData.success,
-      score: recaptchaData.score,
-      action: recaptchaData.action,
-      hostname: recaptchaData.hostname,
-      timestamp: new Date().toISOString(),
-    });
-
-    if (!recaptchaData.success) {
+    if (!recaptchaResult.success) {
       console.error(
         "[API:Subscribe] reCAPTCHA verification failed:",
-        recaptchaData["error-codes"],
+        recaptchaResult.message,
       );
       return json(
-        { error: "reCAPTCHA verification failed. Please try again." },
+        {
+          error:
+            recaptchaResult.message ||
+            "Security verification failed. Please try again.",
+        },
         { status: 400 },
       );
-    }
-
-    if (recaptchaData.score < 0.5) {
-      console.warn("[API:Subscribe] Low reCAPTCHA score:", recaptchaData.score);
-      return json(
-        { error: "Security verification failed. Please try again later." },
-        { status: 400 },
-      );
-    }
-
-    if (recaptchaData.action !== "subscribe") {
-      console.warn(
-        "[API:Subscribe] Unexpected reCAPTCHA action:",
-        recaptchaData.action,
-      );
-      // We'll continue but log this suspicious activity
     }
 
     // Prepare request to Brevo API
@@ -127,10 +89,10 @@ export async function action({ request }: ActionFunctionArgs) {
         attributes: {
           GDPR_CONSENT: true,
           CONSENT_DATE: new Date().toISOString(),
-          RECAPTCHA_SCORE: recaptchaData.score,
+          RECAPTCHA_SCORE: recaptchaResult.score,
           SOURCE: "website_subscription_form",
         },
-        listIds: [6], // Use your actual list ID from Brevo
+        listIds: [6],
         updateEnabled: false,
         emailBlacklisted: false,
         smsBlacklisted: false,

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Uppy, { Meta, UppyFile } from "@uppy/core";
 import { Dashboard } from "@uppy/react";
-import GoogleDrivePicker from "@uppy/google-drive-picker";
+// import GoogleDrivePicker from "@uppy/google-drive-picker";
 import ImageEditor from "@uppy/image-editor";
 // import Tus from "@uppy/tus";
 import DropTarget from "@uppy/drop-target";

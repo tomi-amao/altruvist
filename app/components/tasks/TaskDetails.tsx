@@ -20,7 +20,6 @@ import {
   Target,
   MapPin,
   MapTrifold,
-  HandWithdraw,
   ShareNetwork,
   Check,
   Clock,

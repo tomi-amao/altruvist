@@ -93,9 +93,9 @@ export const loader = async () => {
 };
 
 export default function AboutRoute() {
-  const { stats, team, testimonials, volunteering } =
+  const { stats, team, volunteering } =
     useLoaderData<typeof loader>();
-  const [activeTestimonial, setActiveTestimonial] = useState(0);
+  // const [activeTestimonial, setActiveTestimonial] = useState(0);
 
   return (
     <div className="bg-basePrimaryLight">

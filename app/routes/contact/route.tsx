@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import LandingHeader from "~/components/navigation/LandingHeader";
 import Footer from "~/components/navigation/Footer";
+import ReCaptcha from "~/components/utils/ReCaptcha";
+import { verifyReCaptchaToken } from "~/services/recaptcha.server";
 import nodemailer from "nodemailer";
 import { getSession, commitSession } from "~/services/session.server";
 
@@ -28,7 +30,7 @@ const THROTTLE_TIME = 60000; // 1 minute in milliseconds
 const MAX_EMAILS_PER_SESSION = 5; // Maximum emails per session
 
 export async function action({ request }: ActionFunctionArgs) {
-  // Get the session to implement throttling - fixed to pass the full request object
+  // Get the session to implement throttling
   const session = await getSession(request);
   const now = Date.now();
 
@@ -61,6 +63,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const email = formData.get("email");
   const subject = formData.get("subject");
   const message = formData.get("message");
+  const recaptchaToken = formData.get("recaptchaToken");
 
   // Form validation
   const errors: Record<string, string> = {};
@@ -82,12 +85,34 @@ export async function action({ request }: ActionFunctionArgs) {
     errors.message = "Message is required";
   }
 
+  if (!recaptchaToken || typeof recaptchaToken !== "string") {
+    errors.recaptcha = "reCAPTCHA verification failed";
+  }
+
   if (Object.keys(errors).length > 0) {
     return json<ActionData>({
       errors,
       success: false,
       message: "Please correct the errors in the form.",
     });
+  }
+
+  // Verify the reCAPTCHA token
+  if (recaptchaToken) {
+    const recaptchaResult = await verifyReCaptchaToken(
+      recaptchaToken as string,
+      "contact_form",
+    );
+
+    if (!recaptchaResult.success) {
+      return json<ActionData>({
+        success: false,
+        message: "Security verification failed. Please try again.",
+        errors: {
+          recaptcha: recaptchaResult.message || "reCAPTCHA verification failed",
+        },
+      });
+    }
   }
 
   try {
@@ -162,6 +187,8 @@ export default function ContactRoute() {
     navigation.formAction === "/contact" && navigation.state === "submitting";
   const [formSubmitted, setFormSubmitted] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
+  const [recaptchaToken, setRecaptchaToken] = useState("");
+  const [recaptchaError, setRecaptchaError] = useState<string | null>(null);
 
   // Use useEffect to handle successful form submission
   useEffect(() => {
@@ -173,15 +200,29 @@ export default function ContactRoute() {
   // Function to reset the form
   const resetForm = () => {
     setFormSubmitted(false);
+    setRecaptchaToken("");
     // Reset the action data by posting a dummy request that will be immediately canceled
     if (formRef.current) {
       formRef.current.reset();
     }
   };
 
+  const handleRecaptchaError = (error: Error | string) => {
+    setRecaptchaError(
+      typeof error === "string" ? error : error.message || "reCAPTCHA error",
+    );
+  };
+
   return (
     <div className="min-h-screen bg-basePrimaryLight">
       <LandingHeader />
+
+      {/* Hidden reCAPTCHA component */}
+      <ReCaptcha
+        action="contact_form"
+        onTokenChange={setRecaptchaToken}
+        onError={handleRecaptchaError}
+      />
 
       <section className="py-20 md:py-28 px-4">
         <div className="container mx-auto max-w-6xl">
@@ -493,16 +534,80 @@ export default function ContactRoute() {
                           )}
                       </div>
 
+                      {/* reCAPTCHA error message */}
+                      {((actionData?.success === false &&
+                        actionData.errors.recaptcha) ||
+                        recaptchaError) && (
+                        <div className="mb-6 p-4 bg-dangerPrimary/10 border border-dangerPrimary/30 rounded-lg">
+                          <p className="text-dangerPrimary text-sm flex items-center">
+                            <svg
+                              className="w-5 h-5 mr-2 flex-shrink-0"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                              />
+                            </svg>
+                            <span>
+                              {actionData?.errors.recaptcha ||
+                                recaptchaError ||
+                                "Security verification failed"}
+                            </span>
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Hidden input for reCAPTCHA token */}
+                      <input
+                        type="hidden"
+                        name="recaptchaToken"
+                        value={recaptchaToken}
+                      />
+
+                      <div className="text-xs text-baseSecondary/70 mt-2 mb-6">
+                        This site is protected by reCAPTCHA and the Google
+                        <a
+                          href="https://policies.google.com/privacy"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-accentPrimary hover:underline"
+                        >
+                          {" "}
+                          Privacy Policy
+                        </a>{" "}
+                        and
+                        <a
+                          href="https://policies.google.com/terms"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-accentPrimary hover:underline"
+                        >
+                          {" "}
+                          Terms of Service
+                        </a>{" "}
+                        apply.
+                      </div>
+
                       <motion.button
                         type="submit"
                         className={`w-full py-3 px-4 bg-accentPrimary text-baseSecondary rounded-lg font-medium shadow-lg flex items-center justify-center transition-all ${
-                          isSubmitting
+                          isSubmitting || !recaptchaToken
                             ? "opacity-70 cursor-not-allowed"
                             : "hover:bg-accentPrimaryDark"
                         }`}
-                        whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
-                        whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
-                        disabled={isSubmitting}
+                        whileHover={{
+                          scale: isSubmitting || !recaptchaToken ? 1 : 1.02,
+                        }}
+                        whileTap={{
+                          scale: isSubmitting || !recaptchaToken ? 1 : 0.98,
+                        }}
+                        disabled={isSubmitting || !recaptchaToken}
                       >
                         {isSubmitting ? (
                           <>
@@ -528,6 +633,8 @@ export default function ContactRoute() {
                             </svg>
                             Sending...
                           </>
+                        ) : !recaptchaToken ? (
+                          "Verifying..."
                         ) : (
                           "Send Message"
                         )}

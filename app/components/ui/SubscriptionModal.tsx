@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useFetcher } from "@remix-run/react";
 import { motion } from "framer-motion";
 import { Modal } from "../utils/Modal2";
+import ReCaptcha from "../utils/ReCaptcha";
 
 // Define type for the subscription response
 type SubscriptionResponse = {
@@ -20,103 +21,32 @@ export default function SubscriptionModal({
   const [email, setEmail] = useState("");
   const [gdprConsent, setGdprConsent] = useState(false);
   const [recaptchaToken, setRecaptchaToken] = useState("");
-  const [isRecaptchaLoaded, setIsRecaptchaLoaded] = useState(false);
   const [recaptchaError, setRecaptchaError] = useState<string | null>(null);
   const fetcher = useFetcher<SubscriptionResponse>();
-  const recaptchaRef = useRef<HTMLDivElement>(null);
 
   // Determine the form status based on fetcher state
   const isSubmitting = fetcher.state === "submitting";
   const isSuccess = fetcher.data?.success;
   const errorMessage = fetcher.data?.error;
 
-  // Load reCAPTCHA script when modal opens
-  useEffect(() => {
-    console.log(
-      "[reCAPTCHA] Modal opened, checking if script needs to be loaded",
-    );
+  // Reset the form and fetcher state when the modal closes
+  const handleClose = () => {
+    onClose();
 
-    if (
-      isOpen &&
-      !window.grecaptcha &&
-      !document.querySelector('script[src*="recaptcha"]')
-    ) {
-      console.log("[reCAPTCHA] Loading script...");
-      const siteKey = window.ENV?.GOOGLE_RECAPTCHA_SITE_KEY;
+    // We need to reset the form data here, not in the useEffect
+    setEmail("");
+    setGdprConsent(false);
+    setRecaptchaToken("");
+    setRecaptchaError(null);
 
-      if (!siteKey) {
-        console.error("[reCAPTCHA] Site key not found in window.ENV");
-        setRecaptchaError("reCAPTCHA configuration error");
-        return;
-      }
-
-      const script = document.createElement("script");
-      script.src = `https://www.google.com/recaptcha/api.js?render=${siteKey}`;
-      script.async = true;
-      script.defer = true;
-      script.onload = () => {
-        console.log("[reCAPTCHA] Script loaded successfully");
-        setIsRecaptchaLoaded(true);
-        setRecaptchaError(null);
-      };
-      script.onerror = (error) => {
-        console.error("[reCAPTCHA] Script failed to load:", error);
-        setRecaptchaError("Failed to load reCAPTCHA");
-      };
-      document.head.appendChild(script);
-    } else if (isOpen && window.grecaptcha) {
-      console.log("[reCAPTCHA] Script already loaded");
-      setIsRecaptchaLoaded(true);
+    // Reset fetcher data by submitting an empty formData to a non-existent action
+    // This is a workaround to clear fetcher.data
+    if (fetcher.data) {
+      setTimeout(() => {
+        fetcher.submit({}, { action: "/api/reset-fetcher", method: "POST" });
+      }, 100);
     }
-
-    // Cleanup on modal close
-    return () => {
-      if (!isOpen) {
-        console.log("[reCAPTCHA] Modal closed, resetting state");
-        setEmail("");
-        setGdprConsent(false);
-        setRecaptchaToken("");
-      }
-    };
-  }, [isOpen]);
-
-  // Execute reCAPTCHA when loaded
-  useEffect(() => {
-    if (isRecaptchaLoaded && isOpen && window.grecaptcha) {
-      console.log(
-        "[reCAPTCHA] Script loaded and modal is open, executing reCAPTCHA",
-      );
-
-      try {
-        window.grecaptcha.ready(() => {
-          console.log(
-            "[reCAPTCHA] Ready to execute with site key:",
-            window.ENV.GOOGLE_RECAPTCHA_SITE_KEY,
-          );
-
-          window.grecaptcha
-            .execute(window.ENV.GOOGLE_RECAPTCHA_SITE_KEY, {
-              action: "subscribe",
-            })
-            .then((token: string) => {
-              console.log(
-                "[reCAPTCHA] Token generated successfully",
-                token.substring(0, 10) + "...",
-              );
-              setRecaptchaToken(token);
-              setRecaptchaError(null);
-            })
-            .catch((error: Error) => {
-              console.error("[reCAPTCHA] Token generation failed:", error);
-              setRecaptchaError("Failed to verify reCAPTCHA");
-            });
-        });
-      } catch (error) {
-        console.error("[reCAPTCHA] Execution error:", error);
-        setRecaptchaError("reCAPTCHA error");
-      }
-    }
-  }, [isRecaptchaLoaded, isOpen]);
+  };
 
   // Handle form submission
   const handleSubscribe = (e: React.FormEvent) => {
@@ -129,46 +59,12 @@ export default function SubscriptionModal({
     }
 
     if (!recaptchaToken) {
-      console.log("[reCAPTCHA] No token found, attempting to generate one");
-
-      // Re-execute reCAPTCHA if token is missing
-      if (window.grecaptcha) {
-        try {
-          window.grecaptcha
-            .execute(window.ENV.GOOGLE_RECAPTCHA_SITE_KEY, {
-              action: "subscribe",
-            })
-            .then((token: string) => {
-              console.log(
-                "[reCAPTCHA] Token generated on submit",
-                token.substring(0, 10) + "...",
-              );
-              setRecaptchaToken(token);
-              submitForm(token);
-            })
-            .catch((error: Error) => {
-              console.error(
-                "[reCAPTCHA] Token generation failed on submit:",
-                error,
-              );
-              setRecaptchaError(
-                "Failed to verify your request. Please try again.",
-              );
-            });
-        } catch (error) {
-          console.error("[reCAPTCHA] Execution error on submit:", error);
-          setRecaptchaError("reCAPTCHA verification failed");
-        }
-      } else {
-        console.error("[reCAPTCHA] grecaptcha not available on submit");
-        setRecaptchaError(
-          "reCAPTCHA not loaded. Please refresh and try again.",
-        );
-      }
+      console.log("[Subscription] No reCAPTCHA token available");
+      setRecaptchaError("Please wait for security verification to complete");
       return;
     }
 
-    console.log("[Subscription] Proceeding with existing token");
+    console.log("[Subscription] Proceeding with submission");
     submitForm(recaptchaToken);
   };
 
@@ -187,21 +83,56 @@ export default function SubscriptionModal({
     fetcher.submit(formData, { method: "POST", action: "/api/subscribe" });
   };
 
+  // Handle reCAPTCHA token updates
+  const handleRecaptchaToken = (token: string) => {
+    console.log(
+      "[Subscription] reCAPTCHA token received",
+      token.substring(0, 10) + "...",
+    );
+    setRecaptchaToken(token);
+    setRecaptchaError(null);
+  };
+
+  // Handle reCAPTCHA errors
+  const handleRecaptchaError = (error: Error | string) => {
+    const errorMessage =
+      typeof error === "string" ? error : error.message || "reCAPTCHA error";
+    console.error("[Subscription] reCAPTCHA error:", errorMessage);
+    setRecaptchaError(errorMessage);
+  };
+
   // Close modal after successful submission
   useEffect(() => {
     if (isSuccess) {
       console.log("[Subscription] Success, will close modal in 3 seconds");
       setTimeout(() => {
-        onClose();
-        setEmail("");
-        setGdprConsent(false);
+        handleClose(); // Use our custom close handler instead
       }, 3000);
     }
-  }, [isSuccess, onClose]);
+  }, [isSuccess]); // Remove onClose from dependencies
+
+  // Watch for modal open/close state changes to reset fetcher on manual close
+  useEffect(() => {
+    if (!isOpen && fetcher.data) {
+      // Reset fetcher when modal is closed manually
+      setTimeout(() => {
+        fetcher.submit({}, { action: "/api/reset-fetcher", method: "POST" });
+      }, 100);
+    }
+  }, [isOpen, fetcher]);
 
   return (
     <div className="">
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen} onClose={handleClose}>
+        {/* Only render ReCaptcha when modal is open */}
+        {isOpen && (
+          <ReCaptcha
+            action="subscribe"
+            onTokenChange={handleRecaptchaToken}
+            onError={handleRecaptchaError}
+          />
+        )}
+
         <fetcher.Form
           onSubmit={handleSubscribe}
           className="space-y-4 bg-basePrimary p-4 rounded-lg"
@@ -251,9 +182,6 @@ export default function SubscriptionModal({
             </div>
           </div>
 
-          {/* Hidden recaptcha badge */}
-          <div ref={recaptchaRef} className="hidden"></div>
-
           {/* Status messages */}
           {isSuccess && (
             <div className="text-green-500 text-sm p-2 bg-green-50 rounded-md">
@@ -293,24 +221,34 @@ export default function SubscriptionModal({
           <div className="flex justify-end pt-2">
             <motion.button
               type="submit"
-              disabled={isSubmitting || isSuccess || !gdprConsent}
+              disabled={
+                isSubmitting || isSuccess || !gdprConsent || !recaptchaToken
+              }
               className={`bg-accentPrimary text-baseSecondary px-4 py-2 rounded-lg hover:bg-accentPrimary/80 ${
-                isSubmitting || isSuccess || !gdprConsent
+                isSubmitting || isSuccess || !gdprConsent || !recaptchaToken
                   ? "opacity-70 cursor-not-allowed"
                   : ""
               }`}
               whileHover={{
-                scale: !isSubmitting && !isSuccess && gdprConsent ? 1.02 : 1,
+                scale:
+                  !isSubmitting && !isSuccess && gdprConsent && recaptchaToken
+                    ? 1.02
+                    : 1,
               }}
               whileTap={{
-                scale: !isSubmitting && !isSuccess && gdprConsent ? 0.98 : 1,
+                scale:
+                  !isSubmitting && !isSuccess && gdprConsent && recaptchaToken
+                    ? 0.98
+                    : 1,
               }}
             >
               {isSubmitting
                 ? "Subscribing..."
                 : isSuccess
                   ? "Subscribed!"
-                  : "Subscribe"}
+                  : !recaptchaToken
+                    ? "Verifying..."
+                    : "Subscribe"}
             </motion.button>
           </div>
         </fetcher.Form>

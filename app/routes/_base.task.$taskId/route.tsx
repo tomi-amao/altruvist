@@ -136,7 +136,6 @@ export default function TaskDetailPage() {
     volunteerDetails,
   } = useLoaderData<typeof loader>();
   const navigation = useNavigation();
-  const { isMobile } = useViewport();
 
   const isLoading = navigation.state === "loading";
 
