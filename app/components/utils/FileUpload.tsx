@@ -35,11 +35,7 @@ const FileUpload = ({
   useEffect(() => {
     async function initializeUppy() {
       try {
-        const response = await fetch("/api/google-credentials");
-        if (!response.ok) {
-          throw new Error("Failed to fetch credentials");
-        }
-        const { clientId, apiKey } = await response.json();
+
 
         const uppy = new Uppy({
           debug: true,
@@ -64,12 +60,12 @@ const FileUpload = ({
           },
         })
           .use(Compressor)
-          .use(GoogleDrivePicker, {
-            companionUrl: uploadURL,
-            clientId,
-            apiKey,
-            appId: clientId.split("-")[0],
-          })
+          // .use(GoogleDrivePicker, {
+          //   companionUrl: uploadURL,
+          //   clientId,
+          //   apiKey,
+          //   appId: clientId.split("-")[0],
+          // })
           .use(ImageEditor, {
             quality: 0.8,
           })

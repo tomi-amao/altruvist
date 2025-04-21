@@ -19,22 +19,35 @@ export default function LandingHeader({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [prevScrollY, setPrevScrollY] = useState(0); // Track previous scroll position
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const toggleUserMenu = () => setUserMenuOpen(!userMenuOpen);
   const navigate = useNavigate();
 
-  // Handle scroll effect
+  // Handle scroll effect with direction detection
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      const currentScrollY = window.scrollY;
+
+      // Detect scroll direction
+      if (currentScrollY < prevScrollY) {
+        // Scrolling up
+        setIsScrolled(false);
+      } else if (currentScrollY > prevScrollY) {
+        // Scrolling down
+        setIsScrolled(true);
+      }
+
+      // Update previous scroll position
+      setPrevScrollY(currentScrollY);
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, []);
+  }, [prevScrollY]); // Include prevScrollY in the dependency array
 
   return (
     <motion.header
@@ -77,7 +90,7 @@ export default function LandingHeader({
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-1">
-              {["Home", "About", "Explore", "Contact"].map((item, index) => (
+              {[ "About", "Explore"].map((item, index) => (
                 <Link
                   key={index}
                   to={`/${item.toLowerCase()}`}
