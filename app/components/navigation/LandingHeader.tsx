@@ -19,11 +19,31 @@ export default function LandingHeader({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [resourcesMenuOpen, setResourcesMenuOpen] = useState(false);
   const [prevScrollY, setPrevScrollY] = useState(0); // Track previous scroll position
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const toggleUserMenu = () => setUserMenuOpen(!userMenuOpen);
+  const toggleResourcesMenu = () => setResourcesMenuOpen(!resourcesMenuOpen);
   const navigate = useNavigate();
+
+  // Close dropdown menus when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest(".resources-menu-container") && resourcesMenuOpen) {
+        setResourcesMenuOpen(false);
+      }
+      if (!target.closest(".user-menu-container") && userMenuOpen) {
+        setUserMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [resourcesMenuOpen, userMenuOpen]);
 
   // Handle scroll effect with direction detection
   useEffect(() => {
@@ -90,19 +110,85 @@ export default function LandingHeader({
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-1">
-              {[ "About", "Explore"].map((item, index) => (
-                <Link
-                  key={index}
-                  to={`/${item.toLowerCase()}`}
-                  className={`px-4 py-2 rounded-lg transition-all font-medium hover:scale-105 active:scale-95 ${
+              <Link
+                to="/about"
+                className={`px-4 py-2 rounded-lg transition-all font-medium hover:scale-105 active:scale-95 ${
+                  isScrolled
+                    ? "text-basePrimaryDark hover:text-accentPrimary"
+                    : "text-accentPrimary hover:bg-baseSecondary/50"
+                }`}
+              >
+                <span className="text-accentPrimary font-medium">About</span>
+              </Link>
+
+              <Link
+                to="/explore"
+                className={`px-4 py-2 rounded-lg transition-all font-medium hover:scale-105 active:scale-95 ${
+                  isScrolled
+                    ? "text-basePrimaryDark hover:text-accentPrimary"
+                    : "text-accentPrimary hover:bg-baseSecondary/50"
+                }`}
+              >
+                <span className="text-accentPrimary font-medium">Explore</span>
+              </Link>
+
+              {/* Resources Dropdown */}
+              <div className="relative resources-menu-container">
+                <motion.button
+                  onClick={toggleResourcesMenu}
+                  className={`flex items-center space-x-1 px-4 py-2 rounded-lg transition-all font-medium hover:scale-105 active:scale-95 ${
                     isScrolled
-                      ? "text-basePrimaryDark  hover:text-accentPrimary"
+                      ? "text-basePrimaryDark hover:text-accentPrimary"
                       : "text-accentPrimary hover:bg-baseSecondary/50"
                   }`}
+                  whileHover={{ scale: 1.02 }}
                 >
-                  {item}
-                </Link>
-              ))}
+                  <span className="text-accentPrimary font-medium">
+                    Resources
+                  </span>
+                  <CaretDown
+                    size={16}
+                    className={`transition-transform ${resourcesMenuOpen ? "rotate-180" : ""} ${
+                      isScrolled ? "text-basePrimaryDark" : "text-accentPrimary"
+                    }`}
+                  />
+                </motion.button>
+
+                {/* Resources dropdown menu */}
+                {resourcesMenuOpen && (
+                  <motion.div
+                    className={`absolute left-0 mt-2 w-48 rounded-lg shadow-lg overflow-hidden border ${
+                      isScrolled
+                        ? "border-basePrimary"
+                        : "bg-baseSecondary border-accentPrimary/30"
+                    }`}
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                  >
+                    <div className="py-1 bg-baseSecondary/90">
+                      <Link
+                        to="/volunteer-guide"
+                        className={`block px-4 py-2 text-sm ${isScrolled ? "text-basePrimaryDark" : "text-accentPrimary hover:bg-baseSecondary/70"}`}
+                      >
+                        Volunteer Guide
+                      </Link>
+                      <Link
+                        to="/charity-resources"
+                        className={`block px-4 py-2 text-sm ${isScrolled ? "text-basePrimaryDark" : "text-accentPrimary hover:bg-baseSecondary/70"}`}
+                      >
+                        Charity Resources
+                      </Link>
+                      <Link
+                        to="/faq"
+                        className={`block px-4 py-2 text-sm ${isScrolled ? "text-basePrimaryDark" : "text-accentPrimary hover:bg-baseSecondary/70"}`}
+                      >
+                        FAQ
+                      </Link>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
 
               {/* Conditional rendering based on login status */}
               {!userId ? (
@@ -127,7 +213,7 @@ export default function LandingHeader({
                   {/* Notifications */}
 
                   {/* User menu dropdown */}
-                  <div className="relative">
+                  <div className="relative user-menu-container">
                     <motion.button
                       onClick={toggleUserMenu}
                       className={`flex items-center space-x-2 px-3 py-2 rounded-lg ${
@@ -241,23 +327,90 @@ export default function LandingHeader({
               transition={{ duration: 0.3 }}
             >
               <div className="px-2 py-3 space-y-1 bg-baseSecondary/90">
-                {["Home", "About", "Explore", "Contact"].map((item, index) => (
-                  <Link
-                    key={index}
-                    to={
-                      item.toLowerCase() === "home"
-                        ? "/"
-                        : `/${item.toLowerCase()}`
-                    }
-                    className={`px-4 py-2 rounded-lg transition-all font-medium hover:scale-105 active:scale-95 ${
-                      isScrolled
-                        ? "text-basePrimaryDark  hover:text-accentPrimary"
-                        : "text-accentPrimary hover:bg-baseSecondary/50"
+                <Link
+                  to="/"
+                  className={`block px-4 py-2 rounded-lg transition-all font-medium hover:scale-105 active:scale-95 ${
+                    isScrolled
+                      ? "text-basePrimaryDark hover:text-accentPrimary"
+                      : "text-accentPrimary hover:bg-baseSecondary/50"
+                  }`}
+                >
+                  Home
+                </Link>
+                <Link
+                  to="/about"
+                  className={`block px-4 py-2 rounded-lg transition-all font-medium hover:scale-105 active:scale-95 ${
+                    isScrolled
+                      ? "text-basePrimaryDark hover:text-accentPrimary"
+                      : "text-accentPrimary hover:bg-baseSecondary/50"
+                  }`}
+                >
+                  About
+                </Link>
+                <Link
+                  to="/explore"
+                  className={`block px-4 py-2 rounded-lg transition-all font-medium hover:scale-105 active:scale-95 ${
+                    isScrolled
+                      ? "text-basePrimaryDark hover:text-accentPrimary"
+                      : "text-accentPrimary hover:bg-baseSecondary/50"
+                  }`}
+                >
+                  Explore
+                </Link>
+
+                {/* Resources section for mobile */}
+                <div className="mt-2">
+                  <div
+                    className={`px-4 py-2 font-medium ${
+                      isScrolled ? "text-basePrimaryDark" : "text-accentPrimary"
                     }`}
                   >
-                    {item}
-                  </Link>
-                ))}
+                    Resources
+                  </div>
+                  <div className="pl-4 border-l-2 ml-4 border-accentPrimary/20 space-y-1 mt-1">
+                    <Link
+                      to="/volunteer-guide"
+                      className={`block px-4 py-2 rounded-lg text-sm transition-all ${
+                        isScrolled
+                          ? "text-basePrimaryDark hover:text-accentPrimary"
+                          : "text-accentPrimary hover:bg-baseSecondary/50"
+                      }`}
+                    >
+                      Volunteer Guide
+                    </Link>
+                    <Link
+                      to="/charity-resources"
+                      className={`block px-4 py-2 rounded-lg text-sm transition-all ${
+                        isScrolled
+                          ? "text-basePrimaryDark hover:text-accentPrimary"
+                          : "text-accentPrimary hover:bg-baseSecondary/50"
+                      }`}
+                    >
+                      Charity Resources
+                    </Link>
+                    <Link
+                      to="/faq"
+                      className={`block px-4 py-2 rounded-lg text-sm transition-all ${
+                        isScrolled
+                          ? "text-basePrimaryDark hover:text-accentPrimary"
+                          : "text-accentPrimary hover:bg-baseSecondary/50"
+                      }`}
+                    >
+                      FAQ
+                    </Link>
+                  </div>
+                </div>
+
+                <Link
+                  to="/contact"
+                  className={`block px-4 py-2 rounded-lg transition-all font-medium hover:scale-105 active:scale-95 ${
+                    isScrolled
+                      ? "text-basePrimaryDark hover:text-accentPrimary"
+                      : "text-accentPrimary hover:bg-baseSecondary/50"
+                  }`}
+                >
+                  Contact
+                </Link>
 
                 {/* Mobile login/signup or user menu */}
                 {!userId ? (

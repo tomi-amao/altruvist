@@ -126,9 +126,8 @@ export async function action({ params, request }: ActionFunctionArgs) {
         const createdComment = await createComment(newCommentData);
         // Rename commentsRaw to avoid conflict in loader scope
         const actionCommentsRaw = await getCommentsForTask(routeTaskId);
-        const updatedCommentsWithUrls = await addSignedUrlsToComments(
-          actionCommentsRaw,
-        );
+        const updatedCommentsWithUrls =
+          await addSignedUrlsToComments(actionCommentsRaw);
         const fullComment = updatedCommentsWithUrls.find(
           (c) => c.id === createdComment.id,
         );
@@ -166,9 +165,8 @@ export async function action({ params, request }: ActionFunctionArgs) {
         );
         const updatedCommentRaw = await editComment(commentId, content);
         const actionCommentsRaw = await getCommentsForTask(routeTaskId);
-        const updatedCommentsWithUrls = await addSignedUrlsToComments(
-          actionCommentsRaw,
-        );
+        const updatedCommentsWithUrls =
+          await addSignedUrlsToComments(actionCommentsRaw);
         const fullUpdatedComment = updatedCommentsWithUrls.find(
           (c) => c.id === updatedCommentRaw.id,
         );
@@ -184,9 +182,8 @@ export async function action({ params, request }: ActionFunctionArgs) {
         const replyData = JSON.parse(formData.get("replyData") as string);
         const createdReply = await createReply(replyData);
         const actionCommentsRaw = await getCommentsForTask(routeTaskId);
-        const updatedCommentsWithUrls = await addSignedUrlsToComments(
-          actionCommentsRaw,
-        );
+        const updatedCommentsWithUrls =
+          await addSignedUrlsToComments(actionCommentsRaw);
 
         let fullReply: CommentWithSignedUrl | undefined = undefined;
         for (const comment of updatedCommentsWithUrls) {
@@ -233,9 +230,8 @@ export async function action({ params, request }: ActionFunctionArgs) {
         const commentId = formData.get("commentId") as string;
         await deleteComment(commentId);
         const actionCommentsRaw = await getCommentsForTask(routeTaskId);
-        const updatedCommentsWithUrls = await addSignedUrlsToComments(
-          actionCommentsRaw,
-        );
+        const updatedCommentsWithUrls =
+          await addSignedUrlsToComments(actionCommentsRaw);
         return json<ActionResponse>({
           success: true,
           comments: updatedCommentsWithUrls,

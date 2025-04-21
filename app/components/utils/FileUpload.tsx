@@ -35,8 +35,6 @@ const FileUpload = ({
   useEffect(() => {
     async function initializeUppy() {
       try {
-
-
         const uppy = new Uppy({
           debug: true,
           autoProceed: false,

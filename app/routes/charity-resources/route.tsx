@@ -11,7 +11,8 @@ export const meta: MetaFunction = () => {
     { title: "Charity Resources | Altruist" },
     {
       name: "description",
-      content: "Resources, guides and best practices for nonprofits and charitable organizations using Altruist to find skilled volunteers.",
+      content:
+        "Resources, guides and best practices for nonprofits and charitable organizations using Altruist to find skilled volunteers.",
     },
   ];
 };
@@ -23,73 +24,81 @@ export const loader = async () => {
       {
         title: "Skills On Demand",
         icon: "💼",
-        description: "Access a global pool of professionals willing to share their expertise with your organization.",
+        description:
+          "Access a global pool of professionals willing to share their expertise with your organization.",
       },
       {
         title: "Save Resources",
         icon: "💰",
-        description: "Accomplish projects without the expense of hiring full-time staff or expensive consultants.",
+        description:
+          "Accomplish projects without the expense of hiring full-time staff or expensive consultants.",
       },
       {
         title: "Diverse Perspectives",
         icon: "🌎",
-        description: "Work with experts from different backgrounds who bring fresh ideas to your challenges.",
+        description:
+          "Work with experts from different backgrounds who bring fresh ideas to your challenges.",
       },
       {
         title: "Quick Turnaround",
         icon: "⏱️",
-        description: "Find skilled help for time-sensitive projects through our efficient matching system.",
+        description:
+          "Find skilled help for time-sensitive projects through our efficient matching system.",
       },
     ],
     guides: [
       {
         title: "Creating Effective Task Listings",
-        description: "How to craft clear, compelling task descriptions that attract the right volunteers",
+        description:
+          "How to craft clear, compelling task descriptions that attract the right volunteers",
         content: [
           "Use specific, descriptive titles (e.g., 'Design responsive email templates' rather than 'Help with marketing')",
           "Clearly define deliverables and expected outcomes",
           "Be transparent about time commitments and deadlines",
           "Specify the exact skills needed and any required experience level",
           "Explain how the work contributes to your mission",
-          "Include any tools or software volunteers will need to use"
-        ]
+          "Include any tools or software volunteers will need to use",
+        ],
       },
       {
         title: "Onboarding Volunteers Successfully",
-        description: "Best practices for welcoming and integrating volunteers into your projects",
+        description:
+          "Best practices for welcoming and integrating volunteers into your projects",
         content: [
           "Schedule a kick-off meeting to align on expectations and answer questions",
           "Provide context about your organization and the broader impact of their work",
           "Create a resource document with essential information and contact details",
           "Set up clear communication channels and response time expectations",
           "Introduce them to relevant team members they'll be working with",
-          "Consider creating templates or examples of similar work your organization has done"
-        ]
+          "Consider creating templates or examples of similar work your organization has done",
+        ],
       },
       {
         title: "Managing Remote Volunteers",
-        description: "Tips for effectively coordinating volunteers who work remotely",
+        description:
+          "Tips for effectively coordinating volunteers who work remotely",
         content: [
           "Use project management tools to track progress and deadlines",
           "Schedule regular check-ins to provide feedback and answer questions",
           "Create clear processes for reviewing and approving work",
           "Set up collaboration tools that make remote work efficient",
           "Be mindful of time zone differences when scheduling meetings",
-          "Document processes and decisions to keep everyone aligned"
-        ]
+          "Document processes and decisions to keep everyone aligned",
+        ],
       },
       {
         title: "Providing Meaningful Feedback",
-        description: "How to give feedback that helps volunteers grow while improving your outcomes",
+        description:
+          "How to give feedback that helps volunteers grow while improving your outcomes",
         content: [
           "Be specific about what worked well and what could be improved",
           "Frame feedback in terms of the project goals rather than personal preferences",
           "Provide feedback promptly so volunteers can implement changes",
           "Balance constructive criticism with genuine appreciation",
           "Ask for their input on the process and how it could be improved",
-          "Offer resources for skill development if appropriate"
-        ]
-      }
+          "Offer resources for skill development if appropriate",
+        ],
+      },
     ],
     tools: [
       {
@@ -97,46 +106,50 @@ export const loader = async () => {
         options: [
           {
             title: "Asana",
-            description: "Task management system perfect for assigning work to volunteers",
+            description:
+              "Task management system perfect for assigning work to volunteers",
             url: "https://asana.com/nonprofits",
-            discount: "Free for qualifying nonprofits"
+            discount: "Free for qualifying nonprofits",
           },
           {
             title: "Trello",
-            description: "Visual project management with simple boards and cards",
+            description:
+              "Visual project management with simple boards and cards",
             url: "https://trello.com/nonprofits",
-            discount: "50% discount for nonprofits"
+            discount: "50% discount for nonprofits",
           },
           {
             title: "ClickUp",
-            description: "All-in-one productivity platform with robust free plan",
+            description:
+              "All-in-one productivity platform with robust free plan",
             url: "https://clickup.com/nonprofits",
-            discount: "Free for teams up to 5"
-          }
-        ]
+            discount: "Free for teams up to 5",
+          },
+        ],
       },
       {
         name: "Communication",
         options: [
           {
             title: "Slack",
-            description: "Channel-based messaging platform for team communication",
+            description:
+              "Channel-based messaging platform for team communication",
             url: "https://slack.com/help/articles/204368833-Apply-for-the-Slack-for-Nonprofits-discount",
-            discount: "85% discount for nonprofits"
+            discount: "85% discount for nonprofits",
           },
           {
             title: "Microsoft Teams",
             description: "Integrated communication and collaboration platform",
             url: "https://www.microsoft.com/en-us/nonprofits/microsoft-teams",
-            discount: "Free for qualifying nonprofits"
+            discount: "Free for qualifying nonprofits",
           },
           {
             title: "Zoom",
             description: "Video conferencing for virtual meetings and webinars",
             url: "https://zoom.us/nonprofits",
-            discount: "50% discount for nonprofits"
-          }
-        ]
+            discount: "50% discount for nonprofits",
+          },
+        ],
       },
       {
         name: "Design & Content",
@@ -145,45 +158,53 @@ export const loader = async () => {
             title: "Canva",
             description: "Easy-to-use graphic design platform with templates",
             url: "https://www.canva.com/canva-for-nonprofits/",
-            discount: "Free premium version for nonprofits"
+            discount: "Free premium version for nonprofits",
           },
           {
             title: "Adobe Creative Cloud",
             description: "Professional design tools for all creative needs",
             url: "https://www.adobe.com/creativecloud/nonprofits.html",
-            discount: "60% discount for nonprofits"
+            discount: "60% discount for nonprofits",
           },
           {
             title: "Loom",
-            description: "Video messaging tool for quick tutorials and feedback",
+            description:
+              "Video messaging tool for quick tutorials and feedback",
             url: "https://www.loom.com/pricing",
-            discount: "Free plan available for basic needs"
-          }
-        ]
-      }
+            discount: "Free plan available for basic needs",
+          },
+        ],
+      },
     ],
     faq: [
       {
         question: "How do I verify my nonprofit status on Altruist?",
-        answer: "During registration, select 'Charity' as your organization type and provide your nonprofit registration number. Our team will verify your status within 1-2 business days. For expedited verification, you can email supporting documentation to verification@altruist.org."
+        answer:
+          "During registration, select 'Charity' as your organization type and provide your nonprofit registration number. Our team will verify your status within 1-2 business days. For expedited verification, you can email supporting documentation to verification@altruist.org.",
       },
       {
         question: "Can we have multiple accounts for different departments?",
-        answer: "Yes! Altruist allows multiple users to be associated with your organization. The primary account holder can invite team members who will have access to manage projects, communicate with volunteers, and track progress."
+        answer:
+          "Yes! Altruist allows multiple users to be associated with your organization. The primary account holder can invite team members who will have access to manage projects, communicate with volunteers, and track progress.",
       },
       {
         question: "Is there a limit to how many tasks we can post?",
-        answer: "Standard charity accounts can post up to 10 active tasks at a time. If you need to post more, please contact us to discuss options for your organization's specific needs."
+        answer:
+          "Standard charity accounts can post up to 10 active tasks at a time. If you need to post more, please contact us to discuss options for your organization's specific needs.",
       },
       {
-        question: "How can we feature our organization to attract more volunteers?",
-        answer: "Complete your organization profile with a compelling mission statement, impact stories, and high-quality images. We recommend also keeping your task listings current and providing feedback to volunteers, as these factors improve your visibility in search results."
+        question:
+          "How can we feature our organization to attract more volunteers?",
+        answer:
+          "Complete your organization profile with a compelling mission statement, impact stories, and high-quality images. We recommend also keeping your task listings current and providing feedback to volunteers, as these factors improve your visibility in search results.",
       },
       {
-        question: "Can we find volunteers for ongoing roles, not just projects?",
-        answer: "Absolutely! When creating a task, you can specify that you're looking for ongoing commitment. Use the 'Recurring' option and specify the time commitment needed. Many professionals are interested in long-term volunteer relationships."
-      }
-    ]
+        question:
+          "Can we find volunteers for ongoing roles, not just projects?",
+        answer:
+          "Absolutely! When creating a task, you can specify that you're looking for ongoing commitment. Use the 'Recurring' option and specify the time commitment needed. Many professionals are interested in long-term volunteer relationships.",
+      },
+    ],
   });
 };
 
@@ -195,7 +216,7 @@ export default function CharityResources() {
   return (
     <div className="bg-basePrimaryLight min-h-screen">
       <LandingHeader />
-      
+
       {/* Hero Section */}
       <section className="relative w-full overflow-hidden bg-gradient-to-b from-basePrimaryLight to-basePrimary/10">
         <div className="container relative px-4 md:px-6 mx-auto py-16 md:py-20 lg:py-24">
@@ -207,14 +228,15 @@ export default function CharityResources() {
               className="text-center"
             >
               <h1 className="inline-block text-baseSecondary text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mt-4">
-              Charity <span className="text-baseSecondary text-6xl">Resources</span>
+                Charity{" "}
+                <span className="text-baseSecondary text-6xl">Resources</span>
               </h1>
               <p className="mt-4 text-lg text-midGrey max-w-2xl mx-auto">
-                Tools, guides, and best practices to help your organization make the most
-                of skilled volunteers on the Altruist platform.
+                Tools, guides, and best practices to help your organization make
+                the most of skilled volunteers on the Altruist platform.
               </p>
             </motion.div>
-            
+
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -230,7 +252,7 @@ export default function CharityResources() {
           </div>
         </div>
       </section>
-      
+
       {/* Benefits Section */}
       <section className="w-full py-12 md:py-16 lg:py-20 bg-basePrimary">
         <div className="container px-4 md:px-6 mx-auto">
@@ -263,9 +285,7 @@ export default function CharityResources() {
                 <h3 className="text-xl font-bold mb-3 text-baseSecondary">
                   {benefit.title}
                 </h3>
-                <p className="text-midGrey">
-                  {benefit.description}
-                </p>
+                <p className="text-midGrey">{benefit.description}</p>
               </motion.div>
             ))}
           </div>
@@ -289,7 +309,7 @@ export default function CharityResources() {
               Expert advice to help you get the most from skilled volunteers
             </p>
           </motion.div>
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
             {/* Guide Tabs */}
             <div className="lg:col-span-1">
@@ -309,19 +329,24 @@ export default function CharityResources() {
                 ))}
               </div>
             </div>
-            
+
             {/* Guide Content */}
             <div className="lg:col-span-4 bg-basePrimary p-8 rounded-xl">
               {guides.map((guide, i) => (
                 <motion.div
                   key={i}
                   initial={{ opacity: 0 }}
-                  animate={{ opacity: activeGuide === i ? 1 : 0, display: activeGuide === i ? "block" : "none" }}
+                  animate={{
+                    opacity: activeGuide === i ? 1 : 0,
+                    display: activeGuide === i ? "block" : "none",
+                  }}
                   transition={{ duration: 0.3 }}
                 >
-                  <h3 className="text-2xl font-bold mb-2 text-baseSecondary">{guide.title}</h3>
+                  <h3 className="text-2xl font-bold mb-2 text-baseSecondary">
+                    {guide.title}
+                  </h3>
                   <p className="text-midGrey mb-6">{guide.description}</p>
-                  
+
                   <ul className="space-y-4">
                     {guide.content.map((item, j) => (
                       <li key={j} className="flex items-start">
@@ -336,7 +361,7 @@ export default function CharityResources() {
           </div>
         </div>
       </section>
-      
+
       {/* Nonprofit Tools Section */}
       <section className="w-full py-12 md:py-16 lg:py-20 bg-basePrimary">
         <div className="container px-4 md:px-6 mx-auto">
@@ -351,10 +376,11 @@ export default function CharityResources() {
               Tools for Nonprofits
             </h2>
             <p className="mx-auto max-w-[700px] text-midGrey md:text-xl mt-4">
-              Discounted and free software to enhance your collaboration with volunteers
+              Discounted and free software to enhance your collaboration with
+              volunteers
             </p>
           </motion.div>
-          
+
           <div className="space-y-12">
             {tools.map((category, i) => (
               <motion.div
@@ -367,14 +393,16 @@ export default function CharityResources() {
                 <h3 className="text-2xl font-bold mb-6 text-baseSecondary border-b border-accentPrimary/20 pb-2">
                   {category.name}
                 </h3>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {category.options.map((tool, j) => (
                     <div
                       key={j}
                       className="bg-basePrimaryLight p-6 rounded-lg shadow-sm border border-basePrimary/20"
                     >
-                      <h4 className="text-xl font-bold mb-2 text-baseSecondary">{tool.title}</h4>
+                      <h4 className="text-xl font-bold mb-2 text-baseSecondary">
+                        {tool.title}
+                      </h4>
                       <p className="text-midGrey mb-4">{tool.description}</p>
                       <div className="text-sm font-medium mb-3 text-baseSecondary/80">
                         {tool.discount}
@@ -386,16 +414,16 @@ export default function CharityResources() {
                         className="text-baseSecondary hover:text-accentPrimary transition-colors inline-flex items-center"
                       >
                         Learn more
-                        <svg 
-                          className="w-4 h-4 ml-1" 
-                          fill="none" 
-                          stroke="currentColor" 
+                        <svg
+                          className="w-4 h-4 ml-1"
+                          fill="none"
+                          stroke="currentColor"
                           viewBox="0 0 24 24"
                         >
-                          <path 
-                            strokeLinecap="round" 
-                            strokeLinejoin="round" 
-                            strokeWidth="2" 
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
                             d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
                           />
                         </svg>
@@ -408,7 +436,7 @@ export default function CharityResources() {
           </div>
         </div>
       </section>
-      
+
       {/* FAQ Section - Using the same structure as volunteer-guide */}
       <section className="w-full py-12 md:py-16 lg:py-20">
         <div className="container px-4 md:px-6 mx-auto">
@@ -419,14 +447,17 @@ export default function CharityResources() {
             viewport={{ once: true }}
             className="text-center mb-10"
           >
-            <h2 id="faq" className="text-3xl font-bold tracking-tighter sm:text-4xl text-baseSecondary">
+            <h2
+              id="faq"
+              className="text-3xl font-bold tracking-tighter sm:text-4xl text-baseSecondary"
+            >
               Frequently Asked Questions
             </h2>
             <p className="mx-auto max-w-[700px] text-midGrey md:text-xl mt-4">
               Common questions about using Altruist for your organization
             </p>
           </motion.div>
-          
+
           <div className="max-w-3xl mx-auto space-y-4">
             {faq.map((item, i) => (
               <motion.div
@@ -438,10 +469,14 @@ export default function CharityResources() {
                 className="bg-basePrimary rounded-lg overflow-hidden"
               >
                 <button
-                  onClick={() => setActiveQuestion(activeQuestion === i ? null : i)}
+                  onClick={() =>
+                    setActiveQuestion(activeQuestion === i ? null : i)
+                  }
                   className="flex items-center justify-between w-full px-6 py-4 text-left"
                 >
-                  <h3 className="font-medium text-baseSecondary">{item.question}</h3>
+                  <h3 className="font-medium text-baseSecondary">
+                    {item.question}
+                  </h3>
                   <svg
                     className={`w-5 h-5 text-baseSecondary transition-transform ${
                       activeQuestion === i ? "transform rotate-180" : ""
@@ -470,7 +505,7 @@ export default function CharityResources() {
           </div>
         </div>
       </section>
-      
+
       {/* CTA Section */}
       <section className="w-full py-12 md:py-16 lg:py-20 bg-baseSecondary">
         <div className="container px-4 md:px-6 mx-auto">
@@ -486,7 +521,8 @@ export default function CharityResources() {
                 Ready to find skilled volunteers?
               </h2>
               <p className="mt-4 text-basePrimaryLight max-w-md mx-auto md:mx-0">
-                Join Altruist today and connect with professionals ready to share their expertise with your organization.
+                Join Altruist today and connect with professionals ready to
+                share their expertise with your organization.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-4">
@@ -506,7 +542,7 @@ export default function CharityResources() {
           </motion.div>
         </div>
       </section>
-      
+
       {/* Footer */}
       <Footer />
     </div>

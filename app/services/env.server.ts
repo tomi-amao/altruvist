@@ -43,3 +43,10 @@ export function getGCPCredentials() {
     GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY ?? "",
   };
 }
+
+export function getEmailServiceVars() {
+  return {
+    SMTP_API_KEY: process.env.SMTP_API_KEY ?? "",
+    BREVO_API_KEY: process.env.SMTP_API_KEY ?? "", // Use the same key for both properties
+  };
+}

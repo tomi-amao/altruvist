@@ -7,23 +7,42 @@ import {
   isRouteErrorResponse,
   redirect,
   useRouteError,
+  useLoaderData,
 } from "@remix-run/react";
 import type {
   ActionFunctionArgs,
   LinksFunction,
+  LoaderFunction,
 } from "@remix-run/node";
 import stylesheet from "~/styles/tailwind.css?url";
 
-
-
 import { ErrorCard } from "./components/utils/ErrorCard";
+
+declare global {
+  interface Window {
+    grecaptcha: {
+      ready: (callback: () => void) => void;
+      execute: (siteKey: string, options: { action: string }) => Promise<string>;
+    };
+    ENV: {
+      GOOGLE_RECAPTCHA_SITE_KEY: string;
+          };
+  }
+}
 
 export const links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: stylesheet }];
 };
 
-export function Layout({ children }: { children: React.ReactNode }) {
+export const loader: LoaderFunction = () => {
+  return ({
+    ENV: {
+      GOOGLE_RECAPTCHA_SITE_KEY: process.env.GOOGLE_RECAPTCHA_SITE_KEY,
+    },
+  });
+};
 
+export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>
@@ -31,9 +50,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
-        <link rel="preconnect" href="https://fonts.googleapis.com"/>
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin=""/>
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet"></link>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+          rel="stylesheet"
+        ></link>
       </head>
       <body className="">
         {children}
@@ -45,16 +67,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-
-
-  const page = request.headers.get("referer");
-
-
-
+  const page = request.headers.get("referer") || "/";
   return redirect(page);
 }
-
-
 
 export function ErrorBoundary() {
   const error = useRouteError();
@@ -71,7 +86,7 @@ export function ErrorBoundary() {
               <title>Bad Request</title>
             </head>
             <body>
-              <ErrorCard 
+              <ErrorCard
                 title="400 - Bad Request"
                 message="The request could not be understood by the server."
                 subMessage="Please check your input and try again."
@@ -90,7 +105,7 @@ export function ErrorBoundary() {
               <title>Unauthorized</title>
             </head>
             <body>
-              <ErrorCard 
+              <ErrorCard
                 title="401 - Unauthorized"
                 message="You need to be authenticated to access this page."
                 subMessage="Please log in and try again."
@@ -109,7 +124,7 @@ export function ErrorBoundary() {
               <title>Forbidden</title>
             </head>
             <body>
-              <ErrorCard 
+              <ErrorCard
                 title="403 - Forbidden"
                 message="You don't have permission to access this resource."
                 subMessage="Please contact your administrator if you think this is a mistake."
@@ -128,7 +143,7 @@ export function ErrorBoundary() {
               <title>Not Found</title>
             </head>
             <body>
-              <ErrorCard 
+              <ErrorCard
                 title="404 - Not Found"
                 message="The page you're looking for doesn't exist or was moved."
                 subMessage="Please check the URL and try again."
@@ -147,7 +162,7 @@ export function ErrorBoundary() {
               <title>Request Timeout</title>
             </head>
             <body>
-              <ErrorCard 
+              <ErrorCard
                 title="408 - Timeout"
                 message="The request took too long to complete."
                 subMessage="Please try again. If the problem persists, contact support."
@@ -166,7 +181,7 @@ export function ErrorBoundary() {
               <title>Server Error</title>
             </head>
             <body>
-              <ErrorCard 
+              <ErrorCard
                 title="500 - Server Error"
                 message="An internal server error occurred."
                 subMessage="Our team has been notified. Please try again later."
@@ -185,7 +200,7 @@ export function ErrorBoundary() {
               <title>Service Unavailable</title>
             </head>
             <body>
-              <ErrorCard 
+              <ErrorCard
                 title="503 - Unavailable"
                 message="The service is temporarily unavailable."
                 subMessage="Please try again later. We're working to restore service."
@@ -204,7 +219,7 @@ export function ErrorBoundary() {
               <title>Error {error.status}</title>
             </head>
             <body>
-              <ErrorCard 
+              <ErrorCard
                 title={`${error.status} - Error`}
                 message={error.data?.message || "An unexpected error occurred."}
                 subMessage="Please try again later."
@@ -225,9 +240,13 @@ export function ErrorBoundary() {
         <title>Error</title>
       </head>
       <body>
-        <ErrorCard 
+        <ErrorCard
           title="Oops!"
-          message={error instanceof Error ? error.message : "An unexpected error occurred."}
+          message={
+            error instanceof Error
+              ? error.message
+              : "An unexpected error occurred."
+          }
           subMessage="If this persists, please contact support."
         />
         <Scripts />
@@ -236,9 +255,17 @@ export function ErrorBoundary() {
   );
 }
 
-
-
-
 export default function App() {
-  return <Outlet />;
+  const data = useLoaderData<typeof loader>();
+
+  return (
+    <>
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
+        }}
+      />
+      <Outlet />
+    </>
+  );
 }

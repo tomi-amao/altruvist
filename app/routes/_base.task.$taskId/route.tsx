@@ -11,8 +11,17 @@ import { ServerRuntimeMetaFunction as MetaFunction } from "@remix-run/server-run
 
 export const meta: MetaFunction = ({ data }) => {
   return [
-    { title: data?.task ? `${data.task.title} | Skillanthropy` : "Task Details | Skillanthropy" },
-    { name: "description", content: data?.task?.description || "Detailed information about a volunteer task" },
+    {
+      title: data?.task
+        ? `${data.task.title} | Skillanthropy`
+        : "Task Details | Skillanthropy",
+    },
+    {
+      name: "description",
+      content:
+        data?.task?.description ||
+        "Detailed information about a volunteer task",
+    },
   ];
 };
 
@@ -48,7 +57,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
         userAuthenticated = !!userInfo?.id;
         userRole = userInfo?.roles || [];
         volunteerId = userInfo?.id;
-        
+
         // If user is a volunteer, prepare volunteer details
         if (userRole.includes("volunteer") && volunteerId) {
           volunteerDetails = {
@@ -66,20 +75,30 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     const task = await getTask(taskId);
 
     if (!task) {
-      return json({
-        error: "Task not found",
-        status: 404,
-        task: null,
-        userAuthenticated,
-        userRole,
-      }, { status: 404 });
+      return json(
+        {
+          error: "Task not found",
+          status: 404,
+          task: null,
+          userAuthenticated,
+          userRole,
+        },
+        { status: 404 },
+      );
     }
 
     // If user is authenticated and is a volunteer, check if they have applied to this task
-    if (userAuthenticated && userRole.includes("volunteer") && volunteerId && volunteerDetails) {
+    if (
+      userAuthenticated &&
+      userRole.includes("volunteer") &&
+      volunteerId &&
+      volunteerDetails
+    ) {
       // Check if user has applied to this task
       if (task.taskApplications && task.taskApplications.length > 0) {
-        const userApplications = task.taskApplications.filter(app => app.userId === volunteerId);
+        const userApplications = task.taskApplications.filter(
+          (app) => app.userId === volunteerId,
+        );
         if (userApplications.length > 0) {
           volunteerDetails.taskApplications = [taskId];
         }
@@ -95,27 +114,30 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     });
   } catch (error) {
     console.error("Error fetching task details:", error);
-    return json({
-      error: "Failed to fetch task details",
-      status: 500,
-      task: null,
-      userAuthenticated: false,
-      userRole: [],
-    }, { status: 500 });
+    return json(
+      {
+        error: "Failed to fetch task details",
+        status: 500,
+        task: null,
+        userAuthenticated: false,
+        userRole: [],
+      },
+      { status: 500 },
+    );
   }
 }
 
 export default function TaskDetailPage() {
-  const { 
-    task, 
-    userAuthenticated, 
-    userRole = [], 
+  const {
+    task,
+    userAuthenticated,
+    userRole = [],
     error,
-    volunteerDetails
+    volunteerDetails,
   } = useLoaderData<typeof loader>();
   const navigation = useNavigation();
   const { isMobile } = useViewport();
-  
+
   const isLoading = navigation.state === "loading";
 
   if (isLoading) {
@@ -134,11 +156,24 @@ export default function TaskDetailPage() {
       <div className="container mx-auto p-4 sm:p-6 md:p-8 flex flex-col items-center">
         <div className="bg-basePrimary rounded-xl shadow-lg p-8 max-w-2xl w-full mx-auto text-center">
           <div className="flex flex-col items-center text-dangerPrimary mb-6">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-16 w-16 mb-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
             </svg>
             <h2 className="text-2xl font-semibold mb-2">Task Not Found</h2>
-            <p className="text-baseSecondary/80">{error || "The requested task could not be found"}</p>
+            <p className="text-baseSecondary/80">
+              {error || "The requested task could not be found"}
+            </p>
           </div>
           <Link
             to="/explore"
@@ -162,14 +197,14 @@ export default function TaskDetailPage() {
           <span>Back to Explore</span>
         </Link>
       </div>
-      
+
       <div className="max-w-4xl mx-auto">
         <TaskDetailsCard
           taskId={task.id}
           userRole={userRole}
           volunteerDetails={volunteerDetails}
         />
-        
+
         {!userAuthenticated && (
           <div className="mt-8 p-6 bg-basePrimaryLight rounded-lg shadow-md text-center">
             <h3 className="text-xl font-semibold text-baseSecondary mb-3">

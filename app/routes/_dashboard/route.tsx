@@ -32,7 +32,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
   let signedProfilePictureUrl: string | null = null;
   if (userInfo.profilePicture) {
     try {
-      signedProfilePictureUrl = await getSignedUrlForFile(userInfo.profilePicture, true);
+      signedProfilePictureUrl = await getSignedUrlForFile(
+        userInfo.profilePicture,
+        true,
+      );
     } catch (e) {
       console.error("Failed to get signed URL for profile picture:", e);
     }
@@ -42,7 +45,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function Dashboard() {
-  const { userInfo, novuAppId, signedProfilePictureUrl } = useLoaderData<typeof loader>();
+  const { userInfo, novuAppId, signedProfilePictureUrl } =
+    useLoaderData<typeof loader>();
   const role = userInfo.roles[0];
   const location = useLocation();
 

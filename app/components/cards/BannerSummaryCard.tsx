@@ -8,8 +8,7 @@ import {
   CheckCircle,
   ChartBar,
   HandWaving,
-  HandHeart
-
+  HandHeart,
 } from "@phosphor-icons/react";
 
 export interface BannerItemProps {
@@ -161,7 +160,9 @@ function BannerItem({
         >
           <div className="flex items-start gap-2">
             <span className="flex-shrink-0 mt-0.5">{getIcon()}</span>
-            <span className="break-words hyphens-auto overflow-visible">{title}</span>
+            <span className="break-words hyphens-auto overflow-visible">
+              {title}
+            </span>
           </div>
         </h3>
       </div>

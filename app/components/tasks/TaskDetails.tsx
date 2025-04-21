@@ -261,21 +261,22 @@ export function TaskDetails({
                   <span
                     className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium
                     shadow-sm transition-all duration-300 
-                    ${displayData.urgency === "HIGH"
-                      ? "bg-dangerPrimary text-white"
-                      : displayData.urgency === "MEDIUM"
-                        ? "bg-accentPrimary text-baseSecondary"
-                        : "bg-confirmPrimary text-white"
+                    ${
+                      displayData.urgency === "HIGH"
+                        ? "bg-dangerPrimary text-white"
+                        : displayData.urgency === "MEDIUM"
+                          ? "bg-accentPrimary text-baseSecondary"
+                          : "bg-confirmPrimary text-white"
                     }`}
                   >
-                    <Fire 
-                      weight="fill" 
-                      className={`w-3.5 h-3.5 ${displayData.urgency === "HIGH" ? "animate-pulse" : ""}`} 
+                    <Fire
+                      weight="fill"
+                      className={`w-3.5 h-3.5 ${displayData.urgency === "HIGH" ? "animate-pulse" : ""}`}
                     />
                     {displayData.urgency?.toLowerCase()} priority
                   </span>
                 </div>
-                
+
                 {displayData.deadline && (
                   <span className="text-xs text-baseSecondary/80 flex items-center gap-1.5 bg-basePrimary px-2.5 py-1.5 rounded-lg border border-baseSecondary/10">
                     <Clock className="w-3.5 h-3.5" />
@@ -283,7 +284,7 @@ export function TaskDetails({
                   </span>
                 )}
               </div>
-              
+
               <div className="relative">
                 <button
                   onClick={handleShare}
@@ -296,7 +297,7 @@ export function TaskDetails({
                   <ShareNetwork className="w-3.5 h-3.5" />
                   <span>Share</span>
                 </button>
-                
+
                 {/* Copy success tooltip */}
                 {showShareTooltip && (
                   <div className="absolute right-0 top-full mt-2 px-3 py-1.5 bg-confirmPrimary text-basePrimary text-xs rounded-lg shadow-md flex items-center gap-1.5 whitespace-nowrap z-20">
@@ -306,7 +307,7 @@ export function TaskDetails({
                 )}
               </div>
             </div>
-            
+
             <div className="space-y-3 sm:space-y-4">
               {/* Impact Statement with enhanced visual treatment */}
               <div
@@ -775,7 +776,9 @@ export function TaskDetails({
                           ariaLabel="withdraw"
                           text="Withdraw From Task"
                           action={() =>
-                            handleWithdrawApplication(task.taskApplications[0].id)
+                            handleWithdrawApplication(
+                              task.taskApplications[0].id,
+                            )
                           }
                         />
                       </div>

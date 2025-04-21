@@ -229,7 +229,6 @@ export default function Index() {
             />
           </motion.div>
         </div>
-
       </section>
 
       {/* How It Works Section */}

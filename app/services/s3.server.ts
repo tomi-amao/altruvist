@@ -20,33 +20,34 @@ export async function getSignedUrlForFile(
   fileName: string,
   extractFileName: boolean = false,
 ) {
-  
   let keyToSign = fileName;
-  
+
   if (extractFileName && fileName) {
     try {
-      
-      if (typeof fileName === 'string' && fileName.includes('.com/')) {
+      if (typeof fileName === "string" && fileName.includes(".com/")) {
         const parts = fileName.split(".com/");
         if (parts.length > 1) {
           // First decode using decodeURIComponent
           let decodedKey = decodeURIComponent(parts[1]);
-          
+
           // Then manually replace any remaining '+' with spaces
           // This is needed because some URL-encoded spaces might be represented as '+'
           // and decodeURIComponent doesn't convert '+' to spaces
-          decodedKey = decodedKey.replace(/\+/g, ' ');
-          
+          decodedKey = decodedKey.replace(/\+/g, " ");
+
           keyToSign = decodedKey;
         } else {
           console.warn("Could not extract key from fileName:", fileName);
           keyToSign = fileName; // Fallback to original
         }
       } else {
-        console.warn("fileName doesn't contain '.com/' or is not a string:", fileName);
+        console.warn(
+          "fileName doesn't contain '.com/' or is not a string:",
+          fileName,
+        );
         // If it's just a raw key, also check for '+' that might need replacing
-        if (typeof fileName === 'string' && fileName.includes('+')) {
-          keyToSign = fileName.replace(/\+/g, ' ');
+        if (typeof fileName === "string" && fileName.includes("+")) {
+          keyToSign = fileName.replace(/\+/g, " ");
         } else {
           keyToSign = fileName;
         }
@@ -58,11 +59,11 @@ export async function getSignedUrlForFile(
     }
   } else {
     // Even when not extracting, check for '+' characters that might need replacing
-    if (typeof keyToSign === 'string' && keyToSign.includes('+')) {
-      keyToSign = keyToSign.replace(/\+/g, ' ');
+    if (typeof keyToSign === "string" && keyToSign.includes("+")) {
+      keyToSign = keyToSign.replace(/\+/g, " ");
     }
   }
-  
+
   // Safety check for empty keys
   if (!keyToSign) {
     console.error("Empty key after processing. Original fileName:", fileName);

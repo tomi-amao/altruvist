@@ -45,45 +45,62 @@ export const loader = async () => {
       {
         category: "Community Support",
         icon: "🏘️",
-        examples: ["Neighborhood cleanup", "Food bank assistance", "Elderly support"]
+        examples: [
+          "Neighborhood cleanup",
+          "Food bank assistance",
+          "Elderly support",
+        ],
       },
       {
         category: "Education",
         icon: "📚",
-        examples: ["Tutoring", "Workshop facilitation", "Library assistance"]
+        examples: ["Tutoring", "Workshop facilitation", "Library assistance"],
       },
       {
         category: "Environment",
         icon: "🌱",
-        examples: ["Conservation projects", "Community gardens", "Sustainability initiatives"]
+        examples: [
+          "Conservation projects",
+          "Community gardens",
+          "Sustainability initiatives",
+        ],
       },
       {
         category: "Professional Skills",
         icon: "💼",
-        examples: ["Marketing help", "Website development", "Legal advice"]
+        examples: ["Marketing help", "Website development", "Legal advice"],
       },
       {
         category: "Healthcare",
         icon: "🩺",
-        examples: ["Medical outreach", "Mental health support", "Wellness programs"]
+        examples: [
+          "Medical outreach",
+          "Mental health support",
+          "Wellness programs",
+        ],
       },
       {
         category: "Arts & Culture",
         icon: "🎨",
-        examples: ["Event organization", "Performance", "Historical preservation"]
+        examples: [
+          "Event organization",
+          "Performance",
+          "Historical preservation",
+        ],
       },
-    ]
+    ],
   });
 };
 
 export default function AboutRoute() {
-  const { stats, team, testimonials, volunteering } = useLoaderData<typeof loader>();
+  const { stats, team, testimonials, volunteering } =
+    useLoaderData<typeof loader>();
   const [activeTestimonial, setActiveTestimonial] = useState(0);
 
   return (
     <div className="bg-basePrimaryLight">
       <LandingHeader />
-      
+
       {/* Hero Section - About Page Focused */}
       <section className="relative w-full overflow-hidden bg-gradient-to-b from-basePrimaryLight to-basePrimary/10">
         {/* Subtle background pattern */}
@@ -91,7 +108,7 @@ export default function AboutRoute() {
           <div className="absolute w-full h-full bg-[radial-gradient(circle_at_10%_20%,rgba(0,0,0,0.2)_0%,transparent_20%)]"></div>
           <div className="absolute w-full h-full bg-[radial-gradient(circle_at_80%_80%,rgba(0,0,0,0.2)_0%,transparent_20%)]"></div>
         </div>
-        
+
         <div className="container relative px-4 md:px-6 mx-auto py-16 md:py-20 lg:py-24">
           <div className="max-w-4xl mx-auto">
             <motion.div
@@ -104,7 +121,7 @@ export default function AboutRoute() {
                 About Altruvist
               </h1>
             </motion.div>
-            
+
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -114,9 +131,14 @@ export default function AboutRoute() {
               <div className="grid md:grid-cols-2">
                 <div className="p-8 md:p-10 flex items-center">
                   <div className="space-y-4">
-                    <h2 className="text-2xl md:text-3xl font-semibold text-baseSecondary">Our Purpose</h2>
+                    <h2 className="text-2xl md:text-3xl font-semibold text-baseSecondary">
+                      Our Purpose
+                    </h2>
                     <p className="text-midGrey text-lg leading-relaxed">
-                      Founded in 2025, Altruvist connects volunteers with meaningful opportunities to make a difference in their communities. We believe in the power of collective action and that everyone has valuable skills to contribute.
+                      Founded in 2025, Altruvist connects volunteers with
+                      meaningful opportunities to make a difference in their
+                      communities. We believe in the power of collective action
+                      and that everyone has valuable skills to contribute.
                     </p>
                     <div className="pt-2">
                       <div className="inline-flex items-center px-4 py-2 bg-baseSecondary/10 rounded-lg text-baseSecondary font-medium">
@@ -126,26 +148,25 @@ export default function AboutRoute() {
                   </div>
                 </div>
                 <div className="relative h-64 md:h-auto overflow-hidden">
-                  <img 
+                  <img
                     src="/wheelchair-drawing.png"
-                    alt="Volunteers making a difference" 
+                    alt="Volunteers making a difference"
                     className="absolute inset-0 w-full h-full object-cover"
                   />
                 </div>
               </div>
             </motion.div>
-            
+
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4, duration: 0.8 }}
               className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6"
-            >
-            </motion.div>
+            ></motion.div>
           </div>
         </div>
       </section>
-      
+
       {/* Our Values Section */}
       <section className="w-full py-12 md:py-16 lg:py-20 bg-basePrimary">
         <div className="container px-4 md:px-6 mx-auto">
@@ -163,24 +184,27 @@ export default function AboutRoute() {
               The principles that guide everything we do
             </p>
           </motion.div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
                 title: "Inclusivity",
-                description: "We believe everyone has valuable skills to share, regardless of background or experience level.",
-                icon: "❤️"
+                description:
+                  "We believe everyone has valuable skills to share, regardless of background or experience level.",
+                icon: "❤️",
               },
               {
                 title: "Impact",
-                description: "We focus on creating measurable, meaningful change in communities through effective volunteer matching.",
-                icon: "🌟"
+                description:
+                  "We focus on creating measurable, meaningful change in communities through effective volunteer matching.",
+                icon: "🌟",
               },
               {
                 title: "Collaboration",
-                description: "We foster partnership between volunteers, organizations, and communities to solve challenges together.",
-                icon: "🤝"
-              }
+                description:
+                  "We foster partnership between volunteers, organizations, and communities to solve challenges together.",
+                icon: "🤝",
+              },
             ].map((value, i) => (
               <motion.div
                 key={i}
@@ -191,7 +215,9 @@ export default function AboutRoute() {
                 className="bg-basePrimaryLight p-8 rounded-xl text-center"
               >
                 <div className="text-4xl mb-4">{value.icon}</div>
-                <h3 className="text-xl font-bold mb-3 text-baseSecondary">{value.title}</h3>
+                <h3 className="text-xl font-bold mb-3 text-baseSecondary">
+                  {value.title}
+                </h3>
                 <p className="text-midGrey">{value.description}</p>
               </motion.div>
             ))}
@@ -214,7 +240,9 @@ export default function AboutRoute() {
                   Our Mission
                 </h2>
                 <p className="text-midGrey text-lg">
-                  We're on a mission to create a world where people's time, energy, and skills are shared freely with those working to address social, environmental, and community challenges.
+                  We're on a mission to create a world where people's time,
+                  energy, and skills are shared freely with those working to
+                  address social, environmental, and community challenges.
                 </p>
                 <ul className="space-y-2 text-midGrey">
                   <li className="flex items-center">
@@ -229,22 +257,8 @@ export default function AboutRoute() {
                         clipRule="evenodd"
                       />
                     </svg>
-                    <span>Support organizations with diverse volunteer resources</span>
-                  </li>
-                  <li className="flex items-center">
-                    <svg
-                      className="w-5 h-5 mr-2 text-confirmPrimary"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
                     <span>
-                      Provide meaningful volunteer opportunities that fit any schedule and skill set
+                      Support organizations with diverse volunteer resources
                     </span>
                   </li>
                   <li className="flex items-center">
@@ -260,7 +274,25 @@ export default function AboutRoute() {
                       />
                     </svg>
                     <span>
-                      Build stronger communities through effective volunteer matching
+                      Provide meaningful volunteer opportunities that fit any
+                      schedule and skill set
+                    </span>
+                  </li>
+                  <li className="flex items-center">
+                    <svg
+                      className="w-5 h-5 mr-2 text-confirmPrimary"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <span>
+                      Build stronger communities through effective volunteer
+                      matching
                     </span>
                   </li>
                 </ul>
@@ -368,7 +400,10 @@ export default function AboutRoute() {
             viewport={{ once: true }}
             className="text-center mb-10"
           >
-            <h2 id="how-it-works" className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-baseSecondary">
+            <h2
+              id="how-it-works"
+              className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-baseSecondary"
+            >
               How Altruvist Works
             </h2>
             <p className="mx-auto max-w-[700px] text-midGrey md:text-xl mt-4">
@@ -379,7 +414,7 @@ export default function AboutRoute() {
           <div className="relative">
             {/* Connection Line */}
             <div className="hidden md:block absolute top-1/2 left-0 right-0 h-1 bg-accentPrimary/30 -translate-y-1/2 z-0"></div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
               {[
                 {
@@ -546,7 +581,8 @@ export default function AboutRoute() {
                 Ready to make a difference?
               </h2>
               <p className="mt-4 text-basePrimaryLight max-w-md mx-auto md:mx-0">
-                Join our community of volunteers making an impact in communities around the world.
+                Join our community of volunteers making an impact in communities
+                around the world.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-4">
@@ -566,7 +602,7 @@ export default function AboutRoute() {
           </motion.div>
         </div>
       </section>
-      
+
       {/* Footer */}
       <Footer />
     </div>
