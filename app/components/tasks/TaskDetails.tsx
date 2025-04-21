@@ -21,6 +21,10 @@ import {
   MapPin,
   MapTrifold,
   HandWithdraw,
+  ShareNetwork,
+  Check,
+  Clock,
+  Fire,
 } from "@phosphor-icons/react";
 
 interface TaskDetailsProps {
@@ -59,6 +63,7 @@ export function TaskDetails({
   const [formData, setFormData] = useState<tasks>(task);
   const [isCommentsExpanded, setIsCommentsExpanded] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [showShareTooltip, setShowShareTooltip] = useState(false);
 
   const handleAcceptApplication = (applicationId: string) => {
     fetcher.submit(
@@ -144,6 +149,20 @@ export function TaskDetails({
     );
   };
 
+  const handleShare = () => {
+    const taskUrl = `${window.location.origin}/task/${task.id}`;
+
+    navigator.clipboard
+      .writeText(taskUrl)
+      .then(() => {
+        setShowShareTooltip(true);
+        setTimeout(() => setShowShareTooltip(false), 2000);
+      })
+      .catch((err) => {
+        console.error("Failed to copy URL: ", err);
+      });
+  };
+
   // Update form data when task changes
   useEffect(() => {
     setFormData({
@@ -202,28 +221,23 @@ export function TaskDetails({
       )}
 
       {/* Banner with key information */}
-      <DashboardBanner
-        bannerItems={[
-          { title: "Title", value: displayData.title ?? "N/A", type: "task" },
-          {
-            title: "Deadline",
-            value: displayData.deadline
-              ? new Date(displayData.deadline).toLocaleDateString()
-              : "N/A",
-            type: "date",
-          },
-          {
-            title: "Status",
-            value: displayData.status ?? "N/A",
-            type: "circleNotch",
-          },
-          {
-            title: "Charity",
-            value: displayData.charity.name ?? "N/A",
-            type: "charity",
-          },
-        ]}
-      />
+      <div className="flex-1">
+        <DashboardBanner
+          bannerItems={[
+            { title: "Title", value: displayData.title ?? "N/A", type: "task" },
+            {
+              title: "Status",
+              value: displayData.status ?? "N/A",
+              type: "circleNotch",
+            },
+            {
+              title: "Charity",
+              value: displayData.charity.name ?? "N/A",
+              type: "charity",
+            },
+          ]}
+        />
+      </div>
 
       {isEditing ? (
         <TaskForm
@@ -240,23 +254,59 @@ export function TaskDetails({
         <div className="w-full mx-auto mt-3 sm:mt-4">
           {/* Header Section with Key Info */}
           <div className="bg-basePrimaryLight rounded-xl p-3 sm:p-4 md:p-6 mb-3 sm:mb-4 relative overflow-hidden transform transition-all duration-300 hover:shadow-lg">
-            {/* Priority Badge with enhanced visibility and animation */}
-            <div className="absolute top-2 right-2 transform transition-transform duration-300 hover:scale-105 z-10">
-              <span
-                className={`inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-medium
-                  shadow-md backdrop-blur-sm transition-all duration-300 hover:shadow-lg
-                  ${displayData.urgency === "HIGH"
-                    ? "bg-dangerPrimary text-basePrimaryLight"
-                    : displayData.urgency === "MEDIUM"
-                      ? "bg-accentPrimary text-baseSecondary"
-                      : "bg-confirmPrimary text-basePrimaryLight"
-                  }`}
-              >
-                <span className="h-1.5 w-1.5 -ml-1 rounded-full animate-pulse mr-1"></span>
-                {displayData.urgency?.toLowerCase()} priority
-              </span>
+            {/* Action Bar - NEW position for Priority Badge and Share Button */}
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex items-center gap-2">
+                <div className="flex-shrink-0">
+                  <span
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium
+                    shadow-sm transition-all duration-300 
+                    ${displayData.urgency === "HIGH"
+                      ? "bg-dangerPrimary text-white"
+                      : displayData.urgency === "MEDIUM"
+                        ? "bg-accentPrimary text-baseSecondary"
+                        : "bg-confirmPrimary text-white"
+                    }`}
+                  >
+                    <Fire 
+                      weight="fill" 
+                      className={`w-3.5 h-3.5 ${displayData.urgency === "HIGH" ? "animate-pulse" : ""}`} 
+                    />
+                    {displayData.urgency?.toLowerCase()} priority
+                  </span>
+                </div>
+                
+                {displayData.deadline && (
+                  <span className="text-xs text-baseSecondary/80 flex items-center gap-1.5 bg-basePrimary px-2.5 py-1.5 rounded-lg border border-baseSecondary/10">
+                    <Clock className="w-3.5 h-3.5" />
+                    Due {new Date(displayData.deadline).toLocaleDateString()}
+                  </span>
+                )}
+              </div>
+              
+              <div className="relative">
+                <button
+                  onClick={handleShare}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium 
+                    text-baseSecondary bg-basePrimary hover:bg-basePrimaryDark
+                    border border-baseSecondary/10 hover:border-baseSecondary/20
+                    transition-all duration-300 shadow-sm hover:shadow-md"
+                  aria-label="Share this task"
+                >
+                  <ShareNetwork className="w-3.5 h-3.5" />
+                  <span>Share</span>
+                </button>
+                
+                {/* Copy success tooltip */}
+                {showShareTooltip && (
+                  <div className="absolute right-0 top-full mt-2 px-3 py-1.5 bg-confirmPrimary text-basePrimary text-xs rounded-lg shadow-md flex items-center gap-1.5 whitespace-nowrap z-20">
+                    <Check className="w-3.5 h-3.5" />
+                    <span>Link copied!</span>
+                  </div>
+                )}
+              </div>
             </div>
-
+            
             <div className="space-y-3 sm:space-y-4">
               {/* Impact Statement with enhanced visual treatment */}
               <div

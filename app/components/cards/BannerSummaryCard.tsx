@@ -154,18 +154,20 @@ function BannerItem({
                 border-l-2 border-baseSecondary group hover:bg-basePrimary"
       data-testid="banner-item"
     >
-      <div className="flex justify-between items-center mb-2">
+      <div className="flex justify-between items-start mb-2">
         <h3
-          className="text-baseSecondary/85 font-primary font-medium text-sm flex items-center gap-2"
+          className="text-baseSecondary/85 font-primary font-medium text-sm w-full"
           data-testid="banner-item-title"
         >
-          {getIcon()}
-          <span>{title}</span>
+          <div className="flex items-start gap-2">
+            <span className="flex-shrink-0 mt-0.5">{getIcon()}</span>
+            <span className="break-words hyphens-auto overflow-visible">{title}</span>
+          </div>
         </h3>
       </div>
 
       <p
-        className="text-lg mt-1 font-semibold truncate text-baseSecondary group-hover:text-baseSecondary/90 transition-colors duration-200"
+        className="text-lg mt-1 font-semibold break-words text-baseSecondary group-hover:text-baseSecondary/90 transition-colors duration-200"
         title={value}
         data-testid="banner-item-value"
       >

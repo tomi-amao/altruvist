@@ -13,6 +13,8 @@ import {
   NotePencil,
   ListChecks,
   Files,
+  ShareNetwork,
+  Check,
 } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 
@@ -83,6 +85,7 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
   const [taskData, setTaskData] = useState<TaskDetailsData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showShareTooltip, setShowShareTooltip] = useState(false);
 
   // Effect to automatically hide success/error messages after 5 seconds
   useEffect(() => {
@@ -152,6 +155,24 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
       },
       { method: "POST", action: "/dashboard/tasks" },
     );
+  };
+
+  const handleShare = () => {
+    // Create a URL for the task
+    const taskUrl = `${window.location.origin}/task/${taskData?.id}`;
+
+    // Copy to clipboard
+    navigator.clipboard
+      .writeText(taskUrl)
+      .then(() => {
+        // Show success tooltip
+        setShowShareTooltip(true);
+        // Hide it after 2 seconds
+        setTimeout(() => setShowShareTooltip(false), 2000);
+      })
+      .catch((err) => {
+        console.error("Failed to copy URL: ", err);
+      });
   };
 
   // Return loading state if data is not ready yet
@@ -353,9 +374,29 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
             </span>
           </span>
 
-          <div className="text-sm text-baseSecondary/80">
+          <div className="flex items-center gap-3">
+            {/* Share Button */}
+            <div className="relative">
+              <button
+                onClick={handleShare}
+                className="flex items-center gap-1 text-xs font-medium text-baseSecondary hover:text-baseSecondary/80 transition-colors"
+                aria-label="Share this task"
+              >
+                <ShareNetwork className="w-4 h-4" />
+                <span>Share</span>
+              </button>
+
+              {/* Copy success tooltip */}
+              {showShareTooltip && (
+                <div className="absolute bottom-full right-0 mb-2 px-3 py-1.5 bg-confirmPrimary text-basePrimary text-xs rounded-lg shadow-md flex items-center gap-1.5 whitespace-nowrap">
+                  <Check className="w-3.5 h-3.5" />
+                  <span>Link copied!</span>
+                </div>
+              )}
+            </div>
+
             {taskData.status !== "COMPLETED" && (
-              <span className="flex items-center gap-1">
+              <span className="flex items-center gap-1 text-sm">
                 <span
                   className={`w-2 h-2 rounded-full ${spotsRemaining > 0 ? "bg-confirmPrimary" : "bg-dangerPrimary"}`}
                 ></span>
