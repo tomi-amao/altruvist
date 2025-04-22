@@ -8,7 +8,7 @@ import { getUserInfo } from "~/models/user2.server";
 import { Section } from "~/components/cards/DashboardSection";
 
 export const meta: MetaFunction = () => {
-  return [{ title: "Dashboard", description: "Dashboard for Skillanthropy" }];
+  return [{ title: "Dashboard | Altruvist", description: "Manage your tasks on your dashboard" }];
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {

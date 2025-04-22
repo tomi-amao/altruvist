@@ -261,7 +261,7 @@ export const TagsStep = ({ updateFields, formData }: StepProps) => {
     <>
       <h1 className="text-5xl mb-6">
         {formData.role === "volunteer"
-          ? "List your tech skills"
+          ? "List your volunteering skills"
           : "List your charity's categories"}
       </h1>
       <div className="space-y-4">

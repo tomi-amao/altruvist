@@ -29,7 +29,7 @@ export const meta: MetaFunction = () => {
     {
       name: "description",
       content:
-        "Discover tasks and volunteering opportunities on Skillanthropy!",
+        "Discover tasks and volunteering opportunities on Altruvist!",
     },
   ];
 };
@@ -500,35 +500,60 @@ export default function Explore() {
         </div>
         <ActiveFilters filters={filters} onRemoveFilter={handleRemoveFilter} />
         <div className="flex flex-row gap-2 flex-wrap m-auto w-full justify-center">
-          {tasks?.map((task) => (
-            <TaskSummaryCard
-              key={task.id}
-              title={task.title}
-              category={task.category}
-              deadline={new Date(task.deadline)}
-              description={task.description}
-              volunteersNeeded={
-                task?.volunteersNeeded -
-                task?.taskApplications?.filter(
-                  (application) => application.status === "ACCEPTED",
-                ).length
-              }
-              urgency={task.urgency || "LOW"}
-              requiredSkills={task.requiredSkills}
-              status={task.status}
-              id={task.id}
-              impact={task.impact}
-              charityId={task.charity?.id || null}
-              deliverables={task.deliverables}
-              resources={task.resources}
-              userId={task.createdBy.id}
-              charityName={task.charity?.name || ""}
-              userName={task.createdBy?.name || ""}
-              volunteerDetails={{ taskApplications, userId: userInfo?.id }}
-              userRole={userInfo?.roles}
-              location={task.location}
-            />
-          ))}
+          {tasks && tasks.length > 0 ? (
+            tasks.map((task) => (
+              <TaskSummaryCard
+                key={task.id}
+                title={task.title}
+                category={task.category}
+                deadline={new Date(task.deadline)}
+                description={task.description}
+                volunteersNeeded={
+                  task?.volunteersNeeded -
+                  task?.taskApplications?.filter(
+                    (application) => application.status === "ACCEPTED",
+                  ).length
+                }
+                urgency={task.urgency || "LOW"}
+                requiredSkills={task.requiredSkills}
+                status={task.status}
+                id={task.id}
+                impact={task.impact}
+                charityId={task.charity?.id || null}
+                deliverables={task.deliverables}
+                resources={task.resources}
+                userId={task.createdBy.id}
+                charityName={task.charity?.name || ""}
+                userName={task.createdBy?.name || ""}
+                volunteerDetails={{ taskApplications, userId: userInfo?.id }}
+                userRole={userInfo?.roles}
+                location={task.location}
+              />
+            ))
+          ) : !isLoading && (
+            <div className="w-full py-16 flex flex-col items-center justify-center text-center">
+              <div className="mb-4 text-basePrimaryDark">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" viewBox="0 0 256 256">
+                  <path d="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM40,56H216v96H40Zm0,160V168H216v48Z" opacity="0.2"></path>
+                  <path d="M216,32H40A24,24,0,0,0,16,56V200a24,24,0,0,0,24,24H216a24,24,0,0,0,24-24V56A24,24,0,0,0,216,32Zm8,168a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V160H224ZM224,144H32V56a8,8,0,0,1,8-8H216a8,8,0,0,1,8,8ZM48,184a8,8,0,0,1,8-8H80a8,8,0,0,1,0,16H56A8,8,0,0,1,48,184Zm128,0a8,8,0,0,1,8-8h24a8,8,0,0,1,0,16H184A8,8,0,0,1,176,184Z"></path>
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-baseSecondary mb-2">No tasks found</h3>
+              <p className="text-basePrimaryDark max-w-md">
+                {Object.values(filters).some(values => values.length > 0) 
+                  ? "Try adjusting your filters or check back later for new opportunities."
+                  : "There are currently no volunteering opportunities available. Please check back later."}
+              </p>
+              {Object.values(filters).some(values => values.length > 0) && (
+                <button 
+                  onClick={clearFilters}
+                  className="mt-4 px-4 py-2 bg-basePrimaryLight text-baseSecondary rounded-md hover:bg-basePrimaryDark transition-colors"
+                >
+                  Clear All Filters
+                </button>
+              )}
+            </div>
+          )}
 
           <div ref={loadMoreRef} className="w-full flex justify-center p-4">
             {isLoading && (
@@ -553,7 +578,7 @@ export default function Explore() {
                 ></path>
               </svg>
             )}
-            {cursor === null && !isLoading && tasks.length > 0 && (
+            {cursor === null && !isLoading && tasks && tasks.length > 0 && (
               <p className="text-basePrimaryDark">No more tasks to load</p>
             )}
           </div>
