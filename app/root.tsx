@@ -42,12 +42,20 @@ export const loader: LoaderFunction = () => {
   });
 };
 
-export function Layout({ children }: { children: React.ReactNode }) {
+// Document component to consistently handle document structure
+export function Document({
+  children,
+  title = "Altruvist",
+}: {
+  children: React.ReactNode;
+  title?: string;
+}) {
   return (
     <html lang="en">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>{title}</title>
         <Meta />
         <Links />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -66,6 +74,22 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+// Use Document in both App and ErrorBoundary for consistent document structure
+export default function App() {
+  const data = useLoaderData<typeof loader>();
+
+  return (
+    <Document>
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
+        }}
+      />
+      <Outlet />
+    </Document>
+  );
+}
+
 export async function action({ request }: ActionFunctionArgs) {
   const page = request.headers.get("referer") || "/";
   return redirect(page);
@@ -79,193 +103,106 @@ export function ErrorBoundary() {
     switch (error.status) {
       case 400:
         return (
-          <html lang="en">
-            <head>
-              <Meta />
-              <Links />
-              <title>Bad Request</title>
-            </head>
-            <body>
-              <ErrorCard
-                title="400 - Bad Request"
-                message="The request could not be understood by the server."
-                subMessage="Please check your input and try again."
-              />
-              <Scripts />
-            </body>
-          </html>
+          <Document title="Bad Request">
+            <ErrorCard
+              title="400 - Bad Request"
+              message="The request could not be understood by the server."
+              subMessage="Please check your input and try again."
+            />
+          </Document>
         );
 
       case 401:
         return (
-          <html lang="en">
-            <head>
-              <Meta />
-              <Links />
-              <title>Unauthorized</title>
-            </head>
-            <body>
-              <ErrorCard
-                title="401 - Unauthorized"
-                message="You need to be authenticated to access this page."
-                subMessage="Please log in and try again."
-              />
-              <Scripts />
-            </body>
-          </html>
+          <Document title="Unauthorized">
+            <ErrorCard
+              title="401 - Unauthorized"
+              message="You need to be authenticated to access this page."
+              subMessage="Please log in and try again."
+            />
+          </Document>
         );
 
       case 403:
         return (
-          <html lang="en">
-            <head>
-              <Meta />
-              <Links />
-              <title>Forbidden</title>
-            </head>
-            <body>
-              <ErrorCard
-                title="403 - Forbidden"
-                message="You don't have permission to access this resource."
-                subMessage="Please contact your administrator if you think this is a mistake."
-              />
-              <Scripts />
-            </body>
-          </html>
+          <Document title="Forbidden">
+            <ErrorCard
+              title="403 - Forbidden"
+              message="You don't have permission to access this resource."
+              subMessage="Please contact your administrator if you think this is a mistake."
+            />
+          </Document>
         );
 
       case 404:
         return (
-          <html lang="en">
-            <head>
-              <Meta />
-              <Links />
-              <title>Not Found</title>
-            </head>
-            <body>
-              <ErrorCard
-                title="404 - Not Found"
-                message="The page you're looking for doesn't exist or was moved."
-                subMessage="Please check the URL and try again."
-              />
-              <Scripts />
-            </body>
-          </html>
+          <Document title="Not Found">
+            <ErrorCard
+              title="404 - Not Found"
+              message="The page you're looking for doesn't exist or was moved."
+              subMessage="Please check the URL and try again."
+            />
+          </Document>
         );
 
       case 408:
         return (
-          <html lang="en">
-            <head>
-              <Meta />
-              <Links />
-              <title>Request Timeout</title>
-            </head>
-            <body>
-              <ErrorCard
-                title="408 - Timeout"
-                message="The request took too long to complete."
-                subMessage="Please try again. If the problem persists, contact support."
-              />
-              <Scripts />
-            </body>
-          </html>
+          <Document title="Request Timeout">
+            <ErrorCard
+              title="408 - Timeout"
+              message="The request took too long to complete."
+              subMessage="Please try again. If the problem persists, contact support."
+            />
+          </Document>
         );
 
       case 500:
         return (
-          <html lang="en">
-            <head>
-              <Meta />
-              <Links />
-              <title>Server Error</title>
-            </head>
-            <body>
-              <ErrorCard
-                title="500 - Server Error"
-                message="An internal server error occurred."
-                subMessage="Our team has been notified. Please try again later."
-              />
-              <Scripts />
-            </body>
-          </html>
+          <Document title="Server Error">
+            <ErrorCard
+              title="500 - Server Error"
+              message="An internal server error occurred."
+              subMessage="Our team has been notified. Please try again later."
+            />
+          </Document>
         );
 
       case 503:
         return (
-          <html lang="en">
-            <head>
-              <Meta />
-              <Links />
-              <title>Service Unavailable</title>
-            </head>
-            <body>
-              <ErrorCard
-                title="503 - Unavailable"
-                message="The service is temporarily unavailable."
-                subMessage="Please try again later. We're working to restore service."
-              />
-              <Scripts />
-            </body>
-          </html>
+          <Document title="Service Unavailable">
+            <ErrorCard
+              title="503 - Unavailable"
+              message="The service is temporarily unavailable."
+              subMessage="Please try again later. We're working to restore service."
+            />
+          </Document>
         );
 
       default:
         return (
-          <html lang="en">
-            <head>
-              <Meta />
-              <Links />
-              <title>Error {error.status}</title>
-            </head>
-            <body>
-              <ErrorCard
-                title={`${error.status} - Error`}
-                message={error.data?.message || "An unexpected error occurred."}
-                subMessage="Please try again later."
-              />
-              <Scripts />
-            </body>
-          </html>
+          <Document title={`Error ${error.status}`}>
+            <ErrorCard
+              title={`${error.status} - Error`}
+              message={error.data?.message || "An unexpected error occurred."}
+              subMessage="Please try again later."
+            />
+          </Document>
         );
     }
   }
 
   // Handle non-HTTP errors (runtime errors, etc.)
   return (
-    <html lang="en">
-      <head>
-        <Meta />
-        <Links />
-        <title>Error</title>
-      </head>
-      <body>
-        <ErrorCard
-          title="Oops!"
-          message={
-            error instanceof Error
-              ? error.message
-              : "An unexpected error occurred."
-          }
-          subMessage="If this persists, please contact support."
-        />
-        <Scripts />
-      </body>
-    </html>
-  );
-}
-
-export default function App() {
-  const data = useLoaderData<typeof loader>();
-
-  return (
-    <>
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
-        }}
+    <Document title="Error">
+      <ErrorCard
+        title="Oops!"
+        message={
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred."
+        }
+        subMessage="If this persists, please contact support."
       />
-      <Outlet />
-    </>
+    </Document>
   );
 }

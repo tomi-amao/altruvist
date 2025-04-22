@@ -15,6 +15,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
   const accessToken = session.get("accessToken");
   const isNew = session.get("isNew");
+  
+  // If user is new, redirect to newuser page
   if (isNew) {
     return redirect("/newuser");
   }
@@ -28,8 +30,19 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirect("/zitlogin");
   }
 
+  // Redirect to new user page if user has no role
+  if (!userInfo.roles || userInfo.roles.length === 0) {
+    session.set("isNew", true);
+    return redirect("/newuser", {
+      headers: {
+        "Set-Cookie": await commitSession(session),
+      },
+    });
+  }
+
   const userRole = userInfo.roles[0];
-  const { tasks: rawTasks } = await getUserTasks(
+  // Add empty array defaults to prevent null errors
+  const { tasks: rawTasks = [] } = await getUserTasks(
     userRole,
     undefined,
     userInfo.id,
@@ -39,14 +52,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
     undefined,
     10,
   );
-  const { allTasks: rawAllTasks } = await getAllTasks({
+  const { allTasks: rawAllTasks = [] } = await getAllTasks({
     skip: 0,
     take: 1000000,
   });
 
   // Ensure tasks and allTasks are arrays
-  const tasks = rawTasks || [];
-  const allTasks = rawAllTasks || [];
+  const tasks = Array.isArray(rawTasks) ? rawTasks : [];
+  const allTasks = Array.isArray(rawAllTasks) ? rawAllTasks : [];
 
   // Enhanced deadline filtering with sorting
   const nearingDeadlineTasks = tasks
@@ -74,15 +87,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   let recommendedTask = "";
   let charitiesHelped = 0;
 
-  // Redirect to new user page if user has no role
-  if (!userRole) {
-    session.set("isNew", true);
-    return redirect("/newuser", {
-      headers: {
-        "Set-Cookie": await commitSession(session),
-      },
-    });
-  }
   if (userRole === "volunteer") {
     // Calculate skill match score for each task
     // Exclude tasks that the volunteer has already applied to
@@ -112,14 +116,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
       );
 
     recommendedTask =
-      taskMatchScores[0]?.task.title || "No matching tasks found";
+      taskMatchScores[0]?.task?.title || "No matching tasks found";
 
     // Count unique charities the volunteer has helped
     const uniqueCharities = new Set(
       completedTasks
         .filter((task) =>
           task.taskApplications?.some(
-            (app) => app.userId === userInfo.id && app.status === "ACCEPTED",
+            (app) => app?.userId === userInfo.id && app?.status === "ACCEPTED",
           ),
         )
         .map((task) => task.charityId),
@@ -138,8 +142,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
       completedTasks.flatMap(
         (task) =>
           task.taskApplications
-            ?.filter((app) => app.status === "ACCEPTED")
-            .map((app) => app.userId) || [],
+            ?.filter((app) => app?.status === "ACCEPTED")
+            .map((app) => app?.userId) || [],
       ),
     );
     charitiesHelped = uniqueVolunteers.size;
@@ -169,11 +173,12 @@ export default function DashboardHome() {
     tasks,
   } = useLoaderData<typeof loader>();
 
+  // Ensure we have defaults for everything to prevent null/undefined errors
   const bannerItems = [
     {
       title:
         userRole === "volunteer" ? "Recommended Task" : "Most Popular Task",
-      value: recommendedTask,
+      value: recommendedTask || "No tasks available",
     },
     {
       title:
@@ -187,36 +192,36 @@ export default function DashboardHome() {
       title: "Tasks Nearing Deadline",
       tasks:
         userRole === "charity"
-          ? nearingDeadlineTasks
-          : nearingDeadlineTasks.filter(
-              (task) => task.taskApplications[0]?.status === "ACCEPTED",
+          ? nearingDeadlineTasks || []
+          : (nearingDeadlineTasks || []).filter(
+              (task) => task?.taskApplications?.[0]?.status === "ACCEPTED",
             ),
     },
     userRole === "charity"
       ? {
           title: "Not Started Tasks",
-          tasks: notStartedTasks,
+          tasks: notStartedTasks || [],
         }
       : {
           title: "Task Applications",
-          tasks: tasks,
+          tasks: tasks || [],
         },
     {
       title: "In Progress Tasks",
       tasks:
         userRole === "charity"
-          ? inProgressTasks
-          : inProgressTasks.filter(
-              (task) => task.taskApplications[0]?.status === "ACCEPTED",
+          ? inProgressTasks || []
+          : (inProgressTasks || []).filter(
+              (task) => task?.taskApplications?.[0]?.status === "ACCEPTED",
             ),
     },
     {
       title: "Completed Tasks",
       tasks:
         userRole === "charity"
-          ? completedTasks
-          : completedTasks.filter(
-              (task) => task.taskApplications[0]?.status === "ACCEPTED",
+          ? completedTasks || []
+          : (completedTasks || []).filter(
+              (task) => task?.taskApplications?.[0]?.status === "ACCEPTED",
             ),
     },
   ];

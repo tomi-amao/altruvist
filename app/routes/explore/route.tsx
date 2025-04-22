@@ -161,7 +161,7 @@ export default function Explore() {
     novuAppId,
   } = useLoaderData<typeof loader>();
   const fetchTasks = useFetcher();
-  const [tasks, setTasks] = useState<Task[]>();
+  const [tasks, setTasks] = useState<Task[]>(initialTasks || []);
   const [cursor, setCursor] = useState<string | null>(initialCursor || null);
   const [isLoading, setIsLoading] = useState(false);
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -180,7 +180,7 @@ export default function Explore() {
     updatedAt: [],
   });
 
-  // Load initial tasks on component mount
+  // Load initial tasks on component mount or when initialTasks changes
   useEffect(() => {
     if (initialTasks) {
       setTasks(initialTasks);
@@ -318,24 +318,37 @@ export default function Explore() {
       fetchTasks.load(`/explore?${searchParams.toString()}`);
     };
 
+    // Check if filters have actual values to prevent unnecessary API calls
     const isFiltersEmpty = Object.values(filters).every(
       (property) => Array.isArray(property) && property.length === 0,
     );
     setShowClearFilters(!isFiltersEmpty);
-    handleFilterChange();
+    
+    // Skip initial render - only trigger filter change on subsequent updates
+    const filterChangeTimer = setTimeout(() => {
+      handleFilterChange();
+    }, 100);
+    
+    return () => clearTimeout(filterChangeTimer);
   }, [filters]);
 
+  // Handle fetched data updates safely
   useEffect(() => {
-    if (fetchTasks.data && fetchTasks.data.tasks) {
+    if (fetchTasks.data && Array.isArray(fetchTasks.data.tasks)) {
       if (isFilterChange) {
         setTasks(fetchTasks.data.tasks);
         setIsFilterChange(false);
       } else {
-        setTasks((prev) =>
-          prev ? [...prev, ...fetchTasks.data.tasks] : fetchTasks.data.tasks,
+        setTasks((prev) => 
+          Array.isArray(prev) ? [...prev, ...fetchTasks.data.tasks] : fetchTasks.data.tasks
         );
       }
       setCursor(fetchTasks.data.nextCursor);
+      setIsLoading(false);
+    } else if (fetchTasks.data) {
+      // Handle case where tasks isn't an array
+      setTasks([]);
+      setIsFilterChange(false);
       setIsLoading(false);
     }
   }, [fetchTasks.data]);
@@ -456,27 +469,36 @@ export default function Explore() {
           Make a difference{" "}
         </h1>
         <h2> Help charities innovate and make a lasting impact </h2>
-        <div className="flex flex-row gap-4  justify-center items-center border-b-2 border-b-baseSecondary p-4">
-          <img
-            src="/sewing_charity.png"
-            alt="Placeholder 1"
-            className="w-2/12 h-60 rounded-md object-cover "
-          />
-          <img
-            src="/planting_charity.png"
-            alt="Placeholder 1"
-            className="w-2/12 h-60 rounded-md object-cover"
-          />
-          <img
-            src="/Giving_community.png"
-            alt="Placeholder 1"
-            className="w-2/12 h-60 rounded-md object-cover"
-          />
-          <img
-            src="/skill_sharing.png"
-            alt="Placeholder 1"
-            className="w-2/12 h-60 rounded-md object-cover"
-          />
+        <div className="flex flex-row gap-4 justify-center items-center border-b-2 border-b-baseSecondary p-4 overflow-x-auto">
+          {/* Added overflow handling and made responsive with flex-shrink-0 */}
+          <div className="w-2/12 min-w-[120px] h-60 flex-shrink-0">
+            <img
+              src="/sewing_charity.png"
+              alt="Sewing charity work"
+              className="w-full h-full rounded-md object-cover"
+            />
+          </div>
+          <div className="w-2/12 min-w-[120px] h-60 flex-shrink-0">
+            <img
+              src="/planting_charity.png"
+              alt="Planting charity work"
+              className="w-full h-full rounded-md object-cover"
+            />
+          </div>
+          <div className="w-2/12 min-w-[120px] h-60 flex-shrink-0">
+            <img
+              src="/Giving_community.png"
+              alt="Giving community"
+              className="w-full h-full rounded-md object-cover"
+            />
+          </div>
+          <div className="w-2/12 min-w-[120px] h-60 flex-shrink-0">
+            <img
+              src="/skill_sharing.png"
+              alt="Skill sharing"
+              className="w-full h-full rounded-md object-cover"
+            />
+          </div>
         </div>
         <div className="flex flex-row gap-2 ">
           <div className="mt-2 flex items-center space-x-2">

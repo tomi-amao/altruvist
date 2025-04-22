@@ -49,7 +49,7 @@ interface taskAdditionalDetails
     "createdAt" | "updatedAt" | "location" | "estimatedHours"
   > {
   userName: string;
-  userRole: string[];
+  userRole: string[] | undefined;
   charityName: string;
   volunteerDetails: volunteerDetails;
   taskApplications?: {
@@ -63,8 +63,8 @@ interface taskAdditionalDetails
 }
 
 interface volunteerDetails {
-  userId: string;
-  taskApplications?: string[];
+  userId: string | undefined;
+  taskApplications?: string[] | null;
 }
 
 export default function TaskSummaryCard(task: taskAdditionalDetails) {
@@ -75,24 +75,31 @@ export default function TaskSummaryCard(task: taskAdditionalDetails) {
   };
 
   // Format deadline to a more readable format
-  const formattedDeadline = new Date(task.deadline).toLocaleDateString(
+  const formattedDeadline = task.deadline ? new Date(task.deadline).toLocaleDateString(
     "en-US",
     {
       month: "short",
       day: "numeric",
       year: "numeric",
     },
-  );
+  ) : "No deadline";
 
   // Calculate days remaining until deadline
-  const daysRemaining = Math.ceil(
-    (task.deadline.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24),
-  );
+  const daysRemaining = task.deadline 
+    ? Math.ceil((new Date(task.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+    : 0;
   const deadlineClass =
     daysRemaining < 7 ? "text-dangerPrimary font-medium" : "";
 
   // Determine if task is remote or InPerson
   const isInPerson = task.location ? true : false;
+
+  // Safely accessing properties with null checks
+  const volunteersNeeded = task.volunteersNeeded || 0;
+  const requiredSkills = task.requiredSkills || [];
+  const category = task.category || [];
+  const status = task.status || "NOT_STARTED";
+  const urgency = task.urgency || "LOW";
 
   return (
     <>
@@ -106,19 +113,19 @@ export default function TaskSummaryCard(task: taskAdditionalDetails) {
           {/* Header with title and urgency badge */}
           <div className="mb-3">
             <h2 className="font-bold text-lg mb-2 text-left line-clamp-2">
-              {task.title}
+              {task.title || "Untitled Task"}
             </h2>
             <div className="flex items-center gap-2 flex-wrap">
               <span
                 className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${getUrgencyColor(
-                  task.urgency || "LOW",
+                  urgency,
                 )}`}
               >
-                {task.urgency} PRIORITY
+                {urgency} PRIORITY
               </span>
-              {task.category && task.category.length > 0 && (
+              {category.length > 0 && (
                 <span className="inline-block rounded-full px-3 py-1 text-xs font-semibold text-basePrimaryDark bg-baseSecondary">
-                  {task.category[0]}
+                  {category[0]}
                 </span>
               )}
               {/* Remote/InPerson badge */}
@@ -141,7 +148,7 @@ export default function TaskSummaryCard(task: taskAdditionalDetails) {
           {/* Description - limited to 3 lines */}
           <div className="mb-3 text-left">
             <p className="line-clamp-3 text-sm opacity-90">
-              {task.description}
+              {task.description || "No description provided"}
             </p>
           </div>
 
@@ -152,12 +159,12 @@ export default function TaskSummaryCard(task: taskAdditionalDetails) {
               <span className={deadlineClass}>{formattedDeadline}</span>
             </div>
 
-            {task.volunteersNeeded > 0 && (
+            {volunteersNeeded > 0 && (
               <div className="flex items-center col-span-1">
                 <Users className="h-4 w-4 mr-1.5 text-baseSecondary" />
                 <span>
-                  {task.volunteersNeeded} volunteer
-                  {task.volunteersNeeded !== 1 ? "s" : ""}
+                  {volunteersNeeded} volunteer
+                  {volunteersNeeded !== 1 ? "s" : ""}
                 </span>
               </div>
             )}
@@ -181,25 +188,25 @@ export default function TaskSummaryCard(task: taskAdditionalDetails) {
           </div>
 
           {/* Improved Skills section */}
-          {task.requiredSkills && task.requiredSkills.length > 0 && (
+          {requiredSkills.length > 0 && (
             <div className="mt-auto pt-2 border-t border-baseSecondary/20">
               <div className="text-xs font-medium mb-2 text-left flex items-center">
                 <GraduationCap className="h-3.5 w-3.5 mr-1.5 text-baseSecondary" />
                 <span className="text-baseSecondary">Skills Required:</span>
               </div>
               <div className="flex flex-wrap gap-1.5">
-                {task.requiredSkills.slice(0, 3).map((skill, index) => (
+                {requiredSkills.slice(0, 3).map((skill, index) => (
                   <div
-                    key={index}
-                    className="rounded-md px-2.5 py-1 text-xs font-medium  text-baseSecondary border border-baseSecondary/20 shadow-sm"
+                    key={`${task.id}-skill-${index}`}
+                    className="rounded-md px-2.5 py-1 text-xs font-medium text-baseSecondary border border-baseSecondary/20 shadow-sm"
                   >
                     {skill}
                   </div>
                 ))}
-                {task.requiredSkills.length > 3 && (
-                  <div className="rounded-md px-2.5 py-1 text-xs font-medium  text-baseSecondary border border-baseSecondary/20 shadow-sm flex items-center">
+                {requiredSkills.length > 3 && (
+                  <div className="rounded-md px-2.5 py-1 text-xs font-medium text-baseSecondary border border-baseSecondary/20 shadow-sm flex items-center">
                     <span className="mr-1">
-                      +{task.requiredSkills.length - 3}
+                      +{requiredSkills.length - 3}
                     </span>
                     <span className="text-[10px] opacity-80">more</span>
                   </div>
@@ -209,41 +216,43 @@ export default function TaskSummaryCard(task: taskAdditionalDetails) {
           )}
 
           {/* Status indicator if available */}
-          {task.status && (
+          {status && (
             <div className="text-right mt-3">
               <span
-                className={`text-xs font-medium px-2.5 py-1 rounded-md ${getStatusColor(task.status)}`}
+                className={`text-xs font-medium px-2.5 py-1 rounded-md ${getStatusColor(status)}`}
               >
-                {task.status.replace("_", " ")}
+                {status.replace("_", " ")}
               </span>
             </div>
           )}
         </div>
       </button>
 
-      <Modal isOpen={showModal} onClose={handleCloseModal}>
-        <TaskDetailsCard
-          category={task.category}
-          charityName={task.charityName}
-          charityId={task.charityId}
-          id={task.id}
-          description={task.description}
-          title={task.title}
-          impact={task.impact}
-          requiredSkills={task.requiredSkills}
-          urgency={task.urgency}
-          volunteersNeeded={task.volunteersNeeded}
-          deliverables={task.deliverables}
-          deadline={new Date(task.deadline)}
-          userId={task.userId}
-          status={task.status}
-          resources={task.resources}
-          userRole={task.userRole}
-          volunteerDetails={task.volunteerDetails}
-          taskApplications={task.taskApplications || []}
-          location={task.location}
-        />
-      </Modal>
+      {showModal && (
+        <Modal isOpen={showModal} onClose={handleCloseModal}>
+          <TaskDetailsCard
+            category={category}
+            charityName={task.charityName || ""}
+            charityId={task.charityId}
+            id={task.id}
+            description={task.description || ""}
+            title={task.title || "Untitled Task"}
+            impact={task.impact || ""}
+            requiredSkills={requiredSkills}
+            urgency={urgency}
+            volunteersNeeded={volunteersNeeded}
+            deliverables={task.deliverables || []}
+            deadline={task.deadline ? new Date(task.deadline) : new Date()}
+            userId={task.userId || ""}
+            status={status}
+            resources={task.resources || []}
+            userRole={task.userRole || []}
+            volunteerDetails={task.volunteerDetails}
+            taskApplications={task.taskApplications || []}
+            location={task.location}
+          />
+        </Modal>
+      )}
     </>
   );
 }
@@ -251,34 +260,44 @@ export default function TaskSummaryCard(task: taskAdditionalDetails) {
 export const TaskSummaryCardMobile = (
   taskData: Omit<SearchResultCardType, "all" | "charities" | "tasks" | "users">,
 ) => {
+  // Ensure the data exists and has the expected properties
+  const data = taskData.data || {};
+  const title = data.title || "Untitled Task";
+  const description = data.description || "No description";
+  const urgency = data.urgency || "LOW";
+  const requiredSkills = Array.isArray(data.requiredSkills) ? data.requiredSkills : [];
+  const category = Array.isArray(data.category) ? data.category : [];
+  const deliverables = Array.isArray(data.deliverables) ? data.deliverables : [];
+  const deadline = data.deadline ? new Date(data.deadline) : new Date();
+
   return (
     <>
       <button
         className="flex text-left items-center bg-basePrimaryDark rounded-md mb-2 hover:bg-basePrimaryLight w-full p-2"
-        onClick={() => taskData.handleSelectedSearchItem(taskData.data)}
+        onClick={() => taskData.handleSelectedSearchItem && taskData.handleSelectedSearchItem(data)}
       >
         {/* mobile view component */}
-        <div className="flex  text-left items-center m-auto  rounded-md space-x-2 hover:bg-basePrimaryLight w-full p-2  ">
+        <div className="flex text-left items-center m-auto rounded-md space-x-2 hover:bg-basePrimaryLight w-full p-2">
           <div className="">
-            <p className="font-semibold md:text-lg">{taskData.data.title}</p>
+            <p className="font-semibold md:text-lg">{title}</p>
             <p className="text-xs md:text-sm mb-1">
-              {taskData.data.description}
+              {description}
             </p>
-            <ul className="flex gap-2  items-start flex-wrap">
+            <ul className="flex gap-2 items-start flex-wrap">
               <li className="text-xs md:text-sm font-semibold">
                 Urgency:
                 <span
-                  className={`  inline-block rounded-full px-2 md:px-2 md:py-[2px] ml-1 text-xs font-semibold ${getUrgencyColor(taskData.data.urgency || "LOW")}`}
+                  className={`inline-block rounded-full px-2 md:px-2 md:py-[2px] ml-1 text-xs font-semibold ${getUrgencyColor(urgency)}`}
                 >
-                  {taskData.data.urgency}
+                  {urgency}
                 </span>
               </li>
-              {taskData.data.requiredSkills && (
-                <li className="text-xs  md:text-sm font-semibold space-x-1">
+              {requiredSkills.length > 0 && (
+                <li className="text-xs md:text-sm font-semibold space-x-1">
                   Skills:
-                  {taskData.data?.requiredSkills.map((skill, index) => (
+                  {requiredSkills.map((skill, index) => (
                     <span
-                      key={index}
+                      key={`${data.id || 'task'}-skill-${index}`}
                       className="rounded-sm font-semibold bg-basePrimaryLight px-1 text-[12px]"
                     >
                       {skill}
@@ -286,21 +305,19 @@ export const TaskSummaryCardMobile = (
                   ))}
                 </li>
               )}
-              {
-                <li className="text-xs flex-wrap md:text-sm font-semibold">
-                  Deadline:
-                  <span className="font-normal md:text-sm text-xs ">
-                    {new Date(taskData.data.deadline).toLocaleDateString()}
-                  </span>
-                </li>
-              }
-              {taskData.data.category && (
-                <li className="text-xs md:text-sm  font-semibold">
+              <li className="text-xs flex-wrap md:text-sm font-semibold">
+                Deadline:
+                <span className="font-normal md:text-sm text-xs">
+                  {deadline.toLocaleDateString()}
+                </span>
+              </li>
+              {category.length > 0 && (
+                <li className="text-xs md:text-sm font-semibold">
                   Tags:
                   <span className="font-normal md:text-sm text-xs">
-                    {taskData.data?.category.map((tag, index) => (
+                    {category.map((tag, index) => (
                       <span
-                        key={index}
+                        key={`${data.id || 'task'}-tag-${index}`}
                         className="rounded-sm font-semibold bg-basePrimaryLight px-1 text-[12px]"
                       >
                         {tag}
@@ -309,12 +326,11 @@ export const TaskSummaryCardMobile = (
                   </span>
                 </li>
               )}
-
-              {taskData.data.deliverables && (
+              {deliverables.length > 0 && (
                 <li className="text-xs md:text-sm hidden md:flex font-semibold">
                   Deliverable:
                   <span className="font-normal md:text-sm text-xs">
-                    {taskData.data.deliverables[0]}
+                    {deliverables[0]}
                   </span>
                 </li>
               )}

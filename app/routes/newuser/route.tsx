@@ -26,6 +26,17 @@ import { createCharity } from "~/models/charities.server";
 import { charities, users } from "@prisma/client";
 import { getCompanionVars } from "~/services/env.server";
 
+// Add the missing interface definition
+interface newUserForm {
+  role: string;
+  title: string;
+  tags: string[];
+  picture?: string;
+  bio: string;
+  charityWebsite?: string;
+  preferredCharities: string[];
+}
+
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
   const accessToken = session.get("accessToken");
