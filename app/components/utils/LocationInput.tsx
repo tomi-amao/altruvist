@@ -99,8 +99,13 @@ export default function LocationInput({
 
       return () => {
         // Clean up styles when component unmounts
-        if (styleTag.parentNode) {
-          document.head.removeChild(styleTag);
+        try {
+          // Try to remove the style tag if it's still in the document
+          if (styleTag && styleTag.parentNode === document.head) {
+            document.head.removeChild(styleTag);
+          }
+        } catch (error) {
+          console.warn("Could not remove style tag:", error);
         }
       };
     }

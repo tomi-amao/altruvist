@@ -12,6 +12,7 @@ import {
   isMeilisearchConnected,
 } from "~/services/meilisearch.server";
 import { createNovuSubscriber } from "~/services/novu.server";
+import { getCharityMemberships } from "./charities.server";
 
 // create a mongodb user document if user from zitadel directory does not exist
 export const createUser = async (user: zitadelUserInfo) => {
@@ -108,12 +109,17 @@ export const getUserInfo = async (
       where: { zitadelId: zitUserInfo.sub },
       ...(include && { include }),
     });
-    return { userInfo, error: null, zitUserInfo };
+
+    const charityMemberships = await getCharityMemberships({
+      userId: userInfo?.id,
+    });
+    return { userInfo, charityMemberships, error: null, zitUserInfo };
   } catch (error) {
     return {
       error: `Failed to fetch user info: ${error}`,
       userInfo: null,
       zitUserInfo: null,
+      charityMemberships: null,
     };
   }
 };
@@ -225,19 +231,64 @@ export const deleteUser = async (id: string, zitId: string) => {
 };
 
 export const getProfileInfo = async (userId: string) => {
-  const objectIdValidation = ObjectIdSchema.safeParse(userId);
-  if (!objectIdValidation.success) {
-    throw new Error("Invalid user ID");
+  try {
+    if (!userId) {
+      return {
+        profile: null,
+        error: "User ID is required",
+        charityMemberships: null,
+      };
+    }
+
+    const isValidId = ObjectIdSchema.safeParse(userId);
+    if (!isValidId.success) {
+      return {
+        profile: null,
+        error: "Invalid user ID format",
+        charityMemberships: null,
+      };
+    }
+
+    const profile = await prisma.users.findUnique({
+      where: { id: userId },
+    });
+
+    // Get charity memberships for this user
+    const charityMemberships = await prisma.charityMemberships.findMany({
+      where: { userId },
+      include: {
+        charity: true,
+      },
+    });
+
+    if (!profile) {
+      return {
+        profile: null,
+        error: "User not found",
+        charityMemberships: { memberships: [] },
+      };
+    }
+
+    return {
+      profile,
+      error: null,
+      charityMemberships: {
+        memberships: charityMemberships,
+        message: "Charity memberships found",
+        status: 200,
+      },
+    };
+  } catch (error) {
+    return {
+      profile: null,
+      error: `Error fetching profile: ${error}`,
+      charityMemberships: {
+        memberships: [],
+        status: 500,
+        message: "Error fetching memberships",
+      },
+    };
   }
-
-  const profile = await prisma.users.findUnique({
-    where: { id: userId },
-    include: {
-      charity: true,
-    },
-  });
-
-  return profile;
 };
 
 // Function to fetch user's task applications by userId

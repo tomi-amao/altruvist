@@ -8,14 +8,19 @@ import { getUserInfo } from "~/models/user2.server";
 import { Section } from "~/components/cards/DashboardSection";
 
 export const meta: MetaFunction = () => {
-  return [{ title: "Dashboard | Altruvist", description: "Manage your tasks on your dashboard" }];
+  return [
+    {
+      title: "Dashboard | Altruvist",
+      description: "Manage your tasks on your dashboard",
+    },
+  ];
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
   const accessToken = session.get("accessToken");
   const isNew = session.get("isNew");
-  
+
   // If user is new, redirect to newuser page
   if (isNew) {
     return redirect("/newuser");

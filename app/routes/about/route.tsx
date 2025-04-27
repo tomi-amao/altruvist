@@ -93,8 +93,7 @@ export const loader = async () => {
 };
 
 export default function AboutRoute() {
-  const { stats, team, volunteering } =
-    useLoaderData<typeof loader>();
+  const { stats, team, volunteering } = useLoaderData<typeof loader>();
   // const [activeTestimonial, setActiveTestimonial] = useState(0);
 
   return (
@@ -593,7 +592,7 @@ export default function AboutRoute() {
                 Sign Up
               </a>
               <a
-                href="/explore"
+                href="/explore/tasks"
                 className="inline-flex h-12 items-center justify-center rounded-md border border-basePrimaryLight bg-transparent px-8 text-sm font-medium text-txtsecondary shadow-sm transition-colors hover:bg-accentPrimary/10 focus:outline-none focus:ring-2 focus:ring-accentPrimary focus:ring-offset-2"
               >
                 Browse Opportunities

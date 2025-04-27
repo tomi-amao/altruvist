@@ -169,7 +169,7 @@ export default function Index() {
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => {
-                  navigate("/explore");
+                  navigate("/explore/tasks");
                 }}
               >
                 Browse Projects
@@ -505,7 +505,7 @@ export default function Index() {
             viewport={{ once: true }}
             transition={{ delay: 0.3 }}
           >
-            <Link to="/explore" className="inline-block">
+            <Link to="/explore/tasks" className="inline-block">
               <motion.button
                 className="border-2 border-accentPrimary text-accentPrimary hover:bg-accentPrimary hover:text-baseSecondary transition-colors px-6 py-3 rounded-lg font-medium"
                 whileHover={{ scale: 1.05 }}
@@ -560,7 +560,7 @@ export default function Index() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => {
-                    navigate("/explore");
+                    navigate("/explore/tasks");
                   }}
                 >
                   Make an Impact

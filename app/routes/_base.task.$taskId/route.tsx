@@ -1,5 +1,4 @@
-// filepath: /home/ignorantview/projects/web-applications/skillanthropy/app/routes/task.$taskId/route.tsx
-import { LoaderFunctionArgs, json } from "@remix-run/node";
+import { json, redirect, MetaFunction } from "@remix-run/node";
 import { useLoaderData, useNavigation, Link } from "@remix-run/react";
 import { getTask } from "~/models/tasks.server";
 import TaskDetailsCard from "~/components/tasks/taskDetailsCard";
@@ -7,14 +6,13 @@ import { getSession } from "~/services/session.server";
 import { getUserInfo } from "~/models/user2.server";
 import { ArrowLeft } from "@phosphor-icons/react";
 import { useViewport } from "~/hooks/useViewport";
-import { ServerRuntimeMetaFunction as MetaFunction } from "@remix-run/server-runtime";
 
 export const meta: MetaFunction = ({ data }) => {
   return [
     {
       title: data?.task
-        ? `${data.task.title} | Skillanthropy`
-        : "Task Details | Skillanthropy",
+        ? `${data.task.title} | Altruvist`
+        : "Task Details | Altruvist",
     },
     {
       name: "description",
@@ -175,7 +173,7 @@ export default function TaskDetailPage() {
             </p>
           </div>
           <Link
-            to="/explore"
+            to="/explore/tasks"
             className="inline-flex items-center px-5 py-2.5 rounded-md bg-baseSecondary text-basePrimary hover:bg-baseSecondary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-baseSecondary"
           >
             Explore Available Tasks
@@ -189,7 +187,7 @@ export default function TaskDetailPage() {
     <div className="container mx-auto p-4 sm:p-6 md:p-8">
       <div className="mb-6">
         <Link
-          to="/explore"
+          to="/explore/tasks"
           className="inline-flex items-center gap-2 text-baseSecondary hover:text-baseSecondary/80 transition-colors"
         >
           <ArrowLeft size={20} />

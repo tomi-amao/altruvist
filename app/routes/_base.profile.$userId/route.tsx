@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { MetaFunction, useLoaderData, Link } from "@remix-run/react";
+import { MetaFunction, useLoaderData, Link, useFetcher } from "@remix-run/react";
 import { getProfileInfo, getUserInfo } from "~/models/user2.server";
 import { getSession } from "~/services/session.server";
 import DataTable from "~/components/cards/DataTable";
@@ -19,7 +19,10 @@ import {
   ChartBar,
   FileText,
   Buildings,
+  Plus,
 } from "@phosphor-icons/react";
+import { getSignedUrlForFile } from "~/services/s3.server";
+import { Alert } from "~/components/utils/Alert";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Profile" }];
@@ -33,28 +36,30 @@ export default function ProfilePage() {
     createdTasks,
     taskApplications,
     FEATURE_FLAG,
+    charityMemberships,
+    signedProfilePicture,
   } = useLoaderData<typeof loader>();
 
   const [showSelectedTask, setShowSelectedTask] = useState(false);
   const [selectedTask, setSelectedTask] = useState<CombinedCollections>();
-  const [signedProfilePicture, setSignedProfilePicture] = useState<
-    string | null
-  >(null);
+  const [leaveError, setLeaveError] = useState<string | null>(null);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertData, setAlertData] = useState<{ charityId: string; charityName: string } | null>(null);
 
+  const fetcher = useFetcher();
+  const leavingCharityId =
+    fetcher.state === "submitting" && fetcher.formData?.get("action") === "leave"
+      ? (fetcher.formData.get("charityId") as string)
+      : null;
+
+  // Clear error message when fetcher state changes
   useEffect(() => {
-    async function fetchSignedUrl() {
-      if (profileInfo?.profilePicture) {
-        const res = await fetch(
-          `/api/s3-get-url?file=${profileInfo.profilePicture}&action=upload`,
-        );
-        const data = await res.json();
-        if (data.url) {
-          setSignedProfilePicture(data.url);
-        }
-      }
+    if (fetcher.data && fetcher.data.success === false) {
+      setLeaveError(fetcher.data.message);
+    } else if (fetcher.data && fetcher.data.success === true) {
+      setLeaveError(null);
     }
-    fetchSignedUrl();
-  }, [profileInfo?.profilePicture]);
+  }, [fetcher.data]);
 
   if (!profileInfo) {
     return (
@@ -73,6 +78,28 @@ export default function ProfilePage() {
   const handleRowClick = (selectedTaskData: CombinedCollections) => {
     setShowSelectedTask((preValue) => !preValue);
     setSelectedTask(selectedTaskData);
+  };
+
+  const handleLeaveCharity = (charityId: string, charityName: string) => {
+    setAlertData({ charityId, charityName });
+    setShowAlert(true);
+  };
+
+  const confirmLeaveCharity = () => {
+    if (alertData) {
+      setLeaveError(null);
+      fetcher.submit(
+        {
+          action: "leave",
+          charityId: alertData.charityId,
+        },
+        {
+          method: "post",
+          action: "/api/charity-membership",
+        }
+      );
+    }
+    setShowAlert(false);
   };
 
   const isMyProfile = userInfo?.id === profileInfo.id;
@@ -132,6 +159,8 @@ export default function ProfilePage() {
               {FEATURE_FLAG && !isMyProfile && (
                 <PrimaryButton text="Message" ariaLabel="Send a message" />
               )}
+
+
             </div>
           </div>
         </div>
@@ -154,6 +183,117 @@ export default function ProfilePage() {
               </p>
             </div>
           </div>
+
+          {/* Charity Memberships Card */}
+          {(isMyProfile || charityMemberships.memberships?.length > 0) && (
+            <div className="bg-basePrimaryLight rounded-xl shadow-md overflow-hidden">
+              <div className="px-6 py-5 border-b border-baseSecondary/10 flex justify-between items-center">
+                <h2 className="text-xl font-semibold text-baseSecondary flex items-center gap-2">
+                  <Buildings size={20} />
+                  <span>Charity Memberships</span>
+                </h2>
+                {isMyProfile && isVolunteer && (
+                  <Link
+                    to="/explore/charities"
+                    className="text-sm text-baseSecondary font-medium hover:text-baseSecondary/80 hover:underline transition-colors"
+                  >
+                    Find Charities
+                  </Link>
+                )}
+              </div>
+              <div className="p-6">
+                {charityMemberships.memberships?.length > 0 ? (
+                  <div className="space-y-4">
+                    {charityMemberships?.memberships.map((membership) => (
+                      <div
+                        key={membership.id}
+                        className="flex items-start gap-3 bg-basePrimary/50 p-3 rounded-lg"
+                      >
+                        <Buildings
+                          size={24}
+                          className="text-baseSecondary mt-0.5 flex-shrink-0"
+                        />
+                        <div className="flex-grow">
+                          <div className="flex justify-between">
+                            <Link
+                              to={`/charity/${membership.charity.id}`}
+                              className="text-md font-medium text-baseSecondary hover:underline"
+                            >
+                              {membership.charity.name}
+                            </Link>
+                            {isMyProfile && (
+                              <div className="flex items-center">
+                                <span className="text-xs text-baseSecondary/60 mr-2">
+                                  Joined{" "}
+                                  {new Date(
+                                    membership.joinedAt,
+                                  ).toLocaleDateString()}
+                                </span>
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    handleLeaveCharity(
+                                      membership.charityId,
+                                      membership.charity.name,
+                                    );
+                                  }}
+                                  className={`text-xs ${
+                                    leavingCharityId === membership.charityId
+                                      ? "text-dangerPrimaryDark"
+                                      : "text-dangerPrimary hover:text-dangerPrimaryDark"
+                                  } transition-colors`}
+                                  aria-label="Leave charity"
+                                  title="Leave charity"
+                                  disabled={!!leavingCharityId}
+                                >
+                                  {leavingCharityId === membership.charityId
+                                    ? "Leaving..."
+                                    : "Leave"}
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                          <div className="mt-1 flex flex-wrap gap-1">
+                            {membership.roles.map((role, idx) => (
+                              <span
+                                key={idx}
+                                className="text-xs bg-baseSecondary text-basePrimaryLight px-2 py-0.5 rounded-full capitalize"
+                              >
+                                {role}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-4 text-baseSecondary/70">
+                    {isMyProfile && isVolunteer ? (
+                      <>
+                        <p className="mb-3">
+                          You haven't joined any charities yet.
+                        </p>
+                        <Link
+                          to="/explore/charities"
+                          className="inline-block bg-baseSecondary text-basePrimaryLight px-4 py-2 rounded-md hover:bg-baseSecondary/90 transition-colors"
+                        >
+                          Explore Charities
+                        </Link>
+                      </>
+                    ) : (
+                      <p>No charity memberships to display.</p>
+                    )}
+                  </div>
+                )}
+                {leaveError && (
+                  <div className="text-center text-dangerPrimary mt-4">
+                    {leaveError}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Contact & Details Card */}
           {isCharity && profileInfo.charity && (
@@ -402,6 +542,19 @@ export default function ProfilePage() {
           />
         </div>
       </Modal>
+
+      {/* Alert Modal */}
+      {showAlert && alertData && (
+        <Alert
+          isOpen={showAlert}
+          onClose={() => setShowAlert(false)}
+          title="Leave Charity"
+          message={`Are you sure you want to leave ${alertData.charityName}?`}
+          confirmText="Leave"
+          onConfirm={confirmLeaveCharity}
+          variant="danger"
+        />
+      )}
     </div>
   );
 }
@@ -412,7 +565,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
 
   const profileId = url.pathname.split("/")[2];
-  const profileInfo = await getProfileInfo(profileId);
+
+  // Get profile info with charity memberships
+  const { profile: profileInfo, charityMemberships } =
+    await getProfileInfo(profileId);
   const profileRole = profileInfo?.roles[0];
   const { FEATURE_FLAG } = getFeatureFlags();
 
@@ -423,11 +579,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
       completedTasks: null,
       createdTasks: null,
       taskApplications: null,
+      charityMemberships: { memberships: [] },
       FEATURE_FLAG,
     };
   }
 
   const { userInfo } = await getUserInfo(accessToken);
+  const signedProfilePicture = await getSignedUrlForFile(
+    profileInfo.profilePicture || "",
+    true,
+  );
 
   // Get logged in user's task applications if they are a volunteer
   let taskApplications = null;
@@ -451,6 +612,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
       completedTasks,
       createdTasks: null,
       taskApplications,
+      signedProfilePicture,
+      charityMemberships,
       FEATURE_FLAG,
     };
   } else if (profileRole === "charity") {
@@ -471,6 +634,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
       profileInfo,
       completedTasks: null,
       createdTasks: tasksWithApplications,
+      charityMemberships,
+      signedProfilePicture,
       taskApplications,
       FEATURE_FLAG,
     };
@@ -482,6 +647,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     completedTasks: null,
     createdTasks: null,
     taskApplications: null,
+    charityMemberships: { memberships: [] },
+    signedProfilePicture,
     FEATURE_FLAG,
   };
 }

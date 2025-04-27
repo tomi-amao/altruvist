@@ -73,9 +73,9 @@ const DataTable = ({
   };
 
   return (
-    <div className="w-full">
-      <div className="hidden md:block overflow-x-auto">
-        <table className="w-full border-collapse rounded-lg text-left">
+    <div className="w-full ">
+      <div className="hidden md:block overflow-x-auto ">
+        <table className="w-full border-collapse rounded-lg text-left text-baseSecondary">
           <thead>
             <tr>
               {[
@@ -98,7 +98,7 @@ const DataTable = ({
               ))}
             </tr>
           </thead>
-          <tbody className="bg-basePrimaryDark">
+          <tbody className="bg-basePrimary/70">
             {getCurrentPageData().map((item, index) => (
               <tr key={index} className="border-b-2 border-baseSecondary">
                 {Object.entries({

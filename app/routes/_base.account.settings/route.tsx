@@ -29,7 +29,10 @@ import { Modal } from "~/components/utils/Modal2";
 import { getCompanionVars, getFeatureFlags } from "~/services/env.server";
 import { Alert } from "~/components/utils/Alert";
 import { z } from "zod";
-import { updateCharity } from "~/models/charities.server";
+import {
+  getCharityMemberships,
+  updateCharity,
+} from "~/models/charities.server";
 import { getSignedUrlForFile } from "~/services/s3.server";
 import {
   Bell,
@@ -37,6 +40,7 @@ import {
   ShieldCheck,
   UserCircle,
   Warning,
+  Image,
 } from "@phosphor-icons/react";
 
 // Add this type definition at the top of the file
@@ -45,7 +49,7 @@ type ActionResponse = {
   message?: string;
   errors?: Array<{
     field: string;
-    message: string;
+    message?: string;
   }>;
 };
 
@@ -53,7 +57,9 @@ type ActionResponse = {
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
   const accessToken = session.get("accessToken");
-  const { userInfo } = await getUserInfo(accessToken, { charity: true });
+
+  // Get detailed user info including charity memberships
+  const { userInfo } = await getUserInfo(accessToken);
   const { FEATURE_FLAG } = getFeatureFlags();
   const { COMPANION_URL } = getCompanionVars();
 
@@ -61,7 +67,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirect("/zitlogin");
   }
 
+  // Get charity memberships where user is an admin
+  const { memberships } = await getCharityMemberships({ userId: userInfo.id });
+
+  // Find the first charity where the user is an admin
+  const adminCharity = memberships?.find((membership) =>
+    membership.roles.includes("admin"),
+  )?.charity;
+
+  // Get signed URLs for images
   let signedProfilePicture;
+  let signedCharityBackgroundPicture;
+
   if (userInfo.profilePicture) {
     signedProfilePicture = await getSignedUrlForFile(
       userInfo.profilePicture,
@@ -69,7 +86,22 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   }
 
-  return { userInfo, signedProfilePicture, FEATURE_FLAG, COMPANION_URL };
+  if (adminCharity?.backgroundPicture) {
+    signedCharityBackgroundPicture = await getSignedUrlForFile(
+      adminCharity.backgroundPicture,
+      true,
+    );
+  }
+
+  return {
+    userInfo,
+    adminCharity,
+    memberships: memberships || [],
+    signedProfilePicture,
+    signedCharityBackgroundPicture,
+    FEATURE_FLAG,
+    COMPANION_URL,
+  };
 }
 
 // Replace the action function with this standardized version
@@ -77,7 +109,6 @@ export async function action({ request }: ActionFunctionArgs) {
   const session = await getSession(request);
   const { userInfo, zitUserInfo } = await getUserInfo(
     session.get("accessToken"),
-    { charity: true },
   );
 
   if (!userInfo) {
@@ -174,6 +205,22 @@ export async function action({ request }: ActionFunctionArgs) {
       case "updateCharity": {
         const rawFormData = formData.get("formData") as string;
         const updateCharityData = JSON.parse(rawFormData);
+        const charityId = formData.get("charityId") as string;
+        console.log("Attempting to update charity with ID:", charityId);
+
+        if (!charityId) {
+          return json(
+            {
+              errors: [{ field: "form", message: "Charity ID is required" }],
+            },
+            { status: 400 },
+          );
+        }
+
+        // Include backgroundPicture if available or keep existing one
+        const updateFields = {
+          ...updateCharityData,
+        };
 
         const charitySchema = z.object({
           name: z.string().min(1, "Charity name is required"),
@@ -193,9 +240,11 @@ export async function action({ request }: ActionFunctionArgs) {
             .or(z.literal("")),
           contactPerson: z.string().optional(),
           tags: z.array(z.string()).min(1, "At least one category is required"),
+          backgroundPicture: z.string().optional().or(z.literal("")),
         });
+        const validationResult = charitySchema.safeParse(updateFields);
+        console.log("Charity Validation Result", validationResult);
 
-        const validationResult = charitySchema.safeParse(updateCharityData);
         if (!validationResult.success) {
           const response: ActionResponse = {
             errors: validationResult.error.errors.map((err) => ({
@@ -206,10 +255,32 @@ export async function action({ request }: ActionFunctionArgs) {
           return json(response, { status: 400 });
         }
 
-        const { status } = await updateCharity(
-          userInfo.charity.id,
-          updateCharityData,
+        // Verify user has admin permission for this charity
+        const { memberships } = await getCharityMemberships({
+          userId: userInfo.id,
+        });
+        const isAdmin = memberships?.some(
+          (membership) =>
+            membership.charityId === charityId &&
+            membership.roles.includes("admin"),
         );
+
+        console.log("Is Admin", isAdmin);
+        if (!isAdmin) {
+          return json(
+            {
+              errors: [
+                {
+                  field: "form",
+                  message: "You don't have permission to update this charity",
+                },
+              ],
+            },
+            { status: 403 },
+          );
+        }
+
+        const { status, error } = await updateCharity(charityId, updateFields);
 
         if (status !== 200) {
           return json(
@@ -217,7 +288,7 @@ export async function action({ request }: ActionFunctionArgs) {
               errors: [
                 {
                   field: "form",
-                  message: "Failed to update charity information",
+                  message: error || "Failed to update charity information",
                 },
               ],
             },
@@ -256,8 +327,14 @@ export const meta: MetaFunction = () => {
 };
 
 export default function AccountSettings() {
-  const { userInfo, FEATURE_FLAG, COMPANION_URL } =
-    useLoaderData<typeof loader>();
+  const {
+    userInfo,
+    adminCharity,
+    memberships,
+    signedCharityBackgroundPicture,
+    FEATURE_FLAG,
+    COMPANION_URL,
+  } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
@@ -271,13 +348,17 @@ export default function AccountSettings() {
     preferredCharities: userInfo?.preferredCharities || [],
   });
   const [charityFormData, setCharityFormData] = useState({
-    name: userInfo?.charity?.name || "",
-    description: userInfo?.charity?.description || "",
-    website: userInfo?.charity?.website || "",
-    contactEmail: userInfo?.charity?.contactEmail || "",
-    contactPerson: userInfo?.charity?.contactPerson || "",
-    tags: userInfo?.charity?.tags || [],
+    name: adminCharity?.name || "",
+    description: adminCharity?.description || "",
+    website: adminCharity?.website || "",
+    contactEmail: adminCharity?.contactEmail || "",
+    contactPerson: adminCharity?.contactPerson || "",
+    tags: adminCharity?.tags || [],
+    backgroundPicture: adminCharity?.backgroundPicture || "",
   });
+  const [backgroundPicturePreview, setBackgroundPicturePreview] = useState<
+    string | undefined
+  >(signedCharityBackgroundPicture || adminCharity?.backgroundPicture);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
   const [signedProfilePicture, setSignedProfilePicture] = useState<
@@ -337,6 +418,19 @@ export default function AccountSettings() {
     }
     fetchSignedUrl();
   }, [formData.profilePicture]);
+
+  useEffect(() => {
+    async function fetchSignedUrl() {
+      const res = await fetch(
+        `/api/s3-get-url?file=${charityFormData.backgroundPicture}&action=upload`,
+      );
+      const data = await res.json();
+      if (data.url) {
+        setBackgroundPicturePreview(data.url);
+      }
+    }
+    fetchSignedUrl();
+  }, [charityFormData.backgroundPicture]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
@@ -714,6 +808,65 @@ export default function AccountSettings() {
                     name="formData"
                     value={JSON.stringify(charityFormData)}
                   />
+                  <input
+                    type="hidden"
+                    name="charityId"
+                    value={adminCharity?.id || ""}
+                  />
+
+                  {/* Charity Background Picture Upload Section */}
+                  <div className="p-4 bg-basePrimaryLight rounded-lg mb-4">
+                    <h3 className="text-lg font-medium text-baseSecondary mb-3 flex items-center gap-2">
+                      <Image size={20} weight="fill" />
+                      Background Picture
+                    </h3>
+
+                    {charityFormData.backgroundPicture ? (
+                      <div className="flex flex-col items-center gap-4 mb-4">
+                        <div className="w-full h-48 bg-basePrimaryDark/10 rounded-lg overflow-hidden">
+                          <img
+                            src={backgroundPicturePreview}
+                            alt={`${charityFormData.name} background`}
+                            className="w-full h-full object-contain object-cover object-center"
+                          />
+                        </div>
+                        <div className="flex gap-3">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setCharityFormData((prev) => ({
+                                ...prev,
+                                backgroundPicture: "",
+                              }));
+                            }}
+                            className="px-3 py-1.5 text-sm bg-altMidGrey/20 text-baseSecondary rounded hover:bg-altMidGrey/30 transition-colors"
+                          >
+                            Replace Image
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <FileUpload
+                          uppyId="charityBackgroundPicture"
+                          formTarget="#uploadCharityBackgroundPicture"
+                          onUploadedFile={(successfulFiles) => {
+                            successfulFiles.map((upload) => {
+                              setCharityFormData((prev) => ({
+                                ...prev,
+                                backgroundPicture: upload.uploadURL || "",
+                              }));
+                            });
+                          }}
+                          uploadURL={COMPANION_URL}
+                        />
+                        <p className="text-xs text-baseSecondary/60 mt-2">
+                          Upload an image that represents your charity. This
+                          will be displayed on your charity profile and cards.
+                        </p>
+                      </div>
+                    )}
+                  </div>
 
                   <div className="grid md:grid-cols-2 gap-6">
                     <FormField
@@ -745,7 +898,6 @@ export default function AccountSettings() {
                           (error) => error.field === "website",
                         )?.message || "Official website of the charity"
                       }
-                      // serverValidationError={actionData?.errors.some((error) => error.field === "website")}
                       schema={z
                         .string()
                         .regex(
@@ -809,7 +961,6 @@ export default function AccountSettings() {
                           )?.message ||
                           "Add categories that describe your charity"
                         }
-                        // serverValidationError={actionData?.errors?.some((error) => error.field === "tags") || false}
                         resetField={false}
                         availableOptions={getTags("charityCategories")}
                         inputLimit={5}

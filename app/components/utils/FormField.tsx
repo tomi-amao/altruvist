@@ -1029,7 +1029,7 @@ export function DropdownField<T>({
   const selectedLabel = options.find((opt) => opt.value === value)?.label || "";
 
   return (
-    <div ref={dropdownRef} className="relative z-autospace-y-1">
+    <div ref={dropdownRef} className="relative ">
       <div className="relative">
         <button
           type="button"
@@ -1050,7 +1050,7 @@ export function DropdownField<T>({
 
         <label
           htmlFor={htmlFor}
-          className={`absolute text-md duration-300 transform -translate-y-4 scale-75 top-1 z-auto origin-[0] 
+          className={`absolute text-md duration-300 transform -translate-y-4 scale-75 top-1  origin-[0] 
             inline-flex ${backgroundColour} px-1 peer-focus:px-1 start-1
             opacity-100
             ${error ? "text-dangerPrimary" : "text-baseSecondary"}`}
@@ -1062,7 +1062,7 @@ export function DropdownField<T>({
         {isOpen && (
           <ul
             role="listbox"
-            className="absolute left-0 w-full mt-1 border rounded-lg border-baseSecondary bg-basePrimaryLight max-h-60 overflow-y-auto z-50"
+            className="absolute left-0 w-full mt-1 border rounded-lg border-baseSecondary bg-basePrimaryLight max-h-60 overflow-y-auto "
           >
             {options.map((option) => (
               <li

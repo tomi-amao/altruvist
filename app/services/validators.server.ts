@@ -95,6 +95,7 @@ export const TaskSchema = z.object({
     .string()
     .min(1, "Impact is required")
     .max(80, "Impact must be less than 80 characters"),
+  charityId: z.string().min(1, "Charity selection is required"),
   requiredSkills: z
     .array(z.string())
     .min(1, "At least one skill is required")

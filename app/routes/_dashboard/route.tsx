@@ -53,9 +53,9 @@ export default function Dashboard() {
   const getSideBarMenu = (role: string) => {
     switch (role) {
       case "charity":
-        return ["Dashboard", "Manage Tasks", "Explore"];
+        return ["Dashboard", "Tasks", "Charities"];
       case "volunteer":
-        return ["Dashboard", "Tasks", "Explore"];
+        return ["Dashboard", "Tasks", "Charities"];
       default:
         return ["Dashboard", "Tasks", "Messages", "Feeds", "Explore"];
     }
@@ -68,8 +68,6 @@ export default function Dashboard() {
       case "Dashboard":
       case "Explore":
         return `/${link.toLowerCase()}`;
-      case "Manage Tasks":
-        return `/dashboard/tasks`;
       default:
         return `/dashboard/${link.toLowerCase()}`;
     }
@@ -77,11 +75,11 @@ export default function Dashboard() {
 
   return (
     <>
-      <div className="h-full lg:h-screen flex flex-row">
+      <div className="h-full lg:h-screen flex flex-row ">
         <Navbar userId={userInfo.id} novuAppId={novuAppId ?? ""} />
         <div className="hidden lg:flex w-3/12 lg:max-w-48 flex-col mt-[3.8rem] lg:mt-[4rem] p-4 min-h-full lg:fixed shadow-md bg-basePrimary">
           {/* Profile section */}
-          <div className="mb-6">
+          <div className="mt-10 mb-4">
             <SimpleProfileCard
               name={userInfo?.name}
               userTitle={userInfo?.userTitle}

@@ -19,26 +19,69 @@ export async function action({ request }: ActionFunctionArgs) {
     return redirect("/zitlogin");
   }
 
-  const { userInfo, error } = await getUserInfo(accessToken);
-  if (!userInfo?.charityId || !userInfo.id) {
-    console.log(error);
+  const {
+    userInfo,
+    error: userError,
+    charityMemberships,
+  } = await getUserInfo(accessToken);
+
+  if (!userInfo?.id) {
+    console.log(userError);
     return redirect("/zitlogin");
   }
 
   try {
-    const newTask = JSON.parse(data.get("formData") as string);
-    console.log("New Task Data", newTask);
+    const formData = JSON.parse(data.get("formData") as string);
+    console.log("New Task Data", formData);
+
+    // Get the charity ID from the form data
+    const charityId = formData.charityId;
+
+    if (!charityId) {
+      return json(
+        {
+          error: [
+            { path: ["charityId"], message: "Charity selection is required" },
+          ],
+        },
+        { status: 400 },
+      );
+    }
+
+    // Check if user has permission to create tasks for this charity
+    const charityAdmin = charityMemberships?.memberships?.find(
+      (membership) =>
+        membership.charityId === charityId &&
+        membership.roles.some(role => ["admin", "editor", "volunteer"].includes(role)),
+    );
+
+    if (!charityAdmin) {
+      return json(
+        {
+          error: [
+            {
+              path: ["charityId"],
+              message:
+                "You do not have permission to create tasks for this charity",
+            },
+          ],
+        },
+        { status: 403 },
+      );
+    }
 
     const validatedData = TaskSchema.parse({
-      ...newTask,
-      deadline: newTask.deadline,
-      location: {
-        address: newTask.location.address,
-        lat: newTask.location.lat,
-        lng: newTask.location.lng,
-      },
+      ...formData,
+      deadline: formData.deadline,
+      location: formData.location
+        ? {
+            address: formData.location.address,
+            lat: formData.location.lat,
+            lng: formData.location.lng,
+          }
+        : null,
       resources: (
-        newTask.resources as unknown as UppyFile<Meta, Record<string, never>>[]
+        formData.resources as unknown as UppyFile<Meta, Record<string, never>>[]
       ).map((upload) => ({
         name: upload.name || null,
         extension: upload.extension || null,
@@ -50,11 +93,8 @@ export async function action({ request }: ActionFunctionArgs) {
 
     console.log("Validated Task Data", validatedData);
 
-    const task = await createTask(
-      validatedData,
-      userInfo.charityId,
-      userInfo.id,
-    );
+    // Use the charity ID from the form data instead of userInfo.charityId
+    const task = await createTask(validatedData, charityId, userInfo.id);
     console.log("New task created", task);
 
     return json({ error: null }, { status: 200 });

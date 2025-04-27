@@ -11,41 +11,42 @@ datasource db {
 }
 
 model users {
-  id                 String             @id @default(auto()) @map("_id") @db.ObjectId
-  userTitle          String?
-  zitadelId          String             @unique
-  email              String
-  name               String
-  skills             String[]
-  preferredCharities String[]
-  bio                String?
-  profilePicture     String?
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
-  taskApplications   taskApplications[]
-  locale             String
-  roles              String[]
-  permissions        String[]
-  charity            charities?         @relation(fields: [charityId], references: [id])
-  charityId          String?            @db.ObjectId
-  tasks              tasks[]
-  comments           comment[]
+  id                  String                @id @default(auto()) @map("_id") @db.ObjectId
+  userTitle           String?
+  zitadelId           String                @unique
+  email               String
+  name                String
+  skills              String[]
+  preferredCharities  String[]
+  bio                 String?
+  profilePicture      String?
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  taskApplications    taskApplications[]
+  locale              String
+  roles               String[]
+  permissions         String[]
+  charityMemberships  charityMemberships[]
+  charityApplications charityApplications[] // Relation to charity applications
+  tasks               tasks[]
+  comments            comment[]
 }
 
 model charities {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  name          String
-  description   String
-  website       String?
-  contactPerson String?
-  contactEmail  String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  tasks         tasks[]
-  users         users[]
-  tags          String[]
-
-  taskApplications taskApplications[]
+  id                 String               @id @default(auto()) @map("_id") @db.ObjectId
+  name               String
+  description        String
+  website            String?
+  contactPerson      String?
+  contactEmail       String?
+  backgroundPicture  String?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  tasks              tasks[]
+  charityMemberships charityMemberships[]
+  charityApplications charityApplications[] // Relation to charity applications
+  tags               String[]
+  taskApplications   taskApplications[]
 }
 
 model tasks {
@@ -123,6 +124,36 @@ model comment {
   parentId  String?   @db.ObjectId // Nullable for top-level comments
   parent    comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   replies   comment[] @relation("CommentReplies") // Self-referencing relation for nested comments
+}
+
+model charityMemberships {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  user        users     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String    @db.ObjectId
+  charity     charities @relation(fields: [charityId], references: [id], onDelete: Cascade)
+  charityId   String    @db.ObjectId
+  roles       String[]  // ["admin", "manager", "volunteer"]
+  permissions String[]  // ["create_task", "approve_volunteers"]
+  joinedAt    DateTime  @default(now())
+
+  @@unique([userId, charityId])
+}
+
+model charityApplications {
+  id              String            @id @default(auto()) @map("_id") @db.ObjectId
+  user            users             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String            @db.ObjectId
+  charity         charities         @relation(fields: [charityId], references: [id], onDelete: Cascade)
+  charityId       String            @db.ObjectId
+  roles           String[]          // ["admin"] - role being applied for
+  applicationNote String?           // Note provided with the application
+  status          ApplicationStatus @default(PENDING)
+  appliedAt       DateTime          @default(now())
+  reviewedAt      DateTime?         // When the application was reviewed
+  reviewedBy      String?           @db.ObjectId // User ID of the admin who reviewed the application
+  reviewNote      String?           // Note from the admin who reviewed the application
+
+  @@unique([userId, charityId])
 }
 
 enum TaskCategory {

@@ -2,7 +2,7 @@ import { ChangeEvent, useEffect } from "react";
 import { DropdownCard } from "../cards/FilterCard";
 import { SecondaryButtonAlt } from "../utils/BasicButton";
 import type { FilterSortState } from "~/types/tasks";
-import { Funnel, FunnelSimple } from "@phosphor-icons/react";
+import { Funnel, FunnelSimple, MagnifyingGlass } from "@phosphor-icons/react";
 import { Dropdown } from "../utils/selectDropdown";
 
 interface TaskSearchFilterProps {
@@ -104,15 +104,22 @@ export function TaskSearchFilter({
 
   return (
     <div className="space-y-4">
-      <input
-        type="text"
-        placeholder="Search"
-        className="w-full flex-grow p-2 bg-basePrimaryDark text-sm lg:text-base rounded font-primary text-baseSecondary"
-        onChange={(e: ChangeEvent<HTMLInputElement>) =>
-          onSearch(e.target.value)
-        }
-        value={searchQuery}
-      />
+      <div className="relative">
+        <input
+          type="text"
+          placeholder="Search"
+          className="w-full px-8 py-1.5 border border-baseSecondary/20 rounded-lg bg-basePrimaryLight text-baseSecondary text-sm"
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            onSearch(e.target.value)
+          }
+          value={searchQuery}
+        />
+        <MagnifyingGlass
+          size={16}
+          className="absolute left-2.5 top-1/2 -translate-y-1/2 text-baseSecondary/60"
+        />
+      </div>
+
       <div className="flex flex-col gap-2">
         <div className="flex gap-4">
           <div className="mt-2 flex items-center space-x-2">

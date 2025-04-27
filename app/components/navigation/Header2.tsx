@@ -165,26 +165,42 @@ export default function Navbar({
             to={"/"}
             className={`text-3xl   lg:text-4xl pl-4 font-semibold ${altBackground ? "text-accentPrimary" : "text-baseSecondary"} tracking-wide  font-header `}
           >
-            <img src="/favicon.ico" alt="ZitHive Logo" className="" />
+            <img src="/favicon.ico" alt="Altruvist Logo" className="" />
           </Link>
-
-          <Link
-            className={`p-2 px-4 hidden md:flex font-primary w-fit text-left transition-colors duration-200 hover:underline hover:underline-offset-8 ${altBackground ? "text-accentPrimary " : "text-baseSecondary"}`}
-            to={"/explore"}
-          >
-            {location.pathname === "/explore" ? "" : "Explore"}
-          </Link>
+          <div className="hidden mx-4 md:flex flex-row items-center gap-4">
+            {location.pathname !== "/explore/tasks" && (
+              <Link
+                className={` hidden md:flex font-primary   text-left transition-colors duration-200 hover:underline hover:underline-offset-8 whitespace-nowrap ${altBackground ? "text-accentPrimary " : "text-baseSecondary"}`}
+                to={"/explore/tasks"}
+              >
+                {"Tasks"}
+              </Link>
+            )}
+            {location.pathname !== "/explore/charities" && (
+              <Link
+                className={` hidden md:flex font-primary text-left transition-colors duration-200 hover:underline hover:underline-offset-8 whitespace-nowrap ${altBackground ? "text-accentPrimary " : "text-baseSecondary"}`}
+                to={"/explore/charities"}
+              >
+                {"Charities"}
+              </Link>
+            )}
+          </div>
           <div className="w-full p-4 ">
             <Form
-              className="flex items-center bg-basePrimaryDark lg:max-w-96 m-auto -ml-2 rounded-md"
+              className="flex items-center bg-basePrimaryLight lg:max-w-96 m-auto -ml-2 rounded-md"
               onSubmit={handleSearchSubmit}
             >
-              <div className="p-1 flex gap-4 items-center flex-grow">
-                <MagnifyingGlass size={20} weight="bold" color="#836953" />
+              <div className="p-1 flex gap-2 items-center flex-grow">
+                <MagnifyingGlass
+                  size={20}
+                  weight="regular"
+                  color="#836953"
+                  className="ml-4"
+                />
                 <input
                   type="text"
                   placeholder={`${searchError ? "Search is unavailable" : "Search"}`}
-                  className={`w-full flex-grow bg-basePrimaryDark text-sm lg:text-base ${searchError && "cursor-not-allowed text-dangerPrimary"}`}
+                  className={`w-full flex-grow bg-basePrimaryLight text-sm lg:text-base ${searchError && "cursor-not-allowed text-dangerPrimary"}`}
                   onChange={(e) => {
                     handleSearch(e, "query");
                   }}
@@ -263,28 +279,79 @@ export const NavListPages = ({
   altBackground?: boolean;
   userId: string | undefined;
 }) => {
+  const [exploreDropdown, setExploreDropdown] = useState(false);
+  const [dashboardDropdown, setDashboardDropdown] = useState(false);
+
+  const toggleExploreDropdown = () => {
+    setExploreDropdown(!exploreDropdown);
+  };
+
+  const toggleDashboardDropdown = () => {
+    setDashboardDropdown(!dashboardDropdown);
+  };
+
   return (
     <>
-      <Link
+      <button
         className={`p-2 px-4 hover:bg-baseSecondary font-primary hover:text-basePrimary w-full text-left rounded-md transition-colors duration-200  ${altBackground && "text-accentPrimary"}`}
-        to={"/explore"}
+        onClick={toggleExploreDropdown}
       >
         Explore
-      </Link>
+      </button>
+      <div
+        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+          exploreDropdown ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
+        }`}
+      >
+        <div className="flex flex-col gap-2 pl-4 py-1">
+          <Link
+            className={`p-2 px-4 hover:bg-baseSecondary font-primary hover:text-basePrimary w-full text-left rounded-md transition-colors duration-200  ${altBackground && "text-accentPrimary"}`}
+            to={"/explore/tasks"}
+          >
+            Tasks
+          </Link>
+          <Link
+            className={`p-2 px-4 hover:bg-baseSecondary font-primary hover:text-basePrimary w-full text-left rounded-md transition-colors duration-200  ${altBackground && "text-accentPrimary"}`}
+            to={"/explore/charities"}
+          >
+            Charities
+          </Link>
+        </div>
+      </div>
       {userId && (
         <>
-          <Link
+          <button
             className={`p-2 px-4 hover:bg-baseSecondary font-primary hover:text-basePrimary w-full text-left rounded-md transition-colors duration-200  ${altBackground && "text-accentPrimary"}`}
-            to={"/dashboard"}
+            onClick={toggleDashboardDropdown}
           >
             Dashboard
-          </Link>
-          <Link
-            className={`p-2 px-4 hover:bg-baseSecondary font-primary hover:text-basePrimary w-full text-left rounded-md transition-colors duration-200  ${altBackground && "text-accentPrimary"}`}
-            to={"/dashboard/tasks"}
+          </button>
+          <div
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+              dashboardDropdown ? "max-h-48 opacity-100" : "max-h-0 opacity-0"
+            }`}
           >
-            Manage Tasks
-          </Link>
+            <div className="flex flex-col gap-2 pl-4 py-1">
+              <Link
+                className={`p-2 px-4 hover:bg-baseSecondary font-primary hover:text-basePrimary w-full text-left rounded-md transition-colors duration-200  ${altBackground && "text-accentPrimary"}`}
+                to={"/dashboard/tasks"}
+              >
+                Tasks
+              </Link>
+              <Link
+                className={`p-2 px-4 hover:bg-baseSecondary font-primary hover:text-basePrimary w-full text-left rounded-md transition-colors duration-200  ${altBackground && "text-accentPrimary"}`}
+                to={"/dashboard/charities"}
+              >
+                Charities
+              </Link>
+              <Link
+                className={`p-2 px-4 hover:bg-baseSecondary font-primary hover:text-basePrimary w-full text-left rounded-md transition-colors duration-200  ${altBackground && "text-accentPrimary"}`}
+                to={"/dashboard"}
+              >
+                Overview
+              </Link>
+            </div>
+          </div>
           <Link
             className={`p-2 px-4 hover:bg-baseSecondary font-primary hover:text-basePrimary w-full text-left rounded-md transition-colors duration-200  ${altBackground && "text-accentPrimary"}`}
             to={`/profile/${userId}`}

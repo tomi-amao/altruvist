@@ -27,7 +27,7 @@ export default function PopularTasks({ tasks }: { tasks: Task[] }) {
         <div className="p-4 flex flex-row justify-between border-y-baseSecondary border-b-[1px] items-center">
           <span>Popular Tasks</span>
           <Link
-            to="/explore"
+            to="/explore/tasks"
             className="text-midGrey text-xs hover:text-baseSecondary"
           >
             See more

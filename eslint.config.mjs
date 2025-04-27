@@ -77,6 +77,7 @@ export default [
       ...jsxA11yPlugin.configs.recommended.rules,
       "no-undef": 0,
       "react/prop-types": "off", // Disable prop-types checking
+      "react/no-unescaped-entities": "off", // Disable warnings about unescaped entities like apostrophes
     },
   },
 

@@ -89,7 +89,7 @@ export default function Footer() {
           <ul className="space-y-3">
             <li>
               <Link
-                to="/explore"
+                to="/explore/tasks"
                 className="hover:text-accentPrimary transition-colors"
               >
                 Explore Tasks

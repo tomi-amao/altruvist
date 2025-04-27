@@ -15,11 +15,18 @@ export const Modal: React.FC<ModalProps> = ({
   portalContainer,
 }) => {
   const [mounted, setMounted] = useState(false);
+  const [portalNode, setPortalNode] = useState<HTMLElement | null>(null);
 
+  // Setup portal when component mounts
   useEffect(() => {
     setMounted(true);
-    return () => setMounted(false);
-  }, []);
+    setPortalNode(portalContainer || document.body);
+
+    return () => {
+      setMounted(false);
+      setPortalNode(null);
+    };
+  }, [portalContainer]);
 
   const handleEsc = useCallback(
     (event: KeyboardEvent) => {
@@ -30,6 +37,7 @@ export const Modal: React.FC<ModalProps> = ({
     [onClose],
   );
 
+  // Manage body scroll and event listeners
   useEffect(() => {
     if (isOpen && mounted) {
       document.addEventListener("keydown", handleEsc);
@@ -44,11 +52,13 @@ export const Modal: React.FC<ModalProps> = ({
     };
   }, [isOpen, handleEsc, mounted]);
 
-  if (!mounted || !isOpen) return null;
+  // Important: Only render when both mounted AND portalNode is available
+  if (!mounted || !isOpen || !portalNode) return null;
 
+  // Use a more stable approach to portal creation with explicit portal target
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4  "
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
     >
@@ -57,12 +67,12 @@ export const Modal: React.FC<ModalProps> = ({
         onClick={onClose}
         aria-hidden="true"
       />
-      <div className="relative rounded-lg w-fit z-10 max-h-[80vh] overflow-y-auto">
-        <div>
+      <div className="relative bg-basePrimaryLight rounded-lg w-fit z-10 max-h-[80vh] overflow-y-auto">
+        <div className="relative">
           {children}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4"
+            className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-baseSecondary text-white text-xl font-bold hover:bg-dangerPrimary transition-colors"
             aria-label="Close modal"
           >
             &times;
@@ -70,6 +80,6 @@ export const Modal: React.FC<ModalProps> = ({
         </div>
       </div>
     </div>,
-    portalContainer || document.body,
+    portalNode,
   );
 };

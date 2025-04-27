@@ -6,15 +6,32 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
   const fileUrl = url.searchParams.get("file");
   const action = url.searchParams.get("action");
+  const key = url.searchParams.get("key");
   const session = await getSession(request);
   const accessToken = session.get("accessToken");
 
-  if (!accessToken) {
-    return json({ error: "Unauthorized" }, { status: 401 });
+  // Check for either file or key parameter
+  if (!fileUrl && !key) {
+    return json(
+      { error: "Either file URL or key is required" },
+      { status: 400 },
+    );
   }
 
-  if (!fileUrl) {
-    return json({ error: "File URL is required" }, { status: 400 });
+  // Handle direct key request (for background images)
+  if (key) {
+    try {
+      const signedUrl = await getSignedUrlForFile(key, true);
+      return json({ url: signedUrl });
+    } catch (error) {
+      console.error("Error generating signed URL:", error);
+      return json({ error: "Failed to generate signed URL" }, { status: 500 });
+    }
+  }
+
+  // Original file URL-based logic
+  if (!accessToken) {
+    return json({ error: "Unauthorized" }, { status: 401 });
   }
 
   switch (action) {

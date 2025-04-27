@@ -64,7 +64,7 @@ export function ProfileCard({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="flex items-center bg-bgprimary rounded-md gap-3 border-solid border-altMidGrey border-b-2 mb-2 py-2 px-3 transition-all duration-200 hover:bg-basePrimaryLight">
+      <div className="flex items-center  rounded-md gap-3 border-solid border-altMidGrey shadow-md mb-2 py-2 px-3 transition-all duration-200 hover:bg-basePrimaryLight">
         <Avatar src={profilePicture} name={name} />
         <div className="flex flex-col justify-center min-w-0 flex-1">
           <p className="text-md text-baseSecondary font-medium ">{name}</p>
@@ -73,7 +73,7 @@ export function ProfileCard({
       </div>
 
       {showHover && isHovered && (
-        <div className="absolute z-10 top-full left-0 mt-2 w-64 bg-basePrimary rounded-lg shadow-lg p-4 border border-baseSecondary">
+        <div className="absolute z-10 top-full left-0 mt-2 w-64 bg-basePrimary rounded-lg  p-4 border border-baseSecondary">
           <div className="flex gap-4 items-center">
             <Avatar src={profilePicture} name={name} size={60} />
             <div className="flex-1 min-w-0">

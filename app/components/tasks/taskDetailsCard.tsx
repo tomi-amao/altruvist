@@ -1,6 +1,6 @@
 import { TaskUrgency } from "@prisma/client";
 import { format } from "date-fns";
-import { useFetcher, useNavigate } from "@remix-run/react";
+import { Link, useFetcher, useNavigate } from "@remix-run/react";
 import { PrimaryButton, SecondaryButton } from "../utils/BasicButton";
 import { FilePreviewButton } from "../utils/FormField";
 import {
@@ -368,10 +368,12 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
       <div className="bg-basePrimaryLight px-6 py-3 border-b border-baseSecondary/10">
         <div className="flex justify-between items-center">
           <span className="text-sm text-baseSecondary/80">
-            Posted by{" "}
-            <span className="font-medium text-baseSecondary">
-              {taskData.charityName}
-            </span>
+            Posted by
+            <Link to={`/charity/${taskData.charityId}`} className="ml-1">
+              <span className="font-medium text-baseSecondary">
+                {taskData.charityName}
+              </span>
+            </Link>
           </span>
 
           <div className="flex items-center gap-3">

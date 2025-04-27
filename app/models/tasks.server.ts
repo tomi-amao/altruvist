@@ -707,3 +707,46 @@ export const getTask = (taskId: string) => {
     },
   });
 };
+
+export const getTasksByCharityId = async (charityId: string) => {
+  if (!charityId) {
+    return {
+      tasks: null,
+      message: "Charity ID is required",
+      error: "Missing charity ID",
+      status: 400,
+    };
+  }
+
+  try {
+    const tasks = await prisma.tasks.findMany({
+      where: {
+        charityId: charityId,
+      },
+      include: {
+        taskApplications: true,
+        createdBy: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+      orderBy: [{ createdAt: "desc" }],
+    });
+
+    return {
+      tasks,
+      message: "Successfully retrieved charity tasks",
+      error: null,
+      status: 200,
+    };
+  } catch (error) {
+    return {
+      tasks: null,
+      message: "Failed to retrieve charity tasks",
+      error,
+      status: 500,
+    };
+  }
+};

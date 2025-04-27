@@ -1,5 +1,4 @@
-// TaskForm.tsx
-import { Form } from "@remix-run/react";
+import { Form, Link } from "@remix-run/react";
 import {
   FilePreviewButton,
   FormField,
@@ -44,6 +43,7 @@ interface TaskFormData {
   volunteersNeeded?: number;
   deliverables: string[];
   location?: LocationData | null;
+  charityId?: string; // Add charityId field
 }
 
 interface TaskFormProps {
@@ -56,6 +56,8 @@ interface TaskFormProps {
   isSubmitting: boolean;
   uploadURL: string;
   GCPKey?: string;
+  userCharities?: Array<{ id: string; name: string }>; // Add user's charities
+  defaultCharityId?: string; // Add default charity ID
 }
 
 const defaultFormData: TaskFormData = {
@@ -70,6 +72,7 @@ const defaultFormData: TaskFormData = {
   volunteersNeeded: undefined,
   deliverables: [],
   location: null,
+  charityId: "", // Initialize charityId as empty string
 };
 
 export default function TaskForm({
@@ -81,8 +84,10 @@ export default function TaskForm({
   isSubmitting,
   uploadURL,
   GCPKey,
+  userCharities = [], // Default to empty array
+  defaultCharityId,
 }: TaskFormProps) {
-  // Initialize form data with initial data if provided
+  // Initialize the formData state with default charity if provided
   const [formData, setFormData] = useState<TaskFormData>(() => {
     if (initialData) {
       return {
@@ -105,9 +110,13 @@ export default function TaskForm({
               lng: initialData.location.lng || 0,
             }
           : null,
+        charityId: initialData.charityId || defaultCharityId || "",
       };
     }
-    return defaultFormData;
+    return {
+      ...defaultFormData,
+      charityId: defaultCharityId || "",
+    };
   });
 
   // Update form data when initialData changes
@@ -229,7 +238,11 @@ export default function TaskForm({
   };
 
   const hasServerError = (fieldName: string) => {
-    return serverValidation.some((error) => error.path[0] === fieldName);
+    // Ensure serverValidation is an array before calling .some()
+    return (
+      Array.isArray(serverValidation) &&
+      serverValidation.some((error) => error.path[0] === fieldName)
+    );
   };
 
   // Add location handling
@@ -259,6 +272,44 @@ export default function TaskForm({
     console.log("Form Data", formData);
   };
 
+  // check if user is associated with a charity
+  // Show an informative message if the user doesn't have associated charities
+  if (userCharities.length === 0) {
+    return (
+      <div className="max-w-full p-8 shadow-lg border border-basePrimaryDark rounded-lg bg-basePrimary flex flex-col items-center justify-center text-center">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-16 w-16 text-baseSecondary mb-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+          />
+        </svg>
+        <h2 className="text-3xl md:text-4xl mb-4 font-primary font-semibold text-baseSecondary">
+          No Charities Found
+        </h2>
+        <p className="text-baseSecondary text-lg max-w-md mb-6">
+          You are not associated with any charities.
+        </p>
+        <p className="text-baseSecondary text-base max-w-md mb-6">
+          If you would like to create a task, please create or join a charity
+          first.
+        </p>
+        <Link
+          to="/explore/charities"
+          className="px-6 py-3 bg-basePrimaryDark text-baseSecondary rounded-md hover:bg-opacity-80 transition-all font-medium"
+        >
+          Explore Charities
+        </Link>
+      </div>
+    );
+  }
   return (
     <div className="max-w-full p-6 shadow-lg border border-basePrimaryDark rounded-lg relative">
       <Form
@@ -274,6 +325,28 @@ export default function TaskForm({
         <h2 className="text-5xl mb-4 font-primary font-semibold text-baseSecondary">
           {isEditing ? "Edit Task" : "Create a Task"}
         </h2>
+
+        {/* Charity Selection Dropdown - only shown when creating a new task (not when editing) */}
+        {!isEditing && userCharities.length > 0 && (
+          <DropdownField
+            htmlFor="charityId"
+            label="Charity"
+            value={formData.charityId || ""}
+            onChange={(value) =>
+              setFormData((prev) => ({ ...prev, charityId: value }))
+            }
+            options={userCharities.map((charity) => ({
+              value: charity.id,
+              label: charity.name,
+            }))}
+            schema={z.string().min(1, "Please select a charity")}
+            helperText="Select which charity this task belongs to"
+            serverValidationError={hasServerError("charityId")}
+            resetField={resetField}
+            required
+            backgroundColour="bg-basePrimary"
+          />
+        )}
 
         <FormField
           htmlFor="title"

@@ -1,4 +1,4 @@
-import { json , MetaFunction } from "@remix-run/node";
+import { json, MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -367,7 +367,7 @@ export default function VolunteerGuide() {
             </div>
             <div className="flex flex-col sm:flex-row gap-4">
               <a
-                href="/explore"
+                href="/explore/tasks"
                 className="inline-flex h-12 items-center justify-center rounded-md bg-accentPrimary px-8 text-sm font-medium text-baseSecondary shadow transition-colors hover:bg-accentPrimary/90 focus:outline-none focus:ring-2 focus:ring-accentPrimary focus:ring-offset-2"
               >
                 Find Opportunities

@@ -122,7 +122,7 @@ export default function LandingHeader({
               </Link>
 
               <Link
-                to="/explore"
+                to="/explore/tasks"
                 className={`px-4 py-2 rounded-lg transition-all font-medium hover:scale-105 active:scale-95 ${
                   isScrolled
                     ? "text-basePrimaryDark hover:text-accentPrimary"
@@ -348,7 +348,7 @@ export default function LandingHeader({
                   About
                 </Link>
                 <Link
-                  to="/explore"
+                  to="/explore/tasks"
                   className={`block px-4 py-2 rounded-lg transition-all font-medium hover:scale-105 active:scale-95 ${
                     isScrolled
                       ? "text-basePrimaryDark hover:text-accentPrimary"

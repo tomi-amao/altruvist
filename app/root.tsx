@@ -13,6 +13,7 @@ import type {
   ActionFunctionArgs,
   LinksFunction,
   LoaderFunction,
+  MetaFunction,
 } from "@remix-run/node";
 import stylesheet from "~/styles/tailwind.css?url";
 
@@ -42,10 +43,18 @@ export const loader: LoaderFunction = () => {
   });
 };
 
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Altruvist" },
+    { name: "description", content: "Connect volunteers with charitable tasks" },
+    { name: "viewport", content: "width=device-width,initial-scale=1" },
+    { charSet: "utf-8" }
+  ];
+};
+
 // Document component to consistently handle document structure
 export function Document({
   children,
-  title = "Altruvist",
 }: {
   children: React.ReactNode;
   title?: string;
@@ -53,9 +62,6 @@ export function Document({
   return (
     <html lang="en">
       <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>{title}</title>
         <Meta />
         <Links />
         <link rel="preconnect" href="https://fonts.googleapis.com" />

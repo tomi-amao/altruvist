@@ -75,18 +75,20 @@ export default function TaskSummaryCard(task: taskAdditionalDetails) {
   };
 
   // Format deadline to a more readable format
-  const formattedDeadline = task.deadline ? new Date(task.deadline).toLocaleDateString(
-    "en-US",
-    {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    },
-  ) : "No deadline";
+  const formattedDeadline = task.deadline
+    ? new Date(task.deadline).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
+    : "No deadline";
 
   // Calculate days remaining until deadline
-  const daysRemaining = task.deadline 
-    ? Math.ceil((new Date(task.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+  const daysRemaining = task.deadline
+    ? Math.ceil(
+        (new Date(task.deadline).getTime() - new Date().getTime()) /
+          (1000 * 60 * 60 * 24),
+      )
     : 0;
   const deadlineClass =
     daysRemaining < 7 ? "text-dangerPrimary font-medium" : "";
@@ -205,9 +207,7 @@ export default function TaskSummaryCard(task: taskAdditionalDetails) {
                 ))}
                 {requiredSkills.length > 3 && (
                   <div className="rounded-md px-2.5 py-1 text-xs font-medium text-baseSecondary border border-baseSecondary/20 shadow-sm flex items-center">
-                    <span className="mr-1">
-                      +{requiredSkills.length - 3}
-                    </span>
+                    <span className="mr-1">+{requiredSkills.length - 3}</span>
                     <span className="text-[10px] opacity-80">more</span>
                   </div>
                 )}
@@ -265,24 +265,29 @@ export const TaskSummaryCardMobile = (
   const title = data.title || "Untitled Task";
   const description = data.description || "No description";
   const urgency = data.urgency || "LOW";
-  const requiredSkills = Array.isArray(data.requiredSkills) ? data.requiredSkills : [];
+  const requiredSkills = Array.isArray(data.requiredSkills)
+    ? data.requiredSkills
+    : [];
   const category = Array.isArray(data.category) ? data.category : [];
-  const deliverables = Array.isArray(data.deliverables) ? data.deliverables : [];
+  const deliverables = Array.isArray(data.deliverables)
+    ? data.deliverables
+    : [];
   const deadline = data.deadline ? new Date(data.deadline) : new Date();
 
   return (
     <>
       <button
         className="flex text-left items-center bg-basePrimaryDark rounded-md mb-2 hover:bg-basePrimaryLight w-full p-2"
-        onClick={() => taskData.handleSelectedSearchItem && taskData.handleSelectedSearchItem(data)}
+        onClick={() =>
+          taskData.handleSelectedSearchItem &&
+          taskData.handleSelectedSearchItem(data)
+        }
       >
         {/* mobile view component */}
         <div className="flex text-left items-center m-auto rounded-md space-x-2 hover:bg-basePrimaryLight w-full p-2">
           <div className="">
             <p className="font-semibold md:text-lg">{title}</p>
-            <p className="text-xs md:text-sm mb-1">
-              {description}
-            </p>
+            <p className="text-xs md:text-sm mb-1">{description}</p>
             <ul className="flex gap-2 items-start flex-wrap">
               <li className="text-xs md:text-sm font-semibold">
                 Urgency:
@@ -297,7 +302,7 @@ export const TaskSummaryCardMobile = (
                   Skills:
                   {requiredSkills.map((skill, index) => (
                     <span
-                      key={`${data.id || 'task'}-skill-${index}`}
+                      key={`${data.id || "task"}-skill-${index}`}
                       className="rounded-sm font-semibold bg-basePrimaryLight px-1 text-[12px]"
                     >
                       {skill}
@@ -317,7 +322,7 @@ export const TaskSummaryCardMobile = (
                   <span className="font-normal md:text-sm text-xs">
                     {category.map((tag, index) => (
                       <span
-                        key={`${data.id || 'task'}-tag-${index}`}
+                        key={`${data.id || "task"}-tag-${index}`}
                         className="rounded-sm font-semibold bg-basePrimaryLight px-1 text-[12px]"
                       >
                         {tag}

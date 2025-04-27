@@ -21,6 +21,10 @@ export interface TaskListData {
   userId: string;
   error: string | null;
   isLoading: boolean;
+  userName?: string | null;
+  uploadURL?: string | null;
+  GCPKey?: string;
+  userCharities?: Array<{ id: string; name: string }>;
 }
 
 export interface TaskResource {
