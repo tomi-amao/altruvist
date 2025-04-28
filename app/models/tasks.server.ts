@@ -7,7 +7,7 @@ import {
   TaskUrgency,
 } from "@prisma/client";
 import { prisma } from "~/services/db.server";
-import { SortOrder } from "~/routes/search/route";
+import { SortOrder } from "~/routes/_base.search/route";
 import { transformUserTaskApplications } from "~/components/utils/DataTransformation";
 import { ObjectIdSchema } from "~/services/validators.server";
 import {

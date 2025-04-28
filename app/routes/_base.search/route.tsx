@@ -76,9 +76,8 @@ export default function SearchResults() {
 
   return (
     <>
-      <Navbar userId={userInfo?.id} novuAppId={novuAppId ?? ""} />
       <div className="m-auto lg:w-9/12  w-full py-4 px-2 ">
-        <h1 className="mt-20 font-semibold"> Search Results </h1>
+        <h1 className=" font-semibold"> Search Results </h1>
 
         <div>
           <ul>

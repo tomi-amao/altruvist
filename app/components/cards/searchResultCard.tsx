@@ -37,7 +37,7 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
 
   const renderSearchResult = () => {
     switch (searchResults.collection) {
-      case "skillanthropy_charities":
+      case "altruvist_charities":
         if (searchResults.all || searchResults.charities) {
           return (
             <button
@@ -83,7 +83,7 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
         }
         break;
 
-      case "skillanthropy_tasks":
+      case "altruvist_tasks":
         if (searchResults.all || searchResults.tasks) {
           return (
             <button
@@ -157,7 +157,7 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
         }
         break;
 
-      case "skillanthropy_users":
+      case "altruvist_users":
         if (searchResults.all || searchResults.users) {
           if (!searchResults.data?.roles || !searchResults.data.roles[0]) {
             return null;

@@ -4,7 +4,7 @@ import { getSession } from "~/services/session.server";
 import { getUserTasks } from "~/models/tasks.server";
 import { getCompanionVars } from "~/services/env.server";
 import { TaskStatus } from "@prisma/client";
-import { SortOrder } from "../search/route";
+import { SortOrder } from "../_base.search/route";
 import type { TaskListData } from "~/types/tasks";
 
 export async function loader({ request }: LoaderFunctionArgs) {
