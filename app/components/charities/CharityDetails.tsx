@@ -279,7 +279,7 @@ export function CharityDetails({
                 {isAdmin && (
                   <a
                     href="/dashboard/tasks"
-                    className="mt-4 inline-block px-4 py-2 bg-accentPrimary text-white rounded-md hover:bg-accentPrimary/90 text-baseSecondary transition"
+                    className="mt-4 inline-block px-4 py-2 bg-accentPrimary   rounded-md hover:bg-accentPrimary/90 text-baseSecondary transition"
                   >
                     Create Task
                   </a>

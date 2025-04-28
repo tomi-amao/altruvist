@@ -436,7 +436,7 @@ const CharityBackgroundPictureStep = ({
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold mb-4">Charity Background Image</h2>
-      <p className="text-sm text-gray-600 mb-4">
+      <p className="text-sm text-basePrimary mb-4">
         Upload a banner image that represents your charity. This will be
         displayed at the top of your charity page.
       </p>
@@ -894,13 +894,13 @@ export default function NewUserForm() {
       <div className="flex justify-center mb-6">
         <div className="flex items-center space-x-2">
           <div
-            className={`w-3 h-3 rounded-full ${formPart === 1 ? "bg-baseSecondary" : "bg-gray-300"}`}
+            className={`w-3 h-3 rounded-full ${formPart === 1 ? "bg-baseSecondary" : "bg-basePrimary"}`}
           ></div>
           <div
-            className={`w-3 h-3 rounded-full ${formPart === 2 ? "bg-baseSecondary" : "bg-gray-300"}`}
+            className={`w-3 h-3 rounded-full ${formPart === 2 ? "bg-baseSecondary" : "bg-basePrimary"}`}
           ></div>
         </div>
-        <div className="ml-4 text-sm text-gray-500">
+        <div className="ml-4 text-sm text-basePrimary">
           {formPart === 1 ? "Part 1: Profile Details" : "Part 2: Role Setup"}
         </div>
       </div>

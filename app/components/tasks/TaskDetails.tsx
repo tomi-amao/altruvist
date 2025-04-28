@@ -262,10 +262,10 @@ export function TaskDetails({
                     shadow-sm transition-all duration-300 
                     ${
                       displayData.urgency === "HIGH"
-                        ? "bg-dangerPrimary text-white"
+                        ? "bg-dangerPrimary  "
                         : displayData.urgency === "MEDIUM"
                           ? "bg-accentPrimary text-baseSecondary"
-                          : "bg-confirmPrimary text-white"
+                          : "bg-confirmPrimary  "
                     }`}
                   >
                     <Fire

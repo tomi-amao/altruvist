@@ -149,7 +149,7 @@ const DataTable = ({
                 onClick={() => handlePageChange(page)}
                 className={`px-3 py-1 rounded ${
                   currentPage === page
-                    ? "bg-blue-500 text-white"
+                    ? "bg-basePrimary "
                     : "hover:bg-basePrimaryDark"
                 }`}
               >

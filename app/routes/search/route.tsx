@@ -78,11 +78,11 @@ export default function SearchResults() {
     <>
       <Navbar userId={userInfo?.id} novuAppId={novuAppId ?? ""} />
       <div className="m-auto lg:w-9/12  w-full py-4 px-2 ">
-        <h1 className="mt-16"> Search Results </h1>
+        <h1 className="mt-20 font-semibold"> Search Results </h1>
 
         <div>
           <ul>
-            <li className="space-x-4 ">
+            <li className="space-x-4 mt-6">
               <button
                 className={`hover:border-b-2 ${showCollections.all && "border-b-2"}`}
                 onClick={() => {

@@ -146,7 +146,7 @@ export const CustomNotification: React.FC<CustomNotificationProps> = ({
         {parsedBody.userId && (
           <button
             onClick={handleViewProfile}
-            className="text-darkGrey px-2 sm:px-3 py-1 rounded-md flex items-center space-x-1 text-xs sm:text-sm hover:bg-gray-300 transition-colors"
+            className="text-darkGrey px-2 sm:px-3 py-1 rounded-md flex items-center space-x-1 text-xs sm:text-sm hover:bg-basePrimary transition-colors"
           >
             <User size={isMobile ? 14 : 16} />
             <span>View Profile</span>

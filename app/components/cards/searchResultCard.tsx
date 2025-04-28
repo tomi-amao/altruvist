@@ -1,8 +1,7 @@
 import { CombinedCollections, MultiSearchDocuments } from "~/types/tasks";
-
 import { useNavigate } from "@remix-run/react";
 import { getUrgencyColor } from "../tasks/taskCard";
-import { Buildings, ClipboardText, User } from "@phosphor-icons/react";
+import { Buildings, ClipboardText, User, Globe } from "@phosphor-icons/react";
 
 export interface SearchResultCardType extends MultiSearchDocuments {
   all: boolean;
@@ -12,8 +11,29 @@ export interface SearchResultCardType extends MultiSearchDocuments {
   handleSelectedSearchItem: (selectedItemData: CombinedCollections) => void;
 }
 
+// Reusable styled tag component for consistency
+const Tag = ({ children }: { children: React.ReactNode }) => (
+  <span className="rounded-sm bg-basePrimaryLight px-2 py-0.5 text-xs md:text-sm font-medium mr-1">
+    {children}
+  </span>
+);
+
+// Reusable label component for consistency
+const Label = ({ children }: { children: React.ReactNode }) => (
+  <span className="font-semibold text-xs md:text-sm mr-1">{children}:</span>
+);
+
 export default function SearchResultCard(searchResults: SearchResultCardType) {
   const navigate = useNavigate();
+
+  // Extract domain from URL for cleaner display
+  const extractDomain = (url: string) => {
+    try {
+      return new URL(url).hostname;
+    } catch (e) {
+      return url;
+    }
+  };
 
   const renderSearchResult = () => {
     switch (searchResults.collection) {
@@ -21,49 +41,41 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
         if (searchResults.all || searchResults.charities) {
           return (
             <button
-              className="flex text-left items-center bg-basePrimaryDark  rounded-md mb-2 hover:bg-basePrimaryLight w-full p-2"
-              onClick={() => console.log()}
+              className="flex text-left items-start bg-basePrimaryDark rounded-md mb-2 hover:bg-basePrimaryLight w-full p-3 transition-colors duration-200"
+              onClick={() => searchResults.handleSelectedSearchItem(searchResults.data)}
             >
-              {/* mobile view component */}
-              <div
-                className="flex  text-left items-center m-auto  rounded-md space-x-2 hover:bg-basePrimaryLight w-full p-2 md:font-semibold"
-                // onClick={() => handleSelectedSearchItem(searchResults.data)}
-              >
-                <span>
-                  <Buildings size={24} weight="regular" />
+              <div className="flex text-left items-start space-x-3 w-full">
+                <span className="mt-1 text-baseSecondary">
+                  <Buildings size={28} weight="regular" />
                 </span>
-                <div>
-                  <p className="font-semibold md:text-lg">
+                <div className="flex-1">
+                  <p className="font-semibold text-lg md:text-xl text-baseSecondary">
                     {searchResults.data.name}
                   </p>
-                  <p className="text-xs md:text-sm mb-1">
+                  <p className="text-xs md:text-sm mb-2 line-clamp-2">
                     {searchResults.data.description}
                   </p>
 
-                  <ul className="flex gap-2 items-center">
-                    {searchResults.data.tags && (
-                      <li className="text-xs md:text-sm font-semibold ">
-                        Tags:
-                        {searchResults.data?.tags.map((skill, index) => (
-                          <span
-                            key={index}
-                            className="rounded-sm  md:text-sm font-semibold bg-basePrimaryLight px-1 text-[12px]"
-                          >
-                            {skill}
-                          </span>
+                  <div className="flex flex-wrap gap-y-2 gap-x-3 items-center">
+                    {searchResults.data.tags && searchResults.data.tags.length > 0 && (
+                      <div className="flex items-center flex-wrap">
+                        <Label>Tags</Label>
+                        {searchResults.data.tags.map((tag, index) => (
+                          <Tag key={index}>{tag}</Tag>
                         ))}
-                      </li>
+                      </div>
                     )}
 
-                    <li className="text-xs  md:text-sm font-semibold">
-                      Website:
-                      {searchResults.data.website && (
-                        <span className="font-normal md:text-sm text-xs">
-                          {/* {new URL(searchResults.data.website).hostname }  */}
+                    {searchResults.data.website && (
+                      <div className="flex items-center">
+                        <Label>Website</Label>
+                        <span className="flex items-center text-xs md:text-sm">
+                          <Globe size={14} className="mr-1" />
+                          {extractDomain(searchResults.data.website)}
                         </span>
-                      )}
-                    </li>
-                  </ul>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </button>
@@ -75,85 +87,69 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
         if (searchResults.all || searchResults.tasks) {
           return (
             <button
-              className="flex text-left items-center bg-basePrimaryDark rounded-md mb-2 hover:bg-basePrimaryLight w-full p-2"
-              onClick={() =>
-                searchResults.handleSelectedSearchItem(searchResults.data)
-              }
+              className="flex text-left items-start bg-basePrimaryDark rounded-md mb-2 hover:bg-basePrimaryLight w-full p-3 transition-colors duration-200"
+              onClick={() => searchResults.handleSelectedSearchItem(searchResults.data)}
             >
-              {/* mobile view component */}
-              <div
-                className="flex  text-left items-center m-auto  rounded-md space-x-2 hover:bg-basePrimaryLight w-full p-2  "
-                // onClick={() => handleSelectedSearchItem(searchResults.data)}
-              >
-                <span>
-                  <ClipboardText size={24} weight="regular" />
+              <div className="flex text-left items-start space-x-3 w-full">
+                <span className="mt-1 text-baseSecondary">
+                  <ClipboardText size={28} weight="regular" />
                 </span>
-                <div className="">
-                  <p className="font-semibold md:text-lg">
+                <div className="flex-1">
+                  <p className="font-semibold text-lg md:text-xl text-baseSecondary">
                     {searchResults.data.title}
                   </p>
-                  <p className="text-xs md:text-sm mb-1">
+                  <p className="text-xs md:text-sm mb-2 line-clamp-2">
                     {searchResults.data.description}
                   </p>
-                  <ul className="flex gap-2  items-start flex-wrap">
-                    <li className="text-xs md:text-sm font-semibold">
-                      Urgency:
-                      <span
-                        className={`  inline-block rounded-full px-2 md:px-2 md:py-[2px] ml-1 text-xs font-semibold ${getUrgencyColor(searchResults.data.urgency || "LOW")}`}
-                      >
-                        {searchResults.data.urgency}
-                      </span>
-                    </li>
-                    {searchResults.data.requiredSkills && (
-                      <li className="text-xs  md:text-sm font-semibold space-x-1">
-                        Skills:
-                        {searchResults.data?.requiredSkills.map(
-                          (skill, index) => (
-                            <span
-                              key={index}
-                              className="rounded-sm font-semibold bg-basePrimaryLight px-1 text-[12px]"
-                            >
-                              {skill}
-                            </span>
-                          ),
-                        )}
-                      </li>
-                    )}
-                    {
-                      <li className="text-xs flex-wrap md:text-sm font-semibold">
-                        Deadline:
-                        <span className="font-normal md:text-sm text-xs ">
-                          {new Date(
-                            searchResults.data.deadline,
-                          ).toLocaleDateString()}
-                        </span>
-                      </li>
-                    }
-                    {searchResults.data.category && (
-                      <li className="text-xs md:text-sm  font-semibold">
-                        Tags:
-                        <span className="font-normal md:text-sm text-xs">
-                          {searchResults.data?.category.map((tag, index) => (
-                            <span
-                              key={index}
-                              className="rounded-sm font-semibold bg-basePrimaryLight px-1 text-[12px]"
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                        </span>
-                      </li>
-                    )}
 
-                    {searchResults.data.deliverables && (
-                      <li className="text-xs md:text-sm hidden md:flex font-semibold">
-                        Deliverable:
-                        <span className="font-normal md:text-sm text-xs">
-                          {searchResults.data.deliverables[0]}
+                  <div className="flex flex-wrap gap-y-2 gap-x-3 items-center">
+                    {searchResults.data.urgency && (
+                      <div className="flex items-center">
+                        <Label>Urgency</Label>
+                        <span
+                          className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${getUrgencyColor(
+                            searchResults.data.urgency || "LOW"
+                          )}`}
+                        >
+                          {searchResults.data.urgency}
                         </span>
-                      </li>
+                      </div>
                     )}
-                  </ul>
+                    
+                    {searchResults.data.requiredSkills && searchResults.data.requiredSkills.length > 0 && (
+                      <div className="flex items-center flex-wrap">
+                        <Label>Skills</Label>
+                        {searchResults.data.requiredSkills.map((skill, index) => (
+                          <Tag key={index}>{skill}</Tag>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {searchResults.data.deadline && (
+                      <div className="flex items-center">
+                        <Label>Deadline</Label>
+                        <span className="text-xs md:text-sm">
+                          {new Date(searchResults.data.deadline).toLocaleDateString()}
+                        </span>
+                      </div>
+                    )}
+                    
+                    {searchResults.data.category && searchResults.data.category.length > 0 && (
+                      <div className="flex items-center flex-wrap">
+                        <Label>Category</Label>
+                        {searchResults.data.category.map((category, index) => (
+                          <Tag key={index}>{category}</Tag>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {searchResults.data.estimatedHours && (
+                      <div className="flex items-center">
+                        <Label>Est. Hours</Label>
+                        <span className="text-xs md:text-sm">{searchResults.data.estimatedHours}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </button>
@@ -163,71 +159,64 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
 
       case "skillanthropy_users":
         if (searchResults.all || searchResults.users) {
+          if (!searchResults.data?.roles || !searchResults.data.roles[0]) {
+            return null;
+          }
+          
           return (
-            <>
-              {searchResults.data?.roles[0] && (
-                <button
-                  className="flex text-left items-center bg-basePrimaryDark rounded-md mb-2 hover:bg-basePrimaryLight w-full p-2"
-                  onClick={() => navigate(`/profile/${searchResults.data.id}`)}
-                >
-                  {/* mobile view component */}
-                  <div
-                    className="flex  text-left items-center m-auto  rounded-md space-x-2 hover:bg-basePrimaryLight w-full p-2 md:font-semibold"
-                    // onClick={() => handleSelectedSearchItem(searchResults.data)}
-                  >
-                    <span>
-                      <User size={24} weight="regular" />
-                    </span>
-                    <div>
-                      <p className="font-semibold md:text-lg">
-                        {searchResults.data.name}
-                      </p>
-                      <p className="text-xs md:text-sm mb-1">
-                        {searchResults.data.userTitle}
-                      </p>
+            <button
+              className="flex text-left items-start bg-basePrimaryDark rounded-md mb-2 hover:bg-basePrimaryLight w-full p-3 transition-colors duration-200"
+              onClick={() => navigate(`/profile/${searchResults.data.id}`)}
+            >
+              <div className="flex text-left items-start space-x-3 w-full">
+                <span className="mt-1 text-baseSecondary">
+                  <User size={28} weight="regular" />
+                </span>
+                <div className="flex-1">
+                  <p className="font-semibold text-lg md:text-xl text-baseSecondary">
+                    {searchResults.data.name}
+                  </p>
+                  <p className="text-xs md:text-sm mb-2">
+                    {searchResults.data.userTitle || "Volunteer"}
+                  </p>
 
-                      <ul className="flex gap-2  items-center">
-                        {searchResults.data?.roles[0] && (
-                          <li className="text-xs md:text-sm font-semibold">
-                            Type:
-                            <span className="font-normal md:text-sm ml-1 text-xs">
-                              {searchResults.data.roles[0]
-                                ?.charAt(0)
-                                ?.toUpperCase() +
-                                searchResults.data.roles[0]
-                                  ?.slice(1)
-                                  ?.toLowerCase()}
-                            </span>
-                          </li>
-                        )}
-                        {searchResults.data.skills && (
-                          <li className="text-xs md:text-sm space-x-1 font-semibold">
-                            Skills:
-                            {searchResults.data?.skills.map((skill, index) => (
-                              <span
-                                key={index}
-                                className="rounded-sm  md:text-sm font-semibold  bg-basePrimaryLight px-1 text-[12px]"
-                              >
-                                {skill}
-                              </span>
-                            ))}
-                          </li>
-                        )}
-                      </ul>
-                    </div>
+                  <div className="flex flex-wrap gap-y-2 gap-x-3 items-center">
+                    {searchResults.data.roles && searchResults.data.roles.length > 0 && (
+                      <div className="flex items-center">
+                        <Label>Role</Label>
+                        <span className="text-xs md:text-sm capitalize">
+                          {searchResults.data.roles[0].toLowerCase()}
+                        </span>
+                      </div>
+                    )}
+                    
+                    {searchResults.data.skills && searchResults.data.skills.length > 0 && (
+                      <div className="flex items-center flex-wrap">
+                        <Label>Skills</Label>
+                        {searchResults.data.skills.map((skill, index) => (
+                          <Tag key={index}>{skill}</Tag>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {searchResults.data.bio && (
+                      <div className="hidden md:block w-full mt-1">
+                        <span className="text-xs line-clamp-1">{searchResults.data.bio}</span>
+                      </div>
+                    )}
                   </div>
-
-                  {/* laptop/desktop screen component */}
-                </button>
-              )}
-            </>
+                </div>
+              </div>
+            </button>
           );
         }
         break;
 
       default:
-        return <div>No search results found</div>;
+        return <div className="p-4 text-center">No search results found</div>;
     }
+    return null;
   };
+  
   return <>{renderSearchResult()}</>;
 }
