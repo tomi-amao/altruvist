@@ -31,6 +31,7 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
     try {
       return new URL(url).hostname;
     } catch (e) {
+      console.error("Invalid URL:", url, e);
       return url;
     }
   };
@@ -42,7 +43,9 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
           return (
             <button
               className="flex text-left items-start bg-basePrimaryDark rounded-md mb-2 hover:bg-basePrimaryLight w-full p-3 transition-colors duration-200"
-              onClick={() => searchResults.handleSelectedSearchItem(searchResults.data)}
+              onClick={() =>
+                searchResults.handleSelectedSearchItem(searchResults.data)
+              }
             >
               <div className="flex text-left items-start space-x-3 w-full">
                 <span className="mt-1 text-baseSecondary">
@@ -57,14 +60,15 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
                   </p>
 
                   <div className="flex flex-wrap gap-y-2 gap-x-3 items-center">
-                    {searchResults.data.tags && searchResults.data.tags.length > 0 && (
-                      <div className="flex items-center flex-wrap">
-                        <Label>Tags</Label>
-                        {searchResults.data.tags.map((tag, index) => (
-                          <Tag key={index}>{tag}</Tag>
-                        ))}
-                      </div>
-                    )}
+                    {searchResults.data.tags &&
+                      searchResults.data.tags.length > 0 && (
+                        <div className="flex items-center flex-wrap">
+                          <Label>Tags</Label>
+                          {searchResults.data.tags.map((tag, index) => (
+                            <Tag key={index}>{tag}</Tag>
+                          ))}
+                        </div>
+                      )}
 
                     {searchResults.data.website && (
                       <div className="flex items-center">
@@ -88,7 +92,9 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
           return (
             <button
               className="flex text-left items-start bg-basePrimaryDark rounded-md mb-2 hover:bg-basePrimaryLight w-full p-3 transition-colors duration-200"
-              onClick={() => searchResults.handleSelectedSearchItem(searchResults.data)}
+              onClick={() =>
+                searchResults.handleSelectedSearchItem(searchResults.data)
+              }
             >
               <div className="flex text-left items-start space-x-3 w-full">
                 <span className="mt-1 text-baseSecondary">
@@ -108,45 +114,55 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
                         <Label>Urgency</Label>
                         <span
                           className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${getUrgencyColor(
-                            searchResults.data.urgency || "LOW"
+                            searchResults.data.urgency || "LOW",
                           )}`}
                         >
                           {searchResults.data.urgency}
                         </span>
                       </div>
                     )}
-                    
-                    {searchResults.data.requiredSkills && searchResults.data.requiredSkills.length > 0 && (
-                      <div className="flex items-center flex-wrap">
-                        <Label>Skills</Label>
-                        {searchResults.data.requiredSkills.map((skill, index) => (
-                          <Tag key={index}>{skill}</Tag>
-                        ))}
-                      </div>
-                    )}
-                    
+
+                    {searchResults.data.requiredSkills &&
+                      searchResults.data.requiredSkills.length > 0 && (
+                        <div className="flex items-center flex-wrap">
+                          <Label>Skills</Label>
+                          {searchResults.data.requiredSkills.map(
+                            (skill, index) => (
+                              <Tag key={index}>{skill}</Tag>
+                            ),
+                          )}
+                        </div>
+                      )}
+
                     {searchResults.data.deadline && (
                       <div className="flex items-center">
                         <Label>Deadline</Label>
                         <span className="text-xs md:text-sm">
-                          {new Date(searchResults.data.deadline).toLocaleDateString()}
+                          {new Date(
+                            searchResults.data.deadline,
+                          ).toLocaleDateString()}
                         </span>
                       </div>
                     )}
-                    
-                    {searchResults.data.category && searchResults.data.category.length > 0 && (
-                      <div className="flex items-center flex-wrap">
-                        <Label>Category</Label>
-                        {searchResults.data.category.map((category, index) => (
-                          <Tag key={index}>{category}</Tag>
-                        ))}
-                      </div>
-                    )}
-                    
+
+                    {searchResults.data.category &&
+                      searchResults.data.category.length > 0 && (
+                        <div className="flex items-center flex-wrap">
+                          <Label>Category</Label>
+                          {searchResults.data.category.map(
+                            (category, index) => (
+                              <Tag key={index}>{category}</Tag>
+                            ),
+                          )}
+                        </div>
+                      )}
+
                     {searchResults.data.estimatedHours && (
                       <div className="flex items-center">
                         <Label>Est. Hours</Label>
-                        <span className="text-xs md:text-sm">{searchResults.data.estimatedHours}</span>
+                        <span className="text-xs md:text-sm">
+                          {searchResults.data.estimatedHours}
+                        </span>
                       </div>
                     )}
                   </div>
@@ -162,7 +178,7 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
           if (!searchResults.data?.roles || !searchResults.data.roles[0]) {
             return null;
           }
-          
+
           return (
             <button
               className="flex text-left items-start bg-basePrimaryDark rounded-md mb-2 hover:bg-basePrimaryLight w-full p-3 transition-colors duration-200"
@@ -181,27 +197,31 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
                   </p>
 
                   <div className="flex flex-wrap gap-y-2 gap-x-3 items-center">
-                    {searchResults.data.roles && searchResults.data.roles.length > 0 && (
-                      <div className="flex items-center">
-                        <Label>Role</Label>
-                        <span className="text-xs md:text-sm capitalize">
-                          {searchResults.data.roles[0].toLowerCase()}
-                        </span>
-                      </div>
-                    )}
-                    
-                    {searchResults.data.skills && searchResults.data.skills.length > 0 && (
-                      <div className="flex items-center flex-wrap">
-                        <Label>Skills</Label>
-                        {searchResults.data.skills.map((skill, index) => (
-                          <Tag key={index}>{skill}</Tag>
-                        ))}
-                      </div>
-                    )}
-                    
+                    {searchResults.data.roles &&
+                      searchResults.data.roles.length > 0 && (
+                        <div className="flex items-center">
+                          <Label>Role</Label>
+                          <span className="text-xs md:text-sm capitalize">
+                            {searchResults.data.roles[0].toLowerCase()}
+                          </span>
+                        </div>
+                      )}
+
+                    {searchResults.data.skills &&
+                      searchResults.data.skills.length > 0 && (
+                        <div className="flex items-center flex-wrap">
+                          <Label>Skills</Label>
+                          {searchResults.data.skills.map((skill, index) => (
+                            <Tag key={index}>{skill}</Tag>
+                          ))}
+                        </div>
+                      )}
+
                     {searchResults.data.bio && (
                       <div className="hidden md:block w-full mt-1">
-                        <span className="text-xs line-clamp-1">{searchResults.data.bio}</span>
+                        <span className="text-xs line-clamp-1">
+                          {searchResults.data.bio}
+                        </span>
                       </div>
                     )}
                   </div>
@@ -217,6 +237,6 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
     }
     return null;
   };
-  
+
   return <>{renderSearchResult()}</>;
 }

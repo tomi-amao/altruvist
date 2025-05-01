@@ -127,8 +127,8 @@ const DataTable = ({
         <div className="flex items-center justify-between px-4 py-3 bg-white border-t">
           <div className="flex items-center gap-2">
             <span className="text-sm ">
-              Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
-              {Math.min(currentPage * itemsPerPage, data.length)} of{" "}
+              Showing {(currentPage - 1) * itemsPerPage + 1} to
+              {Math.min(currentPage * itemsPerPage, data.length)} of
               {data.length} entries
             </span>
           </div>

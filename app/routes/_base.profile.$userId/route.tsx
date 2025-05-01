@@ -1,5 +1,10 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { MetaFunction, useLoaderData, Link, useFetcher } from "@remix-run/react";
+import {
+  MetaFunction,
+  useLoaderData,
+  Link,
+  useFetcher,
+} from "@remix-run/react";
 import { getProfileInfo, getUserInfo } from "~/models/user2.server";
 import { getSession } from "~/services/session.server";
 import DataTable from "~/components/cards/DataTable";
@@ -19,7 +24,6 @@ import {
   ChartBar,
   FileText,
   Buildings,
-  Plus,
 } from "@phosphor-icons/react";
 import { getSignedUrlForFile } from "~/services/s3.server";
 import { Alert } from "~/components/utils/Alert";
@@ -44,11 +48,15 @@ export default function ProfilePage() {
   const [selectedTask, setSelectedTask] = useState<CombinedCollections>();
   const [leaveError, setLeaveError] = useState<string | null>(null);
   const [showAlert, setShowAlert] = useState(false);
-  const [alertData, setAlertData] = useState<{ charityId: string; charityName: string } | null>(null);
+  const [alertData, setAlertData] = useState<{
+    charityId: string;
+    charityName: string;
+  } | null>(null);
 
   const fetcher = useFetcher();
   const leavingCharityId =
-    fetcher.state === "submitting" && fetcher.formData?.get("action") === "leave"
+    fetcher.state === "submitting" &&
+    fetcher.formData?.get("action") === "leave"
       ? (fetcher.formData.get("charityId") as string)
       : null;
 
@@ -96,7 +104,7 @@ export default function ProfilePage() {
         {
           method: "post",
           action: "/api/charity-membership",
-        }
+        },
       );
     }
     setShowAlert(false);
@@ -159,8 +167,6 @@ export default function ProfilePage() {
               {FEATURE_FLAG && !isMyProfile && (
                 <PrimaryButton text="Message" ariaLabel="Send a message" />
               )}
-
-
             </div>
           </div>
         </div>
@@ -224,7 +230,7 @@ export default function ProfilePage() {
                             {isMyProfile && (
                               <div className="flex items-center">
                                 <span className="text-xs text-baseSecondary/60 mr-2">
-                                  Joined{" "}
+                                  Joined
                                   {new Date(
                                     membership.joinedAt,
                                   ).toLocaleDateString()}
@@ -482,7 +488,7 @@ export default function ProfilePage() {
                 <span className="bg-basePrimary rounded-full px-3 py-1 text-sm font-medium text-baseSecondary">
                   {(isCharity
                     ? createdTasks?.length
-                    : completedTasks?.length) || 0}{" "}
+                    : completedTasks?.length) || 0}
                   Tasks
                 </span>
               </div>

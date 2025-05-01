@@ -52,7 +52,9 @@ export async function action({ request }: ActionFunctionArgs) {
     const charityAdmin = charityMemberships?.memberships?.find(
       (membership) =>
         membership.charityId === charityId &&
-        membership.roles.some(role => ["admin", "editor", "volunteer"].includes(role)),
+        membership.roles.some((role) =>
+          ["admin", "editor", "volunteer"].includes(role),
+        ),
     );
 
     if (!charityAdmin) {

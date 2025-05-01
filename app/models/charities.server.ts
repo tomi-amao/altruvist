@@ -1,8 +1,4 @@
-import {
-  charities,
-  type Prisma,
-  type charityMemberships,
-} from "@prisma/client";
+import { charities, ApplicationStatus, type Prisma } from "@prisma/client";
 import { prisma } from "~/services/db.server";
 import {
   INDICES,
@@ -290,7 +286,7 @@ export const getCharityMemberships = async ({
 }) => {
   try {
     // Build the where clause based on what was provided
-    const where: any = {};
+    const where: Prisma.charityMembershipsWhereInput = {};
     if (userId) where.userId = userId;
     if (charityId) where.charityId = charityId;
 
@@ -496,7 +492,7 @@ export const getCharityApplications = async ({
 }) => {
   try {
     // Build the where clause based on what was provided
-    const where: any = {};
+    const where: Prisma.charityApplicationsWhereInput = {};
     if (userId) where.userId = userId;
     if (charityId) where.charityId = charityId;
     if (status) where.status = status;

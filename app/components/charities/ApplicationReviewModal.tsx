@@ -3,11 +3,12 @@ import { useState } from "react";
 import { format } from "date-fns";
 import { PrimaryButton, SecondaryButton } from "~/components/utils/BasicButton";
 import { Modal } from "~/components/utils/Modal2";
+import type { CharityApplication } from "~/types/charities";
 
 type ApplicationReviewModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  selectedApplication: any;
+  selectedApplication: CharityApplication;
   onSubmitReview: (decision: "ACCEPTED" | "REJECTED", note: string) => void;
   isSubmitting: boolean;
 };
@@ -102,10 +103,13 @@ export function ApplicationReviewModal({
         </div>
 
         <div className="mb-6">
-          <label className="block text-baseSecondary font-medium mb-2">
+          <label
+            htmlFor="reviewDecision"
+            className="block text-baseSecondary font-medium mb-2"
+          >
             Decision
           </label>
-          <div className="flex gap-3">
+          <div className="flex gap-3" id="reviewDecision">
             <button
               type="button"
               className={`flex-1 px-4 py-3 rounded-lg border ${
@@ -159,13 +163,13 @@ export function ApplicationReviewModal({
             text="Cancel"
             action={handleClose}
             ariaLabel="Cancel review"
-            disabled={isSubmitting}
+            isDisabled={isSubmitting}
           />
           <PrimaryButton
             text={isSubmitting ? "Submitting..." : "Submit Decision"}
             action={handleSubmit}
             ariaLabel="Submit application review"
-            disabled={isSubmitting || !reviewDecision}
+            isDisabled={isSubmitting || !reviewDecision}
           />
         </div>
       </div>

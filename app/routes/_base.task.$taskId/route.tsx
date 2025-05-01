@@ -1,11 +1,10 @@
-import { json, redirect, MetaFunction } from "@remix-run/node";
+import { json, MetaFunction } from "@remix-run/node";
 import { useLoaderData, useNavigation, Link } from "@remix-run/react";
 import { getTask } from "~/models/tasks.server";
 import TaskDetailsCard from "~/components/tasks/taskDetailsCard";
 import { getSession } from "~/services/session.server";
 import { getUserInfo } from "~/models/user2.server";
 import { ArrowLeft } from "@phosphor-icons/react";
-import { useViewport } from "~/hooks/useViewport";
 
 export const meta: MetaFunction = ({ data }) => {
   return [

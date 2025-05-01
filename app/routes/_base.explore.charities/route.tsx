@@ -1,5 +1,5 @@
 import { json, LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData, useNavigate, Link } from "@remix-run/react";
+import { useLoaderData, Link } from "@remix-run/react";
 import { useState, useEffect } from "react";
 import { getSession } from "~/services/session.server";
 import { getUserInfo } from "~/models/user2.server";
@@ -11,12 +11,27 @@ import { Dropdown } from "~/components/utils/selectDropdown";
 import {
   Buildings,
   MagnifyingGlass,
-  FunnelSimple,
   X,
   TagSimple,
   Globe,
 } from "@phosphor-icons/react";
 import { getTags } from "~/constants/dropdownOptions";
+import { charities as Charity } from "@prisma/client";
+// Extended charity type with signed background picture
+// Making nullable properties compatible with the loader data
+interface ExtendedCharity
+  extends Omit<
+    Charity,
+    "website" | "contactPerson" | "contactEmail" | "backgroundPicture" | "createdAt" | "updatedAt"
+  > {
+  website: string | null;
+  contactPerson: string | null;
+  contactEmail: string | null;
+  backgroundPicture: string | null;
+  signedBackgroundPicture?: string | null;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
 
 export const meta = () => {
   return [{ title: "Explore Charities | Altruist" }];
@@ -27,7 +42,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const accessToken = session.get("accessToken");
 
   // Check if user is logged in
-  const { userInfo, charityMemberships } = await getUserInfo(accessToken);
+  const { userInfo, charityMemberships } = await getUserInfo(accessToken || "");
 
   // Get list of all charities
   const { charities } = await listCharities();
@@ -60,16 +75,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function ExploreCharities() {
-  const { userInfo, charities, charityMemberships, FEATURE_FLAG } =
+  const { userInfo, charities, charityMemberships } =
     useLoaderData<typeof loader>();
-  const navigate = useNavigate();
 
   // States
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [filteredCharities, setFilteredCharities] = useState(charities || []);
+  const [filteredCharities, setFilteredCharities] = useState<ExtendedCharity[]>(
+    charities as ExtendedCharity[],
+  );
   const [showJoinModal, setShowJoinModal] = useState(false);
-  const [selectedCharity, setSelectedCharity] = useState<any>(null);
+  const [selectedCharity, setSelectedCharity] =
+    useState<ExtendedCharity | null>(null);
   const [dropdownActive, setDropdownActive] = useState(false); // Add state for dropdown toggle
   const availableCategories = getTags("charityCategories");
 
@@ -95,7 +112,7 @@ export default function ExploreCharities() {
       );
     }
 
-    setFilteredCharities(result);
+    setFilteredCharities(result as ExtendedCharity[]);
   }, [searchTerm, selectedCategories, charities]);
 
   // Handle category selection from dropdown
@@ -116,7 +133,7 @@ export default function ExploreCharities() {
   };
 
   // Handle join charity button click
-  const handleJoinCharity = (charity: any) => {
+  const handleJoinCharity = (charity: ExtendedCharity) => {
     setSelectedCharity(charity);
     setShowJoinModal(true);
   };
@@ -211,7 +228,7 @@ export default function ExploreCharities() {
       {/* Results section */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredCharities.length > 0 ? (
-          filteredCharities.map((charity: any) => (
+          filteredCharities.map((charity: ExtendedCharity) => (
             <div
               key={charity.id}
               className="bg-basePrimaryLight rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"

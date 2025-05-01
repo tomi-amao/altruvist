@@ -15,15 +15,10 @@ import { Modal } from "~/components/utils/Modal2";
 import { CombinedCollections } from "~/types/tasks";
 import CharityTasksSection from "~/components/tasks/CharityTasksSection";
 import {
-  Buildings,
   Globe,
-  MapPin,
-  Phone,
   Envelope,
   User,
   Calendar,
-  TagSimple,
-  CaretRight,
   Plus,
   Clock,
   ClipboardText,
@@ -31,10 +26,6 @@ import {
   PuzzlePiece,
   CalendarCheck,
   Target,
-  Bookmark,
-  Hash,
-  ArrowUp,
-  ArrowDown,
 } from "@phosphor-icons/react";
 import { formatDistanceToNow, format } from "date-fns";
 
@@ -164,7 +155,6 @@ export default function CharityDetailPage() {
     isMember,
     userMembership,
     stats,
-    FEATURE_FLAG,
     taskApplications,
     signedBackgroundPicture,
   } = useLoaderData<typeof loader>();
@@ -173,12 +163,40 @@ export default function CharityDetailPage() {
   const [selectedTask, setSelectedTask] = useState<CombinedCollections | null>(
     null,
   );
-  const [taskSortOrder, setTaskSortOrder] = useState<"asc" | "desc">("desc");
-  const [taskFilter, setTaskFilter] = useState<string | null>(null);
-  const [localMembership, setLocalMembership] = useState<boolean>(isMember);
-  const [userRoles, setUserRoles] = useState<string[]>(
-    userMembership?.roles || [],
+  const [localMembership] = useState<boolean>(isMember);
+  const [userRoles] = useState<string[]>(userMembership?.roles || []);
+
+  // Extract unique required skills from active tasks - moved before conditional return
+  const activeTasks = useMemo(
+    () =>
+      charityTasks?.filter(
+        (task) => task.status !== "COMPLETED" && task.status !== "CANCELLED",
+      ) || [],
+    [charityTasks],
   );
+
+  const requiredSkills = useMemo(() => {
+    const skillsSet = new Set<string>();
+
+    activeTasks.forEach((task) => {
+      if (task.requiredSkills && Array.isArray(task.requiredSkills)) {
+        task.requiredSkills.forEach((skill) => skillsSet.add(skill));
+      }
+    });
+
+    return Array.from(skillsSet);
+  }, [activeTasks]);
+
+  // Handle opening the task details modal
+  const handleTaskClick = (task: CombinedCollections) => {
+    setSelectedTask(task);
+    setShowTaskModal(true);
+  };
+
+  // Close the task details modal
+  const handleCloseTaskModal = () => {
+    setShowTaskModal(false);
+  };
 
   // Handle case where charity is not found
   if (!charity) {
@@ -195,59 +213,6 @@ export default function CharityDetailPage() {
   const formattedCreatedDate = charity.createdAt
     ? format(new Date(charity.createdAt), "MMMM d, yyyy")
     : null;
-
-  // Handle opening the task details modal
-  const handleTaskClick = (task: CombinedCollections) => {
-    setSelectedTask(task);
-    setShowTaskModal(true);
-  };
-
-  // Close the task details modal
-  const handleCloseTaskModal = () => {
-    setShowTaskModal(false);
-  };
-
-  // Handle successful charity join
-  // Filter and sort tasks
-  const filteredTasks = charityTasks
-    ? [...charityTasks].filter((task) => {
-        if (!taskFilter) return true;
-        if (taskFilter === "active")
-          return task.status !== "COMPLETED" && task.status !== "CANCELLED";
-        if (taskFilter === "completed") return task.status === "COMPLETED";
-        return true;
-      })
-    : [];
-
-  // Sort tasks by creation date
-  const sortedTasks = filteredTasks.sort((a, b) => {
-    const dateA = new Date(a.createdAt).getTime();
-    const dateB = new Date(b.createdAt).getTime();
-    return taskSortOrder === "desc" ? dateB - dateA : dateA - dateB;
-  });
-
-  // Toggle task sort order
-  const toggleSortOrder = () => {
-    setTaskSortOrder((prev) => (prev === "desc" ? "asc" : "desc"));
-  };
-
-  // Extract unique required skills from active tasks
-  const activeTasks =
-    charityTasks?.filter(
-      (task) => task.status !== "COMPLETED" && task.status !== "CANCELLED",
-    ) || [];
-
-  const requiredSkills = useMemo(() => {
-    const skillsSet = new Set<string>();
-
-    activeTasks.forEach((task) => {
-      if (task.requiredSkills && Array.isArray(task.requiredSkills)) {
-        task.requiredSkills.forEach((skill) => skillsSet.add(skill));
-      }
-    });
-
-    return Array.from(skillsSet);
-  }, [activeTasks]);
 
   return (
     <div className="max-w-6xl mx-auto pb-12">
@@ -482,7 +447,7 @@ export default function CharityDetailPage() {
                   <span className="font-medium">Status:</span> Active member
                 </p>
                 <p className="text-baseSecondary mb-2">
-                  <span className="font-medium">Joined:</span>{" "}
+                  <span className="font-medium">Joined:</span>
                   {userMembership?.joinedAt
                     ? format(new Date(userMembership.joinedAt), "MMMM d, yyyy")
                     : "Date not available"}
@@ -558,40 +523,42 @@ export default function CharityDetailPage() {
         />
 
         {/* CTA Section */}
-        {userInfo && !localMembership && (<div className="bg-baseSecondary rounded-xl overflow-hidden shadow-sm">
-          <div className="p-6 md:p-8 text-center">
-            <h2 className="text-2xl font-bold text-basePrimaryLight mb-4">
-              Ready to Make a Difference?
-            </h2>
-            <p className="text-basePrimaryLight/90 mb-6 max-w-2xl mx-auto">
-              Join {charity.name} today and start contributing your skills to
-              meaningful projects that make a real impact.
-            </p>
-            <div className="flex flex-wrap gap-4 justify-center">
-              {userInfo && isVolunteer && !localMembership ? (
+        {userInfo && !localMembership && (
+          <div className="bg-baseSecondary rounded-xl overflow-hidden shadow-sm">
+            <div className="p-6 md:p-8 text-center">
+              <h2 className="text-2xl font-bold text-basePrimaryLight mb-4">
+                Ready to Make a Difference?
+              </h2>
+              <p className="text-basePrimaryLight/90 mb-6 max-w-2xl mx-auto">
+                Join {charity.name} today and start contributing your skills to
+                meaningful projects that make a real impact.
+              </p>
+              <div className="flex flex-wrap gap-4 justify-center">
+                {userInfo && isVolunteer && !localMembership ? (
+                  <button
+                    onClick={() => setShowJoinModal(true)}
+                    className="px-6 py-3 bg-accentPrimary hover:bg-accentPrimaryDark text-baseSecondary rounded-lg transition-colors"
+                  >
+                    Join Now
+                  </button>
+                ) : !userInfo ? (
+                  <Link
+                    to="/zitlogin"
+                    className="px-6 py-3 bg-accentPrimary hover:bg-accentPrimaryDark text-baseSecondary rounded-lg transition-colors"
+                  >
+                    Sign In to Join
+                  </Link>
+                ) : null}
                 <button
                   onClick={() => setShowJoinModal(true)}
-                  className="px-6 py-3 bg-accentPrimary hover:bg-accentPrimaryDark text-baseSecondary rounded-lg transition-colors"
+                  className="px-6 py-3 font-medium bg-accentPrimary hover:bg-accentPrimary/90 text-baseSecondary rounded-lg transition-colors"
                 >
-                  Join Now
+                  Lend a Hand
                 </button>
-              ) : !userInfo ? (
-                <Link
-                  to="/zitlogin"
-                  className="px-6 py-3 bg-accentPrimary hover:bg-accentPrimaryDark text-baseSecondary rounded-lg transition-colors"
-                >
-                  Sign In to Join
-                </Link>
-              ) : null}
-              <button
-                onClick={() => setShowJoinModal(true)}
-                className="px-6 py-3 font-medium bg-accentPrimary hover:bg-accentPrimary/90 text-baseSecondary rounded-lg transition-colors"
-              >
-                Lend a Hand
-              </button>
+              </div>
             </div>
           </div>
-        </div>)}
+        )}
       </div>
 
       {/* Join Charity Modal */}

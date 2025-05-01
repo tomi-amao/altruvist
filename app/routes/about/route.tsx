@@ -1,7 +1,6 @@
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { motion } from "framer-motion";
-import { useState } from "react";
 import LandingHeader from "~/components/navigation/LandingHeader";
 import Footer from "~/components/navigation/Footer";
 

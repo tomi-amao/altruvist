@@ -1,4 +1,4 @@
-import { Form, useActionData, useNavigation } from "@remix-run/react";
+import { Form } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import {
@@ -22,12 +22,23 @@ interface CharityFormProps {
     tags: string[];
     backgroundPicture: string;
   };
-  onSubmit?: (formData: any) => void;
+  onSubmit?: (formData: CharityFormData) => void;
   onCancel?: () => void;
   uploadURL?: string;
   isSubmitting?: boolean;
   serverValidationErrors?: Array<{ field: string; message?: string }>;
   COMPANION_URL?: string;
+}
+
+interface CharityFormData {
+  name: string;
+  description: string;
+  website: string;
+  contactEmail: string;
+  contactPerson: string;
+  tags: string[];
+  backgroundPicture: string;
+  [key: string]: string | string[];
 }
 
 export default function CharityForm({
@@ -42,12 +53,11 @@ export default function CharityForm({
   },
   onSubmit,
   onCancel,
-  uploadURL,
   isSubmitting = false,
   serverValidationErrors = [],
   COMPANION_URL,
 }: CharityFormProps) {
-  const [charityFormData, setCharityFormData] = useState({
+  const [charityFormData, setCharityFormData] = useState<CharityFormData>({
     name: initialData.name || "",
     description: initialData.description || "",
     website: initialData.website || "",
@@ -85,7 +95,9 @@ export default function CharityForm({
   };
 
   // Handle file upload for background picture
-  const handleUploadedBackgroundPicture = (successfulFiles: any[]) => {
+  const handleUploadedBackgroundPicture = (
+    successfulFiles: Array<{ uploadURL: string }>,
+  ) => {
     successfulFiles.map((upload) =>
       setCharityFormData((prev) => ({
         ...prev,
@@ -171,14 +183,12 @@ export default function CharityForm({
               <p className="text-baseSecondary/70 mb-4">
                 Upload a background image for your charity's profile
               </p>
-                <FileUpload
-                  uppyId="charityBackground"
-                  formTarget="#uploadCharityBackground"
-                  onUploadedFile={handleUploadedBackgroundPicture}
-                  uploadURL={COMPANION_URL}
-                  
-                  
-                />
+              <FileUpload
+                uppyId="charityBackground"
+                formTarget="#uploadCharityBackground"
+                onUploadedFile={handleUploadedBackgroundPicture}
+                uploadURL={COMPANION_URL}
+              />
             </div>
           )}
         </div>

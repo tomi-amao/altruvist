@@ -7,7 +7,6 @@ import {
   useSearchParams,
 } from "@remix-run/react";
 import { motion, AnimatePresence } from "framer-motion";
-import type { TaskListData } from "~/types/tasks";
 import { useTaskFiltering } from "~/hooks/useTaskFiltering";
 import { TaskList } from "~/components/tasks/TaskList";
 import { TaskSearchFilter } from "~/components/tasks/TaskSearchFilter";

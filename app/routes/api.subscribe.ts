@@ -1,7 +1,6 @@
 import { json } from "@remix-run/node";
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { z } from "zod";
-import { getEmailServiceVars } from "~/services/env.server";
 import { verifyReCaptchaToken } from "~/services/recaptcha.server";
 
 // Email validation schema with GDPR consent and reCAPTCHA token

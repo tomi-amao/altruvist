@@ -1,6 +1,4 @@
-import {
-  MetaFunction,
-} from "@remix-run/node";
+import { MetaFunction } from "@remix-run/node";
 import {
   useFetcher,
   useLoaderData,
@@ -24,12 +22,27 @@ import {
   type Charity,
   type CharityApplication,
   type CharityMembership,
+  type CharityTask,
 } from "~/types/charities";
 import CharityForm from "~/components/charities/CharityForm";
 
 // Import loader and action
-import { loader } from './loader';
-import { action } from './action';
+import { loader } from "./loader";
+import { action } from "./action";
+
+// Define task interface
+
+// Define charity form data interface
+interface CharityFormData {
+  name: string;
+  description: string;
+  mission?: string;
+  backgroundPicture?: string | null;
+  website?: string;
+  socialMedia?: Record<string, string>;
+  location?: string;
+  [key: string]: unknown;
+}
 
 export { loader, action };
 
@@ -42,10 +55,6 @@ export const meta: MetaFunction = () => {
 
 export default function ManageCharities() {
   const {
-    userInfo,
-    userRole,
-    userId,
-    userCharities,
     adminCharities,
     charities: initialCharities,
     pendingApplications,
@@ -62,7 +71,7 @@ export default function ManageCharities() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [selectedCharityId, setSelectedCharityId] = useState<string | null>(
-    () => searchParams.get("charityid") || null
+    () => searchParams.get("charityid") || null,
   );
   const [isDetailsView, setIsDetailsView] = useState(false);
   const [activeTab, setActiveTab] = useState<
@@ -70,25 +79,29 @@ export default function ManageCharities() {
   >("details");
 
   // Application modal state
-  const [selectedApplication, setSelectedApplication] = useState<CharityApplication | null>(null);
+  const [selectedApplication, setSelectedApplication] =
+    useState<CharityApplication | null>(null);
   const [showApplicationModal, setShowApplicationModal] = useState(false);
 
   // Resource states with loading indicators
-  const [signedBackgroundUrl, setSignedBackgroundUrl] = useState<string | undefined>(undefined);
-  const [charityTasks, setCharityTasks] = useState<any[]>([]);
+  const [signedBackgroundUrl, setSignedBackgroundUrl] = useState<
+    string | undefined
+  >(undefined);
+  const [charityTasks, setCharityTasks] = useState<CharityTask[]>([]);
   const [charityMembers, setCharityMembers] = useState<CharityMembership[]>([]);
-  
+
   // Loading states consolidated
   const [isLoading, setIsLoading] = useState({
     charity: false,
     tasks: false,
     members: false,
-    initialLoaded: false
+    initialLoaded: false,
   });
 
   // Combined loading state for UI
-  const isPageLoading = !isLoading.initialLoaded && 
-                      (isLoading.charity || isLoading.tasks || isLoading.members);
+  const isPageLoading =
+    !isLoading.initialLoaded &&
+    (isLoading.charity || isLoading.tasks || isLoading.members);
 
   // Handle URL updates
   useEffect(() => {
@@ -100,9 +113,12 @@ export default function ManageCharities() {
   }, [searchParams, navigate]);
 
   // Find selected charity from charities array
-  const selectedCharity = useMemo(() => 
-    selectedCharityId ? initialCharities.find((c) => c.id === selectedCharityId) : null, 
-    [initialCharities, selectedCharityId]
+  const selectedCharity = useMemo(
+    () =>
+      selectedCharityId
+        ? initialCharities.find((c) => c.id === selectedCharityId)
+        : null,
+    [initialCharities, selectedCharityId],
   );
 
   // Fetch required data when charity selection changes
@@ -116,18 +132,19 @@ export default function ManageCharities() {
 
     const fetchCharityData = async () => {
       // Track loading states
-      setIsLoading(prev => ({...prev, 
+      setIsLoading((prev) => ({
+        ...prev,
         charity: !!selectedCharity?.backgroundPicture,
         tasks: true,
-        members: true
+        members: true,
       }));
 
       // Fetch tasks and members in parallel
       const [tasksPromise, membersPromise] = [
         fetch(`/api/charities/${selectedCharityId}/tasks`),
-        fetch(`/api/charities/${selectedCharityId}/members`)
+        fetch(`/api/charities/${selectedCharityId}/members`),
       ];
-      
+
       // Fetch background URL if exists
       if (selectedCharity?.backgroundPicture) {
         try {
@@ -145,11 +162,11 @@ export default function ManageCharities() {
           console.error("Error fetching signed URL:", error);
           setSignedBackgroundUrl(undefined);
         } finally {
-          setIsLoading(prev => ({...prev, charity: false}));
+          setIsLoading((prev) => ({ ...prev, charity: false }));
         }
       } else {
         setSignedBackgroundUrl(undefined);
-        setIsLoading(prev => ({...prev, charity: false}));
+        setIsLoading((prev) => ({ ...prev, charity: false }));
       }
 
       // Process tasks response
@@ -165,7 +182,7 @@ export default function ManageCharities() {
         console.error("Error fetching charity tasks:", error);
         setCharityTasks([]);
       } finally {
-        setIsLoading(prev => ({...prev, tasks: false}));
+        setIsLoading((prev) => ({ ...prev, tasks: false }));
       }
 
       // Process members response
@@ -181,7 +198,11 @@ export default function ManageCharities() {
         console.error("Error fetching charity members:", error);
         setCharityMembers([]);
       } finally {
-        setIsLoading(prev => ({...prev, members: false, initialLoaded: true}));
+        setIsLoading((prev) => ({
+          ...prev,
+          members: false,
+          initialLoaded: true,
+        }));
       }
     };
 
@@ -189,11 +210,14 @@ export default function ManageCharities() {
   }, [selectedCharityId, selectedCharity]);
 
   // Filter applications for selected charity
-  const filteredApplications = useMemo(() => 
-    selectedCharityId 
-      ? pendingApplications.filter(app => app.charityId === selectedCharityId)
-      : [], 
-    [pendingApplications, selectedCharityId]
+  const filteredApplications = useMemo(
+    () =>
+      selectedCharityId
+        ? pendingApplications.filter(
+            (app) => app.charityId === selectedCharityId,
+          )
+        : [],
+    [pendingApplications, selectedCharityId],
   );
 
   // Handle charity selection
@@ -201,8 +225,8 @@ export default function ManageCharities() {
     setSelectedCharityId(charity.id);
     setIsEditing(false);
     setActiveTab("details");
-    setIsLoading(prev => ({...prev, initialLoaded: false}));
-    
+    setIsLoading((prev) => ({ ...prev, initialLoaded: false }));
+
     if (isMobile) {
       setIsDetailsView(true);
     }
@@ -210,17 +234,21 @@ export default function ManageCharities() {
 
   // Handle charity deletion
   const handleDeleteCharity = (charityId: string) => {
-    if (confirm("Are you sure you want to delete this charity? This action cannot be undone.")) {
+    if (
+      confirm(
+        "Are you sure you want to delete this charity? This action cannot be undone.",
+      )
+    ) {
       fetcher.submit(
         { _action: "deleteCharity", charityId },
-        { method: "POST" }
+        { method: "POST" },
       );
       setSelectedCharityId(null);
     }
   };
 
   // Handle charity create/update
-  const handleCharityFormSubmit = (formData: any) => {
+  const handleCharityFormSubmit = (formData: CharityFormData) => {
     if (isEditing && selectedCharity) {
       fetcher.submit(
         {
@@ -228,7 +256,7 @@ export default function ManageCharities() {
           charityId: selectedCharity.id,
           charityData: JSON.stringify(formData),
         },
-        { method: "POST" }
+        { method: "POST" },
       );
       setIsEditing(false);
     }
@@ -236,15 +264,20 @@ export default function ManageCharities() {
 
   // Handle member update
   const handleMemberUpdate = (updatedMember: CharityMembership) => {
-    setCharityMembers(prevMembers =>
-      prevMembers.map(member => 
-        member.id === updatedMember.id ? updatedMember : member
-      )
+    setCharityMembers((prevMembers) =>
+      prevMembers.map((member) =>
+        member.id === updatedMember.id ? updatedMember : member,
+      ),
     );
   };
 
   // Application review handlers
-  const handleReviewApplication = (applicationWithDecision: any) => {
+  const handleReviewApplication = (
+    applicationWithDecision: CharityApplication & {
+      decision: string;
+      reviewNote?: string;
+    },
+  ) => {
     if (!applicationWithDecision.decision) return;
 
     fetcher.submit(
@@ -254,12 +287,17 @@ export default function ManageCharities() {
         status: applicationWithDecision.decision,
         reviewNote: applicationWithDecision.reviewNote || undefined,
       },
-      { 
+      {
         method: "POST",
         replace: true,
-        preventScrollReset: true
-      }
+        preventScrollReset: true,
+      },
     );
+  };
+
+  const handleOpenApplication = (application: CharityApplication) => {
+    setSelectedApplication(application);
+    setShowApplicationModal(true);
   };
 
   const handleSubmitReview = (
@@ -275,22 +313,23 @@ export default function ManageCharities() {
         status: decision,
         reviewNote: reviewNote || undefined,
       },
-      { 
+      {
         method: "POST",
         replace: true,
-        preventScrollReset: true
-      }
+        preventScrollReset: true,
+      },
     );
 
     setShowApplicationModal(false);
   };
 
   // Check if user is admin of selected charity
-  const isAdminOfSelectedCharity = useMemo(() => 
-    selectedCharityId 
-      ? adminCharities.some(charity => charity.id === selectedCharityId)
-      : false, 
-    [selectedCharityId, adminCharities]
+  const isAdminOfSelectedCharity = useMemo(
+    () =>
+      selectedCharityId
+        ? adminCharities.some((charity) => charity.id === selectedCharityId)
+        : false,
+    [selectedCharityId, adminCharities],
   );
 
   return (
@@ -361,7 +400,9 @@ export default function ManageCharities() {
                 <div className="rounded-xl shadow-sm overflow-hidden flex-grow flex items-center justify-center p-12">
                   <div className="flex flex-col items-center">
                     <div className="w-10 h-10 border-4 border-baseSecondary/30 border-t-baseSecondary rounded-full animate-spin mb-4"></div>
-                    <p className="text-baseSecondary/80">Loading charity details...</p>
+                    <p className="text-baseSecondary/80">
+                      Loading charity details...
+                    </p>
                   </div>
                 </div>
               </div>
@@ -391,6 +432,7 @@ export default function ManageCharities() {
                       <ApplicationsList
                         applications={filteredApplications}
                         onReviewApplication={handleReviewApplication}
+                        onOpenApplication={handleOpenApplication}
                         isSubmitting={fetcher.state === "submitting"}
                       />
                     </div>
@@ -412,8 +454,8 @@ export default function ManageCharities() {
             <div className="flex items-center justify-center h-full text-baseSecondary p-8 rounded-xl">
               <div className="text-center">
                 <h3 className="text-xl font-medium mb-2">
-                  {initialCharities.length > 0 
-                    ? "Select a charity to view details" 
+                  {initialCharities.length > 0
+                    ? "Select a charity to view details"
                     : "No charities found"}
                 </h3>
                 <p className="text-baseSecondary/70 mb-4">

@@ -8,11 +8,17 @@ import {
 import { format } from "date-fns";
 import { PrimaryButton, SecondaryButton } from "~/components/utils/BasicButton";
 import { Modal } from "~/components/utils/Modal2";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import type { CharityApplication } from "~/types/charities";
 
 type ApplicationsListProps = {
-  applications: any[];
-  onReviewApplication: (application: any) => void;
+  applications: CharityApplication[];
+  onReviewApplication: (
+    application: CharityApplication & {
+      decision: "ACCEPTED" | "REJECTED";
+      reviewNote: string;
+    },
+  ) => void;
   isSubmitting: boolean;
 };
 
@@ -21,15 +27,15 @@ export function ApplicationsList({
   onReviewApplication,
   isSubmitting,
 }: ApplicationsListProps) {
-  const [selectedApplication, setSelectedApplication] = useState<any>(null);
+  const [selectedApplication, setSelectedApplication] =
+    useState<CharityApplication | null>(null);
   const [showApplicationModal, setShowApplicationModal] = useState(false);
   const [reviewDecision, setReviewDecision] = useState<
     "ACCEPTED" | "REJECTED" | null
   >(null);
   const [reviewNote, setReviewNote] = useState("");
 
-
-  const handleOpenReviewModal = (application: any) => {
+  const handleOpenReviewModal = (application: CharityApplication) => {
     setSelectedApplication(application);
     setReviewDecision(null);
     setReviewNote("");
@@ -95,12 +101,12 @@ export function ApplicationsList({
                   </div>
 
                   <p className="text-baseSecondary/70 mb-2">
-                    <span className="font-medium">Email:</span>{" "}
+                    <span className="font-medium">Email:</span>
                     {application.user.email}
                   </p>
 
                   <p className="text-baseSecondary/70 mb-2">
-                    <span className="font-medium">Roles:</span>{" "}
+                    <span className="font-medium">Roles:</span>
                     {application.roles.map((role: string) => (
                       <span
                         key={role}
@@ -112,7 +118,7 @@ export function ApplicationsList({
                   </p>
 
                   <p className="text-baseSecondary/70">
-                    <span className="font-medium">Applied:</span>{" "}
+                    <span className="font-medium">Applied:</span>
                     {format(
                       new Date(application.appliedAt),
                       "MMMM d, yyyy 'at' h:mm a",
@@ -216,10 +222,13 @@ export function ApplicationsList({
             </div>
 
             <div className="mb-6">
-              <label className="block text-baseSecondary font-medium mb-2">
+              <label
+                htmlFor="decision-buttons"
+                className="block text-baseSecondary font-medium mb-2"
+              >
                 Decision
               </label>
-              <div className="flex gap-3">
+              <div id="decision-buttons" className="flex gap-3">
                 <button
                   className={`flex-1 px-4 py-3 rounded-lg border ${
                     reviewDecision === "ACCEPTED"

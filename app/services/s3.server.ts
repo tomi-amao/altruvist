@@ -71,12 +71,14 @@ export async function getSignedUrlForFile(
   }
 
   const command = new GetObjectCommand({
-    Bucket: "skillanthropy-uploads",
+    Bucket: process.env.AWS_BUCKET,
     Key: keyToSign,
   });
 
   try {
     const signedUrl = await getSignedUrl(s3, command, { expiresIn: 3600 }); // 1-hour expiry
+    // console.log("Generated signed URL:", signedUrl);
+
     return signedUrl;
   } catch (error) {
     console.error("Error generating signed URL for key:", keyToSign);
@@ -87,7 +89,7 @@ export async function getSignedUrlForFile(
 
 export async function deleteS3Object(fileName: string) {
   const command = new DeleteObjectCommand({
-    Bucket: "skillanthropy-uploads",
+    Bucket: process.env.AWS_BUCKET,
     Key: fileName,
   });
 

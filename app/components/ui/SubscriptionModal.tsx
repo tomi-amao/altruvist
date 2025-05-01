@@ -202,9 +202,8 @@ export default function SubscriptionModal({
               rel="noopener noreferrer"
               className="text-accentPrimary hover:underline"
             >
-              {" "}
               Privacy Policy
-            </a>{" "}
+            </a>
             and
             <a
               href="https://policies.google.com/terms"
@@ -212,9 +211,8 @@ export default function SubscriptionModal({
               rel="noopener noreferrer"
               className="text-accentPrimary hover:underline"
             >
-              {" "}
               Terms of Service
-            </a>{" "}
+            </a>
             apply.
           </div>
 

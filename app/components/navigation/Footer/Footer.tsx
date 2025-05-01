@@ -180,13 +180,13 @@ export default function Footer() {
       <div className="border-t border-basePrimary pt-8 text-center text-basePrimary text-sm">
         <p>© {new Date().getFullYear()} Altruvist. All rights reserved.</p>
         <div className="flex justify-center mt-4 space-x-6 text-baseSecondary">
-          <a href="#" className="hover:text-accentPrimary transition-colors">
+          <a href="/" className="hover:text-accentPrimary transition-colors">
             Privacy Policy
           </a>
-          <a href="#" className="hover:text-accentPrimary transition-colors">
+          <a href="/" className="hover:text-accentPrimary transition-colors">
             Terms of Service
           </a>
-          <a href="#" className="hover:text-accentPrimary transition-colors">
+          <a href="/" className="hover:text-accentPrimary transition-colors">
             Cookie Policy
           </a>
         </div>

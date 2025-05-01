@@ -3,7 +3,6 @@ import { useFetcher, useLoaderData } from "@remix-run/react";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { DropdownCard } from "~/components/cards/FilterCard";
 import TaskSummaryCard from "~/components/tasks/taskCard";
-import Navbar from "~/components/navigation/Header2";
 import {
   CancelButton,
   SecondaryButtonAlt,
@@ -156,7 +155,6 @@ export default function Explore() {
     tasks: initialTasks,
     nextCursor: initialCursor,
     taskApplications,
-    novuAppId,
   } = useLoaderData<typeof loader>();
   const fetchTasks = useFetcher();
   const [tasks, setTasks] = useState<Task[]>(initialTasks || []);
@@ -464,8 +462,7 @@ export default function Explore() {
     <>
       <div className="m-auto lg:w-8/12  w-full p-4  ">
         <h1 className="mt-16 text-3xl lg:text-5xl font-semibold ">
-          {" "}
-          Make a difference{" "}
+          Make a difference
         </h1>
         <h2> Help charities innovate and make a lasting impact </h2>
         <div className="flex flex-row gap-4 justify-center items-center border-b-2 border-b-baseSecondary p-4 overflow-x-auto">

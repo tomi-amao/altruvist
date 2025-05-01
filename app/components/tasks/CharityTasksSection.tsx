@@ -103,6 +103,17 @@ export default function CharityTasksSection({
                 key={task.id}
                 className="bg-basePrimary/40 rounded-lg p-4 border border-baseSecondary/20 hover:border-baseSecondary/60 cursor-pointer transition-all"
                 onClick={() => onTaskSelect && onTaskSelect(task)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    if (onTaskSelect) {
+                      onTaskSelect(task);
+                    }
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                aria-label={`Select task: ${task.title}`}
               >
                 <div className="flex justify-between items-start mb-2">
                   <h3 className="text-lg font-medium text-baseSecondary">

@@ -330,7 +330,6 @@ export default function AccountSettings() {
   const {
     userInfo,
     adminCharity,
-    memberships,
     signedCharityBackgroundPicture,
     FEATURE_FLAG,
     COMPANION_URL,
@@ -746,7 +745,7 @@ export default function AccountSettings() {
                     {actionData?.errors?.find((error) => error.field === "form")
                       ?.message && (
                       <p className="text-dangerPrimary">
-                        ⚠{" "}
+                        ⚠
                         {
                           actionData.errors.find(
                             (error) => error.field === "form",

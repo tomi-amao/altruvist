@@ -3,7 +3,6 @@ import { useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import SearchResultCard from "~/components/cards/searchResultCard";
 import TaskDetailsCard from "~/components/tasks/taskDetailsCard";
-import Navbar from "~/components/navigation/Header2";
 import { Modal } from "~/components/utils/Modal2";
 import { CombinedCollections } from "~/types/tasks";
 import { getUserInfo, getUserTaskApplications } from "~/models/user2.server";
@@ -44,7 +43,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function SearchResults() {
-  const { userInfo, searchResults, userTaskApplicationsIds, novuAppId } =
+  const { userInfo, searchResults, userTaskApplicationsIds } =
     useLoaderData<typeof loader>();
   const [showCollections, setShowCollections] = useState({
     all: true,

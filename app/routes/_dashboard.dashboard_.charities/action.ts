@@ -31,21 +31,27 @@ export async function action({ request }: ActionFunctionArgs) {
     switch (actionType) {
       case "updateCharity":
         return handleUpdateCharity(formData);
-        
+
       case "deleteCharity":
         return handleDeleteCharity(formData);
-        
+
       case "reviewApplication":
         return handleReviewApplication(formData, userInfo.id);
-        
+
       default:
         return json({ error: "Invalid action" }, { status: 400 });
     }
   } catch (error) {
     console.error("Action error:", error);
-    return json({ 
-      error: error instanceof Error ? error.message : "An unexpected error occurred" 
-    }, { status: 500 });
+    return json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred",
+      },
+      { status: 500 },
+    );
   }
 }
 
@@ -56,10 +62,7 @@ async function handleUpdateCharity(formData: FormData) {
 
   // Validate required fields
   if (!charityId || !charityDataStr) {
-    return json(
-      { error: "Charity ID and data are required" },
-      { status: 400 },
-    );
+    return json({ error: "Charity ID and data are required" }, { status: 400 });
   }
 
   try {
@@ -72,7 +75,9 @@ async function handleUpdateCharity(formData: FormData) {
 
     return json({ success: true, charity: result.charity });
   } catch (error) {
-    throw new Error(`Failed to update charity: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Failed to update charity: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }
 
@@ -94,7 +99,9 @@ async function handleDeleteCharity(formData: FormData) {
 
     return json({ success: true });
   } catch (error) {
-    throw new Error(`Failed to delete charity: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Failed to delete charity: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }
 
@@ -118,14 +125,10 @@ async function handleReviewApplication(formData: FormData, userId: string) {
   }
 
   try {
-    const result = await reviewCharityApplication(
-      applicationId,
-      userId,
-      {
-        status: status as "ACCEPTED" | "REJECTED",
-        reviewNote: reviewNote || undefined,
-      },
-    );
+    const result = await reviewCharityApplication(applicationId, userId, {
+      status: status as "ACCEPTED" | "REJECTED",
+      reviewNote: reviewNote || undefined,
+    });
 
     if (result.status !== 200) {
       return json({ error: result.message }, { status: result.status });
@@ -133,6 +136,8 @@ async function handleReviewApplication(formData: FormData, userId: string) {
 
     return json({ success: true, application: result.application });
   } catch (error) {
-    throw new Error(`Failed to review application: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Failed to review application: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }

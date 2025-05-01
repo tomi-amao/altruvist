@@ -4,13 +4,20 @@ import { useFetcher } from "@remix-run/react";
 import type { CharityMembership } from "~/types/charities";
 import { Modal } from "~/components/utils/Modal2";
 import { PrimaryButton, SecondaryButton } from "~/components/utils/BasicButton";
-import { Trash, Warning, Check } from "@phosphor-icons/react";
+import { Warning, Check } from "@phosphor-icons/react";
 
 type MembersListProps = {
   members: CharityMembership[];
   isAdmin: boolean;
   onMemberUpdate?: (updatedMember: CharityMembership) => void;
 };
+
+// Define type for fetcher response
+interface FetcherResponse {
+  success: boolean;
+  message?: string;
+  membership?: CharityMembership;
+}
 
 // Component for the member management modal
 function MemberManageModal({
@@ -81,14 +88,13 @@ function MemberManageModal({
                 text="Cancel"
                 action={() => setShowConfirmRemove(false)}
                 ariaLabel="Cancel member removal"
-                disabled={isSubmitting}
+                isDisabled={isSubmitting}
               />
               <PrimaryButton
                 text={isSubmitting ? "Processing..." : "Remove Member"}
                 action={handleRemoveMember}
                 ariaLabel="Confirm member removal"
-                disabled={isSubmitting}
-                className="bg-dangerPrimary hover:bg-dangerPrimary/90"
+                isDisabled={isSubmitting}
               />
             </div>
           </div>
@@ -121,6 +127,15 @@ function MemberManageModal({
                       : "border-baseSecondary/20"
                   }`}
                   onClick={() => toggleRole("admin")}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      toggleRole("admin");
+                    }
+                  }}
+                  role="checkbox"
+                  aria-checked={selectedRoles.includes("admin")}
+                  tabIndex={0}
                 >
                   <div
                     className={`w-5 h-5 rounded border mr-3 flex items-center justify-center ${
@@ -153,6 +168,15 @@ function MemberManageModal({
                       : "border-baseSecondary/20"
                   }`}
                   onClick={() => toggleRole("coordinator")}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      toggleRole("coordinator");
+                    }
+                  }}
+                  role="checkbox"
+                  aria-checked={selectedRoles.includes("coordinator")}
+                  tabIndex={0}
                 >
                   <div
                     className={`w-5 h-5 rounded border mr-3 flex items-center justify-center ${
@@ -185,6 +209,15 @@ function MemberManageModal({
                       : "border-baseSecondary/20"
                   }`}
                   onClick={() => toggleRole("editor")}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      toggleRole("editor");
+                    }
+                  }}
+                  role="checkbox"
+                  aria-checked={selectedRoles.includes("editor")}
+                  tabIndex={0}
                 >
                   <div
                     className={`w-5 h-5 rounded border mr-3 flex items-center justify-center ${
@@ -217,6 +250,15 @@ function MemberManageModal({
                       : "border-baseSecondary/20"
                   }`}
                   onClick={() => toggleRole("volunteer")}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      toggleRole("volunteer");
+                    }
+                  }}
+                  role="checkbox"
+                  aria-checked={selectedRoles.includes("volunteer")}
+                  tabIndex={0}
                 >
                   <div
                     className={`w-5 h-5 rounded border mr-3 flex items-center justify-center ${
@@ -249,6 +291,15 @@ function MemberManageModal({
                       : "border-baseSecondary/20"
                   }`}
                   onClick={() => toggleRole("supporter")}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      toggleRole("supporter");
+                    }
+                  }}
+                  role="checkbox"
+                  aria-checked={selectedRoles.includes("supporter")}
+                  tabIndex={0}
                 >
                   <div
                     className={`w-5 h-5 rounded border mr-3 flex items-center justify-center ${
@@ -277,25 +328,26 @@ function MemberManageModal({
             </div>
 
             <div className="pt-4 flex flex-wrap justify-between gap-4">
-              <SecondaryButton
-                text="Remove Member"
-                action={() => setShowConfirmRemove(true)}
-                ariaLabel="Remove member from charity"
-                className="text-dangerPrimary border-dangerPrimary hover:bg-dangerPrimary/10"
-              />
+              <button
+                className="px-3 py-1.5 rounded-md text-dangerPrimary border border-dangerPrimary hover:bg-dangerPrimary/10"
+                onClick={() => setShowConfirmRemove(true)}
+                aria-label="Remove member from charity"
+              >
+                Remove Member
+              </button>
 
               <div className="flex gap-3">
                 <SecondaryButton
                   text="Cancel"
                   action={onClose}
                   ariaLabel="Cancel member management"
-                  disabled={isSubmitting}
+                  isDisabled={isSubmitting}
                 />
                 <PrimaryButton
                   text={isSubmitting ? "Saving..." : "Save Changes"}
                   action={handleSaveRoles}
                   ariaLabel="Save role changes"
-                  disabled={isSubmitting || selectedRoles.length === 0}
+                  isDisabled={isSubmitting || selectedRoles.length === 0}
                 />
               </div>
             </div>
@@ -313,7 +365,8 @@ export function MembersList({
 }: MembersListProps) {
   // Use a single source of truth for members
   const [members, setMembers] = useState<CharityMembership[]>(initialMembers);
-  const [selectedMember, setSelectedMember] = useState<CharityMembership | null>(null);
+  const [selectedMember, setSelectedMember] =
+    useState<CharityMembership | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   // Track whether we have pending local changes to prevent prop overrides
   const [pendingChanges, setPendingChanges] = useState(false);
@@ -338,42 +391,40 @@ export function MembersList({
 
   // Generic function to handle member updates (both role changes and removal)
   const updateMemberState = (
-    operation: 'update' | 'remove',
+    operation: "update" | "remove",
     memberId: string,
-    updatedData?: Partial<CharityMembership>
+    updatedData?: Partial<CharityMembership>,
   ) => {
     setPendingChanges(true);
-    
-    if (operation === 'update' && updatedData) {
+
+    if (operation === "update" && updatedData) {
       // Update the member in the local state
-      const updatedMembers = members.map(member => 
-        member.id === memberId 
-          ? { ...member, ...updatedData }
-          : member
+      const updatedMembers = members.map((member) =>
+        member.id === memberId ? { ...member, ...updatedData } : member,
       );
       setMembers(updatedMembers);
-      
+
       // Find the updated member to pass to the parent
-      const updatedMember = updatedMembers.find(m => m.id === memberId);
+      const updatedMember = updatedMembers.find((m) => m.id === memberId);
       if (updatedMember && onMemberUpdate) {
         onMemberUpdate(updatedMember);
       }
-    } else if (operation === 'remove') {
+    } else if (operation === "remove") {
       // Remove the member from local state
-      setMembers(prevMembers => prevMembers.filter(m => m.id !== memberId));
+      setMembers((prevMembers) => prevMembers.filter((m) => m.id !== memberId));
     }
-    
+
     // Close the modal
     setIsModalOpen(false);
   };
 
   // Handle role changes
   const handleRoleChange = async (memberId: string, roles: string[]) => {
-    const memberToUpdate = members.find(m => m.id === memberId);
+    const memberToUpdate = members.find((m) => m.id === memberId);
     if (!memberToUpdate) return;
 
     // Optimistically update the UI
-    updateMemberState('update', memberId, { roles });
+    updateMemberState("update", memberId, { roles });
 
     // Submit the change to the server
     fetcher.submit(
@@ -387,18 +438,17 @@ export function MembersList({
         action: "/api/charity-membership",
         encType: "application/x-www-form-urlencoded",
         preventScrollReset: true,
-        replace: true,
-      }
+      },
     );
   };
 
   // Handle member removal
   const handleRemoveMember = async (memberId: string) => {
-    const member = members.find(m => m.id === memberId);
+    const member = members.find((m) => m.id === memberId);
     if (!member) return;
 
     // Optimistically update the UI
-    updateMemberState('remove', memberId);
+    updateMemberState("remove", memberId);
 
     // Submit the removal to the server
     fetcher.submit(
@@ -412,37 +462,40 @@ export function MembersList({
         action: "/api/charity-membership",
         encType: "application/x-www-form-urlencoded",
         preventScrollReset: true,
-        replace: true,
-      }
+      },
     );
   };
 
   // Handle API responses
   useEffect(() => {
     if (fetcher.data && fetcher.state === "idle") {
-      if (fetcher.data.success) {
+      const response = fetcher.data as FetcherResponse;
+
+      if (response.success) {
         // On success, reset the pending changes flag
         setPendingChanges(false);
-        
+
         // If there's updated membership data from the server, use it
-        if (fetcher.data.membership) {
-          const serverMember = fetcher.data.membership;
-          setMembers(prev => 
-            prev.map(member => 
-              member.id === serverMember.id ? { ...member, ...serverMember } : member
-            )
+        if (response.membership) {
+          const serverMember = response.membership;
+          setMembers((prev) =>
+            prev.map((member) =>
+              member.id === serverMember.id
+                ? { ...member, ...serverMember }
+                : member,
+            ),
           );
-          
+
           // Also notify parent component about the server-confirmed update
           if (onMemberUpdate) {
-            onMemberUpdate(fetcher.data.membership);
+            onMemberUpdate(response.membership);
           }
         }
       } else {
         // If there's an error, revert to initial data
         setMembers(initialMembers);
         setPendingChanges(false);
-        alert(fetcher.data.message || "Operation failed. Please try again.");
+        alert(response.message || "Operation failed. Please try again.");
       }
     }
   }, [fetcher.data, fetcher.state, initialMembers, onMemberUpdate]);

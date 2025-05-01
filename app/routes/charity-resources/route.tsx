@@ -227,7 +227,7 @@ export default function CharityResources() {
               className="text-center"
             >
               <h1 className="inline-block text-baseSecondary text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mt-4">
-                Charity{" "}
+                Charity
                 <span className="text-baseSecondary text-6xl">Resources</span>
               </h1>
               <p className="mt-4 text-lg text-midGrey max-w-2xl mx-auto">

@@ -193,7 +193,7 @@ export default function FAQPage() {
               className="text-center"
             >
               <h1 className="inline-block text-baseSecondary text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mt-4">
-                Frequently Asked{" "}
+                Frequently Asked
                 <span className="text-baseSecondary text-6xl">Questions</span>
               </h1>
               <p className="mt-4 text-lg text-midGrey max-w-2xl mx-auto">

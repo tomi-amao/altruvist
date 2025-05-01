@@ -1,14 +1,15 @@
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { MagnifyingGlass, UserPlus, Clock } from "@phosphor-icons/react";
 import type { Charity } from "~/types/charities";
+import type { charityApplications as Application } from "@prisma/client";
 
 type CharityListProps = {
   charities: Charity[];
   selectedCharityId: string | null;
   onCharitySelect: (charity: Charity) => void;
   adminCharities: { id: string; name: string }[];
-  pendingApplications: any[];
-  userApplications: any[];
+  pendingApplications: Application[];
+  userApplications: Application[];
   searchQuery: string;
   setSearchQuery: (query: string) => void;
 };
@@ -62,7 +63,7 @@ export function CharityList({
             <div className="flex items-center gap-1.5">
               <Clock size={16} className="text-baseSecondary" />
               <span className="font-medium">
-                Pending applications:{" "}
+                Pending applications:
                 <span className="to-baseSecondary">
                   {userApplications.length}
                 </span>
@@ -88,6 +89,15 @@ export function CharityList({
                 }
               `}
               onClick={() => onCharitySelect(charity)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onCharitySelect(charity);
+                }
+              }}
+              tabIndex={0}
+              role="button"
+              aria-pressed={selectedCharityId === charity.id}
             >
               <div className="flex justify-between items-start">
                 <div className="w-full">
@@ -118,7 +128,7 @@ export function CharityList({
                       pendingApplications.filter(
                         (app) => app.charityId === charity.id,
                       ).length
-                    }{" "}
+                    }
                     pending
                   </span>
                 )}

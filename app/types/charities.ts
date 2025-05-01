@@ -1,24 +1,6 @@
-export type CharityApplication = {
-  id: string;
-  userId: string;
-  charityId: string;
-  roles: string[];
-  applicationNote?: string;
-  status: "PENDING" | "ACCEPTED" | "REJECTED";
-  appliedAt: string;
-  reviewedAt?: string;
-  reviewedBy?: string;
-  reviewNote?: string;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-  };
-  charity: {
-    id: string;
-    name: string;
-  };
-};
+import type { charityApplications  } from "@prisma/client";
+
+
 
 export type CharityMembership = {
   id: string;
@@ -51,4 +33,22 @@ export type Charity = {
   tags: string[];
   members?: CharityMembership[];
   applications?: CharityApplication[];
+};
+
+export interface CharityTask {
+  id: string;
+  title: string;
+  status: string;
+  [key: string]: unknown;
+}
+
+
+export type CharityApplication = charityApplications & {
+  user: {
+    name: string;
+    email: string;
+  };
+  charity: {
+    name: string;
+  };
 };

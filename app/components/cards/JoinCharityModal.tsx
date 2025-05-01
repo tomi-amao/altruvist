@@ -1,6 +1,6 @@
-import { Form, useNavigate, useFetcher } from "@remix-run/react";
+import { useFetcher } from "@remix-run/react";
 import { Modal } from "~/components/utils/Modal2";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { PrimaryButton, SecondaryButton } from "../utils/BasicButton";
 
 interface JoinCharityModalProps {
@@ -20,7 +20,6 @@ export default function JoinCharityModal({
 }: JoinCharityModalProps) {
   const [selectedRoles, setSelectedRoles] = useState<string[]>(["volunteer"]);
   const [applicationNote, setApplicationNote] = useState("");
-  const navigate = useNavigate();
 
   // Use the fetcher hook for data mutations
   const fetcher = useFetcher();
@@ -33,6 +32,13 @@ export default function JoinCharityModal({
     setSelectedRoles((prev) =>
       prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role],
     );
+  };
+
+  const handleKeyDown = (role: string, event: React.KeyboardEvent) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      toggleRole(role);
+    }
   };
 
   // Handle form submission through useFetcher
@@ -70,7 +76,6 @@ export default function JoinCharityModal({
     }
   };
 
-
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <div className="p-6">
@@ -97,6 +102,10 @@ export default function JoinCharityModal({
                     : "border-baseSecondary/30"
                 }`}
                 onClick={() => toggleRole("volunteer")}
+                onKeyDown={(e) => handleKeyDown("volunteer", e)}
+                tabIndex={0}
+                role="checkbox"
+                aria-checked={selectedRoles.includes("volunteer")}
               >
                 <div className="flex items-center">
                   <div
@@ -128,6 +137,10 @@ export default function JoinCharityModal({
                     : "border-baseSecondary/30"
                 }`}
                 onClick={() => toggleRole("supporter")}
+                onKeyDown={(e) => handleKeyDown("supporter", e)}
+                tabIndex={0}
+                role="checkbox"
+                aria-checked={selectedRoles.includes("supporter")}
               >
                 <div className="flex items-center">
                   <div
@@ -157,6 +170,8 @@ export default function JoinCharityModal({
             <>
               <div
                 className={`p-4 border rounded-lg cursor-pointer border-baseSecondary bg-basePrimary/40`}
+                role="radio"
+                aria-checked={true}
               >
                 <div className="flex items-center">
                   <div
@@ -200,7 +215,7 @@ export default function JoinCharityModal({
             text="Cancel"
             action={onClose}
             ariaLabel="Cancel joining charity"
-            disabled={isSubmitting}
+            isDisabled={isSubmitting}
           />
           <PrimaryButton
             text={
@@ -216,7 +231,7 @@ export default function JoinCharityModal({
                 ? "Submit coordinator application"
                 : "Join this charity"
             }
-            disabled={
+            isDisabled={
               isSubmitting || (!isCharityUser && selectedRoles.length === 0)
             }
           />

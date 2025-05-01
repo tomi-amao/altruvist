@@ -8,7 +8,10 @@ import {
   updateTaskApplicationStatus,
 } from "~/models/tasks.server";
 import { getUserById } from "~/models/user2.server";
-import { deleteNovuSubscriber, triggerNotification } from "~/services/novu.server";
+import {
+  deleteNovuSubscriber,
+  triggerNotification,
+} from "~/services/novu.server";
 
 export async function action({ request }: ActionFunctionArgs) {
   const data = await request.formData();

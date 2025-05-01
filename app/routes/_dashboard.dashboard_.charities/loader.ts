@@ -1,10 +1,7 @@
 import { LoaderFunctionArgs, json, redirect } from "@remix-run/node";
 import { getSession } from "~/services/session.server";
 import { getUserInfo } from "~/models/user2.server";
-import {
-  getCharity,
-  getCharityApplications,
-} from "~/models/charities.server";
+import { getCharity, getCharityApplications } from "~/models/charities.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
@@ -25,23 +22,24 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const { id: userId, roles: userRole } = userInfo;
 
     // Extract user's charities from charity memberships
-    const userCharities = charityMemberships?.memberships?.map(membership => ({
-      id: membership.charity.id,
-      name: membership.charity.name,
-      roles: membership.roles,
-      permissions: membership.permissions,
-    })) || [];
+    const userCharities =
+      charityMemberships?.memberships?.map((membership) => ({
+        id: membership.charity.id,
+        name: membership.charity.name,
+        roles: membership.roles,
+        permissions: membership.permissions,
+      })) || [];
 
     // Get all charities where the user is an admin for admin functionality
     const adminCharities = userCharities
-      .filter(charity => charity.roles.includes("admin"))
-      .map(charity => ({
+      .filter((charity) => charity.roles.includes("admin"))
+      .map((charity) => ({
         id: charity.id,
         name: charity.name,
       }));
 
     // Data to fetch in parallel
-    const allUserCharityIds = userCharities.map(charity => charity.id);
+    const allUserCharityIds = userCharities.map((charity) => charity.id);
     let charitiesList = [];
     let pendingApplications = [];
     let userApplications = [];
@@ -49,46 +47,48 @@ export async function loader({ request }: LoaderFunctionArgs) {
     // Create a Promise.all for parallel requests
     const parallelRequests = [
       // Get detailed charity information
-      allUserCharityIds.length > 0 
+      allUserCharityIds.length > 0
         ? Promise.all(
-            allUserCharityIds.map(charityId => 
-              getCharity(charityId, { charityMemberships: true })
-            )
+            allUserCharityIds.map((charityId) =>
+              getCharity(charityId, { charityMemberships: true }),
+            ),
           )
         : Promise.resolve([]),
-          
+
       // Get pending applications for admin charities
       adminCharities.length > 0
         ? Promise.all(
-            adminCharities.map(charity =>
+            adminCharities.map((charity) =>
               getCharityApplications({
                 charityId: charity.id,
                 status: "PENDING",
-              })
-            )
+              }),
+            ),
           )
         : Promise.resolve([]),
-        
+
       // Get user's applications
-      getCharityApplications({ userId }).catch(() => ({ applications: [] }))
+      getCharityApplications({ userId }).catch(() => ({ applications: [] })),
     ];
 
     // Wait for all promises to resolve
-    const [charityResults, applicationResults, userApplicationsResult] = 
+    const [charityResults, applicationResults, userApplicationsResult] =
       await Promise.all(parallelRequests);
 
     // Process charity results
     if (allUserCharityIds.length > 0) {
       charitiesList = charityResults
-        .filter(result => result.charity)
-        .map(result => result.charity);
+        .filter((result) => result.charity)
+        .map((result) => result.charity);
     }
 
     // Process pending applications
     if (adminCharities.length > 0) {
       pendingApplications = applicationResults
-        .filter(result => result.applications && result.applications.length > 0)
-        .flatMap(result => result.applications);
+        .filter(
+          (result) => result.applications && result.applications.length > 0,
+        )
+        .flatMap((result) => result.applications);
     }
 
     // Process user applications
