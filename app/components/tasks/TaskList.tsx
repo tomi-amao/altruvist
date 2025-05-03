@@ -147,7 +147,7 @@ export function TaskList({
             <div className="flex items-center text-sm text-baseSecondary/80">
               <Calendar size={14} className="mr-1" weight="fill" />
               <span className="whitespace-nowrap">
-                {new Date(task.deadline).toLocaleDateString(undefined, {
+                {new Date(task.deadline).toLocaleDateString("en-UK", {
                   year: "numeric",
                   month: "short",
                   day: "numeric",
