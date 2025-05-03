@@ -67,10 +67,10 @@ export async function action({ request }: ActionFunctionArgs) {
       userInfo,
       workflowId: "applications-feed",
       notification: {
-        subject: "New Task Application",
+        subject: "Task Application",
         body: `${userInfo?.name} has applied to the task ${task?.title}`,
         type: "application",
-        taskApplicationId: createApplication.id,
+        applicationId: createApplication.id,
         taskId: task?.id,
       },
       type: "Topic",

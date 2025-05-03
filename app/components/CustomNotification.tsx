@@ -22,11 +22,12 @@ interface NotificationBody {
   type?: string;
   taskId?: string;
   userId?: string;
+  charityId?: string;
 }
 
-export const CustomNotification: React.FC<CustomNotificationProps> = ({
+export const CustomNotification = ({
   notification,
-}) => {
+}: CustomNotificationProps) => {
   const navigate = useNavigate();
   const { isMobile } = useViewport();
 
@@ -119,6 +120,11 @@ export const CustomNotification: React.FC<CustomNotificationProps> = ({
           className={`font-header font-semibold ${isArchived ? "" : "text-baseSecondary"} text-sm sm:text-base break-words`}
         >
           {notification.subject}
+          {parsedBody.type && parsedBody.type !== "default" && (
+            <span className="text-xs text-altMidGrey ml-1">
+              ({parsedBody.type})
+            </span>
+          )}
         </h3>
         {!isRead && !isArchived && (
           <span className="bg-confirmPrimary h-3 w-3 rounded-full inline-block ml-2 mt-1 animate-pulse flex-shrink-0"></span>
@@ -132,7 +138,7 @@ export const CustomNotification: React.FC<CustomNotificationProps> = ({
       </p>
 
       <div className="flex flex-wrap gap-2 my-2">
-        {parsedBody.taskId && (
+        {parsedBody.taskId ? (
           <button
             onClick={() =>
               navigate(`/dashboard/tasks?taskid=${parsedBody.taskId}`)
@@ -142,7 +148,15 @@ export const CustomNotification: React.FC<CustomNotificationProps> = ({
             <Eye size={isMobile ? 14 : 16} className="text-darkGrey" />
             <span>View Task</span>
           </button>
-        )}
+        ) : parsedBody.charityId ? (
+          <button
+            onClick={() => navigate(`/charity/${parsedBody.charityId}`)}
+            className="bg-basePrimary/20 text-basePrimary px-2 sm:px-3 py-1 rounded-md flex items-center space-x-1 text-xs sm:text-sm hover:bg-basePrimary/30 transition-colors"
+          >
+            <Eye size={isMobile ? 14 : 16} className="text-darkGrey" />
+            <span>View Charity</span>
+          </button>
+        ) : null}
         {parsedBody.userId && (
           <button
             onClick={handleViewProfile}

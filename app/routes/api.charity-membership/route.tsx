@@ -8,8 +8,10 @@ import {
   deleteCharityMembership,
   getCharityMemberships,
   updateCharityMembership,
+  getCharity,
 } from "~/models/charities.server";
 import { z } from "zod";
+import { triggerNotification } from "~/services/novu.server";
 
 const JoinCharitySchema = z.object({
   action: z.enum(["join", "apply", "review"]),
@@ -113,6 +115,23 @@ export async function action({ request }: ActionFunctionArgs) {
           permissions,
         });
 
+        const { charity } = await getCharity(charityId);
+        const notifyTopicId =
+          charity?.notifyTopicId.filter((id) => id.includes("admins"))[0] ||
+          undefined;
+
+        await triggerNotification({
+          userInfo,
+          workflowId: "charities-feed",
+          notification: {
+            subject: `${roles.join(", ").charAt(0).toUpperCase() + roles.slice(1)} Joined`,
+            body: `${userInfo?.name} has joined the charity ${charity?.name} as a ${roles.join(", ")}`,
+            type: "update",
+            charityId: charityId,
+          },
+          type: "Topic",
+          topicKey: notifyTopicId,
+        });
         return json(
           {
             success: status === 200,
@@ -163,9 +182,28 @@ export async function action({ request }: ActionFunctionArgs) {
             applicationNote,
           },
         );
-        console.log("Application created:", application);
-        console.log("Application message:", message);
-        console.log("Application status:", status);
+
+        const { charity } = await getCharity(charityId);
+        // const notifyTopicId = charity?.notifyTopicId.filter((id) => id.includes("coordinator")) || undefined;
+        const topicKeys = [
+          `charity:coordinators:${charity?.id}`,
+          `charity:admins:${charity?.id}`,
+        ];
+        // Send notification to each topic key (coordinators and admins)
+        for (const topicKey of topicKeys) {
+          await triggerNotification({
+            userInfo,
+            workflowId: "charities-feed",
+            notification: {
+              subject: `${roles.join(", ").charAt(0).toUpperCase() + roles.slice(1)} Application`,
+              body: `${userInfo?.name} has applied to join the charity ${charity?.name} as a ${roles.join(", ")}. Application Note: ${applicationNote}`,
+              type: "update",
+              charityId: charityId,
+            },
+            type: "Topic",
+            topicKey: topicKey,
+          });
+        }
 
         return json(
           {

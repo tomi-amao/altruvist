@@ -9,6 +9,13 @@ import { getSignedUrlForFile } from "~/services/s3.server";
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
   const accessToken = session.get("accessToken");
+
+  const isNew = session.get("isNew");
+
+  // If user is new, redirect to newuser page
+  if (isNew) {
+    return redirect("/newuser");
+  }
   let returnTo: string;
   const novuAppId = process.env.NOVU_APP_ID;
 

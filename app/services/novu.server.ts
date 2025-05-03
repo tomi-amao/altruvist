@@ -165,9 +165,10 @@ interface NotificationTriggerPayload {
     | "comment"
     | "application";
 
-  taskApplicationId?: string;
+  applicationId?: string;
 
   taskId?: string;
+  charityId?: string;
   primaryActionLabel?: string;
   secondaryActionLabel?: string;
 }
@@ -204,7 +205,7 @@ export const triggerNotification = async ({
       workflowId: workflowId,
       to:
         type === "Topic"
-          ? [{ type: "Topic", topicKey: topicKey! }]
+          ? [{ type: "Topic", topicKey: topicKey || "" }]
           : [
               {
                 type: "Subscriber",
@@ -220,9 +221,10 @@ export const triggerNotification = async ({
           message: notification.body,
           type: notification.type,
           avatar: userInfo.profilePicture,
-          taskApplicationId: notification.taskApplicationId,
+          applicationId: notification.applicationId,
           userId: userInfo.id,
           taskId: notification.taskId,
+          charityId: notification.charityId,
         },
       },
     });
@@ -283,7 +285,7 @@ export const createNovuSubscriber = async (userInfo: users) => {
     return { response: newSubscriber };
   } catch (error) {
     console.error("Failed to create subscriber:", error);
-    return false;
+    return { response: null };
   }
 };
 
@@ -292,6 +294,10 @@ export const addNovuSubscriberToTopic = async (
   topicKey: string,
 ) => {
   try {
+    if (!subscriberId || subscriberId.length === 0) {
+      console.error("No subscriber ID provided");
+      return { response: null, error: "No subscriber ID provided" };
+    }
     const response = await novu.topics.subscribers.assign(
       { subscribers: subscriberId },
       topicKey,
@@ -299,10 +305,10 @@ export const addNovuSubscriberToTopic = async (
 
     console.log("Added subscriber to topic:", response.result.succeeded);
 
-    return { response };
+    return { response, error: null };
   } catch (error) {
     console.error("Failed to add subscriber to topic:", error);
-    return false;
+    return { response: null, error };
   }
 };
 

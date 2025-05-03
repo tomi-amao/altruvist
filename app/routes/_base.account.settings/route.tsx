@@ -9,14 +9,6 @@ import {
 } from "@remix-run/react";
 import { Avatar } from "~/components/cards/ProfileCard";
 import {
-  LoaderFunctionArgs,
-  ActionFunctionArgs,
-  json,
-  redirect,
-} from "@remix-run/node";
-import { deleteUser, getUserInfo, updateUserInfo } from "~/models/user2.server";
-import { getSession } from "~/services/session.server";
-import {
   FormField,
   TextAreaField,
   ListInput,
@@ -26,301 +18,15 @@ import FileUpload from "~/components/utils/FileUpload";
 import { Meta, UppyFile } from "@uppy/core";
 import { SecondaryButton } from "~/components/utils/BasicButton";
 import { Modal } from "~/components/utils/Modal2";
-import { getCompanionVars, getFeatureFlags } from "~/services/env.server";
 import { Alert } from "~/components/utils/Alert";
 import { z } from "zod";
-import {
-  getCharityMemberships,
-  updateCharity,
-} from "~/models/charities.server";
-import { getSignedUrlForFile } from "~/services/s3.server";
-import {
-  Bell,
-  Buildings,
-  ShieldCheck,
-  UserCircle,
-  Warning,
-  Image,
-} from "@phosphor-icons/react";
+import { Bell, ShieldCheck, UserCircle, Warning } from "@phosphor-icons/react";
 
-// Add this type definition at the top of the file
-type ActionResponse = {
-  success?: boolean;
-  message?: string;
-  errors?: Array<{
-    field: string;
-    message?: string;
-  }>;
-};
+// Import the loader and action functions
+import { loader } from "./loader";
+import { action } from "./action";
 
-// Loader to fetch user data
-export async function loader({ request }: LoaderFunctionArgs) {
-  const session = await getSession(request);
-  const accessToken = session.get("accessToken");
-
-  // Get detailed user info including charity memberships
-  const { userInfo } = await getUserInfo(accessToken);
-  const { FEATURE_FLAG } = getFeatureFlags();
-  const { COMPANION_URL } = getCompanionVars();
-
-  if (!userInfo) {
-    return redirect("/zitlogin");
-  }
-
-  // Get charity memberships where user is an admin
-  const { memberships } = await getCharityMemberships({ userId: userInfo.id });
-
-  // Find the first charity where the user is an admin
-  const adminCharity = memberships?.find((membership) =>
-    membership.roles.includes("admin"),
-  )?.charity;
-
-  // Get signed URLs for images
-  let signedProfilePicture;
-  let signedCharityBackgroundPicture;
-
-  if (userInfo.profilePicture) {
-    signedProfilePicture = await getSignedUrlForFile(
-      userInfo.profilePicture,
-      true,
-    );
-  }
-
-  if (adminCharity?.backgroundPicture) {
-    signedCharityBackgroundPicture = await getSignedUrlForFile(
-      adminCharity.backgroundPicture,
-      true,
-    );
-  }
-
-  return {
-    userInfo,
-    adminCharity,
-    memberships: memberships || [],
-    signedProfilePicture,
-    signedCharityBackgroundPicture,
-    FEATURE_FLAG,
-    COMPANION_URL,
-  };
-}
-
-// Replace the action function with this standardized version
-export async function action({ request }: ActionFunctionArgs) {
-  const session = await getSession(request);
-  const { userInfo, zitUserInfo } = await getUserInfo(
-    session.get("accessToken"),
-  );
-
-  if (!userInfo) {
-    return redirect("/zitlogin");
-  }
-
-  const formData = await request.formData();
-  const action = formData.get("_action");
-
-  try {
-    switch (action) {
-      case "delete": {
-        await deleteUser(userInfo.id, zitUserInfo.sub);
-        return redirect("/zitlogout");
-      }
-
-      case "updateProfile": {
-        const rawFormData = formData.get("formData") as string;
-        const updateProfileData = JSON.parse(rawFormData);
-
-        const updateFields = {
-          ...updateProfileData,
-          profilePicture:
-            updateProfileData.profilePicture || userInfo.profilePicture,
-        };
-
-        const userSchema = z.object({
-          name: z
-            .string()
-            .min(1, "Name is required")
-            .max(80, "Maximum of 50 characters"),
-          userTitle: z
-            .string()
-            .min(1, "Title is required")
-            .max(50, "Maximum of 50 characters")
-            .optional()
-            .or(z.literal("")),
-          bio: z
-            .string()
-            .min(1, "Bio is required")
-            .max(1000)
-            .optional()
-            .or(z.literal("")),
-          ...((userInfo.roles[0] === "volunteer" && {
-            preferredCharities: z
-              .array(z.string())
-              .min(1, "At least one charity category is required"),
-          }) ||
-            {}),
-          ...((userInfo.roles[0] === "volunteer" && {
-            skills: z
-              .array(z.string())
-              .min(1, "At least one skill is required"),
-          }) ||
-            {}),
-          profilePicture: z
-            .string()
-            .min(1, "Profile picture is required")
-            .optional()
-            .or(z.literal(null)),
-        });
-
-        const validationResult = userSchema.safeParse(updateFields);
-        if (!validationResult.success) {
-          const response: ActionResponse = {
-            errors: validationResult.error.errors.map((err) => ({
-              field: err.path[0]?.toString() || "unknown",
-              message: err.message,
-            })),
-          };
-
-          console.log("Error Response", response);
-
-          return json(response, { status: 400 });
-        }
-
-        const { status } = await updateUserInfo(userInfo.id, updateFields);
-
-        if (status !== 200) {
-          return json(
-            {
-              errors: [{ field: "form", message: "Failed to update profile" }],
-            },
-            { status: 500 },
-          );
-        }
-
-        return json({
-          success: true,
-          message: "Profile updated successfully",
-        });
-      }
-
-      case "updateCharity": {
-        const rawFormData = formData.get("formData") as string;
-        const updateCharityData = JSON.parse(rawFormData);
-        const charityId = formData.get("charityId") as string;
-        console.log("Attempting to update charity with ID:", charityId);
-
-        if (!charityId) {
-          return json(
-            {
-              errors: [{ field: "form", message: "Charity ID is required" }],
-            },
-            { status: 400 },
-          );
-        }
-
-        // Include backgroundPicture if available or keep existing one
-        const updateFields = {
-          ...updateCharityData,
-        };
-
-        const charitySchema = z.object({
-          name: z.string().min(1, "Charity name is required"),
-          description: z.string().optional(),
-          website: z
-            .string()
-            .regex(
-              /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/\S*)?$/,
-              "Invalid website URL",
-            )
-            .optional()
-            .or(z.literal("")),
-          contactEmail: z
-            .string()
-            .email("Invalid email address")
-            .optional()
-            .or(z.literal("")),
-          contactPerson: z.string().optional(),
-          tags: z.array(z.string()).min(1, "At least one category is required"),
-          backgroundPicture: z.string().optional().or(z.literal("")),
-        });
-        const validationResult = charitySchema.safeParse(updateFields);
-        console.log("Charity Validation Result", validationResult);
-
-        if (!validationResult.success) {
-          const response: ActionResponse = {
-            errors: validationResult.error.errors.map((err) => ({
-              field: err.path[0]?.toString() || "unknown",
-              message: err.message,
-            })),
-          };
-          return json(response, { status: 400 });
-        }
-
-        // Verify user has admin permission for this charity
-        const { memberships } = await getCharityMemberships({
-          userId: userInfo.id,
-        });
-        const isAdmin = memberships?.some(
-          (membership) =>
-            membership.charityId === charityId &&
-            membership.roles.includes("admin"),
-        );
-
-        console.log("Is Admin", isAdmin);
-        if (!isAdmin) {
-          return json(
-            {
-              errors: [
-                {
-                  field: "form",
-                  message: "You don't have permission to update this charity",
-                },
-              ],
-            },
-            { status: 403 },
-          );
-        }
-
-        const { status, error } = await updateCharity(charityId, updateFields);
-
-        if (status !== 200) {
-          return json(
-            {
-              errors: [
-                {
-                  field: "form",
-                  message: error || "Failed to update charity information",
-                },
-              ],
-            },
-            { status: 500 },
-          );
-        }
-
-        return json({
-          success: true,
-          message: "Charity information updated successfully",
-        });
-      }
-
-      default:
-        return json(
-          {
-            errors: [{ field: "form", message: "Invalid action" }],
-          },
-          { status: 400 },
-        );
-    }
-  } catch (error) {
-    console.log(`Error occurred in action ${action}`, error);
-
-    return json(
-      {
-        errors: [{ field: "form", message: "An unexpected error occurred" }],
-      },
-      { status: 500 },
-    );
-  }
-}
+export { loader, action };
 
 export const meta: MetaFunction = () => {
   return [{ title: "Account Settings" }];
@@ -329,14 +35,16 @@ export const meta: MetaFunction = () => {
 export default function AccountSettings() {
   const {
     userInfo,
-    adminCharity,
-    signedCharityBackgroundPicture,
+    managedCharities,
+    signedProfilePicture: initialSignedProfilePicture,
     FEATURE_FLAG,
     COMPANION_URL,
   } = useLoaderData<typeof loader>();
+
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
+
   const [activeTab, setActiveTab] = useState("profile");
   const [formData, setFormData] = useState({
     name: userInfo?.name || "",
@@ -346,25 +54,20 @@ export default function AccountSettings() {
     profilePicture: userInfo?.profilePicture || "",
     preferredCharities: userInfo?.preferredCharities || [],
   });
-  const [charityFormData, setCharityFormData] = useState({
-    name: adminCharity?.name || "",
-    description: adminCharity?.description || "",
-    website: adminCharity?.website || "",
-    contactEmail: adminCharity?.contactEmail || "",
-    contactPerson: adminCharity?.contactPerson || "",
-    tags: adminCharity?.tags || [],
-    backgroundPicture: adminCharity?.backgroundPicture || "",
-  });
-  const [backgroundPicturePreview, setBackgroundPicturePreview] = useState<
-    string | undefined
-  >(signedCharityBackgroundPicture || adminCharity?.backgroundPicture);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
+  const [isDeleteCharityAlertOpen, setIsDeleteCharityAlertOpen] =
+    useState(false);
   const [signedProfilePicture, setSignedProfilePicture] = useState<
+    string | null
+  >(initialSignedProfilePicture || null);
+  const [selectedCharityToDelete, setSelectedCharityToDelete] = useState<
     string | null
   >(null);
 
   const fetcher = useFetcher();
+
   const tabs = [
     {
       id: "profile",
@@ -389,15 +92,6 @@ export default function AccountSettings() {
           },
         ]
       : []),
-    ...(userInfo?.roles?.includes("charity")
-      ? [
-          {
-            id: "charity",
-            label: "Charity",
-            icon: <Buildings weight="fill" size={24} />,
-          },
-        ]
-      : []),
     {
       id: "danger",
       label: "Danger Zone",
@@ -407,29 +101,18 @@ export default function AccountSettings() {
 
   useEffect(() => {
     async function fetchSignedUrl() {
-      const res = await fetch(
-        `/api/s3-get-url?file=${formData.profilePicture}&action=upload`,
-      );
-      const data = await res.json();
-      if (data.url) {
-        setSignedProfilePicture(data.url);
+      if (formData.profilePicture) {
+        const res = await fetch(
+          `/api/s3-get-url?file=${formData.profilePicture}&action=upload`,
+        );
+        const data = await res.json();
+        if (data.url) {
+          setSignedProfilePicture(data.url);
+        }
       }
     }
     fetchSignedUrl();
   }, [formData.profilePicture]);
-
-  useEffect(() => {
-    async function fetchSignedUrl() {
-      const res = await fetch(
-        `/api/s3-get-url?file=${charityFormData.backgroundPicture}&action=upload`,
-      );
-      const data = await res.json();
-      if (data.url) {
-        setBackgroundPicturePreview(data.url);
-      }
-    }
-    fetchSignedUrl();
-  }, [charityFormData.backgroundPicture]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
@@ -463,20 +146,18 @@ export default function AccountSettings() {
     }));
   };
 
-  const handleCharityInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    setCharityFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+  const handleDeleteAccount = () => {
+    fetcher.submit({ _action: "delete" }, { method: "post" });
   };
 
-  const handleDeleteAccount = () => {
-    fetcher.submit(
-      { _action: "delete" },
-      { method: "post", action: "/account/settings" },
-    );
+  const handleDeleteCharity = (charityId: string) => {
+    fetcher.submit({ _action: "deleteCharity", charityId }, { method: "post" });
+    setIsDeleteCharityAlertOpen(false);
+  };
+
+  const openDeleteCharityConfirm = (charityId: string) => {
+    setSelectedCharityToDelete(charityId);
+    setIsDeleteCharityAlertOpen(true);
   };
 
   const ProfilePictureModal = () => {
@@ -795,207 +476,6 @@ export default function AccountSettings() {
               </div>
             )}
 
-            {activeTab === "charity" && (
-              <div className="space-y-6">
-                <h2 className="text-2xl font-primary text-baseSecondary border-b border-baseSecondary/20 pb-4">
-                  Charity Information
-                </h2>
-                <Form method="post" className="space-y-6">
-                  <input type="hidden" name="_action" value="updateCharity" />
-                  <input
-                    type="hidden"
-                    name="formData"
-                    value={JSON.stringify(charityFormData)}
-                  />
-                  <input
-                    type="hidden"
-                    name="charityId"
-                    value={adminCharity?.id || ""}
-                  />
-
-                  {/* Charity Background Picture Upload Section */}
-                  <div className="p-4 bg-basePrimaryLight rounded-lg mb-4">
-                    <h3 className="text-lg font-medium text-baseSecondary mb-3 flex items-center gap-2">
-                      <Image size={20} weight="fill" />
-                      Background Picture
-                    </h3>
-
-                    {charityFormData.backgroundPicture ? (
-                      <div className="flex flex-col items-center gap-4 mb-4">
-                        <div className="w-full h-48 bg-basePrimaryDark/10 rounded-lg overflow-hidden">
-                          <img
-                            src={backgroundPicturePreview}
-                            alt={`${charityFormData.name} background`}
-                            className="w-full h-full object-contain object-cover object-center"
-                          />
-                        </div>
-                        <div className="flex gap-3">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setCharityFormData((prev) => ({
-                                ...prev,
-                                backgroundPicture: "",
-                              }));
-                            }}
-                            className="px-3 py-1.5 text-sm bg-altMidGrey/20 text-baseSecondary rounded hover:bg-altMidGrey/30 transition-colors"
-                          >
-                            Replace Image
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div>
-                        <FileUpload
-                          uppyId="charityBackgroundPicture"
-                          formTarget="#uploadCharityBackgroundPicture"
-                          onUploadedFile={(successfulFiles) => {
-                            successfulFiles.map((upload) => {
-                              setCharityFormData((prev) => ({
-                                ...prev,
-                                backgroundPicture: upload.uploadURL || "",
-                              }));
-                            });
-                          }}
-                          uploadURL={COMPANION_URL}
-                        />
-                        <p className="text-xs text-baseSecondary/60 mt-2">
-                          Upload an image that represents your charity. This
-                          will be displayed on your charity profile and cards.
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <FormField
-                      htmlFor="name"
-                      label="Charity Name"
-                      type="text"
-                      value={charityFormData.name}
-                      onChange={handleCharityInputChange}
-                      required
-                      backgroundColour="bg-basePrimaryLight"
-                      helperText="Official name of your charity"
-                      serverValidationError={
-                        actionData?.errors?.some(
-                          (error) => error.field === "name",
-                        ) || false
-                      }
-                      schema={z.string().max(70)}
-                    />
-
-                    <FormField
-                      htmlFor="website"
-                      label="Website"
-                      type="text"
-                      value={charityFormData.website}
-                      onChange={handleCharityInputChange}
-                      backgroundColour="bg-basePrimaryLight"
-                      helperText={
-                        actionData?.errors?.find(
-                          (error) => error.field === "website",
-                        )?.message || "Official website of the charity"
-                      }
-                      schema={z
-                        .string()
-                        .regex(
-                          /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/\S*)?$/,
-                          "Invalid website URL",
-                        )
-                        .optional()
-                        .or(z.literal(""))}
-                    />
-
-                    <FormField
-                      htmlFor="contactPerson"
-                      label="Contact Person"
-                      type="text"
-                      value={charityFormData.contactPerson}
-                      onChange={handleCharityInputChange}
-                      backgroundColour="bg-basePrimaryLight"
-                      helperText="Main contact person for the charity"
-                    />
-
-                    <FormField
-                      htmlFor="contactEmail"
-                      label="Contact Email"
-                      type="email"
-                      value={charityFormData.contactEmail}
-                      onChange={handleCharityInputChange}
-                      backgroundColour="bg-basePrimaryLight"
-                      helperText="Official contact email"
-                    />
-
-                    <div className="md:col-span-2">
-                      <TextAreaField
-                        htmlFor="description"
-                        label="Description"
-                        value={charityFormData.description}
-                        onChange={handleCharityInputChange}
-                        backgroundColour="bg-basePrimaryLight"
-                        maxLength={1000}
-                        minRows={4}
-                        maxRows={8}
-                        placeholder="Describe your charity's mission and goals"
-                        serverValidationError={false}
-                        resetField={false}
-                      />
-                    </div>
-
-                    <div className="md:col-span-2">
-                      <ListInput
-                        inputtedList={charityFormData.tags}
-                        onInputsChange={(tags) =>
-                          setCharityFormData((prev) => ({ ...prev, tags }))
-                        }
-                        placeholder="Add a category"
-                        label="Charity Categories"
-                        htmlFor="tags"
-                        backgroundColour="bg-basePrimaryLight"
-                        errorMessage="Please add at least one category"
-                        helperText={
-                          actionData?.errors?.find(
-                            (error) => error.field === "tags",
-                          )?.message ||
-                          "Add categories that describe your charity"
-                        }
-                        resetField={false}
-                        availableOptions={getTags("charityCategories")}
-                        inputLimit={5}
-                        allowCustomOptions={false}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between items-center">
-                    {actionData?.success && (
-                      <p className="text-confirmPrimary">
-                        ✓ Charity information updated successfully
-                      </p>
-                    )}
-                    {actionData?.error && !actionData.field && (
-                      <p className="text-dangerPrimary">
-                        ⚠ {actionData.error}
-                      </p>
-                    )}
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className={`px-4 py-2 bg-baseSecondary text-basePrimary rounded-md transition-colors
-                        ${
-                          isSubmitting
-                            ? "opacity-70 cursor-not-allowed"
-                            : "hover:bg-baseSecondary/90"
-                        }`}
-                    >
-                      {isSubmitting ? "Saving..." : "Save Changes"}
-                    </button>
-                  </div>
-                </Form>
-              </div>
-            )}
-
             {activeTab === "danger" && (
               <div className="space-y-6">
                 <h2 className="text-2xl font-primary text-baseSecondary border-b border-dangerPrimary/20 pb-4">
@@ -1022,6 +502,46 @@ export default function AccountSettings() {
                   message="Are you sure you want to delete your account? This action cannot be undone."
                   confirmText="Delete Account"
                   onConfirm={handleDeleteAccount}
+                  variant="danger"
+                />
+
+                {managedCharities.length > 0 && (
+                  <div className="bg-dangerPrimary/10 p-4 rounded-md">
+                    <h3 className="text-dangerPrimary font-medium mb-2">
+                      Delete Charities
+                    </h3>
+                    <p className="text-altMidGrey mb-4">
+                      This action cannot be undone. Please be certain.
+                    </p>
+                    <ul className="space-y-4">
+                      {managedCharities.map((charity) => (
+                        <li
+                          key={charity.id}
+                          className="flex justify-between items-center"
+                        >
+                          <span className="text-baseSecondary">
+                            {charity.name}
+                          </span>
+                          <button
+                            onClick={() => openDeleteCharityConfirm(charity.id)}
+                            className="px-4 py-2 bg-dangerPrimary text-basePrimary rounded-md hover:bg-dangerPrimary/90 transition-colors"
+                          >
+                            Delete Charity
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                <Alert
+                  isOpen={isDeleteCharityAlertOpen}
+                  onClose={() => setIsDeleteCharityAlertOpen(false)}
+                  title="Delete Charity"
+                  message="Are you sure you want to delete this charity? This action cannot be undone."
+                  confirmText="Delete Charity"
+                  onConfirm={() =>
+                    handleDeleteCharity(selectedCharityToDelete!)
+                  }
                   variant="danger"
                 />
               </div>

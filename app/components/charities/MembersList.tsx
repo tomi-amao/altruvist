@@ -573,7 +573,7 @@ export function MembersList({
                         <span
                           key={role}
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize
-                            ${role === "admin" ? "bg-confirmPrimary/20 text-confirmPrimary" : "bg-baseSecondary/10 text-baseSecondary"}`}
+                            ${role === "admin" ? "bg-confirmPrimary/20 text-confirmPrimary" : role === "creator" ? "bg-indicator-orange/20 text-indicator-orange" : "bg-baseSecondary/10 text-baseSecondary"}`}
                         >
                           {role}
                         </span>

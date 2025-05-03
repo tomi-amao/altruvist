@@ -889,8 +889,8 @@ export default function NewUserForm() {
             className={`w-3 h-3 rounded-full ${formPart === 2 ? "bg-baseSecondary" : "bg-basePrimary"}`}
           ></div>
         </div>
-        <div className="ml-4 text-sm text-basePrimary">
-          {formPart === 1 ? "Part 1: Profile Details" : "Part 2: Role Setup"}
+        <div className="ml-4 text-sm text-baseSecondary font-semibold">
+          {formPart === 1 ? "Profile Details" : "Role Setup"}
         </div>
       </div>
     );

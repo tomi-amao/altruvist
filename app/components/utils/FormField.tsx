@@ -155,7 +155,7 @@ export function FormField<T>({
   };
 
   return (
-    <div className="relative z-autospace-y-1">
+    <div className="relative z-auto space-y-1">
       <div className="relative">
         <input
           type={isInteger ? "number" : type}
@@ -1029,7 +1029,7 @@ export function DropdownField<T>({
   const selectedLabel = options.find((opt) => opt.value === value)?.label || "";
 
   return (
-    <div ref={dropdownRef} className="relative ">
+    <div ref={dropdownRef} className="relative  ">
       <div className="relative">
         <button
           type="button"
@@ -1062,7 +1062,7 @@ export function DropdownField<T>({
         {isOpen && (
           <ul
             role="listbox"
-            className="absolute left-0 w-full mt-1 border rounded-lg border-baseSecondary bg-basePrimaryLight max-h-60 overflow-y-auto "
+            className="absolute left-0 w-full mt-1 border rounded-lg border-baseSecondary bg-basePrimaryLight max-h-60 overflow-y-auto  z-50"
           >
             {options.map((option) => (
               <li

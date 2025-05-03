@@ -22,7 +22,12 @@ import { charities as Charity } from "@prisma/client";
 interface ExtendedCharity
   extends Omit<
     Charity,
-    "website" | "contactPerson" | "contactEmail" | "backgroundPicture" | "createdAt" | "updatedAt"
+    | "website"
+    | "contactPerson"
+    | "contactEmail"
+    | "backgroundPicture"
+    | "createdAt"
+    | "updatedAt"
   > {
   website: string | null;
   contactPerson: string | null;

@@ -1,6 +1,4 @@
-import type { charityApplications  } from "@prisma/client";
-
-
+import type { charityApplications } from "@prisma/client";
 
 export type CharityMembership = {
   id: string;
@@ -41,7 +39,6 @@ export interface CharityTask {
   status: string;
   [key: string]: unknown;
 }
-
 
 export type CharityApplication = charityApplications & {
   user: {

@@ -6,6 +6,12 @@ import {
   deleteDocument,
   isMeilisearchConnected,
 } from "~/services/meilisearch.server";
+import {
+  addNovuSubscriberToTopic,
+  createTopic,
+  triggerNotification,
+} from "~/services/novu.server";
+import { getUserById } from "./user2.server";
 
 export const createCharity = async (
   charityData: Partial<charities>,
@@ -24,11 +30,42 @@ export const createCharity = async (
       },
     });
 
-    // Create the charity membership with admin role
+    if (!charity) {
+      return { charity: null, message: "No charity Found", status: 404 };
+    }
+    const { topicKey: volunteersTopicKey } = await createTopic(
+      `charity:volunteers:${charity?.id}`,
+      charity?.name,
+    );
+    const { topicKey: coordinatorTopicKey } = await createTopic(
+      `charity:coordinators:${charity?.id}`,
+      charity?.name,
+    );
+    const { topicKey: adminTopicKey } = await createTopic(
+      `charity:admins:${charity?.id}`,
+      charity?.name,
+    );
+
+    if (!volunteersTopicKey || !coordinatorTopicKey || !adminTopicKey) {
+      throw new Error("Failed to create topic keys");
+    }
+    await addNovuSubscriberToTopic([userId], adminTopicKey);
+
+    if (!volunteersTopicKey || !coordinatorTopicKey || !adminTopicKey) {
+      throw new Error("Failed to create topic keys");
+    }
+    await prisma.charities.update({
+      where: { id: charity.id },
+      data: {
+        notifyTopicId: [volunteersTopicKey, coordinatorTopicKey, adminTopicKey],
+      },
+    });
+
+    // Create the charity membership with creator role
     await createCharityMembership({
       userId,
       charityId: charity.id,
-      roles: ["admin"],
+      roles: ["creator", "admin"],
       permissions: ["create_task", "approve_volunteers", "manage_charity"],
     });
 
@@ -630,6 +667,40 @@ export const reviewCharityApplication = async (
       });
       // delete the application after creating the membership
       await deleteCharityApplication(applicationId);
+
+      const charity = await getCharity(application.charityId);
+      if (!charity) {
+        return {
+          message: "Charity not found",
+          status: 404,
+        };
+      }
+      const { user: userInfo } = await getUserById(application.userId);
+      await triggerNotification({
+        userInfo,
+        workflowId: "applications-feed",
+        notification: {
+          subject: "Application Update",
+          body: `${userInfo?.name} has accepted your application for the charity ${charity?.charity?.name}`,
+          type: "application",
+          applicationId: applicationId,
+          charityId: application.charityId,
+        },
+        type: "Subscriber",
+      });
+      const notifyTopicId =
+        charity.charity?.notifyTopicId.filter((id) =>
+          id.includes("volunteers"),
+        )[0] || null;
+
+      if (notifyTopicId) {
+        await addNovuSubscriberToTopic([application?.userId], notifyTopicId);
+      } else {
+        console.error(
+          "No notifyTopicId found for charity:",
+          charity.charity?.id,
+        );
+      }
     } else if (decision.status === "REJECTED") {
       await deleteCharityApplication(applicationId);
     }

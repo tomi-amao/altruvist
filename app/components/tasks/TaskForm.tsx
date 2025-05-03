@@ -17,7 +17,6 @@ import FileUpload from "../utils/FileUpload";
 import { Meta, UppyFile } from "@uppy/core";
 import type { tasks, TaskUrgency } from "@prisma/client";
 import { z } from "zod";
-import Notification from "../cards/NotificationCard";
 
 interface ValidationError {
   path: (string | number)[];
@@ -156,7 +155,6 @@ export default function TaskForm({
       extension: resource.extension,
     })) || [],
   );
-  const [showNotification, setShowNotification] = useState(false);
   const resetField = false;
 
   // Schema definitions
@@ -220,9 +218,6 @@ export default function TaskForm({
     if (!isSubmitting) {
       onSubmit(formData);
     }
-
-    setShowNotification(true);
-    setTimeout(() => setShowNotification(false), 3000);
   };
 
   const handleFileDelete = async (file: string) => {
@@ -623,22 +618,6 @@ export default function TaskForm({
           )}
         </div>
       </Form>
-
-      {showNotification && (
-        <div className="fixed top-4 right-4">
-          {serverValidation.length > 0 ? (
-            <Notification
-              message={`Unable to ${isEditing ? "update" : "create"} task`}
-              type="error"
-            />
-          ) : (
-            <Notification
-              message={`Task successfully ${isEditing ? "updated" : "created"}`}
-              type="success"
-            />
-          )}
-        </div>
-      )}
     </div>
   );
 }

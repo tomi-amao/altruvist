@@ -47,6 +47,7 @@ model charities {
   charityApplications charityApplications[] // Relation to charity applications
   tags               String[]
   taskApplications   taskApplications[]
+  notifyTopicId     String[]
 }
 
 model tasks {
