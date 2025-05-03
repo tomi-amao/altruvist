@@ -194,9 +194,8 @@ export default function ProfilePage() {
           {(isMyProfile || charityMemberships.memberships?.length > 0) && (
             <div className="bg-basePrimaryLight rounded-xl shadow-md overflow-hidden">
               <div className="px-6 py-5 border-b border-baseSecondary/10 flex justify-between items-center">
-                <h2 className="text-xl font-semibold text-baseSecondary flex items-center gap-2">
-                  <Buildings size={20} />
-                  <span>Charity Memberships</span>
+                <h2 className="text-7xl font-semibold  text-baseSecondary flex items-center gap-2">
+                  Charity Memberships
                 </h2>
                 {isMyProfile && isVolunteer && (
                   <Link
@@ -228,13 +227,7 @@ export default function ProfilePage() {
                               {membership.charity.name}
                             </Link>
                             {isMyProfile && (
-                              <div className="flex items-center">
-                                <span className="text-xs text-baseSecondary/60 mr-2">
-                                  Joined
-                                  {new Date(
-                                    membership.joinedAt,
-                                  ).toLocaleDateString()}
-                                </span>
+                              <div className="flex items-center space-x-4">
                                 <button
                                   onClick={(e) => {
                                     e.preventDefault();
@@ -259,11 +252,11 @@ export default function ProfilePage() {
                               </div>
                             )}
                           </div>
-                          <div className="mt-1 flex flex-wrap gap-1">
+                          <div className="mt-1 flex flex-wrap gap-1 ">
                             {membership.roles.map((role, idx) => (
                               <span
                                 key={idx}
-                                className="text-xs bg-baseSecondary text-basePrimaryLight px-2 py-0.5 rounded-full capitalize"
+                                className="text-xs   bg-accentPrimary px-2 py-0.5 rounded-full capitalize"
                               >
                                 {role}
                               </span>
@@ -488,32 +481,101 @@ export default function ProfilePage() {
                 <span className="bg-basePrimary rounded-full px-3 py-1 text-sm font-medium text-baseSecondary">
                   {(isCharity
                     ? createdTasks?.length
-                    : completedTasks?.length) || 0}
+                    : completedTasks?.length) || 0}{" "}
+                  {""}
                   Tasks
                 </span>
               </div>
             </div>
 
             <div className="p-6">
-              {isCharity && createdTasks?.length === 0 && (
+              {isCharity && (!createdTasks || createdTasks.length === 0) && (
                 <p className="text-center py-6 text-baseSecondary/70">
                   No tasks created yet.
                 </p>
               )}
 
-              {isVolunteer && completedTasks?.length === 0 && (
-                <p className="text-center py-6 text-baseSecondary/70">
-                  No completed tasks yet.
-                </p>
-              )}
+              {isVolunteer &&
+                (!completedTasks || completedTasks.length === 0) && (
+                  <p className="text-center py-6 text-baseSecondary/70">
+                    No completed tasks yet.
+                  </p>
+                )}
 
-              {((isCharity && createdTasks?.length > 0) ||
-                (isVolunteer && completedTasks?.length > 0)) && (
-                <DataTable
-                  data={isCharity ? createdTasks : completedTasks}
-                  handleRowClick={(item) => handleRowClick(item)}
-                  itemsPerPage={5}
-                />
+              {((isCharity && createdTasks && createdTasks.length > 0) ||
+                (isVolunteer &&
+                  completedTasks &&
+                  completedTasks.length > 0)) && (
+                <div className="overflow-x-auto">
+                  <DataTable
+                    data={isCharity ? createdTasks || [] : completedTasks || []}
+                    handleRowClick={(item) => handleRowClick(item)}
+                    itemsPerPage={5}
+                    columns={[
+                      {
+                        key: "title",
+                        header: "Title",
+                        render: (item) => (
+                          <div className="text-sm font-medium text-baseSecondary">
+                            {item.title}
+                          </div>
+                        ),
+                        wrap: false,
+                      },
+                      {
+                        key: "description",
+                        header: "Description",
+                        render: (item) => (
+                          <div className="text-sm text-baseSecondary/80 truncate max-w-xs">
+                            {item.description}
+                          </div>
+                        ),
+                      },
+                      // {
+                      //   key: 'urgency',
+                      //   header: 'Urgency',
+                      //   render: (item) => (
+                      //     <div className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium
+                      //       ${item.urgency === 'HIGH' ? 'bg-dangerPrimary/20 text-dangerPrimary' :
+                      //         item.urgency === 'MEDIUM' ? 'bg-indicator-orange/20 text-indicator-orange' :
+                      //         'bg-baseSecondary/10 text-baseSecondary'}`}>
+                      //       {item.urgency}
+                      //     </div>
+                      //   )
+                      // },
+                      {
+                        key: "status",
+                        header: "Status",
+                        render: (item) => (
+                          <div
+                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium
+                            ${
+                              item.status === "OPEN"
+                                ? "bg-confirmPrimary/20 text-confirmPrimary"
+                                : item.status === "IN_PROGRESS"
+                                  ? "bg-indicator-blue/20 text-indicator-blue"
+                                  : item.status === "COMPLETED"
+                                    ? "bg-indicator-green/20 text-indicator-green"
+                                    : "bg-baseSecondary/10 text-baseSecondary"
+                            }`}
+                          >
+                            {item.status?.replace("_", " ")}
+                          </div>
+                        ),
+                        wrap: false,
+                      },
+                      // {
+                      //   key: 'deadline',
+                      //   header: 'Deadline',
+                      //   render: (item) => (
+                      //     <div className="text-sm text-baseSecondary/80">
+                      //       {new Date(item.deadline).toLocaleDateString()}
+                      //     </div>
+                      //   )
+                      // }
+                    ]}
+                  />
+                </div>
               )}
             </div>
           </div>

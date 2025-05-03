@@ -221,7 +221,7 @@ export default function LandingHeader({
                       }`}
                       whileHover={{ scale: 1.02 }}
                     >
-                      <div className="w-8 h-8 rounded-full bg-accentPrimary/20 flex items-center justify-center text-accentPrimary mx-2">
+                      <div className="w-8 h-8 mr-6 rounded-full bg-accentPrimary/20 flex items-center justify-center text-accentPrimary mx-2">
                         {
                           <Avatar
                             name={userInfo?.name}

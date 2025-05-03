@@ -228,8 +228,10 @@ export default function CharityResources() {
             >
               <h1 className="inline-block text-baseSecondary text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mt-4">
                 Charity
-                <span className="text-baseSecondary text-6xl">Resources</span>
               </h1>
+              <span className="ml-2 text-baseSecondary text-5xl">
+                Resources
+              </span>
               <p className="mt-4 text-lg text-midGrey max-w-2xl mx-auto">
                 Tools, guides, and best practices to help your organization make
                 the most of skilled volunteers on the Altruist platform.

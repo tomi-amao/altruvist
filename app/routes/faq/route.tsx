@@ -194,8 +194,10 @@ export default function FAQPage() {
             >
               <h1 className="inline-block text-baseSecondary text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mt-4">
                 Frequently Asked
-                <span className="text-baseSecondary text-6xl">Questions</span>
               </h1>
+              <span className="ml-2  text-baseSecondary text-5xl">
+                Questions
+              </span>
               <p className="mt-4 text-lg text-midGrey max-w-2xl mx-auto">
                 Find answers to common questions about using Altruist for both
                 volunteers and charities

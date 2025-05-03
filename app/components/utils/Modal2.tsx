@@ -1,5 +1,6 @@
 import React, { useEffect, useCallback, useState } from "react";
 import { createPortal } from "react-dom";
+import { X } from "@phosphor-icons/react"; // Import X icon from phosphor icons
 
 type ModalProps = {
   isOpen: boolean;
@@ -68,14 +69,19 @@ export const Modal: React.FC<ModalProps> = ({
         aria-hidden="true"
       />
       <div className="relative bg-basePrimaryLight rounded-lg w-fit z-10 max-h-[80vh] overflow-y-auto">
-        <div className="relative">
+        <div className="">
           {children}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full    text-xl font-bold hover:bg-dangerPrimary transition-colors"
+            className="absolute top-3 right-3 w-10 h-10 flex items-center justify-center rounded-full text-baseSecondary hover:bg-dangerPrimary hover:text-basePrimary transition-colors"
             aria-label="Close modal"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
           >
-            &times;
+            <X size={24} weight="bold" />
           </button>
         </div>
       </div>

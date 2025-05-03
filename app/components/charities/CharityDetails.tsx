@@ -186,7 +186,7 @@ export function CharityDetails({
                       href={`https://${charity.website}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-accentPrimary hover:text-accentSecondary flex items-center gap-2"
+                      className="text-baseSecondary hover:text-accentSecondary flex items-center gap-2"
                     >
                       <ArrowSquareOut
                         size={16}

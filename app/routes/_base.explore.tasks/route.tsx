@@ -460,11 +460,13 @@ export default function Explore() {
   ];
   return (
     <>
-      <div className="m-auto lg:w-8/12  w-full p-4  ">
-        <h1 className="mt-16 text-3xl lg:text-5xl font-semibold ">
+      <div className="m-auto lg:w-11/12  w-full p-4  ">
+        <h1 className="mt-8 text-3xl lg:text-5xl font-semibold ">
           Make a difference
         </h1>
-        <h2> Help charities innovate and make a lasting impact </h2>
+        <p className="text-baseSecondary/70">
+          Help charities innovate and make a lasting impact{" "}
+        </p>
         <div className="flex flex-row gap-4 justify-center items-center border-b-2 border-b-baseSecondary p-4 overflow-x-auto">
           {/* Added overflow handling and made responsive with flex-shrink-0 */}
           <div className="w-2/12 min-w-[120px] h-60 flex-shrink-0">

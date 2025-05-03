@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { Link, useFetcher, useNavigate } from "@remix-run/react";
 import { PrimaryButton, SecondaryButton } from "../utils/BasicButton";
 import { FilePreviewButton } from "../utils/FormField";
+import { getColorValue } from "../utils/ColourGenerator";
 import {
   Clock,
   Users,
@@ -86,6 +87,13 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showShareTooltip, setShowShareTooltip] = useState(false);
+
+  // For generating colored dots for category and skills
+  const getColorDot = (value: string) => {
+    const color = getColorValue(value);
+
+    return color; // Return the direct hex color value
+  };
 
   // Effect to automatically hide success/error messages after 5 seconds
   useEffect(() => {
@@ -267,41 +275,6 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
     );
   };
 
-  const getUrgencyColor = (urgency: TaskUrgency) => {
-    switch (urgency) {
-      case "HIGH":
-        return "bg-dangerPrimary";
-      case "MEDIUM":
-        return "bg-baseSecondary";
-      case "LOW":
-        return "bg-confirmPrimary";
-      default:
-        return "bg-altMidGrey";
-    }
-  };
-
-  // For generating colored dots for category and skills
-  const getColorDot = (value: string) => {
-    // Simple hash function to get consistent colors for the same string
-    const hash = value
-      .split("")
-      .reduce((acc, char) => char.charCodeAt(0) + acc, 0);
-    const colors = [
-      "red",
-      "blue",
-      "green",
-      "yellow",
-      "purple",
-      "pink",
-      "indigo",
-      "orange",
-      "teal",
-      "cyan",
-    ];
-    const colorIndex = hash % colors.length;
-    return `bg-indicator-${colors[colorIndex]}`;
-  };
-
   return (
     <article className="bg-basePrimary rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl border border-baseSecondary/10">
       {/* Hero Section */}
@@ -311,29 +284,9 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
 
         <div className="space-y-4 relative z-10">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
-            <h1 className="text-2xl md:text-3xl font-semibold text-baseSecondary tracking-tight">
+            <h1 className="text-lg md:text-3xl font-semibold text-baseSecondary tracking-tight">
               {taskData.title}
             </h1>
-            <div className="flex items-center gap-2">
-              <span
-                className={`
-                ${getUrgencyColor(taskData.urgency)} 
-                px-3 py-1.5 
-                rounded-full 
-                text-txtsecondary 
-                text-sm 
-                font-medium
-                transition-all
-                hover:scale-105
-                flex items-center
-              `}
-              >
-                {taskData.urgency === "HIGH" && (
-                  <span className="h-2 w-2 rounded-full bg-txtsecondary animate-pulse mr-1.5"></span>
-                )}
-                {taskData.urgency.toLowerCase()} priority
-              </span>
-            </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-6 text-baseSecondary/80">
@@ -360,6 +313,19 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
                   : taskData.location.address}
               </span>
             )}
+
+            <div
+              className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium
+                            ${
+                              taskData.urgency === "HIGH"
+                                ? "bg-dangerPrimary/20 text-dangerPrimary"
+                                : taskData.urgency === "MEDIUM"
+                                  ? "bg-indicator-orange/20 text-indicator-orange"
+                                  : "bg-baseSecondary/10 text-baseSecondary"
+                            }`}
+            >
+              {taskData.urgency}
+            </div>
           </div>
         </div>
       </div>
@@ -367,7 +333,7 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
       {/* Charity Badge */}
       <div className="bg-basePrimaryLight px-6 py-3 border-b border-baseSecondary/10">
         <div className="flex justify-between items-center">
-          <span className="text-sm text-baseSecondary/80">
+          <span className="text-sm text-baseSecondary/80 space-x-2">
             Posted by
             <Link to={`/charity/${taskData.charityId}`} className="ml-1">
               <span className="font-medium text-baseSecondary">
@@ -411,7 +377,7 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
 
       {/* Main Content */}
       <div
-        className={`p-6 space-y-6 ${!isExpanded ? "max-h-[700px] overflow-hidden" : ""} transition-all duration-500`}
+        className={`p-6 space-y-6 ${!isExpanded ? "max-h-[700px] overflow-auto" : ""} transition-all duration-500`}
       >
         {/* Impact Card */}
         <section className="bg-basePrimaryLight rounded-lg p-5 transform transition-all hover:scale-[1.01] relative overflow-hidden">
@@ -531,7 +497,8 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
                         cursor-default flex items-center gap-1.5"
                     >
                       <span
-                        className={`inline-block w-2 h-2 rounded-full ${getColorDot(skill)}`}
+                        className="inline-block w-2 h-2 rounded-full"
+                        style={{ backgroundColor: getColorDot(skill) }}
                       ></span>
                       {skill}
                     </span>
@@ -562,7 +529,8 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
                       cursor-default flex items-center gap-1.5"
                   >
                     <span
-                      className={`inline-block w-2 h-2 rounded-full ${getColorDot(cat)}`}
+                      className="inline-block w-2 h-2 rounded-full"
+                      style={{ backgroundColor: getColorDot(cat) }}
                     ></span>
                     {cat}
                   </span>

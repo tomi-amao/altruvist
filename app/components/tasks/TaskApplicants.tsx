@@ -140,12 +140,12 @@ export function TaskApplicants({
             className="text-baseSecondary/70"
             weight="thin"
           />
-          <h2
+          <h3
             id="applicants-heading"
             className="text-base font-semibold tracking-wide text-baseSecondary"
           >
-            Task Applicants
-          </h2>
+            Applicants
+          </h3>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-baseSecondary">Spots remaining:</span>

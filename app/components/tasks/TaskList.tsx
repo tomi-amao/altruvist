@@ -95,7 +95,7 @@ export function TaskList({
         case "COMPLETED":
           return "bg-confirmPrimary text-basePrimaryLight";
         case "NOT_STARTED":
-          return "bg-accentPrimary text-basePrimaryLight";
+          return "bg-accentPrimary text-baseSecondary";
         case "ACCEPTED":
           return "bg-confirmPrimary text-basePrimaryLight";
         case "PENDING":

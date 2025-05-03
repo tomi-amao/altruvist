@@ -145,7 +145,7 @@ const ListItem = ({
 
 const Section = ({ title, tasks, userRole }: SectionProps) => (
   <div className="bg-basePrimary rounded-lg shadow-lg overflow-hidden flex flex-col">
-    <h2 className="text-xl font-semibold font-primary p-4 bg-baseSecondary text-txtsecondary sticky top-0">
+    <h2 className="text-xl !text-basePrimary font-semibold font-primary p-4 bg-baseSecondary text-txtsecondary sticky top-0">
       {title}
     </h2>
     <div className="divide-y divide-basePrimaryDark overflow-y-auto max-h-[200px] sm:max-h-[250px] md:max-h-[300px] lg:max-h-[350px]">

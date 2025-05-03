@@ -197,7 +197,7 @@ export default function AccountSettings() {
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="flex flex-col md:flex-row gap-6">
         {/* Sidebar */}
-        <div className="md:w-1/4">
+        <div className="md:w-2/6">
           <div className="bg-basePrimary rounded-lg p-4 shadow-lg">
             <div className="flex items-center gap-4 mb-6 p-2">
               <Avatar
@@ -209,9 +209,7 @@ export default function AccountSettings() {
                 <h3 className="text-baseSecondary font-medium">
                   {userInfo?.name}
                 </h3>
-                <p className="text-altMidGrey text-sm break-all">
-                  {userInfo?.email}
-                </p>
+                <p className="tex text-xs break-all">{userInfo?.email}</p>
               </div>
             </div>
 

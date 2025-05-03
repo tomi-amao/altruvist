@@ -9,7 +9,7 @@ import TaskForm from "./TaskForm";
 import { TaskApplicants } from "./TaskApplicants";
 import { CommentSection } from "../comment/Comment";
 import { Alert } from "../utils/Alert";
-import getColour from "../utils/ColourGenerator";
+import { ColorDot } from "../utils/ColourGenerator";
 import {
   Files,
   Info,
@@ -191,16 +191,6 @@ export function TaskDetails({
   // Ensure we have valid data
   const displayData = formData || task;
   const requiredSkills = displayData.requiredSkills || [];
-
-  const listDotStyling = (value: string) => {
-    const dotColour = getColour(value);
-    const colorClass = `bg-indicator-${dotColour}`;
-    return (
-      <span
-        className={`inline-block w-2 h-2 rounded-full ${colorClass}`}
-      ></span>
-    );
-  };
 
   return (
     <motion.div
@@ -473,12 +463,12 @@ export function TaskDetails({
                         weight="regular"
                         className="text-baseSecondary/70"
                       />
-                      <h2
+                      <h3
                         id="resources-heading"
                         className="text-sm font-semibold tracking-wide text-baseSecondary"
                       >
                         Resources & Materials
-                      </h2>
+                      </h3>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -525,7 +515,7 @@ export function TaskDetails({
                         className="absolute inset-0 bg-gradient-to-r from-accentPrimary/5 to-transparent 
                     opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                       />
-                      <h3 className="text-xs font-medium uppercase tracking-wider text-baseSecondary/70 mb-1">
+                      <h3 className="text-xs font-medium  tracking-wider text-baseSecondary/70 mb-1">
                         Team Size
                       </h3>
                       <div className="flex items-baseline gap-1">
@@ -542,7 +532,7 @@ export function TaskDetails({
                     {/* Required Skills Section */}
                     <div>
                       <h3
-                        className="text-xs font-medium uppercase tracking-wider text-baseSecondary/70 mb-2
+                        className="text-xs font-medium  tracking-wider text-baseSecondary/70 mb-2
                       flex items-center gap-1"
                       >
                         <Lightbulb
@@ -562,7 +552,7 @@ export function TaskDetails({
                         hover:border-baseSecondary/20 hover:shadow-sm hover:scale-105
                         flex items-center gap-1"
                             >
-                              {listDotStyling(skill)}
+                              <ColorDot value={skill} />
                               {skill}
                             </span>
                           ))
@@ -579,7 +569,7 @@ export function TaskDetails({
                   {displayData.category && displayData.category.length > 0 && (
                     <div className="mt-3 sm:mt-4">
                       <h3
-                        className="text-xs font-medium uppercase tracking-wider text-baseSecondary/70 mb-2
+                        className="text-xs font-medium  tracking-wider text-baseSecondary/70 mb-2
                         flex items-center gap-1"
                       >
                         <Tag
@@ -602,7 +592,7 @@ export function TaskDetails({
                               hover:border-baseSecondary/20 hover:shadow-sm
                               flex items-center gap-1"
                           >
-                            {listDotStyling(cat)}
+                            <ColorDot value={cat} />
 
                             <span
                               className="text-xs font-medium text-baseSecondary/80 
@@ -620,7 +610,7 @@ export function TaskDetails({
                   {displayData.location && (
                     <div className="mt-3 sm:mt-4">
                       <h3
-                        className="text-xs font-medium uppercase tracking-wider text-baseSecondary/70 mb-2
+                        className="text-xs font-medium  tracking-wider text-baseSecondary/70 mb-2
                         flex items-center gap-1"
                       >
                         <MapPin
@@ -654,7 +644,7 @@ export function TaskDetails({
                   {!displayData.location && (
                     <div className="mt-3 sm:mt-4">
                       <h3
-                        className="text-xs font-medium uppercase tracking-wider text-baseSecondary/70 mb-2
+                        className="text-xs font-medium  tracking-wider text-baseSecondary/70 mb-2
                         flex items-center gap-1"
                       >
                         <MapPin
@@ -677,7 +667,7 @@ export function TaskDetails({
                   {userRole.includes("charity") && (
                     <div className="mt-3 sm:mt-4">
                       <h3
-                        className="text-xs font-medium uppercase tracking-wider text-baseSecondary/70 mb-2
+                        className="text-xs font-medium  tracking-wider text-baseSecondary/70 mb-2
                         flex items-center gap-1"
                       >
                         <Info

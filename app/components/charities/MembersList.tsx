@@ -1,10 +1,11 @@
 import { format } from "date-fns";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useFetcher } from "@remix-run/react";
 import type { CharityMembership } from "~/types/charities";
 import { Modal } from "~/components/utils/Modal2";
 import { PrimaryButton, SecondaryButton } from "~/components/utils/BasicButton";
 import { Warning, Check } from "@phosphor-icons/react";
+import DataTable, { Column } from "~/components/cards/DataTable";
 
 type MembersListProps = {
   members: CharityMembership[];
@@ -500,105 +501,138 @@ export function MembersList({
     }
   }, [fetcher.data, fetcher.state, initialMembers, onMemberUpdate]);
 
+  // Define columns for the DataTable
+  const columns = useMemo<Column<CharityMembership>[]>(
+    () => [
+      {
+        key: "name",
+        header: "Name",
+        render: (member) => (
+          <div className="text-sm font-medium text-baseSecondary">
+            {member.user.name}
+          </div>
+        ),
+      },
+      {
+        key: "email",
+        header: "Email",
+        render: (member) => (
+          <div className="text-sm text-baseSecondary/80">
+            {member.user.email}
+          </div>
+        ),
+      },
+      {
+        key: "roles",
+        header: "Role",
+        render: (member) => (
+          <div className="flex flex-wrap gap-1">
+            {member.roles.map((role) => (
+              <span
+                key={role}
+                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize
+                ${
+                  role === "admin"
+                    ? "bg-confirmPrimary/20 text-confirmPrimary"
+                    : role === "creator"
+                      ? "bg-indicator-orange/20 text-indicator-orange"
+                      : "bg-baseSecondary/10 text-baseSecondary"
+                }`}
+              >
+                {role}
+              </span>
+            ))}
+          </div>
+        ),
+      },
+      {
+        key: "joinedAt",
+        header: "Joined",
+        render: (member) => (
+          <div className="text-sm text-baseSecondary/80">
+            {format(new Date(member.joinedAt), "MMM d, yyyy")}
+          </div>
+        ),
+      },
+      ...(isAdmin
+        ? [
+            {
+              key: "actions",
+              header: "Actions",
+              render: (member) => (
+                <div className="text-right">
+                  <button
+                    className="text-baseSecondary bg-baseSecondary/20 px-2 rounded-lg py-1 hover:text-accentPrimary/50 font-medium"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent row click
+                      handleManageMember(member);
+                    }}
+                  >
+                    Manage
+                  </button>
+                </div>
+              ),
+            },
+          ]
+        : []),
+    ],
+    [isAdmin],
+  );
+
+  // Mobile component render
+  const renderMobileMember = (member: CharityMembership) => (
+    <div className="p-4 bg-basePrimary/30 rounded-lg border border-baseSecondary/10">
+      <div className="flex justify-between items-start mb-2">
+        <div>
+          <h3 className="font-medium text-baseSecondary">{member.user.name}</h3>
+          <p className="text-sm text-baseSecondary/80">{member.user.email}</p>
+        </div>
+        {isAdmin && (
+          <button
+            className="text-baseSecondary bg-baseSecondary/20 px-2 rounded-lg py-1 hover:text-accentPrimary/50 font-medium"
+            onClick={() => handleManageMember(member)}
+          >
+            Manage
+          </button>
+        )}
+      </div>
+      <div className="flex flex-wrap gap-1 mb-2">
+        {member.roles.map((role) => (
+          <span
+            key={role}
+            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium capitalize
+              ${
+                role === "admin"
+                  ? "bg-confirmPrimary/20 text-confirmPrimary"
+                  : role === "creator"
+                    ? "bg-indicator-orange/20 text-indicator-orange"
+                    : "bg-baseSecondary/10 text-baseSecondary"
+              }`}
+          >
+            {role}
+          </span>
+        ))}
+      </div>
+      <p className="text-xs text-baseSecondary/70">
+        Joined: {format(new Date(member.joinedAt), "MMM d, yyyy")}
+      </p>
+    </div>
+  );
+
   return (
     <div className="p-6">
       <h2 className="text-xl font-semibold text-baseSecondary mb-4">
         Charity Members
       </h2>
 
-      {members.length === 0 ? (
-        <div className="p-8 text-center">
-          <p className="text-baseSecondary/70">
-            No members found for this charity.
-          </p>
-        </div>
-      ) : (
-        <div className="overflow-hidden rounded-lg border border-baseSecondary/10">
-          <table className="min-w-full divide-y divide-baseSecondary/10">
-            <thead className="bg-basePrimary/60">
-              <tr>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-baseSecondary/70 uppercase tracking-wider"
-                >
-                  Name
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-baseSecondary/70 uppercase tracking-wider"
-                >
-                  Email
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-baseSecondary/70 uppercase tracking-wider"
-                >
-                  Role
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-baseSecondary/70 uppercase tracking-wider"
-                >
-                  Joined
-                </th>
-                {isAdmin && (
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-right text-xs font-medium text-baseSecondary/70 uppercase tracking-wider"
-                  >
-                    Actions
-                  </th>
-                )}
-              </tr>
-            </thead>
-            <tbody className="bg-basePrimary/30 divide-y divide-baseSecondary/10">
-              {members.map((member) => (
-                <tr
-                  key={member.id}
-                  className="hover:bg-basePrimary/50 transition-colors"
-                >
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-baseSecondary">
-                      {member.user.name}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-baseSecondary/80">
-                      {member.user.email}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex flex-wrap gap-1">
-                      {member.roles.map((role) => (
-                        <span
-                          key={role}
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize
-                            ${role === "admin" ? "bg-confirmPrimary/20 text-confirmPrimary" : role === "creator" ? "bg-indicator-orange/20 text-indicator-orange" : "bg-baseSecondary/10 text-baseSecondary"}`}
-                        >
-                          {role}
-                        </span>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-baseSecondary/80">
-                    {format(new Date(member.joinedAt), "MMM d, yyyy")}
-                  </td>
-                  {isAdmin && (
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                      <button
-                        className="text-baseSecondary bg-baseSecondary/20 px-2 rounded-lg py-1 hover:text-accentPrimary/50 font-medium"
-                        onClick={() => handleManageMember(member)}
-                      >
-                        Manage
-                      </button>
-                    </td>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <DataTable
+        data={members}
+        columns={columns}
+        emptyMessage="No members found for this charity."
+        keyExtractor={(member) => member.id}
+        mobileComponent={renderMobileMember}
+        itemsPerPage={10}
+      />
 
       {/* Management Modal */}
       <MemberManageModal

@@ -283,44 +283,56 @@ export const SearchDropdown = ({
     switch (searchResults.collection) {
       case "altruvist_charities":
         return (
-          <button className="flex text-left items-center m-auto rounded-md space-x-2 hover:bg-basePrimaryLight w-full p-2">
+          <button className="flex  text-left items-center m-auto rounded-md space-x-2 hover:bg-basePrimaryDark w-full p-2">
             <span>
-              <Buildings className="w-5 h-5" />
+              <Buildings
+                size={24}
+                className=" text-baseSecondary"
+                weight="regular"
+              />
             </span>
             <div>
-              <p> {searchResults.data.name} </p>
-              <p className="text-xs">{searchResults.data.description}</p>
+              <p className="text-baseSecondary"> {searchResults.data.name} </p>
+              <p className="text-xs ">{searchResults.data.description}</p>
             </div>
           </button>
         );
       case "altruvist_tasks":
         return (
           <button
-            className="flex text-left items-center m-auto rounded-md space-x-2 hover:bg-basePrimaryLight w-full p-2"
+            className="flex text-left  items-center m-auto rounded-md space-x-2 hover:bg-basePrimaryDark w-full p-2"
             onClick={() =>
               navigate(`/search/?query=${searchResults.data.title}`)
             }
           >
             <span>
-              <ClipboardText size={24} weight="regular" />
+              <ClipboardText
+                size={24}
+                weight="regular"
+                className="text-baseSecondary"
+              />
             </span>
             <div>
-              <p> {searchResults.data.title} </p>
-              <p className="text-xs"> {searchResults.data.description}</p>
+              <p className="text-baseSecondary"> {searchResults.data.title} </p>
+              <p className="text-xs "> {searchResults.data.description}</p>
             </div>
           </button>
         );
       case "altruvist_users":
         return (
           <button
-            className="flex text-left items-center m-auto rounded-md space-x-2 hover:bg-basePrimaryLight w-full p-2"
+            className="flex text-left  items-center m-auto rounded-md space-x-2 hover:bg-basePrimaryDark w-full p-2"
             onClick={() => navigate(`/profile/${searchResults.data.id}`)}
           >
             <span>
-              <UserCircle className="w-5 h-5" />
+              <UserCircle
+                size={24}
+                className="text-baseSecondary"
+                weight="regular"
+              />
             </span>
             <div>
-              <p> {searchResults.data.name} </p>
+              <p className="text-baseSecondary"> {searchResults.data.name} </p>
               <p className="text-xs"> {searchResults.data.bio} </p>
             </div>
           </button>
@@ -335,7 +347,7 @@ export const SearchDropdown = ({
       {searchResults !== undefined && searchResults.length > 0 ? (
         <div>
           {searchResults.map((result, index) => (
-            <div key={index}>
+            <div key={index} className="bg-basePrimaryLight ">
               {renderSearchResult(result as unknown as MultiSearchDocuments)}
             </div>
           ))}

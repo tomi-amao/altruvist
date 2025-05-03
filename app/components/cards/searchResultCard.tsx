@@ -13,7 +13,7 @@ export interface SearchResultCardType extends MultiSearchDocuments {
 
 // Reusable styled tag component for consistency
 const Tag = ({ children }: { children: React.ReactNode }) => (
-  <span className="rounded-sm bg-basePrimaryLight px-2 py-0.5 text-xs md:text-sm font-medium mr-1">
+  <span className="rounded-sm bg-baseSecondary/20    px-2  text-xs md:text-sm  mr-1">
     {children}
   </span>
 );
@@ -42,14 +42,16 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
         if (searchResults.all || searchResults.charities) {
           return (
             <button
-              className="flex text-left items-start bg-basePrimaryDark rounded-md mb-2 hover:bg-basePrimaryLight w-full p-3 transition-colors duration-200"
-              onClick={() =>
-                searchResults.handleSelectedSearchItem(searchResults.data)
-              }
+              className="flex text-left items-start bg-basePrimaryLight rounded-md mb-2 hover:bg-basePrimaryDark w-full p-3 transition-colors duration-200"
+              onClick={() => navigate(`/charity/${searchResults.data.id}`)}
             >
               <div className="flex text-left items-start space-x-3 w-full">
                 <span className="mt-1 text-baseSecondary">
-                  <Buildings size={28} weight="regular" />
+                  <Buildings
+                    size={28}
+                    weight="regular"
+                    className="text-baseSecondary"
+                  />
                 </span>
                 <div className="flex-1">
                   <p className="font-semibold text-lg md:text-xl text-baseSecondary">
@@ -73,7 +75,7 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
                     {searchResults.data.website && (
                       <div className="flex items-center">
                         <Label>Website</Label>
-                        <span className="flex items-center text-xs md:text-sm">
+                        <span className="flex items-center text-xs md:text-sm bg-amber-200/40 px-2 rounded-md">
                           <Globe size={14} className="mr-1" />
                           {extractDomain(searchResults.data.website)}
                         </span>
@@ -91,14 +93,18 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
         if (searchResults.all || searchResults.tasks) {
           return (
             <button
-              className="flex text-left items-start bg-basePrimaryDark rounded-md mb-2 hover:bg-basePrimaryLight w-full p-3 transition-colors duration-200"
+              className="flex text-left items-start bg-basePrimaryLight rounded-md mb-2 hover:bg-basePrimaryDark w-full p-3 transition-colors duration-200"
               onClick={() =>
                 searchResults.handleSelectedSearchItem(searchResults.data)
               }
             >
               <div className="flex text-left items-start space-x-3 w-full">
                 <span className="mt-1 text-baseSecondary">
-                  <ClipboardText size={28} weight="regular" />
+                  <ClipboardText
+                    size={28}
+                    weight="regular"
+                    className="text-yellow-900"
+                  />
                 </span>
                 <div className="flex-1">
                   <p className="font-semibold text-lg md:text-xl text-baseSecondary">
@@ -181,7 +187,7 @@ export default function SearchResultCard(searchResults: SearchResultCardType) {
 
           return (
             <button
-              className="flex text-left items-start bg-basePrimaryDark rounded-md mb-2 hover:bg-basePrimaryLight w-full p-3 transition-colors duration-200"
+              className="flex text-left items-start bg-basePrimaryLight rounded-md mb-2 hover:bg-basePrimaryDark w-full p-3 transition-colors duration-200"
               onClick={() => navigate(`/profile/${searchResults.data.id}`)}
             >
               <div className="flex text-left items-start space-x-3 w-full">

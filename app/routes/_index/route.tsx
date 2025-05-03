@@ -17,7 +17,7 @@ import { prisma } from "~/services/db.server";
 import Notification from "~/components/cards/NotificationCard";
 import { subDays } from "date-fns/subDays";
 import LandingHeader from "~/components/navigation/LandingHeader";
-import LineGraph from "~/components/graphs/IndexGraph";
+// import LineGraph from "~/components/graphs/IndexGraph";
 import { useEffect, useRef, useState } from "react";
 import { Modal } from "~/components/utils/Modal2";
 import TaskDetailsCard from "~/components/tasks/taskDetailsCard";
@@ -38,7 +38,6 @@ export const meta: MetaFunction = () => {
 
 export default function Index() {
   const { userInfo, error, recentTasks } = useLoaderData<typeof loader>();
-  const [showGraph, setShowGraph] = useState(false);
   const statsRef = useRef<HTMLDivElement>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -54,35 +53,15 @@ export default function Index() {
     }
   }, [error]);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            // Delay the graph appearance
-            setTimeout(() => setShowGraph(true), 1000);
-          }
-        });
-      },
-      { threshold: 0.5 },
-    );
-
-    if (statsRef.current) {
-      observer.observe(statsRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
-  const sampleData = [
-    { x: new Date("2023-01-01"), y: 50 },
-    { x: new Date("2023-02-01"), y: 60 },
-    { x: new Date("2023-03-01"), y: 45 },
-    { x: new Date("2023-04-01"), y: 70 },
-    { x: new Date("2023-05-01"), y: 65 },
-    { x: new Date("2023-06-01"), y: 85 },
-    { x: new Date("2023-07-01"), y: 90 },
-  ];
+  // const sampleData = [
+  //   { x: new Date("2023-01-01"), y: 50 },
+  //   { x: new Date("2023-02-01"), y: 60 },
+  //   { x: new Date("2023-03-01"), y: 45 },
+  //   { x: new Date("2023-04-01"), y: 70 },
+  //   { x: new Date("2023-05-01"), y: 65 },
+  //   { x: new Date("2023-06-01"), y: 85 },
+  //   { x: new Date("2023-07-01"), y: 90 },
+  // ];
 
   const stats = [
     {
@@ -143,7 +122,7 @@ export default function Index() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-5xl lg:text-7xl font-bold text-accentPrimary  mb-6">
+            <h1 className="text-5xl lg:text-7xl font-bold !text-accentPrimary  mb-6">
               Donate Your Skills, Make a Difference
             </h1>
             {clientSideError && (
@@ -258,7 +237,7 @@ export default function Index() {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-10 max-w-5xl mx-auto text-basePrimary">
+          <div className="grid md:grid-cols-3 gap-10 max-w-5xl mx-auto !text-basePrimary">
             {[
               {
                 title: "Register",
@@ -295,7 +274,7 @@ export default function Index() {
                 <div className="w-16 h-16 rounded-full bg-accentPrimary/10 text-accentPrimary flex items-center justify-center mb-6 mx-auto">
                   {step.icon}
                 </div>
-                <h3 className="text-2xl font-bold mb-4 text-accentPrimary/90">
+                <h3 className="text-2xl font-bold mb-4 !text-accentPrimary/90">
                   {step.title}
                 </h3>
                 <p className="text-basePrimary">{step.description}</p>
@@ -367,7 +346,6 @@ export default function Index() {
               <motion.div
                 className=" inset-0"
                 initial={{ opacity: 1 }}
-                animate={{ opacity: showGraph ? 0 : 1 }}
                 transition={{ duration: 0.8 }}
               >
                 <img
@@ -375,28 +353,6 @@ export default function Index() {
                   alt="Impact Visualization"
                   className="w-full h-full object-cover rounded-xl"
                 />
-              </motion.div>
-
-              <motion.div
-                className="md:absolute relative -top-32 md:top-0 inset-0"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: showGraph ? 1 : 0 }}
-                transition={{ duration: 0.8 }}
-              >
-                <div className="border border-accentPrimary rounded-xl p-2 shadow-lg pt-8 backdrop-blur-xl w-full h-fit bg-baseSecondary/80">
-                  <h3 className="text-2xl font-bold mb-4 text-accentPrimary text-center">
-                    Impact Growth
-                  </h3>
-                  <div className="w-full h-[calc(100%-4rem)] relative">
-                    <LineGraph
-                      data={sampleData}
-                      xAxisLabel="Month"
-                      yAxisLabel="Score"
-                      lineColor="#F5F5DC"
-                      axisColor="#F5F5DC"
-                    />
-                  </div>
-                </div>
               </motion.div>
             </div>
           </div>
@@ -427,7 +383,7 @@ export default function Index() {
             {recentTasks.map((task, index) => (
               <motion.div
                 key={task.id}
-                className=" rounded-xl overflow-hidden border border-basePrimary shadow-md "
+                className=" bg-basePrimary rounded-xl overflow-hidden border border-basePrimary shadow-md "
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -441,21 +397,21 @@ export default function Index() {
                 <div
                   className={`h-2 ${
                     task.urgency === "HIGH"
-                      ? "bg-dangerPrimary"
+                      ? "bg-dangerPrimary/20"
                       : task.urgency === "MEDIUM"
-                        ? "bg-accentPrimary"
-                        : "bg-confirmPrimary"
+                        ? "bg-indicator-orange/20"
+                        : "bg-baseSecondary/10"
                   }`}
                 ></div>
                 <div className="p-6">
                   <div className="flex items-center justify-between mb-4">
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
                         task.urgency === "HIGH"
-                          ? "bg-dangerPrimary/10 text-dangerPrimary"
+                          ? "bg-dangerPrimary/20 text-dangerPrimary"
                           : task.urgency === "MEDIUM"
-                            ? "bg-accentPrimary/10 text-accentPrimary"
-                            : "bg-confirmPrimary/10 text-confirmPrimary"
+                            ? "bg-indicator-orange/20 text-indicator-orange"
+                            : "bg-baseSecondary/10 text-baseSecondary"
                       }`}
                     >
                       {task.urgency} URGENCY

@@ -1,45 +1,79 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-@layer base {
-  h1 {
-    @apply font-header text-5xl text-baseSecondary;
-  }
-  h2 {
-    @apply text-2xl text-baseSecondary font-light;
-  }
-  h3,
-  h4,
-  h5,
-  h6 {
-    @apply text-2xl font-bold text-baseSecondary;
-  }
-  li,
-  p,
-  span {
-    @apply font-primary text-[15px] font-light text-baseSecondary;
-  }
-  html {
-    @apply bg-basePrimary;
-  }
+@theme {
+  --color-basePrimary: #dddddd;
+  --color-basePrimaryDark: #cccccc;
+  --color-basePrimaryLight: #e8e8e8;
+  --color-baseSecondary: #836953;
+  --color-accentPrimary: #f5f5dc;
+  --color-dangerPrimary: #b3261e;
+  --color-confirmPrimary: #27b08b;
+  --color-txt-primary: #27b08b;
+  --color-txt-secondary: #ffffff;
+  --color-mid-grey: #2e3130;
+  --color-alt-mid-grey: #b0b0b0;
+  --color-light-grey: #d9d9d9;
+  --color-dark-grey: #222221;
+  --color-dark-red: #8c333a;
 
-  /* Scrollbar styles */
-  ::-webkit-scrollbar {
+  --color-indicator-red: #f87171;
+  --color-indicator-blue: #60a5fa;
+  --color-indicator-green: #34d399;
+  --color-indicator-yellow: #fbbf24;
+  --color-indicator-purple: #a78bfa;
+  --color-indicator-pink: #f472b6;
+  --color-indicator-indigo: #818cf8;
+  --color-indicator-orange: #fb923c;
+  --color-indicator-teal: #2dd4bf;
+  --color-indicator-cyan: #22d3ee;
+
+  --font-header: "Poppins", sans-serif;
+  --font-primary: "Poppins", sans-serif;
+}
+
+/* app/styles/scrollbar.css */
+.scrollbar-custom {
+  scrollbar-width: thin; /* For Firefox */
+  scrollbar-color: #836953 #dddddd;
+
+  /* Chrome, Edge, Safari */
+  &::-webkit-scrollbar {
     width: 8px;
-    background-color: transparent;
+    height: 8px;
   }
 
-  ::-webkit-scrollbar-track {
-    background: transparent;
+  &::-webkit-scrollbar-track {
+    background: #dddddd;
   }
 
-  ::-webkit-scrollbar-thumb {
-    background: #836953;
-    border-radius: 4px;
+  &::-webkit-scrollbar-thumb {
+    background-color: #836953;
+    border-radius: 6px;
+    border: 2px solid #dddddd;
   }
+}
 
-  ::-webkit-scrollbar-thumb:hover {
-    background: #555;
-  }
+h1 {
+  @apply font-header text-5xl text-baseSecondary;
+}
+h2 {
+  @apply text-2xl font-semibold text-baseSecondary;
+}
+h3,
+h4,
+h5,
+h6 {
+  @apply text-base font-primary font-semibold text-baseSecondary;
+}
+li,
+p,
+span {
+  @apply font-primary;
+}
+html {
+  @apply bg-basePrimary;
+}
+
+button {
+  @apply cursor-pointer;
 }

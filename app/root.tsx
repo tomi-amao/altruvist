@@ -60,7 +60,7 @@ export function Document({
   title?: string;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className=" scrollbar-custom">
       <head>
         <Meta />
         <Links />

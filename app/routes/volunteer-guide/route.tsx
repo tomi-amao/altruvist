@@ -138,17 +138,19 @@ export default function VolunteerGuide() {
       {/* Hero Section */}
       <section className="relative w-full overflow-hidden bg-gradient-to-b from-basePrimaryLight to-basePrimary/10">
         <div className="container relative px-4 md:px-6 mx-auto py-16 md:py-20 lg:py-24">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto ">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               className="text-center"
             >
-              <h1 className="inline-block text-baseSecondary text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mt-4">
+              <h1 className="inline-block  text-baseSecondary text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mt-4">
                 Volunteer
-                <span className="text-baseSecondary text-6xl">Guide</span>
               </h1>
+              <span className="text-baseSecondary ml-2 text-5xl font-light">
+                Guide
+              </span>
               <p className="mt-4 text-lg text-midGrey max-w-2xl mx-auto">
                 Everything you need to know to make the most of your
                 volunteering experience with Altruist.

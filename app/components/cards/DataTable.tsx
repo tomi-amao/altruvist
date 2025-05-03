@@ -1,26 +1,46 @@
-import React, { useState } from "react";
+import React, { useState, ReactNode } from "react";
 import { TaskSummaryCardMobile } from "../tasks/taskCard";
 import { CaretRight, CaretLeft } from "@phosphor-icons/react";
 
-type TaskData = {
-  title: string;
-  description: string;
-  urgency: string;
-  requiredSkills: string[];
-  deadline: string;
+// Generic type for table data
+export type Column<T> = {
+  key: string;
+  header: string;
+  render?: (item: T) => ReactNode;
+  className?: string;
+  isSortable?: boolean;
+  wrap?: boolean; // Whether to wrap text in this column
 };
 
-type TableProps = {
-  data: TaskData[];
-  handleRowClick: (item: TaskData) => void;
+export type TableProps<T> = {
+  data: T[];
+  columns: Column<T>[];
+  handleRowClick?: (item: T) => void;
   itemsPerPage?: number;
+  emptyMessage?: string;
+  getRowClassName?: (item: T, index: number) => string;
+  mobileComponent?: (item: T, index: number) => ReactNode;
+  keyExtractor?: (item: T, index: number) => string;
+  showPagination?: boolean;
+  showPageSizeOptions?: boolean;
+  pageSizeOptions?: number[];
+  initialPageSize?: number;
 };
 
-const DataTable = ({
+export function DataTable<T>({
   data,
+  columns,
   handleRowClick,
-  itemsPerPage = 10, // Default to 10 items per page
-}: TableProps) => {
+  itemsPerPage = 10,
+  emptyMessage = "No data available",
+  getRowClassName,
+  mobileComponent,
+  keyExtractor,
+  showPagination = true,
+  showPageSizeOptions = false,
+  pageSizeOptions = [5, 10, 25, 50],
+  initialPageSize,
+}: TableProps<T>) {
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: string;
@@ -28,18 +48,22 @@ const DataTable = ({
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(initialPageSize || itemsPerPage);
 
   // Calculate total pages
-  const totalPages = Math.ceil(data.length / itemsPerPage);
+  const totalPages = Math.ceil(data.length / pageSize);
 
   const sortedData = React.useMemo(() => {
     let sortableData = [...data];
     if (sortConfig !== null) {
       sortableData.sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
+        const aValue = a[sortConfig.key as keyof T];
+        const bValue = b[sortConfig.key as keyof T];
+
+        if (aValue < bValue) {
           return sortConfig.direction === "ascending" ? -1 : 1;
         }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
+        if (aValue > bValue) {
           return sortConfig.direction === "ascending" ? 1 : -1;
         }
         return 0;
@@ -50,8 +74,8 @@ const DataTable = ({
 
   // Get current page data
   const getCurrentPageData = () => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
     return sortedData.slice(startIndex, endIndex);
   };
 
@@ -72,50 +96,96 @@ const DataTable = ({
     setCurrentPage(newPage);
   };
 
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    // Reset to first page when changing page size
+    setCurrentPage(1);
+  };
+
+  // Get unique key for row
+  const getKey = (item: T, index: number) => {
+    if (keyExtractor) {
+      return keyExtractor(item, index);
+    }
+    return index.toString();
+  };
+
+  if (data.length === 0) {
+    return (
+      <div className="p-8 text-center">
+        <p className="text-baseSecondary/70">{emptyMessage}</p>
+      </div>
+    );
+  }
+
+  // Calculate pagination range
+  const getPaginationRange = () => {
+    // Maximum number of page buttons to show
+    const maxButtons = 5;
+
+    if (totalPages <= maxButtons) {
+      // Show all pages if there aren't many
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    // Calculate range with current page in the middle when possible
+    let start = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+    let end = start + maxButtons - 1;
+
+    // Adjust if we're near the end
+    if (end > totalPages) {
+      end = totalPages;
+      start = Math.max(1, end - maxButtons + 1);
+    }
+
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+  };
+
   return (
-    <div className="w-full ">
-      <div className="hidden md:block overflow-x-auto ">
-        <table className="w-full border-collapse rounded-lg text-left text-baseSecondary">
-          <thead>
+    <div className="w-full overflow-hidden">
+      <div className="hidden md:block overflow-x-auto rounded-lg border border-baseSecondary/10">
+        <table className="min-w-full divide-y divide-baseSecondary/10">
+          <thead className="bg-basePrimary/60">
             <tr>
-              {[
-                "title",
-                "description",
-                "urgency",
-                "requiredSkills",
-                "deadline",
-              ].map((key) => (
+              {columns.map((column) => (
                 <th
-                  key={key}
-                  className="px-4 py-2 cursor-pointer"
-                  onClick={() => requestSort(key)}
+                  key={column.key}
+                  scope="col"
+                  className={`px-6 py-3 text-left text-xs font-medium text-baseSecondary/70 uppercase tracking-wider ${
+                    column.isSortable ? "cursor-pointer" : ""
+                  } ${column.className || ""}`}
+                  onClick={() => column.isSortable && requestSort(column.key)}
                   aria-sort={
-                    sortConfig?.key === key ? sortConfig.direction : "none"
+                    sortConfig?.key === column.key
+                      ? sortConfig.direction
+                      : "none"
                   }
                 >
-                  {key.charAt(0).toUpperCase() + key.slice(1)}
+                  {column.header}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="bg-basePrimary/70">
+          <tbody className="bg-basePrimary/30 divide-y divide-baseSecondary/10">
             {getCurrentPageData().map((item, index) => (
-              <tr key={index} className="border-b-2 border-baseSecondary">
-                {Object.entries({
-                  title: item.title,
-                  description: item.description,
-                  urgency: item.urgency,
-                  requiredSkills: item.requiredSkills.join(", "),
-                  deadline: new Date(item.deadline).toLocaleDateString(),
-                }).map(([key, value]) => (
-                  <td key={key} className="p-0">
-                    <button
-                      type="button"
-                      className="w-full text-left px-4 py-2  focus:ring focus:ring-baseSecondary focus:outline-none"
-                      onClick={() => handleRowClick(item)}
-                    >
-                      <p className="line-clamp-2">{value}</p>
-                    </button>
+              <tr
+                key={getKey(item, index)}
+                className={`${
+                  getRowClassName
+                    ? getRowClassName(item, index)
+                    : "hover:bg-basePrimary/50"
+                } transition-colors`}
+                onClick={() => handleRowClick && handleRowClick(item)}
+                style={handleRowClick ? { cursor: "pointer" } : undefined}
+              >
+                {columns.map((column) => (
+                  <td
+                    key={column.key}
+                    className={`px-6 py-4 ${column.wrap !== false ? "break-words" : "whitespace-nowrap"}`}
+                  >
+                    {column.render
+                      ? column.render(item)
+                      : (item[column.key as keyof T] as ReactNode)}
                   </td>
                 ))}
               </tr>
@@ -124,83 +194,175 @@ const DataTable = ({
         </table>
 
         {/* Pagination Controls */}
-        <div className="flex items-center justify-between px-4 py-3 bg-white border-t">
-          <div className="flex items-center gap-2">
-            <span className="text-sm ">
-              Showing {(currentPage - 1) * itemsPerPage + 1} to
-              {Math.min(currentPage * itemsPerPage, data.length)} of
-              {data.length} entries
-            </span>
-          </div>
+        {showPagination && totalPages > 1 && (
+          <div className="flex items-center justify-between px-6 py-3 bg-basePrimary/20 border-t border-baseSecondary/10">
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-baseSecondary/70">
+                Showing {(currentPage - 1) * pageSize + 1} to{" "}
+                {Math.min(currentPage * pageSize, data.length)} of {data.length}{" "}
+                entries
+              </span>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="p-2 rounded hover:bg-basePrimaryDark disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-label="Previous page"
-            >
-              <CaretLeft className="h-5 w-5 mr-2 text-baseSecondary hover:bg-basePrimaryLight" />
-            </button>
+              {/* Page Size Selector */}
+              {showPageSizeOptions && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-baseSecondary/70">Show</span>
+                  <select
+                    value={pageSize}
+                    onChange={(e) =>
+                      handlePageSizeChange(Number(e.target.value))
+                    }
+                    className="bg-basePrimary/50 border border-baseSecondary/20 rounded-md text-sm text-baseSecondary px-2 py-1 focus:outline-none focus:ring-1 focus:ring-baseSecondary/30"
+                    aria-label="Select number of items per page"
+                  >
+                    {pageSizeOptions.map((size) => (
+                      <option key={size} value={size}>
+                        {size}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="text-sm text-baseSecondary/70">
+                    per page
+                  </span>
+                </div>
+              )}
+            </div>
 
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <div className="flex items-center gap-1">
               <button
-                key={page}
-                onClick={() => handlePageChange(page)}
-                className={`px-3 py-1 rounded ${
-                  currentPage === page
-                    ? "bg-basePrimary "
-                    : "hover:bg-basePrimaryDark"
-                }`}
+                onClick={() => handlePageChange(1)}
+                disabled={currentPage === 1}
+                className="p-2 rounded hover:bg-basePrimary/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="First page"
               >
-                {page}
+                <span className="text-xs text-baseSecondary">First</span>
               </button>
-            ))}
 
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="p-2 rounded hover:bg-basePrimaryDark disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-label="Next page"
-            >
-              <CaretRight className="h-5 w-5 mr-2 text-baseSecondary hover:bg-basePrimaryLight" />
-            </button>
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="p-2 rounded hover:bg-basePrimary/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Previous page"
+              >
+                <CaretLeft className="h-5 w-5 text-baseSecondary" />
+              </button>
+
+              {getPaginationRange().map((page) => (
+                <button
+                  key={page}
+                  onClick={() => handlePageChange(page)}
+                  className={`w-8 h-8 flex items-center justify-center rounded ${
+                    currentPage === page
+                      ? "bg-basePrimary/70 text-baseSecondary"
+                      : "hover:bg-basePrimary/50 text-baseSecondary/70"
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="p-2 rounded hover:bg-basePrimary/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Next page"
+              >
+                <CaretRight className="h-5 w-5 text-baseSecondary" />
+              </button>
+
+              <button
+                onClick={() => handlePageChange(totalPages)}
+                disabled={currentPage === totalPages}
+                className="p-2 rounded hover:bg-basePrimary/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Last page"
+              >
+                <span className="text-xs text-baseSecondary">Last</span>
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Mobile View with Pagination */}
       <div className="md:hidden space-y-4">
-        {getCurrentPageData().map((task, index) => (
-          <TaskSummaryCardMobile key={task.title + index} data={task} />
+        {getCurrentPageData().map((item, index) => (
+          <div
+            key={getKey(item, index)}
+            onClick={() => handleRowClick && handleRowClick(item)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                if (handleRowClick) {
+                  handleRowClick(item);
+                }
+              }
+            }}
+            tabIndex={handleRowClick ? 0 : undefined}
+            role={handleRowClick ? "button" : undefined}
+          >
+            {mobileComponent ? (
+              mobileComponent(item, index)
+            ) : (
+              <TaskSummaryCardMobile
+                key={index}
+                data={item as unknown as Record<string, unknown>}
+              />
+            )}
+          </div>
         ))}
 
         {/* Mobile Pagination Controls */}
-        <div className="flex items-center justify-between px-4 py-3 bg-white border-t">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="p-2 rounded hover:bg-basePrimaryDark disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <CaretLeft className="h-5 w-5 mr-2 text-baseSecondary hover:bg-basePrimaryLight" />
-          </button>
+        {showPagination && totalPages > 1 && (
+          <div className="space-y-3 px-4 py-3 bg-basePrimary/20 border-t border-baseSecondary/10 rounded-b-lg">
+            {/* Page Size Selector for Mobile */}
+            {showPageSizeOptions && (
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-xs text-baseSecondary/70">Show</span>
+                <select
+                  value={pageSize}
+                  onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+                  className="bg-basePrimary/50 border border-baseSecondary/20 rounded-md text-xs text-baseSecondary px-2 py-1"
+                >
+                  {pageSizeOptions.map((size) => (
+                    <option key={size} value={size}>
+                      {size}
+                    </option>
+                  ))}
+                </select>
+                <span className="text-xs text-baseSecondary/70">per page</span>
+              </div>
+            )}
 
-          <span className="text-sm">
-            Page {currentPage} of {totalPages}
-          </span>
+            <div className="flex items-center justify-between">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="p-2 rounded hover:bg-basePrimary/50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                aria-label="Previous page"
+              >
+                <CaretLeft className="h-4 w-4 text-baseSecondary" />
+                <span className="ml-1 text-xs">Prev</span>
+              </button>
 
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="p-2 rounded hover:bg-basePrimaryDark disabled:opacity-50 disabled:cursor-not-allowed"
-            aria-label="Next page"
-          >
-            <CaretRight className="h-5 w-5 mr-2 text-baseSecondary hover:bg-basePrimaryLight" />
-          </button>
-        </div>
+              <span className="text-sm text-baseSecondary/70">
+                Page {currentPage} of {totalPages}
+              </span>
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="p-2 rounded hover:bg-basePrimary/50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                aria-label="Next page"
+              >
+                <span className="mr-1 text-xs">Next</span>
+                <CaretRight className="h-4 w-4 text-baseSecondary" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
-};
+}
 
 export default DataTable;

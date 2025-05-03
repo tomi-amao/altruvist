@@ -82,7 +82,7 @@ export default function SearchResults() {
           <ul>
             <li className="space-x-4 mt-6">
               <button
-                className={`hover:border-b-2 ${showCollections.all && "border-b-2"}`}
+                className={`hover:border-b-2 text-baseSecondary ${showCollections.all && "border-b-2 "}`}
                 onClick={() => {
                   setShowCollections((preState) => {
                     return {
@@ -98,7 +98,7 @@ export default function SearchResults() {
                 All
               </button>
               <button
-                className={`hover:border-b-2 ${showCollections.tasks && "border-b-2"}`}
+                className={`hover:border-b-2 text-baseSecondary ${showCollections.tasks && "border-b-2 text-baseSecondary"}`}
                 onClick={() => {
                   setShowCollections((preState) => {
                     return {
@@ -114,7 +114,7 @@ export default function SearchResults() {
                 Tasks
               </button>
               <button
-                className={`hover:border-b-2 ${showCollections.charities && "border-b-2"}`}
+                className={`hover:border-b-2 text-baseSecondary ${showCollections.charities && "border-b-2 text-baseSecondary"}`}
                 onClick={() => {
                   setShowCollections((preState) => {
                     return {
@@ -130,7 +130,7 @@ export default function SearchResults() {
                 Charities
               </button>
               <button
-                className={`hover:border-b-2 ${showCollections.users && "border-b-2"}`}
+                className={`hover:border-b-2 text-baseSecondary ${showCollections.users && "border-b-2 text-baseSecondary"}`}
                 onClick={() => {
                   setShowCollections((preState) => {
                     return {
