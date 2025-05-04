@@ -2,7 +2,7 @@ import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { getZitadelVars } from "~/services/env.server";
 import { generateCodeChallenge, generateCodeVerifier } from "~/services/pkce";
 import { getSession, commitSession } from "~/services/session.server";
-// import https from "https";
+import https from "https";
 import fetch from "node-fetch";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -18,13 +18,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
       },
     });
   }
-  // const agent = new https.Agent({
-  //   rejectUnauthorized: false, // Disable SSL verification
-  // });
+
+  // Configure HTTP/HTTPS based on environment variables
+  const agent = zitadel.DISABLE_SSL_VERIFICATION 
+    ? new https.Agent({ rejectUnauthorized: false }) 
+    : undefined;
+
   try {
     const response = await fetch(zitadel.ZITADEL_DOMAIN, {
       method: "GET",
-      // agent,
+      agent,
     });
 
     if (!response.ok) {
@@ -62,8 +65,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   );
   authUrl.searchParams.append("code_challenge", codeChallenge);
   authUrl.searchParams.append("code_challenge_method", "S256");
-
-  // window.location.href = authUrl.toString(); //navigate to zitadel hosted login page
 
   return redirect(authUrl.toString(), {
     headers: {

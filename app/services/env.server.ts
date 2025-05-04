@@ -8,6 +8,7 @@ export function getZitadelVars() {
     STATE: process.env.STATE ?? "",
     MACHINE_API_KEY: process.env.MACHINE_API_KEY ?? "",
     ZITADEL_ADMIN_TOKEN: process.env.ZITADEL_ADMIN_TOKEN ?? "",
+    DISABLE_SSL_VERIFICATION: process.env.DISABLE_SSL_VERIFICATION === "true",
   };
 }
 

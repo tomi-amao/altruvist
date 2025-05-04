@@ -3,7 +3,7 @@ import { createUser } from "~/models/user2.server";
 import { getZitadelVars } from "~/services/env.server";
 import { getSession, commitSession } from "~/services/session.server";
 import { zitadelUserInfo } from "~/types/zitadelUser";
-// import https from "https";
+import https from "https";
 import fetch from "node-fetch";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -23,9 +23,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     });
   }
 
-  // const agent = new https.Agent({
-  //   rejectUnauthorized: false, // Disable SSL verification
-  // });
+  // Configure SSL verification based on environment variables
+  const agent = zitadel.DISABLE_SSL_VERIFICATION 
+    ? new https.Agent({ rejectUnauthorized: false }) 
+    : undefined;
 
   try {
     // Exchange the code for tokens
@@ -42,7 +43,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
           redirect_uri: zitadel.REDIRECT_URI,
           code_verifier: codeVerifier,
         }),
-        // agent,
+        agent,
       },
     );
     const tokenData = await tokenResponse.json();
@@ -59,7 +60,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         headers: {
           Authorization: `Bearer ${tokenData.access_token}`,
         },
-        // agent,
+        agent,
       },
     );
 

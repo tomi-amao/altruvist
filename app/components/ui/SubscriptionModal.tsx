@@ -22,29 +22,31 @@ export default function SubscriptionModal({
   const [gdprConsent, setGdprConsent] = useState(false);
   const [recaptchaToken, setRecaptchaToken] = useState("");
   const [recaptchaError, setRecaptchaError] = useState<string | null>(null);
-  const fetcher = useFetcher<SubscriptionResponse>();
+
+  // Create a new fetcher instance with a unique key to solve the issue
+  // Using a key allows us to control when the fetcher instance is created or replaced
+  const [fetcherKey, setFetcherKey] = useState("subscription-form");
+  const fetcher = useFetcher<SubscriptionResponse>({ key: fetcherKey });
 
   // Determine the form status based on fetcher state
   const isSubmitting = fetcher.state === "submitting";
   const isSuccess = fetcher.data?.success;
   const errorMessage = fetcher.data?.error;
 
-  // Reset the form and fetcher state when the modal closes
+  // Reset the form and effectively reset fetcher state by changing the key
   const handleClose = () => {
     onClose();
 
-    // We need to reset the form data here, not in the useEffect
+    // Reset form data
     setEmail("");
     setGdprConsent(false);
     setRecaptchaToken("");
     setRecaptchaError(null);
 
-    // Reset fetcher data by submitting an empty formData to a non-existent action
-    // This is a workaround to clear fetcher.data
+    // Generate a new key for the fetcher to effectively reset its state
+    // This creates a new fetcher instance without the old data
     if (fetcher.data) {
-      setTimeout(() => {
-        fetcher.submit({}, { action: "/api/reset-fetcher", method: "POST" });
-      }, 100);
+      setFetcherKey(`subscription-form-${Date.now()}`);
     }
   };
 
@@ -106,20 +108,20 @@ export default function SubscriptionModal({
     if (isSuccess) {
       console.log("[Subscription] Success, will close modal in 3 seconds");
       setTimeout(() => {
-        handleClose(); // Use our custom close handler instead
+        handleClose(); // Use our custom close handler to reset everything
       }, 3000);
     }
-  }, [isSuccess]); // Remove onClose from dependencies
+  }, [isSuccess]); // Keep minimal dependencies
 
-  // Watch for modal open/close state changes to reset fetcher on manual close
+  // Reset form when modal reopens
   useEffect(() => {
-    if (!isOpen && fetcher.data) {
-      // Reset fetcher when modal is closed manually
-      setTimeout(() => {
-        fetcher.submit({}, { action: "/api/reset-fetcher", method: "POST" });
-      }, 100);
+    if (isOpen) {
+      // If the modal is opened and there's stale data, reset the fetcher
+      if (!isSuccess && fetcher.data) {
+        setFetcherKey(`subscription-form-${Date.now()}`);
+      }
     }
-  }, [isOpen, fetcher]);
+  }, [isOpen, isSuccess, fetcher.data]);
 
   return (
     <div className="">

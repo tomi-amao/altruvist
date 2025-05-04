@@ -3,7 +3,7 @@ import { getZitadelVars } from "~/services/env.server";
 import type { zitadelUserInfo } from "~/types/zitadelUser";
 import type { Prisma } from "@prisma/client";
 import { ObjectIdSchema } from "~/services/validators.server";
-// import https from "https";
+import https from "https";
 import fetch from "node-fetch";
 import {
   INDICES,
@@ -84,10 +84,6 @@ export const getUserInfo = async (
     };
   }
 
-  // const agent = new https.Agent({
-  //   rejectUnauthorized: false, // Disable SSL verification
-  // });
-
   try {
     const userInfoResponse = await fetch(
       `${zitadel.ZITADEL_DOMAIN}/oidc/v1/userinfo`,
@@ -95,7 +91,9 @@ export const getUserInfo = async (
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
-        // agent,
+        agent: zitadel.DISABLE_SSL_VERIFICATION 
+          ? new https.Agent({ rejectUnauthorized: false }) 
+          : undefined,
       },
     );
 
