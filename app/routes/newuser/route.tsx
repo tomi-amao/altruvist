@@ -35,13 +35,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (!accessToken) {
     return redirect("/zitlogin");
   }
-
+  const { userInfo, error } = await getUserInfo(accessToken);
+  if (userInfo?.roles[0]) {
+      return redirect("/dashboard");
+    }
   // Redirect non-new users to dashboard
   if (!isNew) {
     return redirect("/dashboard");
   }
 
-  const { userInfo, error } = await getUserInfo(accessToken);
 
   return { userInfo, error, COMPANION_URL };
 }

@@ -3,8 +3,9 @@ import { Link, Outlet, useLoaderData, useLocation } from "@remix-run/react";
 import { SimpleProfileCard } from "~/components/cards/ProfileCard";
 import Navbar from "~/components/navigation/Header2";
 import { getUserInfo } from "~/models/user2.server";
-import { getSession } from "~/services/session.server";
+import { commitSession, getSession } from "~/services/session.server";
 import { getSignedUrlForFile } from "~/services/s3.server";
+import { getUserTasks } from "~/models/tasks.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
@@ -13,8 +14,19 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const isNew = session.get("isNew");
 
   // If user is new, redirect to newuser page
-  if (isNew) {
+  const { userInfo, error } = await getUserInfo(accessToken);
+  if (isNew && !userInfo?.roles?.length) {
     return redirect("/newuser");
+  }
+
+  // Redirect to new user page if user has no role
+  if (!userInfo?.roles?.length) {
+    session.set("isNew", true);
+    return redirect("/newuser", {
+      headers: {
+        "Set-Cookie": await commitSession(session),
+      },
+    });
   }
   let returnTo: string;
   const novuAppId = process.env.NOVU_APP_ID;
@@ -31,7 +43,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (!accessToken) {
     return redirect(`/zitlogin?returnTo=${encodeURIComponent(returnTo)}`);
   }
-  const { userInfo, error } = await getUserInfo(accessToken);
   if (!userInfo) {
     return redirect("/zitlogin");
   }
