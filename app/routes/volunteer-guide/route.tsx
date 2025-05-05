@@ -2,10 +2,10 @@ import { json, MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { motion } from "framer-motion";
 import { useState } from "react";
-import LandingHeader from "~/components/navigation/LandingHeader";
 import Footer from "~/components/navigation/Footer";
+import LandingHeader from "~/components/navigation/LandingHeader";
 
-export const meta: MetaFunction = () => {
+export const meta: MetaFunction<typeof loader> = () => {
   return [
     { title: "Volunteer Guide | Altruvist" },
     {
@@ -13,6 +13,8 @@ export const meta: MetaFunction = () => {
       content:
         "A comprehensive guide for volunteers on how to make the most of your volunteering experience with Altruvist.",
     },
+    { name: "viewport", content: "width=device-width,initial-scale=1" },
+    { charSet: "utf-8" },
   ];
 };
 
@@ -131,27 +133,29 @@ export default function VolunteerGuide() {
   const { steps, faq, tips } = useLoaderData<typeof loader>();
   const [activeQuestion, setActiveQuestion] = useState<number | null>(null);
 
+  const toggleQuestion = (index: number) => {
+    setActiveQuestion(activeQuestion === index ? null : index);
+  };
+
   return (
-    <div className="bg-basePrimaryLight min-h-screen">
+    <div className="min-h-screen bg-basePrimaryLight">
       <LandingHeader />
 
       {/* Hero Section */}
       <section className="relative w-full overflow-hidden bg-gradient-to-b from-basePrimaryLight to-basePrimary/10">
-        <div className="container relative px-4 md:px-6 mx-auto py-16 md:py-20 lg:py-24">
-          <div className="max-w-4xl mx-auto ">
+        <div className="container px-4 sm:px-6 mx-auto py-12 md:py-16 lg:py-24">
+          <div className="max-w-4xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               className="text-center"
             >
-              <h1 className="inline-block  text-baseSecondary text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mt-4">
-                Volunteer
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-baseSecondary">
+                <span className="inline-block">Volunteer</span>
+                <span className="ml-2 font-light">Guide</span>
               </h1>
-              <span className="text-baseSecondary ml-2 text-5xl font-light">
-                Guide
-              </span>
-              <p className="mt-4 text-lg text-midGrey max-w-2xl mx-auto">
+              <p className="mt-4 text-base md:text-lg text-midGrey max-w-2xl mx-auto">
                 Everything you need to know to make the most of your
                 volunteering experience with Altruvist.
               </p>
@@ -161,7 +165,7 @@ export default function VolunteerGuide() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
-              className="mt-12"
+              className="mt-8 md:mt-12"
             >
               <img
                 src="/volunteer-guide.png"
@@ -175,21 +179,21 @@ export default function VolunteerGuide() {
 
       {/* How It Works Section */}
       <section className="w-full py-12 md:py-16 lg:py-20 bg-basePrimary">
-        <div className="container px-4 md:px-6 mx-auto">
+        <div className="container px-4 sm:px-6 mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
-            className="text-center mb-10"
+            className="text-center mb-8 md:mb-10"
           >
             <h2
               id="how-it-works"
-              className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-baseSecondary"
+              className="text-3xl md:text-4xl font-bold text-baseSecondary"
             >
               How to Volunteer
             </h2>
-            <p className="mx-auto max-w-[700px] text-midGrey md:text-xl mt-4">
+            <p className="mx-auto max-w-[700px] text-midGrey mt-4 text-base md:text-lg">
               Follow these simple steps to make a difference with your skills
             </p>
           </motion.div>
@@ -197,7 +201,7 @@ export default function VolunteerGuide() {
           <div className="relative">
             <div className="hidden md:block absolute top-1/2 left-0 right-0 h-1 bg-accentPrimary/30 -translate-y-1/2 z-0"></div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 relative z-10">
               {steps.map((step, i) => (
                 <motion.div
                   key={i}
@@ -243,18 +247,18 @@ export default function VolunteerGuide() {
 
       {/* Volunteering Tips */}
       <section className="w-full py-12 md:py-16 lg:py-20 bg-baseSecondary/5">
-        <div className="container px-4 md:px-6 mx-auto">
+        <div className="container px-4 sm:px-6 mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
-            className="text-center mb-10"
+            className="text-center mb-8 md:mb-10"
           >
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-baseSecondary">
+            <h2 className="text-3xl font-bold text-baseSecondary">
               Best Practices for Volunteers
             </h2>
-            <p className="mx-auto max-w-[700px] text-midGrey md:text-xl mt-4">
+            <p className="mx-auto max-w-[700px] text-midGrey mt-4 text-base md:text-lg">
               Tips to help you succeed in your volunteering journey
             </p>
           </motion.div>
@@ -267,7 +271,7 @@ export default function VolunteerGuide() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1, duration: 0.5 }}
                 viewport={{ once: true }}
-                className="bg-basePrimary p-6 rounded-xl shadow-sm border border-basePrimary/20"
+                className="bg-basePrimary p-6 rounded-xl shadow-sm border border-basePrimary/20 h-full"
               >
                 <h3 className="text-xl font-bold mb-3 text-accentPrimary">
                   {tip.title}
@@ -281,21 +285,18 @@ export default function VolunteerGuide() {
 
       {/* FAQ Section */}
       <section className="w-full py-12 md:py-16 lg:py-20 bg-basePrimary">
-        <div className="container px-4 md:px-6 mx-auto">
+        <div className="container px-4 sm:px-6 mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
-            className="text-center mb-10"
+            className="text-center mb-8 md:mb-10"
           >
-            <h2
-              id="faq"
-              className="text-3xl font-bold tracking-tighter sm:text-4xl text-baseSecondary"
-            >
+            <h2 id="faq" className="text-3xl font-bold text-baseSecondary">
               Frequently Asked Questions
             </h2>
-            <p className="mx-auto max-w-[700px] text-midGrey md:text-xl mt-4">
+            <p className="mx-auto max-w-[700px] text-midGrey mt-4 text-base md:text-lg">
               Answers to common questions about volunteering with Altruvist
             </p>
           </motion.div>
@@ -311,10 +312,10 @@ export default function VolunteerGuide() {
                 className="bg-basePrimaryLight rounded-lg overflow-hidden"
               >
                 <button
-                  onClick={() =>
-                    setActiveQuestion(activeQuestion === i ? null : i)
-                  }
+                  onClick={() => toggleQuestion(i)}
                   className="flex items-center justify-between w-full px-6 py-4 text-left"
+                  aria-expanded={activeQuestion === i}
+                  aria-controls={`faq-answer-${i}`}
                 >
                   <h3 className="font-medium text-baseSecondary">
                     {item.question}
@@ -326,6 +327,7 @@ export default function VolunteerGuide() {
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
+                    aria-hidden="true"
                   >
                     <path
                       strokeLinecap="round"
@@ -336,6 +338,7 @@ export default function VolunteerGuide() {
                   </svg>
                 </button>
                 <div
+                  id={`faq-answer-${i}`}
                   className={`px-6 overflow-hidden transition-all duration-300 ${
                     activeQuestion === i ? "max-h-96 pb-6" : "max-h-0"
                   }`}
@@ -350,7 +353,7 @@ export default function VolunteerGuide() {
 
       {/* CTA Section */}
       <section className="w-full py-12 md:py-16 lg:py-20 bg-baseSecondary">
-        <div className="container px-4 md:px-6 mx-auto">
+        <div className="container px-4 sm:px-6 mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -359,7 +362,7 @@ export default function VolunteerGuide() {
             className="flex flex-col md:flex-row items-center justify-between gap-8"
           >
             <div className="flex-1 text-center md:text-left">
-              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-basePrimary">
+              <h2 className="text-2xl md:text-3xl font-bold text-basePrimary">
                 Ready to make a difference?
               </h2>
               <p className="mt-4 text-basePrimaryLight max-w-md mx-auto md:mx-0">
@@ -385,7 +388,6 @@ export default function VolunteerGuide() {
         </div>
       </section>
 
-      {/* Footer */}
       <Footer />
     </div>
   );

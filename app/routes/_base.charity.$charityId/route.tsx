@@ -37,6 +37,8 @@ export const meta: MetaFunction = ({ data }) => {
         name: "description",
         content: "The requested charity could not be found.",
       },
+      { name: "viewport", content: "width=device-width,initial-scale=1" },
+      { charSet: "utf-8" },
     ];
   }
   return [

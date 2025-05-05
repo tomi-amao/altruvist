@@ -29,7 +29,21 @@ import { action } from "./action";
 export { loader, action };
 
 export const meta: MetaFunction = () => {
-  return [{ title: "Account Settings" }];
+  return [
+    { title: "Account Settings | Altruvist" },
+    {
+      name: "description",
+      content:
+        "Manage your Altruvist account settings, including profile information, security preferences, and notification settings",
+    },
+    { name: "viewport", content: "width=device-width,initial-scale=1" },
+    { name: "og:title", content: "Account Settings | Altruvist" },
+    {
+      name: "og:description",
+      content:
+        "Update your profile, manage security preferences, and customize notification settings",
+    },
+  ];
 };
 
 export default function AccountSettings() {

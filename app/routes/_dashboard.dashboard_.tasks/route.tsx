@@ -30,6 +30,8 @@ export const meta: MetaFunction = () => {
   return [
     { title: "Dashboard Tasks | Altruvist" },
     { name: "description", content: "Manage your tasks on Altruvist!" },
+    { name: "viewport", content: "width=device-width,initial-scale=1" },
+    { charSet: "utf-8" },
   ];
 };
 

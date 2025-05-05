@@ -28,8 +28,34 @@ import {
 import { getSignedUrlForFile } from "~/services/s3.server";
 import { Alert } from "~/components/utils/Alert";
 
-export const meta: MetaFunction = () => {
-  return [{ title: "Profile" }];
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  if (!data?.profileInfo) {
+    return [
+      { title: "Profile Not Found | Altruvist" },
+      {
+        name: "description",
+        content: "This profile could not be found on Altruvist.",
+      },
+    ];
+  }
+
+  const profileName = data.profileInfo.name;
+  const profileRole = data.profileInfo.roles[0];
+  const isCharity = profileRole === "charity";
+
+  return [
+    {
+      title: `${profileName} | ${isCharity ? "Charity" : "Volunteer"} Profile | Altruvist`,
+    },
+    {
+      name: "description",
+      content: isCharity
+        ? `View ${profileName}'s charity profile, tasks, and mission on Altruvist.`
+        : `View ${profileName}'s volunteer profile, completed tasks, and skills on Altruvist.`,
+    },
+    { name: "viewport", content: "width=device-width,initial-scale=1" },
+    { charSet: "utf-8" },
+  ];
 };
 
 export default function ProfilePage() {

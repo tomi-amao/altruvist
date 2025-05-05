@@ -13,6 +13,8 @@ export const meta: MetaFunction = () => {
       title: "Dashboard | Altruvist",
       description: "Manage your tasks on your dashboard",
     },
+    { name: "viewport", content: "width=device-width,initial-scale=1" },
+    { charSet: "utf-8" },
   ];
 };
 

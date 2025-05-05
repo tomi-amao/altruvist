@@ -17,6 +17,8 @@ export const meta: MetaFunction = () => {
       content:
         "Get in touch with the Altruvist team to learn more about our volunteering platform.",
     },
+    { name: "viewport", content: "width=device-width,initial-scale=1" },
+    { charSet: "utf-8" },
   ];
 };
 

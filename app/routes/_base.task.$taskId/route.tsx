@@ -1,4 +1,4 @@
-import { json, MetaFunction } from "@remix-run/node";
+import { json, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { useLoaderData, useNavigation, Link } from "@remix-run/react";
 import { getTask } from "~/models/tasks.server";
 import TaskDetailsCard from "~/components/tasks/taskDetailsCard";
@@ -19,6 +19,8 @@ export const meta: MetaFunction = ({ data }) => {
         data?.task?.description ||
         "Detailed information about a volunteer task",
     },
+    { name: "viewport", content: "width=device-width,initial-scale=1" },
+    { charSet: "utf-8" },
   ];
 };
 

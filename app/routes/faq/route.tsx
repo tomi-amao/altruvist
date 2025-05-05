@@ -5,7 +5,7 @@ import { useState } from "react";
 import LandingHeader from "~/components/navigation/LandingHeader";
 import Footer from "~/components/navigation/Footer";
 
-export const meta: MetaFunction = () => {
+export const meta: MetaFunction<typeof loader> = () => {
   return [
     { title: "Frequently Asked Questions | Altruvist" },
     {
@@ -13,6 +13,8 @@ export const meta: MetaFunction = () => {
       content:
         "Find answers to common questions about volunteering, charity resources, and using the Altruvist platform.",
     },
+    { name: "viewport", content: "width=device-width,initial-scale=1" },
+    { charSet: "utf-8" },
   ];
 };
 
@@ -184,7 +186,7 @@ export default function FAQPage() {
 
       {/* Hero Section */}
       <section className="relative w-full overflow-hidden bg-gradient-to-b from-basePrimaryLight to-basePrimary/10">
-        <div className="container relative px-4 md:px-6 mx-auto py-16 md:py-20 lg:py-24">
+        <div className="container px-4 sm:px-6 mx-auto py-12 md:py-16 lg:py-24">
           <div className="max-w-4xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -192,13 +194,11 @@ export default function FAQPage() {
               transition={{ duration: 0.6 }}
               className="text-center"
             >
-              <h1 className="inline-block text-baseSecondary text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mt-4">
-                Frequently Asked
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-baseSecondary">
+                <span className="inline-block">Frequently Asked</span>
+                <span className="ml-2 font-light">Questions</span>
               </h1>
-              <span className="ml-2  text-baseSecondary text-5xl">
-                Questions
-              </span>
-              <p className="mt-4 text-lg text-midGrey max-w-2xl mx-auto">
+              <p className="mt-4 text-base md:text-lg text-midGrey max-w-2xl mx-auto">
                 Find answers to common questions about using Altruvist for both
                 volunteers and charities
               </p>
@@ -209,16 +209,16 @@ export default function FAQPage() {
 
       {/* FAQ Content Section */}
       <section className="w-full py-12 md:py-16 lg:py-20 bg-basePrimary">
-        <div className="container px-4 md:px-6 mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Category Navigation */}
+        <div className="container px-4 sm:px-6 mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
+            {/* Category Navigation - Horizontal scrolling on mobile, vertical on desktop */}
             <div className="lg:col-span-1">
-              <div className="space-y-2 sticky top-24">
+              <div className="flex overflow-x-auto lg:overflow-x-visible lg:block space-x-3 lg:space-x-0 lg:space-y-2 pb-4 lg:pb-0 lg:sticky lg:top-24">
                 {categories.map((category, i) => (
                   <button
                     key={i}
                     onClick={() => setActiveCategory(i)}
-                    className={`w-full text-left p-4 rounded-lg transition-colors ${
+                    className={`flex-shrink-0 px-4 py-3 rounded-lg transition-colors whitespace-nowrap lg:whitespace-normal text-left w-full ${
                       activeCategory === i
                         ? "bg-accentPrimary text-baseSecondary"
                         : "bg-basePrimaryLight text-baseSecondary hover:bg-accentPrimary/10"
@@ -233,37 +233,41 @@ export default function FAQPage() {
             {/* FAQ Questions & Answers */}
             <div className="lg:col-span-3">
               <motion.div
+                key={activeCategory}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
+                transition={{ duration: 0.4 }}
               >
-                <h2 className="text-3xl font-bold mb-8 text-baseSecondary">
+                <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8 text-baseSecondary">
                   {categories[activeCategory].title}
                 </h2>
 
-                <div className="space-y-4">
+                <div className="space-y-3 md:space-y-4">
                   {categories[activeCategory].questions.map((item, i) => (
                     <motion.div
                       key={i}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.1, duration: 0.3 }}
-                      className="bg-basePrimaryLight rounded-lg overflow-hidden"
+                      transition={{ delay: i * 0.05, duration: 0.3 }}
+                      className="bg-basePrimaryLight rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
                     >
                       <button
                         onClick={() => toggleQuestion(i)}
-                        className="flex items-center justify-between w-full px-6 py-4 text-left"
+                        className="flex items-center justify-between w-full px-4 sm:px-6 py-4 text-left"
+                        aria-expanded={!!activeQuestions[i]}
+                        aria-controls={`faq-answer-${i}`}
                       >
-                        <h3 className="font-medium text-baseSecondary">
+                        <h3 className="font-medium text-baseSecondary pr-6">
                           {item.question}
                         </h3>
                         <svg
-                          className={`w-5 h-5 text-baseSecondary transition-transform ${
+                          className={`w-5 h-5 text-baseSecondary flex-shrink-0 transition-transform ${
                             activeQuestions[i] ? "transform rotate-180" : ""
                           }`}
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
+                          aria-hidden="true"
                         >
                           <path
                             strokeLinecap="round"
@@ -274,8 +278,11 @@ export default function FAQPage() {
                         </svg>
                       </button>
                       <div
-                        className={`px-6 overflow-hidden transition-all duration-300 ${
-                          activeQuestions[i] ? "max-h-96 pb-6" : "max-h-0"
+                        id={`faq-answer-${i}`}
+                        className={`px-4 sm:px-6 overflow-hidden transition-all duration-300 ${
+                          activeQuestions[i]
+                            ? "max-h-96 pb-4 sm:pb-6"
+                            : "max-h-0"
                         }`}
                       >
                         <p className="text-midGrey">{item.answer}</p>
@@ -291,7 +298,7 @@ export default function FAQPage() {
 
       {/* Can't Find Answer Section */}
       <section className="w-full py-12 md:py-16 lg:py-20 bg-baseSecondary/5">
-        <div className="container px-4 md:px-6 mx-auto">
+        <div className="container px-4 sm:px-6 mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -299,10 +306,10 @@ export default function FAQPage() {
             viewport={{ once: true }}
             className="text-center max-w-3xl mx-auto"
           >
-            <h2 className="text-3xl font-bold mb-4 text-baseSecondary">
+            <h2 className="text-2xl md:text-3xl font-bold mb-4 text-baseSecondary">
               Can't Find Your Answer?
             </h2>
-            <p className="text-midGrey mb-8">
+            <p className="text-midGrey mb-6 md:mb-8">
               If you couldn't find the information you're looking for, our
               support team is here to help. Reach out to us via email or through
               our contact form.
@@ -310,13 +317,13 @@ export default function FAQPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
                 href="mailto:support@altruvist.org"
-                className="inline-flex h-12 items-center justify-center rounded-md bg-accentPrimary px-8 text-sm font-medium text-baseSecondary shadow transition-colors hover:bg-accentPrimary/90 focus:outline-none focus:ring-2 focus:ring-accentPrimary focus:ring-offset-2"
+                className="inline-flex h-10 sm:h-12 items-center justify-center rounded-md bg-accentPrimary px-6 sm:px-8 text-sm font-medium text-baseSecondary shadow transition-colors hover:bg-accentPrimary/90 focus:outline-none focus:ring-2 focus:ring-accentPrimary focus:ring-offset-2"
               >
                 Email Support
               </a>
               <a
                 href="/contact"
-                className="inline-flex h-12 items-center justify-center rounded-md border border-accentPrimary bg-transparent px-8 text-sm font-medium text-accentPrimary shadow-sm transition-colors hover:bg-accentPrimary/10 focus:outline-none focus:ring-2 focus:ring-accentPrimary focus:ring-offset-2"
+                className="inline-flex h-10 sm:h-12 items-center justify-center rounded-md border border-accentPrimary bg-transparent px-6 sm:px-8 text-sm font-medium text-accentPrimary shadow-sm transition-colors hover:bg-accentPrimary/10 focus:outline-none focus:ring-2 focus:ring-accentPrimary focus:ring-offset-2"
               >
                 Contact Us
               </a>
@@ -327,41 +334,41 @@ export default function FAQPage() {
 
       {/* Resources Section */}
       <section className="w-full py-12 md:py-16 lg:py-20">
-        <div className="container px-4 md:px-6 mx-auto">
+        <div className="container px-4 sm:px-6 mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
-            className="text-center mb-10"
+            className="text-center mb-8 md:mb-10"
           >
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-baseSecondary">
+            <h2 className="text-2xl md:text-3xl font-bold text-baseSecondary">
               Additional Resources
             </h2>
-            <p className="mx-auto max-w-[700px] text-midGrey md:text-xl mt-4">
+            <p className="mx-auto max-w-[700px] text-midGrey md:text-lg mt-4">
               Explore these resources for more detailed information
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-4xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.5 }}
               viewport={{ once: true }}
-              className="bg-basePrimary p-6 rounded-xl shadow-sm text-center hover:shadow-md transition-all"
+              className="bg-basePrimary p-5 md:p-6 rounded-xl shadow-sm text-center hover:shadow-md transition-all"
             >
-              <div className="h-48 mb-6 overflow-hidden rounded-lg">
+              <div className="h-40 md:h-48 mb-4 md:mb-6 overflow-hidden rounded-lg">
                 <img
                   src="/volunteer-guide.png"
                   alt="Volunteer Guide"
                   className="w-full h-full object-cover"
                 />
               </div>
-              <h3 className="text-xl font-bold mb-3 text-baseSecondary">
+              <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-3 text-baseSecondary">
                 Volunteer Guide
               </h3>
-              <p className="text-midGrey mb-4">
+              <p className="text-midGrey mb-4 text-sm md:text-base">
                 Comprehensive information for volunteers to make the most of
                 their experience.
               </p>
@@ -391,19 +398,19 @@ export default function FAQPage() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.5 }}
               viewport={{ once: true }}
-              className="bg-basePrimary p-6 rounded-xl shadow-sm text-center hover:shadow-md transition-all"
+              className="bg-basePrimary p-5 md:p-6 rounded-xl shadow-sm text-center hover:shadow-md transition-all"
             >
-              <div className="h-48 mb-6 overflow-hidden rounded-lg">
+              <div className="h-40 md:h-48 mb-4 md:mb-6 overflow-hidden rounded-lg">
                 <img
                   src="/charity-resources.png"
                   alt="Charity Resources"
                   className="w-full h-full object-cover"
                 />
               </div>
-              <h3 className="text-xl font-bold mb-3 text-baseSecondary">
+              <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-3 text-baseSecondary">
                 Charity Resources
               </h3>
-              <p className="text-midGrey mb-4">
+              <p className="text-midGrey mb-4 text-sm md:text-base">
                 Tools, guides, and best practices to help your organization work
                 with volunteers effectively.
               </p>
@@ -433,19 +440,19 @@ export default function FAQPage() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.5 }}
               viewport={{ once: true }}
-              className="bg-basePrimary p-6 rounded-xl shadow-sm text-center hover:shadow-md transition-all"
+              className="bg-basePrimary p-5 md:p-6 rounded-xl shadow-sm text-center hover:shadow-md transition-all"
             >
-              <div className="h-48 mb-6 overflow-hidden rounded-lg">
+              <div className="h-40 md:h-48 mb-4 md:mb-6 overflow-hidden rounded-lg">
                 <img
                   src="/pulling-medicare.png"
                   alt="About Altruvist"
                   className="w-full h-full object-cover"
                 />
               </div>
-              <h3 className="text-xl font-bold mb-3 text-baseSecondary">
+              <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-3 text-baseSecondary">
                 About Altruvist
               </h3>
-              <p className="text-midGrey mb-4">
+              <p className="text-midGrey mb-4 text-sm md:text-base">
                 Learn about our mission, how our platform works, and the impact
                 we're making together.
               </p>
@@ -473,7 +480,6 @@ export default function FAQPage() {
         </div>
       </section>
 
-      {/* Footer */}
       <Footer />
     </div>
   );

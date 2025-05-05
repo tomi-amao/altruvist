@@ -1,29 +1,25 @@
-import { json, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { useLoaderData, Link, useNavigate } from "@remix-run/react";
+import { Link, useLoaderData, useNavigate } from "@remix-run/react";
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import LandingHeader from "~/components/navigation/LandingHeader";
+import type { Task } from "~/types/tasks";
+import Notification from "~/components/cards/NotificationCard";
+import { commitSession, getSession } from "~/services/session.server";
+import { json, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
+import { subDays } from "date-fns";
+import { prisma } from "~/services/db.server";
+import { getUserInfo } from "~/models/user2.server";
+import Footer from "~/components/navigation/Footer";
+import TaskDetailsCard from "~/components/tasks/taskDetailsCard";
+import { Modal } from "~/components/utils/Modal2";
 import {
-  Target,
+  Buildings,
+  Clock,
   MagnifyingGlass,
   Sparkle,
-  Trophy,
-  Users,
-  Star,
-  Clock,
-  Buildings,
+  Target,
 } from "@phosphor-icons/react";
-import { getUserInfo } from "~/models/user2.server";
-import { getSession, commitSession } from "~/services/session.server";
-import { prisma } from "~/services/db.server";
-import Notification from "~/components/cards/NotificationCard";
-import { subDays } from "date-fns/subDays";
-import LandingHeader from "~/components/navigation/LandingHeader";
-// import LineGraph from "~/components/graphs/IndexGraph";
-import { useEffect, useRef, useState } from "react";
-import { Modal } from "~/components/utils/Modal2";
-import TaskDetailsCard from "~/components/tasks/taskDetailsCard";
 import { users } from "@prisma/client";
-import type { Task } from "~/types/tasks";
-import Footer from "~/components/navigation/Footer";
 
 export const meta: MetaFunction = () => {
   return [
@@ -33,12 +29,93 @@ export const meta: MetaFunction = () => {
       content:
         "Donate your digital skills to make a difference. Join Altruvist today!",
     },
+    { name: "viewport", content: "width=device-width,initial-scale=1" },
+    { charSet: "utf-8" },
   ];
 };
 
+export async function loader({ request }: LoaderFunctionArgs) {
+  const session = await getSession(request);
+  const accessToken = session.get("accessToken");
+  const flashError = session.get("error");
+
+  // Get the date 30 days ago for recency filtering
+  const thirtyDaysAgo = subDays(new Date(), 30);
+
+  // Fetch tasks with popularity metrics
+  const recentTasks = await prisma.tasks.findMany({
+    take: 3,
+    where: {
+      OR: [{ urgency: "HIGH" }, { createdAt: { gte: thirtyDaysAgo } }],
+    },
+    include: {
+      charity: { select: { name: true } },
+      taskApplications: { select: { id: true } },
+      _count: { select: { taskApplications: true } },
+    },
+    orderBy: [{ taskApplications: { _count: "desc" } }, { createdAt: "desc" }],
+  });
+
+  function calculatePopularityScore(task: {
+    createdAt: Date;
+    urgency: string;
+    _count: { taskApplications: number };
+  }) {
+    const recencyScore = calculateRecencyScore(task.createdAt);
+    const applicationScore = task._count.taskApplications * 2;
+    const urgencyScores = { HIGH: 3, MEDIUM: 2, LOW: 1 };
+
+    return recencyScore + applicationScore + (urgencyScores[task.urgency] || 1);
+  }
+
+  // Helper function to calculate recency score
+  function calculateRecencyScore(createdAt: Date): number {
+    const ageInDays = Math.floor(
+      (Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24),
+    );
+
+    return ageInDays <= 7 ? 5 : ageInDays <= 14 ? 3 : ageInDays <= 30 ? 1 : 0;
+  }
+
+  // Calculate popularity score for each task
+  const tasksWithScore = recentTasks.map((task) => ({
+    ...task,
+    popularityScore: calculatePopularityScore(task),
+  }));
+
+  // Get top 3 tasks sorted by popularity score
+  const topTasks = tasksWithScore
+    .sort((a, b) => b.popularityScore - a.popularityScore)
+    .slice(0, 3);
+
+  // Only commit session if there was a flash message
+  const headers = flashError
+    ? {
+        "Set-Cookie": await commitSession(session),
+      }
+    : undefined;
+
+  let userInfoResult = null;
+  if (accessToken) {
+    const { userInfo } = await getUserInfo(accessToken);
+    userInfoResult = userInfo;
+  }
+
+  return json(
+    {
+      message: accessToken ? "User logged in" : "User not logged in",
+      userInfo: userInfoResult,
+      error: flashError,
+      recentTasks: topTasks,
+    },
+    {
+      headers,
+    },
+  );
+}
+
 export default function Index() {
   const { userInfo, error, recentTasks } = useLoaderData<typeof loader>();
-  const statsRef = useRef<HTMLDivElement>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [signedProfilePicture, setSignedProfilePicture] = useState<
@@ -46,6 +123,7 @@ export default function Index() {
   >(null);
   const [clientSideError, setClientSideError] = useState<string | null>(null);
   const navigate = useNavigate();
+
   useEffect(() => {
     // Set the error from the server in client-side state
     if (error) {
@@ -53,39 +131,6 @@ export default function Index() {
     }
   }, [error]);
 
-  // const sampleData = [
-  //   { x: new Date("2023-01-01"), y: 50 },
-  //   { x: new Date("2023-02-01"), y: 60 },
-  //   { x: new Date("2023-03-01"), y: 45 },
-  //   { x: new Date("2023-04-01"), y: 70 },
-  //   { x: new Date("2023-05-01"), y: 65 },
-  //   { x: new Date("2023-06-01"), y: 85 },
-  //   { x: new Date("2023-07-01"), y: 90 },
-  // ];
-
-  const stats = [
-    {
-      value: "500+",
-      label: "Completed Tasks",
-      icon: <Trophy size={48} weight="fill" />,
-      position: "left",
-      image: "/health-package.png", // Replace with actual illustration paths
-    },
-    {
-      value: "200+",
-      label: "Active Volunteers",
-      icon: <Users size={48} weight="fill" />,
-      position: "right",
-      image: "/family-house.png",
-    },
-    {
-      value: "50+",
-      label: "Charities Helped",
-      icon: <Star size={48} weight="fill" />,
-      position: "left",
-      image: "/family-hands.png",
-    },
-  ];
 
   const openTaskDetailsModal = (task: Task) => {
     setSelectedTask(task);
@@ -104,7 +149,6 @@ export default function Index() {
     }
     fetchSignedUrl();
   }, [userInfo?.profilePicture]);
-
   return (
     <div className="bg-gradient-to-b from-baseSecondary ">
       <LandingHeader
@@ -112,10 +156,8 @@ export default function Index() {
         userInfo={userInfo as unknown as users}
         profilePicture={signedProfilePicture || undefined}
       />
-
-      {/* Hero Section */}
-      <section className="relative flex items-center overflow-hidden flex-col py-16 md:py-24 lg:min-h-screen">
-        <div className="container mx-auto px-4 sm:px-6 py-8 md:py-16 flex flex-col lg:flex-row items-center justify-center">
+      <section className="relative flex items-center overflow-hidden flex-col py-8 min-h-[100vh] md:py-24 lg:min-h-screen ">
+        <div className="container mx-auto px-4 sm:px-6 py-8 md:py-16 flex flex-col lg:flex-row items-center justify-center my-auto h-full">
           <motion.div
             className="lg:w-1/2 z-10"
             initial={{ opacity: 0, y: 30 }}
@@ -208,10 +250,12 @@ export default function Index() {
           </motion.div>
         </div>
       </section>
+      {/* <section>
+        <SuccessStoriesSection />
 
-      {/* How It Works Section */}
-      <section className="bg-basetext-baseSecondary py-16 md:py-24">
-        <div className="container mx-auto px-4 sm:px-6">
+      </section> */}
+      <section className="text-baseSecondary py-8 min-h-[100vh] md:py-24 flex flex-col justify-center">
+        <div className="container mx-auto px-4 sm:px-6 h-full flex flex-col justify-center">
           <div className="pb-6 md:pb-10">
             <img
               src="/hugging-old.png"
@@ -226,7 +270,7 @@ export default function Index() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-accentPrimary/80">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 !text-accentPrimary">
               How It Works
             </h2>
             <div className="w-16 md:w-24 h-1 bg-accentPrimary mx-auto mb-4 md:mb-6"></div>
@@ -288,80 +332,9 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 md:py-24 bg-baseSecondary/50 flex items-center">
-        <div className="container mx-auto px-4 sm:px-6">
-          <motion.div
-            className="text-center mb-10 md:mb-16"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-accentPrimary">
-              Our Impact
-            </h2>
-            <div className="w-16 md:w-24 h-1 bg-accentPrimary mx-auto mb-4 md:mb-6"></div>
-            <p className="text-base md:text-lg max-w-xl mx-auto text-accentPrimary">
-              Together we&apos;re creating lasting change for charities
-              worldwide.
-            </p>
-          </motion.div>
-
-          <div
-            ref={statsRef}
-            className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 max-w-7xl mx-auto"
-          >
-            {/* Stats Cards */}
-            <div className="space-y-6 md:space-y-8 max-w-md mx-auto w-full">
-              {stats.map((stat, index) => (
-                <motion.div
-                  key={index}
-                  className="bg-baseSecondary/90 rounded-xl p-6 md:p-8 shadow-lg border border-accentPrimary"
-                  initial={{ opacity: 0, x: -30 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.2, duration: 0.6 }}
-                >
-                  <div className="flex items-center gap-4 md:gap-6">
-                    <div className="flex-shrink-0 text-accentPrimary">
-                      {stat.icon}
-                    </div>
-                    <div>
-                      <div className="text-xl md:text-2xl lg:text-4xl font-bold text-accentPrimary mb-1">
-                        {stat.value}
-                      </div>
-                      <div className="text-base md:text-lg text-basePrimary">
-                        {stat.label}
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Graph/Image Container */}
-            <div className="relative h-full mt-6 lg:mt-0">
-              <motion.div
-                className="inset-0"
-                initial={{ opacity: 1 }}
-                transition={{ duration: 0.8 }}
-              >
-                <img
-                  src="/family-child.png"
-                  alt="Impact Visualization"
-                  className="w-full h-auto object-cover rounded-xl"
-                />
-              </motion.div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* <SuccessStoriesSection/> */}
       {/* Recent Tasks Section */}
-      <section className="text-baseSecondary py-16 md:py-24">
-        <div className="container mx-auto px-4 sm:px-6">
+      <section className="text-baseSecondary py-8 min-h-[100vh] md:py-24 flex flex-col justify-center">
+        <div className="container mx-auto px-4 sm:px-6 h-full flex flex-col justify-center">
           <motion.div
             className="text-center mb-10 md:mb-16"
             initial={{ opacity: 0, y: 20 }}
@@ -369,11 +342,11 @@ export default function Index() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-baseSecondary">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 !text-accentPrimary">
               Latest Opportunities
             </h2>
             <div className="w-16 md:w-24 h-1 bg-accentPrimary mx-auto mb-4 md:mb-6"></div>
-            <p className="text-base md:text-lg max-w-xl mx-auto">
+            <p className="text-base md:text-lg max-w-xl mx-auto !text-basePrimary">
               Browse some of the most recent projects that need your expertise.
             </p>
           </motion.div>
@@ -481,8 +454,8 @@ export default function Index() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 md:py-24 bg-baseSecondary">
-        <div className="container mx-auto px-4 sm:px-6 py-8 md:py-16">
+      <section className="py-8 min-h-[100vh] md:py-24 bg-baseSecondary flex flex-col justify-center">
+        <div className="container mx-auto px-4 sm:px-6 py-8 md:py-16 h-full flex flex-col justify-center">
           <div className="max-w-4xl mx-auto bg-accentPrimary rounded-2xl p-1">
             <div className="bg-basetext-baseSecondary rounded-xl p-6 md:p-10 lg:p-16 text-center">
               <motion.h2
@@ -533,7 +506,6 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Footer */}
       <Footer />
 
       {/* Task Details Modal */}
@@ -564,85 +536,4 @@ export default function Index() {
       </Modal>
     </div>
   );
-}
-
-export async function loader({ request }: LoaderFunctionArgs) {
-  const session = await getSession(request);
-  const accessToken = session.get("accessToken");
-  const flashError = session.get("error");
-
-  // Get the date 30 days ago for recency filtering
-  const thirtyDaysAgo = subDays(new Date(), 30);
-
-  // Fetch tasks with popularity metrics
-  const recentTasks = await prisma.tasks.findMany({
-    take: 3,
-    where: {
-      OR: [{ urgency: "HIGH" }, { createdAt: { gte: thirtyDaysAgo } }],
-    },
-    include: {
-      charity: { select: { name: true } },
-      taskApplications: { select: { id: true } },
-      _count: { select: { taskApplications: true } },
-    },
-    orderBy: [{ taskApplications: { _count: "desc" } }, { createdAt: "desc" }],
-  });
-
-  // Calculate popularity score for each task
-  const tasksWithScore = recentTasks.map((task) => ({
-    ...task,
-    popularityScore: calculatePopularityScore(task),
-  }));
-
-  // Get top 3 tasks sorted by popularity score
-  const topTasks = tasksWithScore
-    .sort((a, b) => b.popularityScore - a.popularityScore)
-    .slice(0, 3);
-
-  // Only commit session if there was a flash message
-  const headers = flashError
-    ? {
-        "Set-Cookie": await commitSession(session),
-      }
-    : undefined;
-
-  let userInfoResult = null;
-  if (accessToken) {
-    const { userInfo } = await getUserInfo(accessToken);
-    userInfoResult = userInfo;
-  }
-
-  return json(
-    {
-      message: accessToken ? "User logged in" : "User not logged in",
-      userInfo: userInfoResult,
-      error: flashError,
-      recentTasks: topTasks,
-    },
-    {
-      headers,
-    },
-  );
-}
-
-// Helper function to calculate task popularity score
-function calculatePopularityScore(task: {
-  createdAt: Date;
-  urgency: string;
-  _count: { taskApplications: number };
-}) {
-  const recencyScore = calculateRecencyScore(task.createdAt);
-  const applicationScore = task._count.taskApplications * 2;
-  const urgencyScores = { HIGH: 3, MEDIUM: 2, LOW: 1 };
-
-  return recencyScore + applicationScore + (urgencyScores[task.urgency] || 1);
-}
-
-// Helper function to calculate recency score
-function calculateRecencyScore(createdAt: Date): number {
-  const ageInDays = Math.floor(
-    (Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24),
-  );
-
-  return ageInDays <= 7 ? 5 : ageInDays <= 14 ? 3 : ageInDays <= 30 ? 1 : 0;
 }

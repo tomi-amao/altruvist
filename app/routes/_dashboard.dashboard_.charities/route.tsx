@@ -50,6 +50,8 @@ export const meta: MetaFunction = () => {
   return [
     { title: "Manage Charities" },
     { name: "description", content: "Manage your charities on Altruvist!" },
+    { name: "viewport", content: "width=device-width,initial-scale=1" },
+    { charSet: "utf-8" },
   ];
 };
 
