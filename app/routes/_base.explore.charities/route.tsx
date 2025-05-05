@@ -39,7 +39,7 @@ interface ExtendedCharity
 }
 
 export const meta = () => {
-  return [{ title: "Explore Charities | Altruist" }];
+  return [{ title: "Explore Charities | Altruvist" }];
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {

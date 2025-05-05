@@ -5,7 +5,6 @@ import Navbar from "~/components/navigation/Header2";
 import { getUserInfo } from "~/models/user2.server";
 import { commitSession, getSession } from "~/services/session.server";
 import { getSignedUrlForFile } from "~/services/s3.server";
-import { getUserTasks } from "~/models/tasks.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);

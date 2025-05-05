@@ -29,7 +29,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   console.log("Role:", role);
 
-  if (role !== "Admin") {
+  if (role !== "admin") {
     throw new Error("You are not authorized to access this page");
   }
 

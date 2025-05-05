@@ -32,7 +32,7 @@ import { formatDistanceToNow, format } from "date-fns";
 export const meta: MetaFunction = ({ data }) => {
   if (!data?.charity) {
     return [
-      { title: "Charity Not Found | Altruist" },
+      { title: "Charity Not Found | Altruvist" },
       {
         name: "description",
         content: "The requested charity could not be found.",
@@ -40,7 +40,7 @@ export const meta: MetaFunction = ({ data }) => {
     ];
   }
   return [
-    { title: `${data.charity.name} | Altruist` },
+    { title: `${data.charity.name} | Altruvist` },
     {
       name: "description",
       content:
@@ -414,7 +414,7 @@ export default function CharityDetailPage() {
               />
               <div>
                 <p className="text-sm font-medium text-baseSecondary/70 mb-1">
-                  Joined Altruist
+                  Joined Altruvist
                 </p>
                 <p className="text-baseSecondary">
                   {formattedCreatedDate || "Date not available"}

@@ -3,7 +3,7 @@ import { MetaFunction, useLoaderData } from "@remix-run/react";
 import { differenceInDays } from "date-fns";
 import DashboardBanner from "~/components/cards/BannerSummaryCard";
 import { getUserTasks, getAllTasks } from "~/models/tasks.server";
-import { getSession, commitSession } from "~/services/session.server";
+import { getSession } from "~/services/session.server";
 import { getUserInfo } from "~/models/user2.server";
 import { Section } from "~/components/cards/DashboardSection";
 
@@ -20,7 +20,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
   const accessToken = session.get("accessToken");
 
-
   if (!accessToken) {
     return redirect("/zitlogin");
   }
@@ -29,8 +28,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (!userInfo) {
     return redirect("/zitlogin");
   }
-
-
 
   const userRole = userInfo.roles[0];
   // Add empty array defaults to prevent null errors

@@ -1,3 +1,4 @@
+import { Copyright } from "@phosphor-icons/react";
 import { Link } from "@remix-run/react";
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -177,8 +178,13 @@ export default function Footer() {
           />
         </div>
       </div>
-      <div className="border-t border-basePrimary pt-8 text-center text-basePrimary text-sm">
-        <p>© {new Date().getFullYear()} Altruvist. All rights reserved.</p>
+      <div className="border-t border-basePrimary pt-8 text-center !text-baseSecondary text-sm">
+        <p className="flex items-center justify-center">
+          <Copyright size={18} weight="duotone" className="mr-1" />
+          <span>
+            {new Date().getFullYear()} Altruvist. All rights reserved.
+          </span>
+        </p>
         <div className="flex justify-center mt-4 space-x-6 text-baseSecondary">
           <a href="/" className="hover:text-accentPrimary transition-colors">
             Privacy Policy

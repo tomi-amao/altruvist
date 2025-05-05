@@ -429,7 +429,7 @@ export default function ContactRoute() {
                         <div>
                           <label
                             htmlFor="name"
-                            className="block text-midGrey mb-2"
+                            className="block text-midGrey mb-2 font-primary"
                           >
                             Name
                           </label>
@@ -437,7 +437,7 @@ export default function ContactRoute() {
                             type="text"
                             id="name"
                             name="name"
-                            className={`w-full px-4 py-3 bg-basePrimaryLight rounded-lg border focus:outline-none focus:ring-2 transition-all ${
+                            className={`w-full px-4 py-3 bg-basePrimaryLight rounded-lg   focus:outline-none focus:ring-2 transition-all ${
                               actionData?.success === false &&
                               actionData.errors.name
                                 ? "border-dangerPrimary focus:ring-dangerPrimary/30"
@@ -455,7 +455,7 @@ export default function ContactRoute() {
                         <div>
                           <label
                             htmlFor="email"
-                            className="block text-midGrey mb-2"
+                            className="block text-midGrey mb-2 font-primary"
                           >
                             Email
                           </label>
@@ -463,7 +463,7 @@ export default function ContactRoute() {
                             type="email"
                             id="email"
                             name="email"
-                            className={`w-full px-4 py-3 bg-basePrimaryLight rounded-lg border focus:outline-none focus:ring-2 transition-all ${
+                            className={`w-full px-4 py-3 bg-basePrimaryLight rounded-lg  focus:outline-none focus:ring-2 transition-all ${
                               actionData?.success === false &&
                               actionData.errors.email
                                 ? "border-dangerPrimary focus:ring-dangerPrimary/30"
@@ -483,7 +483,7 @@ export default function ContactRoute() {
                       <div className="mb-6">
                         <label
                           htmlFor="subject"
-                          className="block text-midGrey mb-2"
+                          className="block text-midGrey mb-2 font-primary"
                         >
                           Subject
                         </label>
@@ -491,7 +491,7 @@ export default function ContactRoute() {
                           type="text"
                           id="subject"
                           name="subject"
-                          className={`w-full px-4 py-3 bg-basePrimaryLight rounded-lg border focus:outline-none focus:ring-2 transition-all ${
+                          className={`w-full px-4 py-3 bg-basePrimaryLight rounded-lg  focus:outline-none focus:ring-2 transition-all ${
                             actionData?.success === false &&
                             actionData.errors.subject
                               ? "border-dangerPrimary focus:ring-dangerPrimary/30"
@@ -510,7 +510,7 @@ export default function ContactRoute() {
                       <div className="mb-6">
                         <label
                           htmlFor="message"
-                          className="block text-midGrey mb-2"
+                          className="block text-midGrey mb-2 font-primary"
                         >
                           Message
                         </label>
@@ -518,7 +518,7 @@ export default function ContactRoute() {
                           id="message"
                           name="message"
                           rows={6}
-                          className={`w-full px-4 py-3 bg-basePrimaryLight rounded-lg border focus:outline-none focus:ring-2 resize-none transition-all ${
+                          className={`w-full px-4 py-3 bg-basePrimaryLight rounded-lg  focus:outline-none focus:ring-2 resize-none transition-all ${
                             actionData?.success === false &&
                             actionData.errors.message
                               ? "border-dangerPrimary focus:ring-dangerPrimary/30"

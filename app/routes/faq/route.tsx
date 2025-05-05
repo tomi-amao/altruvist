@@ -7,11 +7,11 @@ import Footer from "~/components/navigation/Footer";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Frequently Asked Questions | Altruist" },
+    { title: "Frequently Asked Questions | Altruvist" },
     {
       name: "description",
       content:
-        "Find answers to common questions about volunteering, charity resources, and using the Altruist platform.",
+        "Find answers to common questions about volunteering, charity resources, and using the Altruvist platform.",
     },
   ];
 };
@@ -31,12 +31,12 @@ export const loader = async () => {
           {
             question: "Do I need special skills to volunteer?",
             answer:
-              "Altruist specializes in skills-based volunteering, so having specific skills (especially digital or professional skills) is helpful. However, we have opportunities for various skill levels, from beginners to experts.",
+              "Altruvist specializes in skills-based volunteering, so having specific skills (especially digital or professional skills) is helpful. However, we have opportunities for various skill levels, from beginners to experts.",
           },
           {
             question: "Can I volunteer remotely?",
             answer:
-              "Yes! Many opportunities on Altruist are remote/virtual, allowing you to contribute from anywhere in the world. You can filter opportunities by location type to find remote-friendly tasks.",
+              "Yes! Many opportunities on Altruvist are remote/virtual, allowing you to contribute from anywhere in the world. You can filter opportunities by location type to find remote-friendly tasks.",
           },
           {
             question: "Will I receive training?",
@@ -46,7 +46,7 @@ export const loader = async () => {
           {
             question: "How do I track my impact?",
             answer:
-              "Your Altruist dashboard automatically tracks your completed tasks, hours contributed, and the causes you've supported. This creates a comprehensive record of your volunteering journey.",
+              "Your Altruvist dashboard automatically tracks your completed tasks, hours contributed, and the causes you've supported. This creates a comprehensive record of your volunteering journey.",
           },
           {
             question: "Can I volunteer as a team or with my company?",
@@ -64,15 +64,15 @@ export const loader = async () => {
         title: "For Charities & Nonprofits",
         questions: [
           {
-            question: "How do I verify my nonprofit status on Altruist?",
+            question: "How do I verify my nonprofit status on Altruvist?",
             answer:
-              "During registration, select 'Charity' as your organization type and provide your nonprofit registration number. Our team will verify your status within 1-2 business days. For expedited verification, you can email supporting documentation to verification@altruist.org.",
+              "During registration, select 'Charity' as your organization type and provide your nonprofit registration number. Our team will verify your status within 1-2 business days. For expedited verification, you can email supporting documentation to verification@Altruvist.org.",
           },
           {
             question:
               "Can we have multiple accounts for different departments?",
             answer:
-              "Yes! Altruist allows multiple users to be associated with your organization. The primary account holder can invite team members who will have access to manage projects, communicate with volunteers, and track progress.",
+              "Yes! Altruvist allows multiple users to be associated with your organization. The primary account holder can invite team members who will have access to manage projects, communicate with volunteers, and track progress.",
           },
           {
             question: "Is there a limit to how many tasks we can post?",
@@ -102,9 +102,9 @@ export const loader = async () => {
         title: "About the Platform",
         questions: [
           {
-            question: "Are there any costs associated with using Altruist?",
+            question: "Are there any costs associated with using Altruvist?",
             answer:
-              "Altruist is completely free for volunteers. Organizations have free access to basic features, with premium options available for additional capabilities and support.",
+              "Altruvist is completely free for volunteers. Organizations have free access to basic features, with premium options available for additional capabilities and support.",
           },
           {
             question: "How does the matching process work?",
@@ -117,9 +117,9 @@ export const loader = async () => {
               "Yes. We take data protection seriously and comply with relevant privacy regulations. We only collect information necessary to operate the platform and never share your personal details with third parties without your explicit consent.",
           },
           {
-            question: "Can I use Altruist on mobile devices?",
+            question: "Can I use Altruvist on mobile devices?",
             answer:
-              "Yes, Altruist is fully responsive and works on smartphones and tablets. We're also developing dedicated mobile apps to enhance the experience further.",
+              "Yes, Altruvist is fully responsive and works on smartphones and tablets. We're also developing dedicated mobile apps to enhance the experience further.",
           },
           {
             question:
@@ -130,7 +130,7 @@ export const loader = async () => {
           {
             question: "How do I report inappropriate content or users?",
             answer:
-              "You can report concerns by clicking the 'Report' button on any task or user profile, or by contacting our support team at support@altruist.org. We take all reports seriously and will investigate promptly.",
+              "You can report concerns by clicking the 'Report' button on any task or user profile, or by contacting our support team at support@Altruvist.org. We take all reports seriously and will investigate promptly.",
           },
         ],
       },
@@ -140,11 +140,11 @@ export const loader = async () => {
           {
             question: "I'm having trouble with my account. What should I do?",
             answer:
-              "First, try clearing your browser cache and cookies, then restart your browser. If problems persist, please contact our support team at support@altruist.org with details about the issue, including any error messages and the device/browser you're using.",
+              "First, try clearing your browser cache and cookies, then restart your browser. If problems persist, please contact our support team at support@Altruvist.org with details about the issue, including any error messages and the device/browser you're using.",
           },
           {
             question:
-              "Can I integrate Altruist with other tools my organization uses?",
+              "Can I integrate Altruvist with other tools my organization uses?",
             answer:
               "Yes, we offer API integrations with popular project management, CRM, and communication tools. Premium accounts have access to more integration options. Contact our team for details about specific integrations.",
           },
@@ -199,7 +199,7 @@ export default function FAQPage() {
                 Questions
               </span>
               <p className="mt-4 text-lg text-midGrey max-w-2xl mx-auto">
-                Find answers to common questions about using Altruist for both
+                Find answers to common questions about using Altruvist for both
                 volunteers and charities
               </p>
             </motion.div>

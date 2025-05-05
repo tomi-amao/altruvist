@@ -7,11 +7,11 @@ import Footer from "~/components/navigation/Footer";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Volunteer Guide | Altruist" },
+    { title: "Volunteer Guide | Altruvist" },
     {
       name: "description",
       content:
-        "A comprehensive guide for volunteers on how to make the most of your volunteering experience with Altruist.",
+        "A comprehensive guide for volunteers on how to make the most of your volunteering experience with Altruvist.",
     },
   ];
 };
@@ -74,12 +74,12 @@ export const loader = async () => {
       {
         question: "Do I need special skills to volunteer?",
         answer:
-          "Altruist specializes in skills-based volunteering, so having specific skills (especially digital or professional skills) is helpful. However, we have opportunities for various skill levels, from beginners to experts.",
+          "Altruvist specializes in skills-based volunteering, so having specific skills (especially digital or professional skills) is helpful. However, we have opportunities for various skill levels, from beginners to experts.",
       },
       {
         question: "Can I volunteer remotely?",
         answer:
-          "Yes! Many opportunities on Altruist are remote/virtual, allowing you to contribute from anywhere in the world. You can filter opportunities by location type to find remote-friendly tasks.",
+          "Yes! Many opportunities on Altruvist are remote/virtual, allowing you to contribute from anywhere in the world. You can filter opportunities by location type to find remote-friendly tasks.",
       },
       {
         question: "Will I receive training?",
@@ -89,7 +89,7 @@ export const loader = async () => {
       {
         question: "How do I track my impact?",
         answer:
-          "Your Altruist dashboard automatically tracks your completed tasks, hours contributed, and the causes you've supported. This creates a comprehensive record of your volunteering journey.",
+          "Your Altruvist dashboard automatically tracks your completed tasks, hours contributed, and the causes you've supported. This creates a comprehensive record of your volunteering journey.",
       },
       {
         question: "Can I volunteer as a team or with my company?",
@@ -153,7 +153,7 @@ export default function VolunteerGuide() {
               </span>
               <p className="mt-4 text-lg text-midGrey max-w-2xl mx-auto">
                 Everything you need to know to make the most of your
-                volunteering experience with Altruist.
+                volunteering experience with Altruvist.
               </p>
             </motion.div>
 
@@ -296,7 +296,7 @@ export default function VolunteerGuide() {
               Frequently Asked Questions
             </h2>
             <p className="mx-auto max-w-[700px] text-midGrey md:text-xl mt-4">
-              Answers to common questions about volunteering with Altruist
+              Answers to common questions about volunteering with Altruvist
             </p>
           </motion.div>
 

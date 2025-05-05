@@ -25,7 +25,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   console.log("Role:", role);
 
-  if (role !== "Admin") {
+  if (role !== "admin") {
     throw new Error("You are not authorized to access this page");
   }
 

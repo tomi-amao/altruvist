@@ -114,27 +114,27 @@ export default function Index() {
       />
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center overflow-hidden flex-col pt-60">
-        <div className="container mx-auto px-6 py-16 flex flex-col lg:flex-row items-center justify-center h-full">
+      <section className="relative flex items-center overflow-hidden flex-col py-16 md:py-24 lg:min-h-screen">
+        <div className="container mx-auto px-4 sm:px-6 py-8 md:py-16 flex flex-col lg:flex-row items-center justify-center">
           <motion.div
             className="lg:w-1/2 z-10"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-5xl lg:text-7xl font-bold !text-accentPrimary  mb-6">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold !text-accentPrimary mb-6">
               Donate Your Skills, Make a Difference
             </h1>
             {clientSideError && (
               <Notification type="error" message={clientSideError} />
             )}
-            <p className="text-xl text-basePrimary mb-8 max-w-lg">
+            <p className="text-base md:text-xl text-basePrimary mb-8 max-w-lg">
               Connect with charities and make a real impact with your time,
               helping non-profit organizations meet their missions.
             </p>
             <div className="flex flex-wrap gap-4">
               <motion.button
-                className="bg-accentPrimary hover:bg-accentPrimaryDark text-baseSecondary px-8 py-4 rounded-lg text-lg font-medium shadow-lg transition-all"
+                className="bg-accentPrimary hover:bg-accentPrimaryDark text-baseSecondary px-6 sm:px-8 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-medium shadow-lg transition-all"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => {
@@ -144,7 +144,7 @@ export default function Index() {
                 Get Started
               </motion.button>
               <motion.button
-                className="border-2 border-accentPrimary text-accentPrimary px-8 py-4 rounded-lg text-lg font-medium hover:bg-accentPrimary hover:text-baseSecondary transition-all"
+                className="border-2 border-accentPrimary text-accentPrimary px-6 sm:px-8 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-medium hover:bg-accentPrimary hover:text-baseSecondary transition-all"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => {
@@ -165,7 +165,7 @@ export default function Index() {
             <img
               src="/pulling-medicare.png"
               alt="Making an impact"
-              className="w-full h-auto max-w-md mx-auto"
+              className="w-full h-auto max-w-xs sm:max-w-sm md:max-w-md mx-auto"
             />
             <motion.div
               animate={{ y: [0, -15, 0] }}
@@ -210,34 +210,33 @@ export default function Index() {
       </section>
 
       {/* How It Works Section */}
-
-      <section className="bg-basetext-baseSecondary min-h-screen flex items-center">
-        <div className="container mx-auto px-6 py-16">
-          <div className="pb-10">
+      <section className="bg-basetext-baseSecondary py-16 md:py-24">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="pb-6 md:pb-10">
             <img
               src="/hugging-old.png"
               alt="Making an impact"
-              className="w-full h-auto max-w-md mx-auto"
+              className="w-full h-auto max-w-xs sm:max-w-sm md:max-w-md mx-auto"
             />
           </div>
           <motion.div
-            className="text-center mb-16"
+            className="text-center mb-10 md:mb-16"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-4xl font-bold mb-4  text-accentPrimary/80">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-accentPrimary/80">
               How It Works
             </h2>
-            <div className="w-24 h-1 bg-accentPrimary mx-auto mb-6"></div>
-            <p className="text-lg text-basePrimary max-w-xl mx-auto">
+            <div className="w-16 md:w-24 h-1 bg-accentPrimary mx-auto mb-4 md:mb-6"></div>
+            <p className="text-base md:text-lg text-basePrimary max-w-xl mx-auto">
               Join our platform in three simple steps and start making an impact
               through your technical skills.
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-10 max-w-5xl mx-auto !text-basePrimary">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-10 max-w-5xl mx-auto !text-basePrimary">
             {[
               {
                 title: "Register",
@@ -290,20 +289,20 @@ export default function Index() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-baseSecondary/50 min-h-screen flex items-center">
-        <div className="container mx-auto px-6">
+      <section className="py-16 md:py-24 bg-baseSecondary/50 flex items-center">
+        <div className="container mx-auto px-4 sm:px-6">
           <motion.div
-            className="text-center mb-16"
+            className="text-center mb-10 md:mb-16"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-4xl font-bold mb-4 text-accentPrimary">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-accentPrimary">
               Our Impact
             </h2>
-            <div className="w-24 h-1 bg-accentPrimary mx-auto mb-6"></div>
-            <p className="text-lg max-w-xl mx-auto text-accentPrimary">
+            <div className="w-16 md:w-24 h-1 bg-accentPrimary mx-auto mb-4 md:mb-6"></div>
+            <p className="text-base md:text-lg max-w-xl mx-auto text-accentPrimary">
               Together we&apos;re creating lasting change for charities
               worldwide.
             </p>
@@ -311,28 +310,28 @@ export default function Index() {
 
           <div
             ref={statsRef}
-            className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto shrink"
+            className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 max-w-7xl mx-auto"
           >
             {/* Stats Cards */}
-            <div className="space-y-8 max-w-md mx-auto w-full">
+            <div className="space-y-6 md:space-y-8 max-w-md mx-auto w-full">
               {stats.map((stat, index) => (
                 <motion.div
                   key={index}
-                  className="bg-baseSecondary/90 rounded-xl p-8 shadow-lg border border-accentPrimary  "
+                  className="bg-baseSecondary/90 rounded-xl p-6 md:p-8 shadow-lg border border-accentPrimary"
                   initial={{ opacity: 0, x: -30 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.2, duration: 0.6 }}
                 >
-                  <div className="flex items-center gap-6">
+                  <div className="flex items-center gap-4 md:gap-6">
                     <div className="flex-shrink-0 text-accentPrimary">
                       {stat.icon}
                     </div>
                     <div>
-                      <div className="text-2xl md:text-4xl font-bold text-accentPrimary mb-1">
+                      <div className="text-xl md:text-2xl lg:text-4xl font-bold text-accentPrimary mb-1">
                         {stat.value}
                       </div>
-                      <div className="text-lg text-basePrimary">
+                      <div className="text-base md:text-lg text-basePrimary">
                         {stat.label}
                       </div>
                     </div>
@@ -342,16 +341,16 @@ export default function Index() {
             </div>
 
             {/* Graph/Image Container */}
-            <div className="relative h-full">
+            <div className="relative h-full mt-6 lg:mt-0">
               <motion.div
-                className=" inset-0"
+                className="inset-0"
                 initial={{ opacity: 1 }}
                 transition={{ duration: 0.8 }}
               >
                 <img
                   src="/family-child.png"
                   alt="Impact Visualization"
-                  className="w-full h-full object-cover rounded-xl"
+                  className="w-full h-auto object-cover rounded-xl"
                 />
               </motion.div>
             </div>
@@ -361,29 +360,29 @@ export default function Index() {
 
       {/* <SuccessStoriesSection/> */}
       {/* Recent Tasks Section */}
-      <section className="text-baseSecondary min-h-screen flex items-center">
-        <div className="container mx-auto px-6 py-16">
+      <section className="text-baseSecondary py-16 md:py-24">
+        <div className="container mx-auto px-4 sm:px-6">
           <motion.div
-            className="text-center mb-16"
+            className="text-center mb-10 md:mb-16"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-4xl font-bold mb-4 text-baseSecondary">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-baseSecondary">
               Latest Opportunities
             </h2>
-            <div className="w-24 h-1 bg-accentPrimary mx-auto mb-6"></div>
-            <p className="text-lg  max-w-xl mx-auto">
+            <div className="w-16 md:w-24 h-1 bg-accentPrimary mx-auto mb-4 md:mb-6"></div>
+            <p className="text-base md:text-lg max-w-xl mx-auto">
               Browse some of the most recent projects that need your expertise.
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto">
             {recentTasks.map((task, index) => (
               <motion.div
                 key={task.id}
-                className=" bg-basePrimary rounded-xl overflow-hidden border border-basePrimary shadow-md "
+                className="bg-basePrimary rounded-xl overflow-hidden border border-basePrimary shadow-md"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -403,10 +402,10 @@ export default function Index() {
                         : "bg-baseSecondary/10"
                   }`}
                 ></div>
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                   <div className="flex items-center justify-between mb-4">
                     <span
-                      className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+                      className={`inline-flex items-center px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-xs font-medium ${
                         task.urgency === "HIGH"
                           ? "bg-dangerPrimary/20 text-dangerPrimary"
                           : task.urgency === "MEDIUM"
@@ -416,15 +415,15 @@ export default function Index() {
                     >
                       {task.urgency} URGENCY
                     </span>
-                    <span className="text-sm  flex items-center">
+                    <span className="text-xs sm:text-sm flex items-center">
                       <Clock size={16} className="mr-1" />
                       {task._count.taskApplications} applicants
                     </span>
                   </div>
-                  <h3 className="text-xl font-bold mb-2 text-baseSecondary">
+                  <h3 className="text-lg sm:text-xl font-bold mb-2 text-baseSecondary">
                     {task.title}
                   </h3>
-                  <p className=" mb-4 flex items-center">
+                  <p className="text-sm sm:text-base mb-4 flex items-center">
                     <Buildings size={16} className="mr-2" />
                     {task.charity.name}
                   </p>
@@ -455,7 +454,7 @@ export default function Index() {
           </div>
 
           <motion.div
-            className="text-center mt-12"
+            className="text-center mt-8 sm:mt-12"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
@@ -463,7 +462,7 @@ export default function Index() {
           >
             <Link to="/explore/tasks" className="inline-block">
               <motion.button
-                className="border-2 border-accentPrimary text-accentPrimary hover:bg-accentPrimary hover:text-baseSecondary transition-colors px-6 py-3 rounded-lg font-medium"
+                className="border-2 border-accentPrimary text-accentPrimary hover:bg-accentPrimary hover:text-baseSecondary transition-colors px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -475,19 +474,19 @@ export default function Index() {
             <img
               src="/tent-careworker.png"
               alt="Making an impact"
-              className="w-full h-auto max-w-md mx-auto"
+              className="w-full h-auto max-w-xs sm:max-w-sm md:max-w-md mx-auto"
             />
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="min-h-screen flex items-center bg-baseSecondary">
-        <div className="container mx-auto px-6 py-16">
-          <div className="max-w-4xl mx-auto  bg-accentPrimary  rounded-2xl p-1">
-            <div className="bg-basetext-baseSecondary rounded-xl p-10 lg:p-16 text-center">
+      <section className="py-16 md:py-24 bg-baseSecondary">
+        <div className="container mx-auto px-4 sm:px-6 py-8 md:py-16">
+          <div className="max-w-4xl mx-auto bg-accentPrimary rounded-2xl p-1">
+            <div className="bg-basetext-baseSecondary rounded-xl p-6 md:p-10 lg:p-16 text-center">
               <motion.h2
-                className="text-3xl lg:text-4xl font-bold mb-6 text-baseSecondary"
+                className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 md:mb-6 text-baseSecondary"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -495,7 +494,7 @@ export default function Index() {
                 Ready to share your skills for good?
               </motion.h2>
               <motion.p
-                className="text-lg  mb-8 max-w-2xl mx-auto"
+                className="text-base md:text-lg mb-6 md:mb-8 max-w-2xl mx-auto"
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
@@ -512,7 +511,7 @@ export default function Index() {
                 transition={{ delay: 0.3 }}
               >
                 <motion.button
-                  className="bg-accentPrimary text-baseSecondary px-8 py-4 rounded-lg text-lg font-medium shadow-lg"
+                  className="bg-accentPrimary text-baseSecondary px-6 sm:px-8 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-medium shadow-lg"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => {
@@ -522,11 +521,11 @@ export default function Index() {
                   Make an Impact
                 </motion.button>
               </motion.div>
-              <div className="pt-8">
+              <div className="pt-6 md:pt-8">
                 <img
                   src="/flooded-house.png"
                   alt="Making an impact"
-                  className="w-full h-auto max-w-md mx-auto"
+                  className="w-full h-auto max-w-xs sm:max-w-sm md:max-w-md mx-auto"
                 />
               </div>
             </div>

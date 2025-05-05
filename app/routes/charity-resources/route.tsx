@@ -7,11 +7,11 @@ import Footer from "~/components/navigation/Footer";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Charity Resources | Altruist" },
+    { title: "Charity Resources | Altruvist" },
     {
       name: "description",
       content:
-        "Resources, guides and best practices for nonprofits and charitable organizations using Altruist to find skilled volunteers.",
+        "Resources, guides and best practices for nonprofits and charitable organizations using Altruvist to find skilled volunteers.",
     },
   ];
 };
@@ -177,14 +177,14 @@ export const loader = async () => {
     ],
     faq: [
       {
-        question: "How do I verify my nonprofit status on Altruist?",
+        question: "How do I verify my nonprofit status on Altruvist?",
         answer:
-          "During registration, select 'Charity' as your organization type and provide your nonprofit registration number. Our team will verify your status within 1-2 business days. For expedited verification, you can email supporting documentation to verification@altruist.org.",
+          "During registration, select 'Charity' as your organization type and provide your nonprofit registration number. Our team will verify your status within 1-2 business days. For expedited verification, you can email supporting documentation to verification@Altruvist.org.",
       },
       {
         question: "Can we have multiple accounts for different departments?",
         answer:
-          "Yes! Altruist allows multiple users to be associated with your organization. The primary account holder can invite team members who will have access to manage projects, communicate with volunteers, and track progress.",
+          "Yes! Altruvist allows multiple users to be associated with your organization. The primary account holder can invite team members who will have access to manage projects, communicate with volunteers, and track progress.",
       },
       {
         question: "Is there a limit to how many tasks we can post?",
@@ -234,7 +234,7 @@ export default function CharityResources() {
               </span>
               <p className="mt-4 text-lg text-midGrey max-w-2xl mx-auto">
                 Tools, guides, and best practices to help your organization make
-                the most of skilled volunteers on the Altruist platform.
+                the most of skilled volunteers on the Altruvist platform.
               </p>
             </motion.div>
 
@@ -455,7 +455,7 @@ export default function CharityResources() {
               Frequently Asked Questions
             </h2>
             <p className="mx-auto max-w-[700px] text-midGrey md:text-xl mt-4">
-              Common questions about using Altruist for your organization
+              Common questions about using Altruvist for your organization
             </p>
           </motion.div>
 
@@ -522,7 +522,7 @@ export default function CharityResources() {
                 Ready to find skilled volunteers?
               </h2>
               <p className="mt-4 text-basePrimaryLight max-w-md mx-auto md:mx-0">
-                Join Altruist today and connect with professionals ready to
+                Join Altruvist today and connect with professionals ready to
                 share their expertise with your organization.
               </p>
             </div>

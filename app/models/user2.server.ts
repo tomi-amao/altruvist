@@ -91,8 +91,8 @@ export const getUserInfo = async (
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
-        agent: zitadel.DISABLE_SSL_VERIFICATION 
-          ? new https.Agent({ rejectUnauthorized: false }) 
+        agent: zitadel.DISABLE_SSL_VERIFICATION
+          ? new https.Agent({ rejectUnauthorized: false })
           : undefined,
       },
     );

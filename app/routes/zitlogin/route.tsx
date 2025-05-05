@@ -20,8 +20,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   // Configure HTTP/HTTPS based on environment variables
-  const agent = zitadel.DISABLE_SSL_VERIFICATION 
-    ? new https.Agent({ rejectUnauthorized: false }) 
+  const agent = zitadel.DISABLE_SSL_VERIFICATION
+    ? new https.Agent({ rejectUnauthorized: false })
     : undefined;
 
   try {
