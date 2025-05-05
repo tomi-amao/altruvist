@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { users } from "@prisma/client";
+import { Link } from "@remix-run/react";
 
 interface ProfileCardProps extends Partial<users> {
   className?: string;
@@ -54,19 +55,22 @@ export function ProfileCard({
   userTitle,
   profilePicture,
   className = "",
+  id
 }: ProfileCardProps) {
   return (
-    <div className={`relative ${className}`}>
-      <div className="flex items-center  rounded-md gap-3 border-solid border-altMidGrey shadow-md mb-2 py-2 px-3 transition-all duration-200 hover:bg-basePrimaryLight">
-        <Avatar src={profilePicture} name={name} />
-        <div className="flex flex-col justify-center min-w-0 flex-1">
-          <p className="text-md text-baseSecondary font-medium ">{name}</p>
-          <p className="text-xs text-altMidGrey text-baseSecondary/80">
-            {userTitle}
-          </p>
+    <Link to={`/profile/${id}`}>
+      <div className={`relative ${className}`}>
+        <div className="flex items-center  rounded-md gap-3 border-solid border-altMidGrey shadow-md mb-2 py-2 px-3 transition-all duration-200 hover:bg-basePrimaryLight">
+          <Avatar src={profilePicture} name={name} />
+          <div className="flex flex-col justify-center min-w-0 flex-1">
+            <p className="text-md text-baseSecondary font-medium ">{name}</p>
+            <p className="text-xs text-altMidGrey text-baseSecondary/80">
+              {userTitle}
+            </p>
+          </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 

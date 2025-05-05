@@ -186,7 +186,7 @@ export default function Index() {
                 Get Started
               </motion.button>
               <motion.button
-                className="border-2 border-accentPrimary text-accentPrimary px-6 sm:px-8 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-medium hover:bg-accentPrimary hover:text-baseSecondary transition-all"
+                className="border-2 border-accentPrimary z-50 text-accentPrimary px-6 sm:px-8 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-medium hover:bg-accentPrimary hover:text-baseSecondary transition-all"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => {
@@ -198,7 +198,7 @@ export default function Index() {
             </div>
           </motion.div>
           <motion.div
-            className="lg:w-1/2 mt-12 lg:mt-0 relative"
+            className="lg:w-1/2 mt-12 lg:mt-0 relative z-0"
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}

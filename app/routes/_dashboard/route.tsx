@@ -13,7 +13,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const isNew = session.get("isNew");
 
   // If user is new, redirect to newuser page
-  const { userInfo, error } = await getUserInfo(accessToken);
+  let  { userInfo, error } = await getUserInfo(accessToken);
   if (isNew && !userInfo?.roles?.length) {
     return redirect("/newuser");
   }
@@ -58,6 +58,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     }
   }
 
+  userInfo = {
+    ...userInfo,
+    profilePicture: signedProfilePictureUrl ?? userInfo.profilePicture,
+  };
   return { userInfo, error, novuAppId, signedProfilePictureUrl };
 }
 
@@ -93,7 +97,7 @@ export default function Dashboard() {
   return (
     <>
       <div className="h-full lg:h-screen flex flex-row ">
-        <Navbar userId={userInfo.id} novuAppId={novuAppId ?? ""} />
+        <Navbar user={userInfo} novuAppId={novuAppId ?? ""} />
         <div className="hidden lg:flex w-3/12 lg:max-w-48 flex-col mt-[3.8rem] lg:mt-[4rem] p-4 min-h-full lg:fixed shadow-md bg-basePrimary">
           {/* Profile section */}
           <div className="mt-10 mb-4">
