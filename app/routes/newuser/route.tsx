@@ -37,13 +37,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
   const { userInfo, error } = await getUserInfo(accessToken);
   if (userInfo?.roles[0]) {
-      return redirect("/dashboard");
-    }
+    return redirect("/dashboard");
+  }
   // Redirect non-new users to dashboard
   if (!isNew) {
     return redirect("/dashboard");
   }
-
 
   return { userInfo, error, COMPANION_URL };
 }
@@ -879,6 +878,29 @@ export default function NewUserForm() {
     );
   };
 
+  // Check if the current step can proceed
+  const canProceed = () => {
+    // If we're on role selection step (first step of part 2), require a role to be selected
+    if (formPart === 2 && currentStep === 0) {
+      return formData.role !== "";
+    }
+
+    // Add any other step-specific validation here
+
+    // For all other steps, allow proceeding
+    return true;
+  };
+
+  // Check if we're at the final step to show submit button
+  const isLastStep = () => {
+    return formPart === 2 && currentStep === activeSteps.length - 1;
+  };
+
+  // Check if we're on the role selection step
+  const isRoleSelectionStep = () => {
+    return formPart === 2 && currentStep === 0;
+  };
+
   // Display part indicator
   const renderPartIndicator = () => {
     return (
@@ -941,10 +963,23 @@ export default function NewUserForm() {
               >
                 Next: Role Setup
               </button>
-            ) : (formPart === 2 && currentStep === activeSteps.length - 1) ||
+            ) : isRoleSelectionStep() ? (
+              // On role selection step, only show Next button that's disabled until a role is selected
+              <button
+                type="button"
+                onClick={nextStep}
+                disabled={!formData.role}
+                className={`px-4 py-2 bg-baseSecondary text-basePrimaryLight rounded-md transition-colors ${
+                  !formData.role ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+              >
+                Next
+              </button>
+            ) : isLastStep() ||
               (formData.role === "charity" &&
                 formData.joinExistingCharity &&
                 currentStep === getPartTwoSteps().length - 1) ? (
+              // Show Submit button on last step
               <button
                 type="button"
                 onClick={() => {
@@ -989,10 +1024,14 @@ export default function NewUserForm() {
                 )}
               </button>
             ) : (
+              // Normal Next button for other steps
               <button
                 type="button"
                 onClick={nextStep}
-                className="px-4 py-2 bg-baseSecondary text-basePrimaryLight rounded-md transition-colors"
+                disabled={!canProceed()}
+                className={`px-4 py-2 bg-baseSecondary text-basePrimaryLight rounded-md transition-colors ${
+                  !canProceed() ? "opacity-50 cursor-not-allowed" : ""
+                }`}
               >
                 Next
               </button>
