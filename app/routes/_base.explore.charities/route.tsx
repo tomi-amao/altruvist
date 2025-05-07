@@ -17,6 +17,7 @@ import {
 } from "@phosphor-icons/react";
 import { getTags } from "~/constants/dropdownOptions";
 import { charities as Charity } from "@prisma/client";
+import { sanitiseUrl } from "~/components/utils/SanitiseUrl";
 // Extended charity type with signed background picture
 // Making nullable properties compatible with the loader data
 interface ExtendedCharity
@@ -38,8 +39,12 @@ interface ExtendedCharity
   updatedAt: Date | string;
 }
 
+
+
 export const meta = () => {
-  return [{ title: "Explore Charities | Altruvist" }];
+  return [{ title: "Explore Charities | Altruvist" }, { name: "viewport", content: "width=device-width,initial-scale=1" },
+  { charSet: "utf-8" },
+  ];
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -287,7 +292,7 @@ export default function ExploreCharities() {
                   <div className="flex items-center text-sm text-baseSecondary/70 mb-4">
                     <Globe size={16} className="mr-1.5" />
                     <a
-                      href={charity.website}
+                      href={sanitiseUrl(charity.website) || "#"}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="truncate hover:text-baseSecondary hover:underline"

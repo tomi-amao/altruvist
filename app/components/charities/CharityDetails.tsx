@@ -4,6 +4,7 @@ import type { Charity } from "~/types/charities";
 import type { tasks } from "@prisma/client";
 import CharityTasksSection from "../tasks/CharityTasksSection";
 import { ArrowSquareOut, ShareNetwork, Check } from "@phosphor-icons/react";
+import { sanitiseUrl } from "../utils/SanitiseUrl";
 
 type CharityDetailsProps = {
   charity: Charity;
@@ -183,7 +184,7 @@ export function CharityDetails({
                       Website
                     </h3>
                     <a
-                      href={`https://${charity.website}`}
+                      href={sanitiseUrl(charity.website) || "#"}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-baseSecondary hover:text-accentSecondary flex items-center gap-2"

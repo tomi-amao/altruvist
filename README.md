@@ -74,33 +74,7 @@ Altruvist is a dynamic platform that bridges the gap between passionate voluntee
 
 Copy `.env.example` to `.env` and populate with your configuration:
 
-```
-# MongoDB connection
-DATABASE_URL=mongodb+srv://<username>:<password>@<cluster>/<database>?retryWrites=true&w=majority
 
-# Zitadel Auth
-ZITADEL_DOMAIN=
-CLIENT_ID=
-CLIENT_SECRET=
-REDIRECT_URI=
-LOGOUT_URI=
-STATE=
-SESSION_SECRET=
-
-# Meilisearch
-MEILI_MASTER_KEY=
-MEILI_HOST=
-MEILI_ENVIRONMENT=
-
-# Novu Notifications
-NOVU_API_KEY=
-
-# AWS S3
-AWS_ACCESS_KEY_ID=
-AWS_SECRET=
-AWS_REGION=
-AWS_BUCKET=
-```
 
 ## Service Setup
 

@@ -28,6 +28,7 @@ import {
   Target,
 } from "@phosphor-icons/react";
 import { formatDistanceToNow, format } from "date-fns";
+import { sanitiseUrl } from "~/components/utils/SanitiseUrl";
 
 export const meta: MetaFunction = ({ data }) => {
   if (!data?.charity) {
@@ -295,7 +296,7 @@ export default function CharityDetailPage() {
           </Link>
           {charity.website && (
             <a
-              href="https://www.differentwebsite.com"
+              href={sanitiseUrl(charity.website) || "#"}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center px-6 py-2 border border-baseSecondary/20 rounded-lg text-baseSecondary bg-transparent hover:bg-basePrimary/5 transition-colors"
@@ -362,7 +363,7 @@ export default function CharityDetailPage() {
                     Website
                   </p>
                   <a
-                    href={charity.website}
+                    href={sanitiseUrl(charity.website) || "#"}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-baseSecondary hover:text-baseSecondary/80 hover:underline transition-colors"

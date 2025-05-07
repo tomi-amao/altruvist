@@ -23,6 +23,7 @@ import {
 } from "@phosphor-icons/react";
 import { getSignedUrlForFile } from "~/services/s3.server";
 import { Alert } from "~/components/utils/Alert";
+import { sanitiseUrl } from "~/components/utils/SanitiseUrl";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   if (!data?.profileInfo) {
@@ -336,7 +337,7 @@ export default function ProfilePage() {
                         Website
                       </p>
                       <a
-                        href={profileInfo.charity.website}
+                        href={sanitiseUrl(profileInfo.charity.website) || "#"}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-baseSecondary hover:text-baseSecondary/80 hover:underline transition-colors"
