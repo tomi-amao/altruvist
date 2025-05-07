@@ -1,7 +1,7 @@
 import { LoaderFunctionArgs, redirect } from "react-router";
 import { getSession } from "~/services/session.server";
 import { getUserInfo } from "~/models/user2.server";
-import { getCharity, getCharityApplications } from "~/models/charities.server";
+import { getCharityApplications } from "~/models/charities.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
@@ -42,23 +42,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
       name: charity.name,
       }));
 
-    // Data to fetch in parallel
-    const allUserCharityIds = userCharities.map((charity) => charity.id);
-    let charitiesList = [];
+    // Use charities from memberships directly, instead of fetching them again
+    const charitiesList = charityMemberships?.memberships?.map(membership => membership.charity) || [];
+    
     let pendingApplications = [];
     let userApplications = [];
 
-    // Create a Promise.all for parallel requests
+    // Create a Promise.all for parallel requests with only what's needed
     const parallelRequests = [
-      // Get detailed charity information
-      allUserCharityIds.length > 0
-        ? Promise.all(
-            allUserCharityIds.map((charityId) =>
-              getCharity(charityId, { charityMemberships: true }),
-            ),
-          )
-        : Promise.resolve([]),
-
       // Get pending applications for admin charities
       adminCharities.length > 0
         ? Promise.all(
@@ -76,15 +67,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     ];
 
     // Wait for all promises to resolve
-    const [charityResults, applicationResults, userApplicationsResult] =
+    const [applicationResults, userApplicationsResult] =
       await Promise.all(parallelRequests);
-
-    // Process charity results
-    if (allUserCharityIds.length > 0) {
-      charitiesList = charityResults
-        .filter((result) => result.charity)
-        .map((result) => result.charity);
-    }
 
     // Process pending applications
     if (adminCharities.length > 0) {

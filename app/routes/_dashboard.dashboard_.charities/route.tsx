@@ -62,7 +62,8 @@ export default function ManageCharities() {
     pendingApplications,
     userApplications,
     COMPANION_URL,
-    userRole
+    userRole,
+    userCharities
   } = useLoaderData<typeof loader>();
 
   const navigate = useNavigate();
@@ -356,6 +357,7 @@ export default function ManageCharities() {
               userApplications={userApplications}
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
+              userCharities={userCharities}
             />
           </motion.div>
         )}

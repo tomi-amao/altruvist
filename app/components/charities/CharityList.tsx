@@ -12,6 +12,12 @@ type CharityListProps = {
   userApplications: Application[];
   searchQuery: string;
   setSearchQuery: (query: string) => void;
+  userCharities?: Array<{
+    id: string;
+    name: string;
+    roles: string[];
+    permissions: string[];
+  }>;
 };
 
 export function CharityList({
@@ -23,6 +29,7 @@ export function CharityList({
   userApplications,
   searchQuery,
   setSearchQuery,
+  userCharities = [],
 }: CharityListProps) {
   // Filter charities based on search query
   const filteredCharities = useMemo(() => {
@@ -39,6 +46,12 @@ export function CharityList({
           )),
     );
   }, [charities, searchQuery]);
+
+  // Helper function to check if current user has a specific role for a charity
+  const userHasRoleInCharity = (charityId: string, role: string): boolean => {
+    const userCharity = userCharities.find(charity => charity.id === charityId);
+    return userCharity?.roles.includes(role) || false;
+  };
 
   return (
     <div className="space-y-2 mt-8">
@@ -113,27 +126,21 @@ export function CharityList({
               <div className="flex justify-between items-center mt-1.5 flex-wrap gap-1">
                 {/* Show badges for user's roles in this charity */}
                 {adminCharities.some((ac) => ac.id === charity.id) && (
-                  <span className="inline-flex text-sm items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-confirmPrimary/20 text-confirmPrimary leading-none">
+                  <span className="inline-flex !text-sm items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-confirmPrimary/20 text-confirmPrimary leading-none">
                     Admin
                   </span>
                 )}
                 
-                {/* Show Editor badge if user has this role in the charity */}
-                {charity.charityMemberships?.some(
-                  (membership) => 
-                    membership.roles?.includes("editor")
-                ) && (
-                  <span className="inline-flex text-sm items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-indicator-orange/20 text-indicator-orange leading-none ml-1">
+                {/* Show Editor badge if current user has this role */}
+                {userHasRoleInCharity(charity.id, "editor") && (
+                  <span className="inline-flex !text-sm items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-indicator-orange/20 text-indicator-orange leading-none ">
                     Editor
                   </span>
                 )}
                 
-                {/* Show Coordinator badge if user has this role in the charity */}
-                {charity.charityMemberships?.some(
-                  (membership) => 
-                    membership.roles?.includes("coordinator")
-                ) && (
-                  <span className="inline-flex text-sm items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-accentPrimary/20 text-accentPrimary leading-none ml-1">
+                {/* Show Coordinator badge if current user has this role */}
+                {userHasRoleInCharity(charity.id, "coordinator") && (
+                  <span className="inline-flex !text-sm items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-accentPrimary/20 text-accentPrimary leading-none ">
                     Coordinator
                   </span>
                 )}
