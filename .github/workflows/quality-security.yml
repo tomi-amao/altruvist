@@ -75,7 +75,7 @@ jobs:
       - name: Snyk Open Source monitor
         run: |
           npm ci
-          snyk monitor --org=ignorant-view
+          snyk monitor --org=theignorant.views
         continue-on-error: true
 
         # Runs Snyk Infrastructure as Code (IaC) analysis and uploads result to Snyk.
@@ -89,7 +89,7 @@ jobs:
 
         # Runs Snyk Container (Container and SCA) analysis and uploads result to Snyk.
       - name: Snyk Container monitor
-        run: snyk container monitor theignorantview/altruvist-webapp --file=Dockerfile --org=ignorant-view
+        run: snyk container monitor theignorantview/altruvist-webapp --file=Dockerfile --org=theignorant.views
         continue-on-error: true
 
         # Push the Snyk Code results into GitHub Code Scanning tab
