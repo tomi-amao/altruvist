@@ -9,7 +9,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  DOCKER_TAG: theignorantview/skillanthropy
+  DOCKER_TAG: theignorantview/altruvist-webapp
 
 permissions:
   contents: write
@@ -89,7 +89,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            theignorantview/skillanthropy
+            theignorantview/altruvist-webapp
             ghcr.io/${{ github.repository }}
           tags: type=semver,pattern={{raw}},value=${{ needs.release.outputs.new_tag }} #use semver value created from bump action
 
@@ -135,7 +135,7 @@ jobs:
       - name: Sign container image
         env:
           TAGS: |
-            theignorantview/skillanthropy
+            theignorantview/altruvist-webapp
           DIGEST: ${{ needs.push_to_registries.outputs.digest }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
 

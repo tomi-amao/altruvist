@@ -84,12 +84,12 @@ jobs:
       #   run: snyk iac test --report # || true
       # Build the docker image for testing
       - name: Build a Docker image
-        run: docker build -t theignorantview/skillanthropy .
+        run: docker build -t theignorantview/altruvist-webapp .
         continue-on-error: true
 
         # Runs Snyk Container (Container and SCA) analysis and uploads result to Snyk.
       - name: Snyk Container monitor
-        run: snyk container monitor theignorantview/skillanthropy --file=Dockerfile --org=ignorant-view
+        run: snyk container monitor theignorantview/altruvist-webapp --file=Dockerfile --org=ignorant-view
         continue-on-error: true
 
         # Push the Snyk Code results into GitHub Code Scanning tab
