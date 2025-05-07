@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { users } from "@prisma/client";
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 
 interface ProfileCardProps extends Partial<users> {
   className?: string;
@@ -55,7 +55,7 @@ export function ProfileCard({
   userTitle,
   profilePicture,
   className = "",
-  id
+  id,
 }: ProfileCardProps) {
   return (
     <Link to={`/profile/${id}`}>

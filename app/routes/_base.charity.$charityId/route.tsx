@@ -1,5 +1,5 @@
-import { json, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { useLoaderData, Link } from "@remix-run/react";
+import {  LoaderFunctionArgs, MetaFunction } from "react-router";
+import { useLoaderData, Link } from "react-router";
 import { useState, useMemo } from "react";
 import { getSession } from "~/services/session.server";
 import { getUserInfo } from "~/models/user2.server";
@@ -56,10 +56,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { charityId } = params;
 
   if (!charityId) {
-    return json(
-      { error: "Charity ID is required", charity: null },
-      { status: 400 },
-    );
+    return { error: "Charity ID is required", charity: null }
   }
 
   // Get charity details
@@ -69,7 +66,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   });
   const charityTasks = charity?.tasks || [];
   if (status !== 200 || !charity) {
-    return json({ error: "Charity not found", charity: null }, { status: 404 });
+    return { error: "Charity not found", charity: null, status: 404 };
   }
 
   // Get signed URL for background picture if it exists
@@ -132,7 +129,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     taskApplications = userTasks?.map((task) => task.id) || [];
   }
 
-  return json({
+  return {
     charity,
     charityTasks,
     userInfo,
@@ -146,7 +143,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       volunteers: charityVolunteers,
     },
     signedBackgroundPicture,
-  });
+  };
 }
 
 export default function CharityDetailPage() {
@@ -283,12 +280,11 @@ export default function CharityDetailPage() {
 
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-4 justify-center mb-12">
-          {userInfo && isVolunteer && !localMembership && (
+          {userInfo && !localMembership && (
             <PrimaryButton
               text="Join This Charity"
               ariaLabel="Join this charity"
               action={() => setShowJoinModal(true)}
-              icon={<Plus size={18} />}
             />
           )}
           <Link to="/explore/charities">
@@ -528,7 +524,7 @@ export default function CharityDetailPage() {
         {userInfo && !localMembership && (
           <div className="bg-baseSecondary rounded-xl overflow-hidden shadow-sm">
             <div className="p-6 md:p-8 text-center">
-              <h2 className="text-2xl font-bold text-basePrimaryLight mb-4">
+              <h2 className="text-2xl font-bold !text-basePrimaryLight mb-4">
                 Ready to Make a Difference?
               </h2>
               <p className="text-basePrimaryLight/90 mb-6 max-w-2xl mx-auto">
@@ -551,12 +547,7 @@ export default function CharityDetailPage() {
                     Sign In to Join
                   </Link>
                 ) : null}
-                <button
-                  onClick={() => setShowJoinModal(true)}
-                  className="px-6 py-3 font-medium bg-accentPrimary hover:bg-accentPrimary/90 text-baseSecondary rounded-lg transition-colors"
-                >
-                  Lend a Hand
-                </button>
+
               </div>
             </div>
           </div>

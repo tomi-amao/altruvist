@@ -1,5 +1,4 @@
-import { json } from "@remix-run/node";
-import type { ActionFunctionArgs } from "@remix-run/node";
+import { data, type ActionFunctionArgs } from "react-router";
 import { z } from "zod";
 import { verifyReCaptchaToken } from "~/services/recaptcha.server";
 
@@ -20,7 +19,7 @@ export async function action({ request }: ActionFunctionArgs) {
   // Check if API key is configured
   if (!process.env.SMTP_API_KEY) {
     console.error("[API:Subscribe] Email service API key not configured");
-    return json({ error: "Email service not configured" }, { status: 500 });
+    return data({ error: "Email service not configured" }, { status: 500 });
   }
 
   try {
@@ -47,7 +46,7 @@ export async function action({ request }: ActionFunctionArgs) {
     if (!result.success) {
       const errorMessage = result.error.issues[0]?.message || "Invalid input";
       console.error("[API:Subscribe] Validation error:", result.error.issues);
-      return json({ error: errorMessage }, { status: 400 });
+      return { error: errorMessage };
     }
 
     // Verify reCAPTCHA token using our utility
@@ -61,14 +60,11 @@ export async function action({ request }: ActionFunctionArgs) {
         "[API:Subscribe] reCAPTCHA verification failed:",
         recaptchaResult.message,
       );
-      return json(
-        {
+      return  {
           error:
             recaptchaResult.message ||
             "Security verification failed. Please try again.",
-        },
-        { status: 400 },
-      );
+        }
     }
 
     // Prepare request to Brevo API
@@ -115,19 +111,16 @@ export async function action({ request }: ActionFunctionArgs) {
       // Handle already existing subscriber case
       if (data.code === "duplicate_parameter") {
         console.log("[API:Subscribe] Email already exists in the list");
-        return json({ success: true, message: "You're already subscribed!" });
+        return { success: true, message: "You're already subscribed!" };
       }
 
-      return json(
-        { error: "Failed to subscribe. Please try again later." },
-        { status: response.status },
-      );
+      return { error: "Failed to subscribe. Please try again later." };
     }
 
     console.log("[API:Subscribe] Subscription successful!");
-    return json({ success: true, message: "Successfully subscribed!" });
+    return { success: true, message: "Successfully subscribed!" };
   } catch (error) {
     console.error("[API:Subscribe] Unexpected error:", error);
-    return json({ error: "An unexpected error occurred" }, { status: 500 });
+    return { error: "An unexpected error occurred" };
   }
 }

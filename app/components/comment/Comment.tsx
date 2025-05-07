@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { comment, users } from "@prisma/client";
 import { Avatar } from "../cards/ProfileCard";
-import { Form, useFetcher } from "@remix-run/react";
+import { Form, useFetcher } from "react-router";
 import {
   ArrowBendUpLeft,
   Check,

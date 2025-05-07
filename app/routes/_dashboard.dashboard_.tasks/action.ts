@@ -1,4 +1,4 @@
-import { ActionFunctionArgs, json } from "@remix-run/node";
+import { ActionFunctionArgs } from "react-router";
 import {
   deleteTask,
   deleteUserTaskApplication,
@@ -60,10 +60,10 @@ export async function action({ request }: ActionFunctionArgs) {
         console.log("Updated task data:", updatedTaskData);
 
         if (updatedTaskData.error) {
-          return json({ error: updatedTaskData.message }, { status: 400 });
+          return { error: updatedTaskData.message }
         }
 
-        return json({ success: true, task: updatedTaskData });
+        return { success: true, task: updatedTaskData };
       }
 
       case "deleteTask": {
@@ -72,20 +72,17 @@ export async function action({ request }: ActionFunctionArgs) {
         }
         const result = await deleteTask(taskId);
         if (result.error) {
-          return json(
-            {
-              updateTaskData: null,
-              userIds: null,
-              error: result.message,
-            },
-            { status: 500 },
-          );
+          return {
+            updateTaskData: null,
+            userIds: null,
+            error: result.message,
+          };
         }
-        return json({
+        return {
           updateTaskData: null,
           userIds: null,
           success: true,
-        });
+        };
       }
 
       case "withdrawApplication": {
@@ -99,10 +96,10 @@ export async function action({ request }: ActionFunctionArgs) {
         );
 
         if (result.error) {
-          return json({ error: result.message }, { status: 400 });
+          return { error: result.message };
         }
 
-        return json({ success: true, application: result.data });
+        return { success: true, application: result.data };
       }
 
       case "acceptTaskApplication": {
@@ -140,10 +137,10 @@ export async function action({ request }: ActionFunctionArgs) {
         });
 
         if (result.error) {
-          return json({ error: result.message }, { status: 400 });
+          return { error: result.message };
         }
 
-        return json({ success: true, application: result.data });
+        return { success: true, application: result.data };
       }
 
       case "rejectTaskApplication": {
@@ -181,10 +178,10 @@ export async function action({ request }: ActionFunctionArgs) {
         });
 
         if (result.error) {
-          return json({ error: result.message }, { status: 400 });
+          return { error: result.message };
         }
 
-        return json({ success: true, application: result.data });
+        return { success: true, application: result.data };
       }
 
       case "removeVolunteer": {
@@ -235,10 +232,10 @@ export async function action({ request }: ActionFunctionArgs) {
         });
 
         if (result.error) {
-          return json({ error: result.message }, { status: 400 });
+          return { error: result.message };
         }
 
-        return json({ success: true, application: result.data });
+        return { success: true, application: result.data };
       }
       case "deleteApplication": {
         // Handle both direct application and application ID scenarios
@@ -255,10 +252,10 @@ export async function action({ request }: ActionFunctionArgs) {
           console.log("Delete Subscriber Result:", deleteSubscriberResult);
 
           if (result.error) {
-            return json({ error: result.message }, { status: 400 });
+            return { error: result.message };
           }
 
-          return json({ success: true, application: result.data });
+          return { success: true, application: result.data };
         } else if (taskId && userId) {
           // Handle direct task ID and user ID case (from TaskDetailsCard)
           console.log(
@@ -271,38 +268,29 @@ export async function action({ request }: ActionFunctionArgs) {
           // Find the task application by taskId and userId
           const task = await getTask(taskId);
           if (!task || !task.taskApplications) {
-            return json(
-              { error: "Task or task applications not found" },
-              { status: 404 },
-            );
+            return { error: "Task or task applications not found" };
           }
 
           const taskApplication = task.taskApplications.find(
             (app) => app.userId === userId,
           );
           if (!taskApplication) {
-            return json(
-              { error: "Task application not found" },
-              { status: 404 },
-            );
+            return { error: "Task application not found" };
           }
 
           const result = await deleteUserTaskApplication(taskApplication.id);
 
           if (result.error) {
-            return json({ error: result.message }, { status: 400 });
+            return { error: result.message };
           }
 
-          return json({
+          return {
             success: true,
             message: "Application withdrawn successfully",
             application: result.deletedApplication,
-          });
+          };
         } else {
-          return json(
-            { error: "Missing required information" },
-            { status: 400 },
-          );
+          return { error: "Missing required information" };
         }
       }
 
@@ -311,13 +299,10 @@ export async function action({ request }: ActionFunctionArgs) {
     }
   } catch (error) {
     console.error("Action error:", error);
-    return json(
-      {
-        updateTaskData: null,
-        userIds: null,
-        error: "An unexpected error occurred",
-      },
-      { status: 500 },
-    );
+    return {
+      updateTaskData: null,
+      userIds: null,
+      error: "An unexpected error occurred",
+    };
   }
 }

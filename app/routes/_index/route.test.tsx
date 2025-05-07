@@ -3,7 +3,7 @@ import { prisma } from "~/services/db.server";
 import { getSession, commitSession } from "~/services/session.server";
 import { getUserInfo } from "~/models/user2.server";
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "react-router";
 
 // Mock all external dependencies to isolate the loader function for testing
 // This prevents actual database calls or session management during tests

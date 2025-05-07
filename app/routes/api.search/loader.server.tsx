@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
+import { LoaderFunctionArgs } from "react-router";
 import { searchMultipleIndices } from "~/services/meilisearch.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {

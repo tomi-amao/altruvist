@@ -1,5 +1,5 @@
-import { json, MetaFunction } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { MetaFunction } from "react-router";
+import { useLoaderData } from "react-router";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import LandingHeader from "~/components/navigation/LandingHeader";
@@ -20,7 +20,7 @@ export const meta: MetaFunction<typeof loader> = () => {
 
 export const loader = async () => {
   // Mock data for the resources sections
-  return json({
+  return {
     benefits: [
       {
         title: "Skills On Demand",
@@ -206,7 +206,7 @@ export const loader = async () => {
           "Absolutely! When creating a task, you can specify that you're looking for ongoing commitment. Use the 'Recurring' option and specify the time commitment needed. Many professionals are interested in long-term volunteer relationships.",
       },
     ],
-  });
+  };
 };
 
 export default function CharityResources() {

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { render as rtlRender, screen, within } from "@testing-library/react";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter } from "react-router";
 
 type WrapperOptions = {
   withRouter?: boolean;

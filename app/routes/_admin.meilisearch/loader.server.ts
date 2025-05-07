@@ -1,4 +1,4 @@
-import { json, redirect, type LoaderFunctionArgs } from "@remix-run/node";
+import { redirect, type LoaderFunctionArgs } from "react-router";
 import { getUserInfo } from "~/models/user2.server";
 import { prisma } from "~/services/db.server";
 import {
@@ -92,7 +92,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     }
   }
 
-  return json({
+  return {
     isConnected,
     sampleTasks,
     sampleUsers,
@@ -101,5 +101,5 @@ export async function loader({ request }: LoaderFunctionArgs) {
     indices: INDICES,
     userInfo,
     zitUserInfo,
-  });
+  };
 }

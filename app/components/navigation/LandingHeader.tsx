@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "@remix-run/react";
+import { Link, useNavigate } from "react-router";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { List, X, SignOut, CaretDown } from "@phosphor-icons/react";
@@ -211,7 +211,6 @@ export default function LandingHeader({
                 // User is logged in
                 <div className="ml-4 flex items-center space-x-3">
                   {/* Notifications */}
-
                   {/* User menu dropdown */}
                   <div className="relative user-menu-container">
                     <motion.button
@@ -456,7 +455,6 @@ export default function LandingHeader({
                         </p>
                       </div>
                     </div>
-
                     <Link
                       to={`/profile/${userId}`}
                       className={`block px-4 py-3 rounded-lg ${

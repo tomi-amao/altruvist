@@ -1,4 +1,4 @@
-import { type LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { type LoaderFunctionArgs, redirect } from "react-router";
 import { getUserInfo } from "~/models/user2.server";
 import { getSession } from "~/services/session.server";
 

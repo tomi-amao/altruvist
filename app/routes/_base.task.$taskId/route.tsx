@@ -1,5 +1,5 @@
-import { json, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { useLoaderData, useNavigation, Link } from "@remix-run/react";
+import { LoaderFunctionArgs, MetaFunction } from "react-router";
+import { useLoaderData, useNavigation, Link } from "react-router";
 import { getTask } from "~/models/tasks.server";
 import TaskDetailsCard from "~/components/tasks/taskDetailsCard";
 import { getSession } from "~/services/session.server";
@@ -29,13 +29,13 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   const taskId = params.taskId;
 
   if (!taskId) {
-    return json({
+    return {
       error: "Task ID is required",
       status: 400,
       task: null,
       userAuthenticated: false,
       userRole: [],
-    });
+    };
   }
 
   try {
@@ -74,16 +74,13 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     const task = await getTask(taskId);
 
     if (!task) {
-      return json(
-        {
-          error: "Task not found",
-          status: 404,
-          task: null,
-          userAuthenticated,
-          userRole,
-        },
-        { status: 404 },
-      );
+      return {
+        error: "Task not found",
+        status: 404,
+        task: null,
+        userAuthenticated,
+        userRole,
+      };
     }
 
     // If user is authenticated and is a volunteer, check if they have applied to this task
@@ -104,25 +101,22 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
       }
     }
 
-    return json({
+    return {
       task,
       status: 200,
       userAuthenticated,
       userRole,
       volunteerDetails,
-    });
+    };
   } catch (error) {
     console.error("Error fetching task details:", error);
-    return json(
-      {
-        error: "Failed to fetch task details",
-        status: 500,
-        task: null,
-        userAuthenticated: false,
-        userRole: [],
-      },
-      { status: 500 },
-    );
+    return {
+      error: "Failed to fetch task details",
+      status: 500,
+      task: null,
+      userAuthenticated: false,
+      userRole: [],
+    }
   }
 }
 

@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs, json } from "@remix-run/node";
+import { LoaderFunctionArgs, } from "react-router";
 import { searchMultipleIndices } from "~/services/meilisearch.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -7,13 +7,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   try {
     const { rawSearchedDocuments } = await searchMultipleIndices(query);
-    return json({ status: 200, rawSearchedDocuments });
+    return { status: 200, rawSearchedDocuments };
   } catch (error) {
     console.error("Meilisearch error:", error);
-    return json({
+    return {
       status: 400,
       message: "An error occurred while searching. Please try again later.",
       rawSearchedDocuments: [],
-    });
+    }
   }
 }

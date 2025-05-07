@@ -1,4 +1,4 @@
-import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
+import { ActionFunctionArgs, redirect } from "react-router";
 import { Meta, UppyFile } from "@uppy/core";
 import { z } from "zod";
 import { createTask } from "~/models/tasks.server";
@@ -38,14 +38,12 @@ export async function action({ request }: ActionFunctionArgs) {
     const charityId = formData.charityId;
 
     if (!charityId) {
-      return json(
-        {
+      return {
           error: [
             { path: ["charityId"], message: "Charity selection is required" },
           ],
-        },
-        { status: 400 },
-      );
+        }
+
     }
 
     // Check if user has permission to create tasks for this charity
@@ -58,8 +56,7 @@ export async function action({ request }: ActionFunctionArgs) {
     );
 
     if (!charityAdmin) {
-      return json(
-        {
+      return {
           error: [
             {
               path: ["charityId"],
@@ -67,9 +64,7 @@ export async function action({ request }: ActionFunctionArgs) {
                 "You do not have permission to create tasks for this charity",
             },
           ],
-        },
-        { status: 403 },
-      );
+        }
     }
 
     const validatedData = TaskSchema.parse({
@@ -99,12 +94,12 @@ export async function action({ request }: ActionFunctionArgs) {
     const task = await createTask(validatedData, charityId, userInfo.id);
     console.log("New task created", task);
 
-    return json({ error: null }, { status: 200 });
+    return { error: null }
   } catch (err) {
     if (err instanceof z.ZodError) {
       console.log(err.errors);
 
-      return json({ error: err.errors }, { status: 400 });
+      return { error: err.errors }
     }
     throw err;
   }

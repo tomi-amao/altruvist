@@ -1,10 +1,4 @@
-import {
-  Form,
-  Link,
-  useFetcher,
-  useLocation,
-  useNavigate,
-} from "@remix-run/react";
+import { Form, Link, useFetcher, useLocation, useNavigate } from "react-router";
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { SearchDropdown } from "../utils/selectDropdown";
 import { z } from "zod";
@@ -169,17 +163,20 @@ export default function Navbar({
   return (
     <>
       <div
-        className={`fixed w-full transition-transform duration-300 ease-in-out z-50 ${showNavbar ? "transform translate-y-0" : "transform -translate-y-full"
-          } border-b-[1px] border-b-baseSecondary h-fit ${altBackground && "bg-baseSecondary"
-          } bg-basePrimary`}
+        className={`fixed w-full transition-transform duration-300 ease-in-out z-50 ${
+          showNavbar ? "transform translate-y-0" : "transform -translate-y-full"
+        } border-b-[1px] border-b-baseSecondary h-fit ${
+          altBackground && "bg-baseSecondary"
+        } bg-basePrimary`}
         ref={ref}
       >
         <div className="flex justify-between h-auto px-2 flex-row items-center gap-4">
           {/* Logo */}
           <Link
             to={"/"}
-            className={`text-3xl lg:text-4xl pl-4 font-semibold ${altBackground ? "text-accentPrimary" : "text-baseSecondary"
-              } tracking-wide font-header`}
+            className={`text-3xl lg:text-4xl pl-4 font-semibold ${
+              altBackground ? "text-accentPrimary" : "text-baseSecondary"
+            } tracking-wide font-header`}
           >
             <img src="/favicon.ico" alt="Altruvist Logo" className="" />
           </Link>
@@ -188,8 +185,9 @@ export default function Navbar({
           <div className="hidden mx-4 md:flex flex-row items-center gap-4">
             {location.pathname !== "/explore/tasks" && (
               <Link
-                className={`hidden md:flex font-primary text-left transition-colors duration-200 hover:underline hover:underline-offset-8 whitespace-nowrap ${altBackground ? "text-accentPrimary" : "text-baseSecondary"
-                  }`}
+                className={`hidden md:flex font-primary text-left transition-colors duration-200 hover:underline hover:underline-offset-8 whitespace-nowrap ${
+                  altBackground ? "text-accentPrimary" : "text-baseSecondary"
+                }`}
                 to={"/explore/tasks"}
               >
                 {"Tasks"}
@@ -197,8 +195,9 @@ export default function Navbar({
             )}
             {location.pathname !== "/explore/charities" && (
               <Link
-                className={`hidden md:flex font-primary text-left transition-colors duration-200 hover:underline hover:underline-offset-8 whitespace-nowrap ${altBackground ? "text-accentPrimary" : "text-baseSecondary"
-                  }`}
+                className={`hidden md:flex font-primary text-left transition-colors duration-200 hover:underline hover:underline-offset-8 whitespace-nowrap ${
+                  altBackground ? "text-accentPrimary" : "text-baseSecondary"
+                }`}
                 to={"/explore/charities"}
               >
                 {"Charities"}
@@ -222,8 +221,9 @@ export default function Navbar({
                 <input
                   type="text"
                   placeholder={`${searchError ? "Search is unavailable" : "Search"}`}
-                  className={`w-full flex-grow bg-basePrimaryLight text-sm lg:text-base ${searchError && "cursor-not-allowed text-dangerPrimary"
-                    }`}
+                  className={`w-full flex-grow bg-basePrimaryLight text-sm lg:text-base ${
+                    searchError && "cursor-not-allowed text-dangerPrimary"
+                  }`}
                   onChange={(e) => {
                     handleSearch(e, "query");
                   }}
@@ -275,8 +275,9 @@ export default function Navbar({
 
         {/* Sidebar for mobile/tablet */}
         <div
-          className={`fixed right-0 h-screen w-64 transform transition-transform duration-300 ease-in-out ${isDropdownOpen ? "translate-x-0" : "translate-x-full"
-            } bg-basePrimaryLight z-10 font-primary rounded-md`}
+          className={`fixed right-0 h-screen w-64 transform transition-transform duration-300 ease-in-out ${
+            isDropdownOpen ? "translate-x-0" : "translate-x-full"
+          } bg-basePrimaryLight z-10 font-primary rounded-md`}
           ref={sidebarRef}
         >
           <nav className="flex flex-col p-4 gap-2 text-baseSecondary">
@@ -333,27 +334,31 @@ export const NavListPages = ({
       </div>
 
       <button
-        className={`p-2 px-4 hover:bg-baseSecondary font-primary hover:text-basePrimary w-full text-left rounded-md transition-colors duration-200 ${altBackground && "text-accentPrimary"
-          }`}
+        className={`p-2 px-4 hover:bg-baseSecondary font-primary hover:text-basePrimary w-full text-left rounded-md transition-colors duration-200 ${
+          altBackground && "text-accentPrimary"
+        }`}
         onClick={toggleExploreDropdown}
       >
         Explore
       </button>
       <div
-        className={`overflow-hidden transition-all duration-300 ease-in-out ${exploreDropdown ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
-          }`}
+        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+          exploreDropdown ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
+        }`}
       >
         <div className="flex flex-col gap-2 pl-4 py-1">
           <Link
-            className={`p-2 px-4 hover:bg-baseSecondary font-primary hover:text-basePrimary w-full text-left rounded-md transition-colors duration-200 ${altBackground && "text-accentPrimary"
-              }`}
+            className={`p-2 px-4 hover:bg-baseSecondary font-primary hover:text-basePrimary w-full text-left rounded-md transition-colors duration-200 ${
+              altBackground && "text-accentPrimary"
+            }`}
             to={"/explore/tasks"}
           >
             Tasks
           </Link>
           <Link
-            className={`p-2 px-4 hover:bg-baseSecondary font-primary hover:text-basePrimary w-full text-left rounded-md transition-colors duration-200 ${altBackground && "text-accentPrimary"
-              }`}
+            className={`p-2 px-4 hover:bg-baseSecondary font-primary hover:text-basePrimary w-full text-left rounded-md transition-colors duration-200 ${
+              altBackground && "text-accentPrimary"
+            }`}
             to={"/explore/charities"}
           >
             Charities
@@ -363,41 +368,45 @@ export const NavListPages = ({
       {userId && (
         <>
           <button
-            className={`p-2 px-4 hover:bg-baseSecondary font-primary hover:text-basePrimary w-full text-left rounded-md transition-colors duration-200 ${altBackground && "text-accentPrimary"
-              }`}
+            className={`p-2 px-4 hover:bg-baseSecondary font-primary hover:text-basePrimary w-full text-left rounded-md transition-colors duration-200 ${
+              altBackground && "text-accentPrimary"
+            }`}
             onClick={toggleDashboardDropdown}
           >
             Dashboard
           </button>
           <div
-            className={`overflow-hidden transition-all duration-300 ease-in-out ${dashboardDropdown ? "max-h-48 opacity-100" : "max-h-0 opacity-0"
-              }`}
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+              dashboardDropdown ? "max-h-48 opacity-100" : "max-h-0 opacity-0"
+            }`}
           >
             <div className="flex flex-col gap-2 pl-4 py-1">
               <Link
-                className={`p-2 px-4 hover:bg-baseSecondary font-primary hover:text-basePrimary w-full text-left rounded-md transition-colors duration-200 ${altBackground && "text-accentPrimary"
-                  }`}
+                className={`p-2 px-4 hover:bg-baseSecondary font-primary hover:text-basePrimary w-full text-left rounded-md transition-colors duration-200 ${
+                  altBackground && "text-accentPrimary"
+                }`}
                 to={"/dashboard/tasks"}
               >
                 Tasks
               </Link>
               <Link
-                className={`p-2 px-4 hover:bg-baseSecondary font-primary hover:text-basePrimary w-full text-left rounded-md transition-colors duration-200 ${altBackground && "text-accentPrimary"
-                  }`}
+                className={`p-2 px-4 hover:bg-baseSecondary font-primary hover:text-basePrimary w-full text-left rounded-md transition-colors duration-200 ${
+                  altBackground && "text-accentPrimary"
+                }`}
                 to={"/dashboard/charities"}
               >
                 Charities
               </Link>
               <Link
-                className={`p-2 px-4 hover:bg-baseSecondary font-primary hover:text-basePrimary w-full text-left rounded-md transition-colors duration-200 ${altBackground && "text-accentPrimary"
-                  }`}
+                className={`p-2 px-4 hover:bg-baseSecondary font-primary hover:text-basePrimary w-full text-left rounded-md transition-colors duration-200 ${
+                  altBackground && "text-accentPrimary"
+                }`}
                 to={"/dashboard"}
               >
                 Overview
               </Link>
             </div>
           </div>
-
 
           <div className="mt-4 pt-4 border-t border-baseSecondary/20">
             <Link
@@ -432,8 +441,9 @@ export const NavListAuth = ({
         <>
           <Link
             to={"/zitlogin"}
-            className={`p-2 px-4 md:px-4 text-base bg-accentPrimary  md:text-base text-baseSecondary font-primary w-full text-left rounded-md transition-colors duration-200 ${altBackground && "text-accentPrimary"
-              }`}
+            className={`p-2 px-4 md:px-4 text-base bg-accentPrimary  md:text-base text-baseSecondary font-primary w-full text-left rounded-md transition-colors duration-200 ${
+              altBackground && "text-accentPrimary"
+            }`}
           >
             Sign in
           </Link>

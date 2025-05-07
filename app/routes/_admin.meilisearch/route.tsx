@@ -3,7 +3,7 @@ import {
   useActionData,
   useLoaderData,
   useNavigation,
-} from "@remix-run/react";
+} from "react-router";
 import { useEffect, useState } from "react";
 
 // Remove direct imports from meilisearch.server.ts

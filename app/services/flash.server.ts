@@ -1,4 +1,4 @@
-import { Session } from "@remix-run/node";
+import { Session } from "react-router";
 import type { AppError } from "~/types/error";
 
 export async function getFlashError(

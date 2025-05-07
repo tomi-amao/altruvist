@@ -1029,7 +1029,7 @@ export function DropdownField<T>({
   const selectedLabel = options.find((opt) => opt.value === value)?.label || "";
 
   return (
-    <div ref={dropdownRef} className="relative  ">
+    <div ref={dropdownRef} className="relative text-baseSecondary ">
       <div className="relative">
         <button
           type="button"
@@ -1062,7 +1062,7 @@ export function DropdownField<T>({
         {isOpen && (
           <ul
             role="listbox"
-            className="absolute left-0 w-full mt-1 border rounded-lg border-baseSecondary bg-basePrimaryLight max-h-60 overflow-y-auto  z-50"
+            className="absolute left-0 w-full mt-1 border rounded-lg border-baseSecondary  bg-basePrimaryLight max-h-60 overflow-y-auto  z-50"
           >
             {options.map((option) => (
               <li
@@ -1077,7 +1077,7 @@ export function DropdownField<T>({
                     handleSelect(option.value);
                   }
                 }}
-                className="px-4 py-2 cursor-pointer hover:bg-baseSecondary hover:text-basePrimaryLight transition-colors focus:outline-none focus:bg-baseSecondary focus:text-basePrimaryLight"
+                className="px-4 py-2 cursor-pointer text-baseSecondary hover:bg-baseSecondary hover:text-basePrimaryLight transition-colors focus:outline-none focus:bg-baseSecondary focus:text-basePrimaryLight"
               >
                 {option.label}
               </li>

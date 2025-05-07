@@ -1,4 +1,4 @@
-import { ActionFunctionArgs, json } from "@remix-run/node";
+import { ActionFunctionArgs } from "react-router";
 import {
   updateTask,
   deleteTask,
@@ -29,10 +29,8 @@ export async function action({ request }: ActionFunctionArgs) {
           const parsedApplication = JSON.parse(selectedTaskApplication);
 
           if (!parsedApplication.id) {
-            return json(
-              { error: "Task application ID is required" },
-              { status: 400 },
-            );
+            return { error: "Task application ID is required" }
+
           }
 
           console.log("Getting Task Application:", parsedApplication.id);
@@ -40,18 +38,15 @@ export async function action({ request }: ActionFunctionArgs) {
             parsedApplication.id,
           );
 
-          return json({
+          return {
             taskApplication: taskApplicationResult,
             success: true,
-          });
+          };
         } catch (error) {
           console.error("Error getting task application:", error);
-          return json(
-            {
+          return {
               error: "Failed to get task application",
-            },
-            { status: 500 },
-          );
+            }
         }
       }
       case "updateTask": {
@@ -86,10 +81,10 @@ export async function action({ request }: ActionFunctionArgs) {
         console.log("Updated task data:", updatedTaskData);
 
         if (updatedTaskData.error) {
-          return json({ error: updatedTaskData.message }, { status: 400 });
+          return { error: updatedTaskData.message }
         }
 
-        return json({ success: true, task: updatedTaskData });
+        return { success: true, task: updatedTaskData };
       }
 
       case "deleteTask": {
@@ -98,20 +93,17 @@ export async function action({ request }: ActionFunctionArgs) {
         }
         const result = await deleteTask(taskId);
         if (result.error) {
-          return json(
-            {
+          return {
               updateTaskData: null,
               userIds: null,
               error: result.message,
-            },
-            { status: 500 },
-          );
+            }
         }
-        return json({
+        return {
           updateTaskData: null,
           userIds: null,
           success: true,
-        });
+        };
       }
 
       case "withdrawApplication": {
@@ -125,10 +117,10 @@ export async function action({ request }: ActionFunctionArgs) {
         );
 
         if (result.error) {
-          return json({ error: result.message }, { status: 400 });
+          return { error: result.message }
         }
 
-        return json({ success: true, application: result.data });
+        return { success: true, application: result.data };
       }
 
       case "acceptTaskApplication": {
@@ -142,10 +134,10 @@ export async function action({ request }: ActionFunctionArgs) {
         );
 
         if (result.error) {
-          return json({ error: result.message }, { status: 400 });
+          return { error: result.message }
         }
 
-        return json({ success: true, application: result.data });
+        return { success: true, application: result.data };
       }
 
       case "rejectTaskApplication": {
@@ -159,10 +151,10 @@ export async function action({ request }: ActionFunctionArgs) {
         );
 
         if (result.error) {
-          return json({ error: result.message }, { status: 400 });
+          return { error: result.message }
         }
 
-        return json({ success: true, application: result.data });
+        return { success: true, application: result.data };
       }
 
       case "removeVolunteer": {
@@ -191,10 +183,10 @@ export async function action({ request }: ActionFunctionArgs) {
         );
 
         if (result.error) {
-          return json({ error: result.message }, { status: 400 });
+          return { error: result.message };
         }
 
-        return json({ success: true, application: result.data });
+        return { success: true, application: result.data };
       }
       case "deleteApplication": {
         const taskApplication =
@@ -206,10 +198,10 @@ export async function action({ request }: ActionFunctionArgs) {
         console.log(result);
 
         if (result.error) {
-          return json({ error: result.message }, { status: 400 });
+          return { error: result.message }
         }
 
-        return json({ success: true, application: result.data });
+        return { success: true, application: result.data };
       }
 
       default:
@@ -217,13 +209,10 @@ export async function action({ request }: ActionFunctionArgs) {
     }
   } catch (error) {
     console.error("Action error:", error);
-    return json(
-      {
-        updateTaskData: null,
-        userIds: null,
-        error: "An unexpected error occurred",
-      },
-      { status: 500 },
-    );
+    return {
+      updateTaskData: null,
+      userIds: null,
+      error: "An unexpected error occurred",
+    };
   }
 }

@@ -1,4 +1,4 @@
-import { json, LoaderFunctionArgs } from "@remix-run/node";
+import { LoaderFunctionArgs } from "react-router";
 import { getTasksByCharityId } from "~/models/tasks.server";
 import { getSession } from "~/services/session.server";
 import { getUserInfo } from "~/models/user2.server";
@@ -8,10 +8,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { charityId } = params;
 
   if (!charityId) {
-    return json(
-      { error: "Charity ID is required", tasks: [] },
-      { status: 400 },
-    );
+    return { error: "Charity ID is required", tasks: [] };
   }
 
   try {
@@ -33,7 +30,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     const { tasks, error, status } = await getTasksByCharityId(charityId);
 
     if (error) {
-      return json({ error, tasks: [] }, { status });
+      return { error, tasks: [] };
     }
 
     // Transform tasks to include required properties for TaskCard
@@ -53,12 +50,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     console.log("Transformed tasks:", transformedTasks);
 
-    return json({ tasks: transformedTasks });
+    return { tasks: transformedTasks };
   } catch (error) {
     console.error("Error fetching charity tasks:", error);
-    return json(
-      { error: "Failed to fetch charity tasks", tasks: [] },
-      { status: 500 },
-    );
+    return { error: "Failed to fetch charity tasks", tasks: [] };
   }
 }

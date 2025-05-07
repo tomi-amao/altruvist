@@ -1,10 +1,10 @@
-import { MetaFunction } from "@remix-run/node";
+import { MetaFunction } from "react-router";
 import {
   useFetcher,
   useLoaderData,
   useNavigate,
   useSearchParams,
-} from "@remix-run/react";
+} from "react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useMemo } from "react";
 import { ArrowLeft } from "@phosphor-icons/react";
@@ -62,6 +62,7 @@ export default function ManageCharities() {
     pendingApplications,
     userApplications,
     COMPANION_URL,
+    userRole
   } = useLoaderData<typeof loader>();
 
   const navigate = useNavigate();
@@ -422,7 +423,7 @@ export default function ManageCharities() {
                     signedBackgroundUrl={signedBackgroundUrl}
                     charityTasks={charityTasks}
                     onTaskSelect={(task) => {
-                      navigate(`/dashboard/tasks?taskid=${task.id}`);
+                      navigate(userRole[0] === "charity" ? `/dashboard/tasks?taskid=${task.id}` : `/task/${task.id}`);
                     }}
                   />
                 </div>

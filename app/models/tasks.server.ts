@@ -270,11 +270,39 @@ export const getUserTasks = async (
     // Continue with existing logic for different user roles
     if (userRole === "charity") {
       try {
+        // First, get the charity memberships for this user to find all charities
+        // where the user has admin, creator, coordinator, or editor roles
+        const charityMemberships = await prisma.charityMemberships.findMany({
+          where: {
+            userId,
+            roles: {
+              hasSome: ["admin", "creator", "coordinator", "editor"]
+            }
+          },
+          select: {
+            charityId: true
+          }
+        });
+
+        // Extract charity IDs from memberships
+        const charityIds = charityMemberships.map(membership => membership.charityId);
+        
+        // Find tasks for all these charities + tasks created directly by the user
         const tasks = await prisma.tasks.findMany({
           ...(take && { take }),
           where: {
-            userId,
+            OR: [
+              // Tasks created directly by the user
+              { userId },
+              // Tasks belonging to charities where the user has appropriate role
+              { 
+                charityId: { 
+                  in: charityIds.length > 0 ? charityIds : undefined 
+                },
+              }
+            ],
             ...(taskStatus && { status: taskStatus as ApplicationStatus }),
+            ...(charityId && { charityId }), // If a specific charity ID is provided
           },
           include: {
             taskApplications: { include: { user: true } },

@@ -1,4 +1,4 @@
-import { ActionFunctionArgs, json } from "@remix-run/node";
+import { ActionFunctionArgs,  } from "react-router";
 import { getSession } from "~/services/session.server";
 import { getUserInfo } from "~/models/user2.server";
 import {
@@ -13,13 +13,13 @@ export async function action({ request }: ActionFunctionArgs) {
   const accessToken = session.get("accessToken");
 
   if (!accessToken) {
-    return json({ error: "Unauthorized" }, { status: 401 });
+    return { error: "Unauthorized" };
   }
 
   const { userInfo } = await getUserInfo(accessToken);
 
   if (!userInfo?.id) {
-    return json({ error: "Unauthorized" }, { status: 401 });
+    return { error: "Unauthorized" };
   }
 
   // Process form data
@@ -39,19 +39,16 @@ export async function action({ request }: ActionFunctionArgs) {
         return handleReviewApplication(formData, userInfo.id);
 
       default:
-        return json({ error: "Invalid action" }, { status: 400 });
+        return { error: "Invalid action" };
     }
   } catch (error) {
     console.error("Action error:", error);
-    return json(
-      {
-        error:
-          error instanceof Error
-            ? error.message
-            : "An unexpected error occurred",
-      },
-      { status: 500 },
-    );
+    return {
+      error:
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred",
+    };
   }
 }
 
@@ -62,7 +59,7 @@ async function handleUpdateCharity(formData: FormData) {
 
   // Validate required fields
   if (!charityId || !charityDataStr) {
-    return json({ error: "Charity ID and data are required" }, { status: 400 });
+    return { error: "Charity ID and data are required" }
   }
 
   try {
@@ -70,10 +67,10 @@ async function handleUpdateCharity(formData: FormData) {
     const result = await updateCharity(charityId, charityData);
 
     if (result.status !== 200) {
-      return json({ error: result.message }, { status: result.status });
+      return { error: result.message }
     }
 
-    return json({ success: true, charity: result.charity });
+    return { success: true, charity: result.charity }
   } catch (error) {
     throw new Error(
       `Failed to update charity: ${error instanceof Error ? error.message : "Unknown error"}`,
@@ -87,17 +84,17 @@ async function handleDeleteCharity(formData: FormData) {
 
   // Validate required fields
   if (!charityId) {
-    return json({ error: "Charity ID is required" }, { status: 400 });
+    return { error: "Charity ID is required" }
   }
 
   try {
     const result = await deleteCharity(charityId);
 
     if (result.status !== 200) {
-      return json({ error: result.message }, { status: result.status });
+      return { error: result.message }
     }
 
-    return json({ success: true });
+    return { success: true };
   } catch (error) {
     throw new Error(
       `Failed to delete charity: ${error instanceof Error ? error.message : "Unknown error"}`,
@@ -113,15 +110,12 @@ async function handleReviewApplication(formData: FormData, userId: string) {
 
   // Validate required fields
   if (!applicationId || !status) {
-    return json(
-      { error: "Application ID and status are required" },
-      { status: 400 },
-    );
+    return { error: "Application ID and status are required" }
   }
 
   // Validate status values
   if (status !== "ACCEPTED" && status !== "REJECTED") {
-    return json({ error: "Invalid status" }, { status: 400 });
+    return { error: "Invalid status" }
   }
 
   try {
@@ -131,10 +125,10 @@ async function handleReviewApplication(formData: FormData, userId: string) {
     });
 
     if (result.status !== 200) {
-      return json({ error: result.message }, { status: result.status });
+      return { error: result.message }
     }
 
-    return json({ success: true, application: result.application });
+    return { success: true, application: result.application };
   } catch (error) {
     throw new Error(
       `Failed to review application: ${error instanceof Error ? error.message : "Unknown error"}`,

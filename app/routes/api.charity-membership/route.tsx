@@ -1,4 +1,4 @@
-import { ActionFunctionArgs, json } from "@remix-run/node";
+import { ActionFunctionArgs } from "react-router";
 import { getSession } from "~/services/session.server";
 import { getUserInfo } from "~/models/user2.server";
 import {
@@ -51,13 +51,10 @@ export async function action({ request }: ActionFunctionArgs) {
   const { userInfo } = await getUserInfo(accessToken);
 
   if (!userInfo) {
-    return json(
-      {
-        success: false,
-        message: "Unauthorized. Please log in.",
-      },
-      { status: 401 },
-    );
+    return {
+      success: false,
+      message: "Unauthorized. Please log in.",
+    }
   }
 
   const userId = userInfo.id;
@@ -124,43 +121,34 @@ export async function action({ request }: ActionFunctionArgs) {
           userInfo,
           workflowId: "charities-feed",
           notification: {
-            subject: `${roles.join(", ").charAt(0).toUpperCase() + roles.slice(1)} Joined`,
-            body: `${userInfo?.name} has joined the charity ${charity?.name} as a ${roles.join(", ")}`,
+            subject: `${roles.map(role => role.charAt(0).toUpperCase() + role.slice(1)).join(", ")} Joined`,
+            body: `${userInfo?.name} has joined the charity ${charity?.name} as a ${roles.map(role => role.charAt(0).toUpperCase() + role.slice(1)).join(", ")}`,
             type: "update",
             charityId: charityId,
           },
           type: "Topic",
           topicKey: notifyTopicId,
         });
-        return json(
-          {
-            success: status === 200,
-            message,
-            membership,
-          },
-          { status },
-        );
+        return {
+          success: status === 200,
+          message,
+          membership,
+        }
       } catch (error) {
         console.error("Error joining charity:", error);
 
         if (error instanceof z.ZodError) {
-          return json(
-            {
-              success: false,
-              message: "Validation error",
-              errors: error.errors,
-            },
-            { status: 400 },
-          );
+          return {
+            success: false,
+            message: "Validation error",
+            errors: error.errors,
+          };
         }
 
-        return json(
-          {
-            success: false,
-            message: "Failed to join charity",
-          },
-          { status: 500 },
-        );
+        return {
+          success: false,
+          message: "Failed to join charity",
+        };
       }
     }
 
@@ -205,35 +193,26 @@ export async function action({ request }: ActionFunctionArgs) {
           });
         }
 
-        return json(
-          {
-            success: status === 200,
-            message,
-            application,
-          },
-          { status },
-        );
+        return {
+          success: status === 200,
+          message,
+          application,
+        }
       } catch (error) {
         console.error("Error applying to charity:", error);
 
         if (error instanceof z.ZodError) {
-          return json(
-            {
-              success: false,
-              message: "Validation error",
-              errors: error.errors,
-            },
-            { status: 400 },
-          );
+          return {
+            success: false,
+            message: "Validation error",
+            errors: error.errors,
+          }
         }
 
-        return json(
-          {
-            success: false,
-            message: "Failed to submit application",
-          },
-          { status: 500 },
-        );
+        return {
+          success: false,
+          message: "Failed to submit application",
+        };
       }
     }
 
@@ -258,35 +237,26 @@ export async function action({ request }: ActionFunctionArgs) {
           },
         );
 
-        return json(
-          {
-            success: status === 200,
-            message,
-            application,
-          },
-          { status },
-        );
+        return {
+          success: status === 200,
+          message,
+          application,
+        };
       } catch (error) {
         console.error("Error reviewing application:", error);
 
         if (error instanceof z.ZodError) {
-          return json(
-            {
-              success: false,
-              message: "Validation error",
-              errors: error.errors,
-            },
-            { status: 400 },
-          );
+          return {
+            success: false,
+            message: "Validation error",
+            errors: error.errors,
+          }
         }
 
-        return json(
-          {
-            success: false,
-            message: "Failed to review application",
-          },
-          { status: 500 },
-        );
+        return {
+          success: false,
+          message: "Failed to review application",
+        };
       }
     }
 
@@ -313,14 +283,11 @@ export async function action({ request }: ActionFunctionArgs) {
           // If user is the only admin, don't allow them to leave
           if (adminCount <= 1) {
             console.log("User is the only admin of this charity");
-            return json(
-              {
-                success: false,
-                message:
-                  "You are the only admin of this charity. Please appoint another admin before leaving.",
-              },
-              { status: 400 },
-            );
+            return {
+              success: false,
+              message:
+                "You are the only admin of this charity. Please appoint another admin before leaving.",
+            };
           }
         }
 
@@ -331,34 +298,25 @@ export async function action({ request }: ActionFunctionArgs) {
         );
         console.log("Membership deleted:", message);
 
-        return json(
-          {
+        return{
             success: status === 200,
             message,
-          },
-          { status },
-        );
+          }
       } catch (error) {
         console.error("Error leaving charity:", error);
 
         if (error instanceof z.ZodError) {
-          return json(
-            {
+          return {
               success: false,
               message: "Validation error",
               errors: error.errors,
-            },
-            { status: 400 },
-          );
+            };
         }
 
-        return json(
-          {
-            success: false,
-            message: "Failed to leave charity",
-          },
-          { status: 500 },
-        );
+        return {
+          success: false,
+          message: "Failed to leave charity",
+        };
       }
     }
 
@@ -381,14 +339,11 @@ export async function action({ request }: ActionFunctionArgs) {
 
         // If user is not an admin of any charity, deny access
         if (adminCharities.length === 0) {
-          return json(
-            {
-              success: false,
-              message:
-                "Unauthorized: You must be a charity admin to update member roles",
-            },
-            { status: 403 },
-          );
+          return {
+            success: false,
+            message:
+              "Unauthorized: You must be a charity admin to update member roles",
+          };
         }
 
         // Find the target membership
@@ -396,25 +351,19 @@ export async function action({ request }: ActionFunctionArgs) {
         const targetMembership = memberships?.find((m) => m.id === memberId);
 
         if (!targetMembership) {
-          return json(
-            {
-              success: false,
-              message: "Member not found",
-            },
-            { status: 404 },
-          );
+          return {
+            success: false,
+            message: "Member not found",
+          };
         }
 
         // Verify the admin has permissions for this charity
         if (!adminCharities.includes(targetMembership.charityId)) {
-          return json(
-            {
-              success: false,
-              message:
-                "Unauthorized: You can only manage members of charities you administer",
-            },
-            { status: 403 },
-          );
+          return {
+            success: false,
+            message:
+              "Unauthorized: You can only manage members of charities you administer",
+          };
         }
 
         // If the member is the only admin, ensure at least one admin role remains
@@ -432,14 +381,11 @@ export async function action({ request }: ActionFunctionArgs) {
               .length || 0;
 
           if (adminCount <= 1) {
-            return json(
-              {
-                success: false,
-                message:
-                  "Cannot remove admin role: This is the only admin of the charity",
-              },
-              { status: 400 },
-            );
+            return {
+              success: false,
+              message:
+                "Cannot remove admin role: This is the only admin of the charity",
+            };
           }
         }
 
@@ -450,35 +396,26 @@ export async function action({ request }: ActionFunctionArgs) {
           { roles },
         );
 
-        return json(
-          {
-            success: status === 200,
-            message,
-            membership,
-          },
-          { status },
-        );
+        return {
+          success: status === 200,
+          message,
+          membership,
+        };
       } catch (error) {
         console.error("Error updating member roles:", error);
 
         if (error instanceof z.ZodError) {
-          return json(
-            {
+          return {
               success: false,
               message: "Validation error",
               errors: error.errors,
-            },
-            { status: 400 },
-          );
+            };
         }
 
-        return json(
-          {
-            success: false,
-            message: "Failed to update member roles",
-          },
-          { status: 500 },
-        );
+        return {
+          success: false,
+          message: "Failed to update member roles",
+        };
       }
     }
 
@@ -501,27 +438,21 @@ export async function action({ request }: ActionFunctionArgs) {
         );
 
         if (!adminMembership) {
-          return json(
-            {
+          return {
               success: false,
               message:
                 "Unauthorized: You must be a charity admin to remove members",
-            },
-            { status: 403 },
-          );
+            };
         }
 
         // Check if the member to remove is the only admin
         if (memberUserId === userId) {
           // If removing self, use the 'leave' action logic instead
-          return json(
-            {
+          return {
               success: false,
               message:
                 "Cannot remove yourself. Use the 'leave' action instead.",
-            },
-            { status: 400 },
-          );
+            }
         }
 
         // Get the membership to check if it's the only admin
@@ -531,13 +462,10 @@ export async function action({ request }: ActionFunctionArgs) {
         );
 
         if (!targetMembership) {
-          return json(
-            {
+          return {
               success: false,
               message: "Member not found",
-            },
-            { status: 404 },
-          );
+            }
         }
 
         // If the member is an admin, check if they're the only one
@@ -546,13 +474,10 @@ export async function action({ request }: ActionFunctionArgs) {
             memberships?.filter((m) => m.roles.includes("admin")).length || 0;
 
           if (adminCount <= 1) {
-            return json(
-              {
-                success: false,
-                message: "Cannot remove the only admin of the charity",
-              },
-              { status: 400 },
-            );
+            return {
+              success: false,
+              message: "Cannot remove the only admin of the charity",
+            };
           }
         }
 
@@ -562,44 +487,32 @@ export async function action({ request }: ActionFunctionArgs) {
           charityId,
         );
 
-        return json(
-          {
-            success: status === 200,
-            message,
-          },
-          { status },
-        );
+        return {
+          success: status === 200,
+          message,
+        };
       } catch (error) {
         console.error("Error removing member:", error);
 
         if (error instanceof z.ZodError) {
-          return json(
-            {
+          return {
               success: false,
               message: "Validation error",
               errors: error.errors,
-            },
-            { status: 400 },
-          );
+            }
         }
 
-        return json(
-          {
+        return {
             success: false,
             message: "Failed to remove member",
-          },
-          { status: 500 },
-        );
+          }
       }
     }
 
     default:
-      return json(
-        {
+      return{
           success: false,
           message: "Invalid action",
-        },
-        { status: 400 },
-      );
+      }
   }
 }

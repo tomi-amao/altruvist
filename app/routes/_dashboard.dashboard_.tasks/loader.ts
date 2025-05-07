@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs, json, redirect } from "@remix-run/node";
+import { LoaderFunctionArgs, redirect } from "react-router";
 import { getUserInfo } from "~/models/user2.server";
 import { getSession } from "~/services/session.server";
 import { getUserTasks } from "~/models/tasks.server";
@@ -24,7 +24,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
   // Extract user's charities from charity memberships for the dropdown
   const userCharities =
     charityMemberships?.memberships
-      ?.filter((membership) => membership.roles.includes("admin"))
+      ?.filter((membership) => 
+        membership.roles.some(role => 
+          ["admin", "editor"].includes(role)
+        )
+      )
       .map((membership) => ({
         id: membership.charity.id,
         name: membership.charity.name,
@@ -53,7 +57,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       });
     }
 
-    return json<TaskListData>({
+    return {
       tasks,
       userRole,
       userId,
@@ -63,9 +67,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
       uploadURL: companionVars.COMPANION_URL,
       GCPKey: process.env.GOOGLE_MAPS_API_KEY,
       userCharities, // Add userCharities to the response
-    });
+    };
   } catch (error) {
-    return json({
+    return {
       tasks: [],
       userRole,
       userId,
@@ -74,6 +78,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
       userName: null,
       uploadURL: null,
       userCharities: [], // Include empty userCharities array
-    });
+    };
   }
 }

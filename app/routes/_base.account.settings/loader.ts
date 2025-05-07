@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs, redirect, json } from "@remix-run/node";
+import { LoaderFunctionArgs, redirect } from "react-router";
 import { getUserInfo } from "~/models/user2.server";
 import { getSession } from "~/services/session.server";
 import { getCharityMemberships } from "~/models/charities.server";
@@ -36,11 +36,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     userInfo,
     managedCharities,
     signedProfilePicture,
     FEATURE_FLAG,
     COMPANION_URL,
-  });
+  };
 }

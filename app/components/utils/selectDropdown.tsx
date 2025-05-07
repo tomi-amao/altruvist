@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 
 import { MultiSearchDocuments } from "~/types/tasks";
 
-import { useNavigate } from "@remix-run/react";
+import { useNavigate } from "react-router";
 import {
   Check,
   UserCircle,

@@ -1,10 +1,5 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
-import {
-  MetaFunction,
-  useLoaderData,
-  Link,
-  useFetcher,
-} from "@remix-run/react";
+import { LoaderFunctionArgs } from "react-router";
+import { MetaFunction, useLoaderData, Link, useFetcher } from "react-router";
 import { getProfileInfo, getUserInfo } from "~/models/user2.server";
 import { getSession } from "~/services/session.server";
 import DataTable from "~/components/cards/DataTable";

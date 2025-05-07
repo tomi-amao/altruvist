@@ -51,6 +51,6 @@ COPY --from=build /myapp/public /myapp/public
 COPY package.json .
 COPY package-lock.json .
 
-USER 1001
+USER root
 
 CMD ["npm", "start"]

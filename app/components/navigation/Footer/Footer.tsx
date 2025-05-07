@@ -1,5 +1,5 @@
 import { Copyright } from "@phosphor-icons/react";
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import SubscriptionModal from "~/components/ui/SubscriptionModal";

@@ -1,9 +1,9 @@
-import { Form, json, useActionData, useNavigate } from "@remix-run/react";
+import { Form, useActionData, useNavigate } from "react-router";
 import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
   redirect,
-} from "@remix-run/node";
+} from "react-router";
 import { useState } from "react";
 import { z } from "zod";
 import {
@@ -26,7 +26,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     throw redirect("/zitlogin");
   }
 
-  return json({ userInfo });
+  return { userInfo };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -38,10 +38,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   if (!userInfo) {
-    return json(
-      { error: "You must be logged in to create a charity" },
-      { status: 401 },
-    );
+    return { error: "You must be logged in to create a charity" };
   }
 
   const formData = await request.formData();
@@ -95,20 +92,17 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   if (errors.length > 0) {
-    return json(
-      {
-        errors,
-        values: {
-          name,
-          description,
-          website,
-          contactEmail,
-          tags,
-          backgroundPicture,
-        },
+    return {
+      errors,
+      values: {
+        name,
+        description,
+        website,
+        contactEmail,
+        tags,
+        backgroundPicture,
       },
-      { status: 400 },
-    );
+    };
   }
 
   // Create charity
@@ -125,7 +119,7 @@ export async function action({ request }: ActionFunctionArgs) {
   );
 
   if (!result.charity) {
-    return json({ error: result.message }, { status: 500 });
+    return { error: result.message }
   }
 
   return redirect(`/dashboard/charities`);

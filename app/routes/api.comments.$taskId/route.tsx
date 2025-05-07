@@ -1,9 +1,8 @@
 import {
   ActionFunctionArgs,
   LoaderFunctionArgs,
-  json,
   redirect,
-} from "@remix-run/node";
+} from "react-router";
 import {
   createComment,
   getCommentsForTask,
@@ -109,10 +108,10 @@ export async function action({ params, request }: ActionFunctionArgs) {
     // Rename taskId to avoid conflict in loader scope
     const routeTaskId = params.taskId;
     if (!routeTaskId) {
-      return json<ActionResponse>(
-        { success: false, error: "Task ID is required." },
-        { status: 400 },
-      );
+      return {
+        success: false,
+        error: "Task ID is required.",
+      };
     }
 
     const formData = await request.formData();
@@ -152,11 +151,11 @@ export async function action({ params, request }: ActionFunctionArgs) {
           });
         }
 
-        return json<ActionResponse>({
+        return {
           success: true,
           comment: fullComment,
           comments: updatedCommentsWithUrls,
-        });
+        };
       }
 
       case "editComment": {
@@ -171,11 +170,11 @@ export async function action({ params, request }: ActionFunctionArgs) {
           (c) => c.id === updatedCommentRaw.id,
         );
 
-        return json<ActionResponse>({
+        return {
           success: true,
           comment: fullUpdatedComment,
           comments: updatedCommentsWithUrls,
-        });
+        };
       }
 
       case "createReply": {
@@ -219,11 +218,11 @@ export async function action({ params, request }: ActionFunctionArgs) {
           });
         }
 
-        return json<ActionResponse>({
+        return {
           success: true,
           comment: fullReply,
           comments: updatedCommentsWithUrls,
-        });
+        };
       }
 
       case "deleteComment": {
@@ -232,27 +231,24 @@ export async function action({ params, request }: ActionFunctionArgs) {
         const actionCommentsRaw = await getCommentsForTask(routeTaskId);
         const updatedCommentsWithUrls =
           await addSignedUrlsToComments(actionCommentsRaw);
-        return json<ActionResponse>({
+        return {
           success: true,
           comments: updatedCommentsWithUrls,
-        });
+        };
       }
 
       default:
-        return json<ActionResponse>(
-          { success: false, error: "Invalid action" },
-          { status: 400 },
-        );
+        return {
+          success: false,
+          error: "Invalid action",
+        };
     }
   } catch (error) {
     console.error("Comment action error:", error);
-    return json<ActionResponse>(
-      {
-        success: false,
-        error: "An error occurred while processing your request",
-      },
-      { status: 500 },
-    );
+    return {
+      success: false,
+      error: "An error occurred while processing your request",
+    };
   }
 }
 
@@ -261,28 +257,22 @@ export async function loader({ params }: LoaderFunctionArgs) {
     // Use a distinct name for taskId in loader scope
     const loaderTaskId = params.taskId;
     if (!loaderTaskId) {
-      return json(
-        { success: false, error: "Task ID is required." },
-        { status: 400 },
-      );
+      return { success: false, error: "Task ID is required." }
     }
 
     // Use a distinct name for commentsRaw in loader scope
     const loaderCommentsRaw = await getCommentsForTask(loaderTaskId);
     const commentsWithUrls = await addSignedUrlsToComments(loaderCommentsRaw);
 
-    return json({
+    return {
       success: true,
       comments: commentsWithUrls,
-    });
+    };
   } catch (error) {
     console.error("Comments loader error:", error);
-    return json(
-      {
-        success: false,
-        error: "Failed to load comments",
-      },
-      { status: 500 },
-    );
+    return {
+      success: false,
+      error: "Failed to load comments",
+    };
   }
 }

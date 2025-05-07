@@ -1,4 +1,4 @@
-import { json, redirect, type ActionFunctionArgs } from "@remix-run/node";
+import { redirect, type ActionFunctionArgs } from "react-router";
 import { getUserInfo } from "~/models/user2.server";
 import { prisma } from "~/services/db.server";
 import {
@@ -43,27 +43,27 @@ export async function action({ request }: ActionFunctionArgs) {
           // First check if Meilisearch is connected
           const isConnected = await isMeilisearchConnected();
           if (!isConnected) {
-            return json({
+            return {
               success: false,
               message:
                 "Failed to initialize indices: Meilisearch is not connected",
               errorDetails: "Connection to Meilisearch failed",
               action,
-            });
+            };
           }
 
           // If connected, try to initialize
           console.log("Starting Meilisearch initialization...");
           await initializeMeilisearch();
 
-          return json({
+          return {
             success: true,
             message: "Meilisearch indices initialized successfully",
             action,
-          });
+          };
         } catch (initError) {
           console.error("Error during Meilisearch initialization:", initError);
-          return json({
+          return {
             success: false,
             message: "Failed to initialize indices",
             errorDetails:
@@ -71,7 +71,7 @@ export async function action({ request }: ActionFunctionArgs) {
                 ? initError.message
                 : String(initError),
             action,
-          });
+          };
         }
       }
 
@@ -80,59 +80,59 @@ export async function action({ request }: ActionFunctionArgs) {
         const docId = formData.get("docId") as string;
 
         if (!indexName || !docId) {
-          return json({
+          return {
             success: false,
             message: "Index name and document ID are required",
             action,
-          });
+          };
         }
 
         const result = await deleteDocument(indexName, docId);
-        return json({
+        return {
           success: result,
           message: result
             ? "Document deleted successfully"
             : "Failed to delete document",
           action,
-        });
+        };
       }
 
       case "delete-all-documents": {
         const indexName = formData.get("indexName") as string;
 
         if (!indexName) {
-          return json({
+          return {
             success: false,
             message: "Index name is required",
             action,
-          });
+          };
         }
 
         const result = await deleteAllDocuments(indexName);
-        return json({
+        return {
           success: result,
           message: result
             ? "All documents deleted successfully"
             : "Failed to delete documents",
           action,
-        });
+        };
       }
 
       case "search-all": {
         const query = formData.get("query") as string;
 
         if (!query) {
-          return json({ success: false, message: "Query is required", action });
+          return { success: false, message: "Query is required", action };
         }
 
         const result = await searchMultipleIndices(query);
 
-        return json({
+        return {
           success: result.status === 200,
           message: result.status === 200 ? "Search completed" : result.message,
           result: result,
           action,
-        });
+        };
       }
 
       case "sync-all": {
@@ -213,11 +213,11 @@ export async function action({ request }: ActionFunctionArgs) {
 
           if (tasks.length === 0) {
             console.log("No tasks found in MongoDB");
-            return json({
+            return {
               success: false,
               message: "No tasks found to sync",
               action,
-            });
+            };
           }
 
           // Process tasks for Meilisearch
@@ -309,7 +309,7 @@ export async function action({ request }: ActionFunctionArgs) {
             charitiesResult &&
             taskApplicationsResult;
 
-          return json({
+          return {
             success: success,
             message: success
               ? "All data synchronized successfully"
@@ -324,38 +324,30 @@ export async function action({ request }: ActionFunctionArgs) {
               },
             },
             action,
-          });
+          };
         } catch (error) {
           console.error("Error in sync-all action:", error);
-          return json(
-            {
+          return {
               success: false,
               message: "Failed to sync data",
               error: error instanceof Error ? error.message : String(error),
               action,
-            },
-            { status: 500 },
-          );
+            }
+
         }
       }
 
       default:
-        return json(
-          { success: false, message: "Unknown action", action },
-          { status: 400 },
-        );
+        return { success: false, message: "Unknown action", action };
     }
   } catch (error) {
     console.error("Error in search-test action:", error);
-    return json(
-      {
+    return {
         success: false,
         message:
           error instanceof Error ? error.message : "An unknown error occurred",
         error: String(error),
         action,
-      },
-      { status: 500 },
-    );
+      };
   }
 }

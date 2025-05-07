@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs, json } from "@remix-run/node";
+import { LoaderFunctionArgs } from "react-router";
 import { getTask } from "~/models/tasks.server";
 
 export async function loader({ params }: LoaderFunctionArgs) {
@@ -6,10 +6,10 @@ export async function loader({ params }: LoaderFunctionArgs) {
   const taskId = params.taskId;
 
   if (!taskId) {
-    return json({
+    return {
       error: "Task ID is required",
       status: 400,
-    });
+    };
   }
 
   try {
@@ -17,21 +17,21 @@ export async function loader({ params }: LoaderFunctionArgs) {
     const task = await getTask(taskId);
 
     if (!task) {
-      return json({
+      return {
         error: "Task not found",
         status: 404,
-      });
+      };
     }
 
-    return json({
+    return {
       task,
       status: 200,
-    });
+    };
   } catch (error) {
     console.error("Error fetching task:", error);
-    return json({
+    return {
       error: "Failed to fetch task details",
       status: 500,
-    });
+    }
   }
 }

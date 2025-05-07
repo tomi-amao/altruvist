@@ -1,5 +1,5 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
-import { Outlet, useLoaderData } from "@remix-run/react";
+import { LoaderFunctionArgs } from "react-router";
+import { Outlet, useLoaderData } from "react-router";
 
 import Navbar from "~/components/navigation/Header2";
 import { getUserInfo } from "~/models/user2.server";
@@ -15,15 +15,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
   let signedProfilePictureUrl: string | null = null;
   if (userInfo) {
     // Only get signed URL if profile picture exists and is not empty
-    signedProfilePictureUrl = userInfo.profilePicture && userInfo.profilePicture.trim() !== ''
-      ? await getSignedUrlForFile(userInfo.profilePicture, true)
-      : null;
-      userInfo = {
-        ...userInfo,
-        profilePicture: signedProfilePictureUrl ?? userInfo.profilePicture,
-      };
+    signedProfilePictureUrl =
+      userInfo.profilePicture && userInfo.profilePicture.trim() !== ""
+        ? await getSignedUrlForFile(userInfo.profilePicture, true)
+        : null;
+    userInfo = {
+      ...userInfo,
+      profilePicture: signedProfilePictureUrl ?? userInfo.profilePicture,
+    };
   }
-    
+
   // Update userInfo with signed URL if available
 
   return { userInfo, novuAppId };

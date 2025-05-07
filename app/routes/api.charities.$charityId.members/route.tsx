@@ -1,14 +1,11 @@
-import { json, LoaderFunctionArgs } from "@remix-run/node";
+import { LoaderFunctionArgs } from "react-router";
 import { getCharityMemberships } from "~/models/charities.server";
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { charityId } = params;
 
   if (!charityId) {
-    return json(
-      { error: "Charity ID is required", members: [] },
-      { status: 400 },
-    );
+    return { error: "Charity ID is required", members: [] }
   }
 
   try {
@@ -18,18 +15,12 @@ export async function loader({ params }: LoaderFunctionArgs) {
     });
 
     if (!result.memberships) {
-      return json(
-        { error: "Failed to fetch charity members", members: [] },
-        { status: 500 },
-      );
+      return{ error: "Failed to fetch charity members", members: [] }
     }
 
-    return json({ members: result.memberships });
+    return { members: result.memberships };
   } catch (error) {
     console.error("Error fetching charity members:", error);
-    return json(
-      { error: "Failed to fetch charity members", members: [] },
-      { status: 500 },
-    );
+    return { error: "Failed to fetch charity members", members: [] };
   }
 }

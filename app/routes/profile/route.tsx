@@ -1,4 +1,4 @@
-import { useNavigate } from "@remix-run/react";
+import { useNavigate } from "react-router";
 import { PrimaryButton } from "~/components/utils/BasicButton";
 
 export default function ProfileRoute() {

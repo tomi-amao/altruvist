@@ -1,5 +1,5 @@
 import { useLoadScript, Autocomplete } from "@react-google-maps/api";
-import { useLocation } from "@remix-run/react";
+import { useLocation } from "react-router";
 import { useRef, useState, useEffect } from "react";
 
 // Define the structure for location data

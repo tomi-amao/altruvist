@@ -1,4 +1,4 @@
-import { json, LoaderFunction } from "@remix-run/node";
+import {  LoaderFunction } from "react-router";
 import { deleteNovuMessage } from "~/services/novu.server";
 import { getSession } from "~/services/session.server";
 
@@ -11,7 +11,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   const accessToken = session.get("accessToken");
 
   if (!accessToken) {
-    return json({ error: "Unauthorized" }, { status: 401 });
+    return { error: "Unauthorized" };
   }
 
   try {
@@ -19,10 +19,10 @@ export const loader: LoaderFunction = async ({ request }) => {
       const messageId = url.searchParams.get("messageId");
 
       const result = await deleteNovuMessage(messageId!);
-      return json({ result });
+      return { result };
     }
   } catch (error) {
     console.error("Error fetching notifications:", error);
-    return json({ error: "Failed to fetch notifications" }, { status: 500 });
+    return { error: "Failed to fetch notifications" };
   }
 };

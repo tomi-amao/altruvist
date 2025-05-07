@@ -1,5 +1,5 @@
-import { json, LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData, Link } from "@remix-run/react";
+import { LoaderFunctionArgs } from "react-router";
+import { useLoaderData, Link } from "react-router";
 import { useState, useEffect } from "react";
 import { getSession } from "~/services/session.server";
 import { getUserInfo } from "~/models/user2.server";
@@ -71,12 +71,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
     }),
   );
 
-  return json({
+  return {
     userInfo,
     charities: charitiesWithSignedUrls,
     charityMemberships,
     FEATURE_FLAG,
-  });
+  };
 }
 
 export default function ExploreCharities() {
@@ -160,7 +160,6 @@ export default function ExploreCharities() {
           Discover and join charities that align with your skills and interests.
         </p>
       </div>
-
       {/* Search and filter section */}
       <div className="bg-basePrimaryLight rounded-xl p-6 mb-8 shadow-sm">
         <div className="flex flex-col md:flex-row gap-4">
@@ -229,7 +228,6 @@ export default function ExploreCharities() {
           </div>
         )}
       </div>
-
       {/* Results section */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredCharities.length > 0 ? (
@@ -362,7 +360,6 @@ export default function ExploreCharities() {
           </div>
         )}
       </div>
-
       {/* Join Charity Modal */}
       {selectedCharity && (
         <JoinCharityModal

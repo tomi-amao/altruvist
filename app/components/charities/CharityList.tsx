@@ -111,10 +111,30 @@ export function CharityList({
               </div>
 
               <div className="flex justify-between items-center mt-1.5 flex-wrap gap-1">
-                {/* Show badge if user is admin of this charity */}
+                {/* Show badges for user's roles in this charity */}
                 {adminCharities.some((ac) => ac.id === charity.id) && (
                   <span className="inline-flex text-sm items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-confirmPrimary/20 text-confirmPrimary leading-none">
                     Admin
+                  </span>
+                )}
+                
+                {/* Show Editor badge if user has this role in the charity */}
+                {charity.charityMemberships?.some(
+                  (membership) => 
+                    membership.roles?.includes("editor")
+                ) && (
+                  <span className="inline-flex text-sm items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-indicator-orange/20 text-indicator-orange leading-none ml-1">
+                    Editor
+                  </span>
+                )}
+                
+                {/* Show Coordinator badge if user has this role in the charity */}
+                {charity.charityMemberships?.some(
+                  (membership) => 
+                    membership.roles?.includes("coordinator")
+                ) && (
+                  <span className="inline-flex text-sm items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-accentPrimary/20 text-accentPrimary leading-none ml-1">
+                    Coordinator
                   </span>
                 )}
 

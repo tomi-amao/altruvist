@@ -1,5 +1,5 @@
 import { CombinedCollections, MultiSearchDocuments } from "~/types/tasks";
-import { useNavigate } from "@remix-run/react";
+import { useNavigate } from "react-router";
 import { getUrgencyColor } from "../tasks/taskCard";
 import { Buildings, ClipboardText, User, Globe } from "@phosphor-icons/react";
 

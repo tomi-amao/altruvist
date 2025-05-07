@@ -1,5 +1,5 @@
-import { json, ActionFunctionArgs, MetaFunction } from "@remix-run/node";
-import { useActionData, Form, useNavigation } from "@remix-run/react";
+import { ActionFunctionArgs, data, MetaFunction } from "react-router";
+import { useActionData, Form, useNavigation } from "react-router";
 import { motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import LandingHeader from "~/components/navigation/LandingHeader";
@@ -39,12 +39,12 @@ export async function action({ request }: ActionFunctionArgs) {
   // Check if user has sent too many emails
   const emailCount = session.get("emailCount") || 0;
   if (emailCount >= MAX_EMAILS_PER_SESSION) {
-    return json<ActionData>({
+    return {
       success: false,
       message:
         "You've reached the maximum number of messages allowed. Please try again later.",
       errors: { form: "Maximum email limit reached" },
-    });
+    };
   }
 
   // Check if user is sending emails too frequently
@@ -53,11 +53,11 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (lastEmailTime && timeSinceLastEmail < THROTTLE_TIME) {
     const waitTime = Math.ceil((THROTTLE_TIME - timeSinceLastEmail) / 1000);
-    return json<ActionData>({
+    return {
       success: false,
       message: `Please wait ${waitTime} seconds before sending another message.`,
       errors: { form: "Rate limit exceeded" },
-    });
+    };
   }
 
   const formData = await request.formData();
@@ -92,11 +92,11 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   if (Object.keys(errors).length > 0) {
-    return json<ActionData>({
+    return {
       errors,
       success: false,
       message: "Please correct the errors in the form.",
-    });
+    };
   }
 
   // Verify the reCAPTCHA token
@@ -107,13 +107,13 @@ export async function action({ request }: ActionFunctionArgs) {
     );
 
     if (!recaptchaResult.success) {
-      return json<ActionData>({
+      return {
         success: false,
         message: "Security verification failed. Please try again.",
         errors: {
           recaptcha: recaptchaResult.message || "reCAPTCHA verification failed",
         },
-      });
+      };
     }
   }
 
@@ -160,7 +160,7 @@ export async function action({ request }: ActionFunctionArgs) {
     session.set("lastEmailTime", now);
     session.set("emailCount", emailCount + 1);
 
-    return json<ActionData>(
+    return data<ActionData>(
       {
         success: true,
         message: "Thanks for reaching out! We'll get back to you shortly.",
@@ -173,12 +173,12 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   } catch (error) {
     console.error("Error sending email:", error);
-    return json<ActionData>({
+    return{
       success: false,
       message:
         "There was an error sending your message. Please try again later.",
       errors: { form: "Failed to send email. Please try again later." },
-    });
+    };
   }
 }
 
@@ -236,11 +236,12 @@ export default function ContactRoute() {
             transition={{ duration: 0.6 }}
           >
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-baseSecondary/90">
-              Get in <span className="text-baseSecondary text-6xl">Touch</span>
+              Get in <span className="text-baseSecondary text-5xl font-light">Touch</span>
             </h1>
             <p className="text-lg text-midGrey max-w-xl mx-auto">
-              Have questions about volunteering or need assistance? We're here
-              to help!
+              Have questions, feedback, or want to learn more about Altruvist?
+              We're here to help! Fill out the form below, and we'll get back
+              to you as soon as possible.
             </p>
           </motion.div>
 
@@ -724,7 +725,7 @@ export default function ContactRoute() {
             </p>
             <a
               href="mailto:support@altruvist.org"
-              className="inline-flex items-center text-accentPrimary hover:text-accentPrimaryDark transition-colors"
+              className="inline-flex items-center text-baseSecondary hover:text-accentPrimaryDark transition-colors"
             >
               <svg
                 className="w-5 h-5 mr-2"

@@ -1,11 +1,11 @@
-import { Link, useLoaderData, useNavigate } from "@remix-run/react";
+import { Link, useLoaderData, useNavigate } from "react-router";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import LandingHeader from "~/components/navigation/LandingHeader";
 import type { Task } from "~/types/tasks";
 import Notification from "~/components/cards/NotificationCard";
 import { commitSession, getSession } from "~/services/session.server";
-import { json, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
+import { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { subDays } from "date-fns";
 import { prisma } from "~/services/db.server";
 import { getUserInfo } from "~/models/user2.server";
@@ -101,17 +101,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
     userInfoResult = userInfo;
   }
 
-  return json(
-    {
+  return{
       message: accessToken ? "User logged in" : "User not logged in",
       userInfo: userInfoResult,
       error: flashError,
       recentTasks: topTasks,
-    },
-    {
-      headers,
-    },
-  );
+    }
 }
 
 export default function Index() {
@@ -130,7 +125,6 @@ export default function Index() {
       setClientSideError(error);
     }
   }, [error]);
-
 
   const openTaskDetailsModal = (task: Task) => {
     setSelectedTask(task);

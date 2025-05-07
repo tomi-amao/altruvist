@@ -8,13 +8,8 @@ import {
   redirect,
   useRouteError,
   useLoaderData,
-} from "@remix-run/react";
-import type {
-  ActionFunctionArgs,
-  LinksFunction,
-  LoaderFunction,
-  MetaFunction,
-} from "@remix-run/node";
+} from "react-router";
+import type { ActionFunctionArgs, LinksFunction, LoaderFunction, MetaFunction } from "react-router";
 import stylesheet from "~/styles/tailwind.css?url";
 
 import { ErrorCard } from "./components/utils/ErrorCard";
@@ -86,6 +81,7 @@ export default function App() {
 
   return (
     <Document>
+      {/* use to recaptcha variables to be globally available*/}
       <script
         dangerouslySetInnerHTML={{
           __html: `window.ENV = ${JSON.stringify(data.ENV)}`,

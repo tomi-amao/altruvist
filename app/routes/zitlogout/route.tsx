@@ -1,4 +1,4 @@
-import { json, LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { data, LoaderFunctionArgs, redirect } from "react-router";
 import { getZitadelVars } from "~/services/env.server";
 import { destroySession, getSession } from "~/services/session.server";
 
@@ -23,7 +23,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     });
   } catch (error) {
     console.error("Error fetching user info:", error);
-    return json(
+    return data(
       { error: "Failed to fetch user info", userInfo: null },
       { status: 500 },
     );

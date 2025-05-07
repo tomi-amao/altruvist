@@ -30,22 +30,18 @@ export type TableProps<T> = {
 // Default mobile component to display table items in a card format on mobile
 export const DefaultMobileTableItem = <T extends Record<string, any>>(
   item: T,
-  _index: number
+  _index: number,
 ) => {
   // Try to determine primary and secondary fields based on column presence
-  const title = 
-    item.title || 
-    item.name || 
-    item.header || 
-    Object.values(item)[0] || 
+  const title =
+    item.title ||
+    item.name ||
+    item.header ||
+    Object.values(item)[0] ||
     "No title";
-    
-  const description = 
-    item.description || 
-    item.content || 
-    item.summary || 
-    item.text || 
-    "";
+
+  const description =
+    item.description || item.content || item.summary || item.text || "";
 
   const status = item.status || item.state || null;
 
@@ -53,7 +49,7 @@ export const DefaultMobileTableItem = <T extends Record<string, any>>(
     <div className="bg-basePrimaryLight rounded-lg shadow-sm p-4 border border-baseSecondary/10">
       <div className="flex justify-between items-start mb-3">
         <h3 className="text-sm font-medium text-baseSecondary">
-          {typeof title === 'string' ? title : 'Item'}
+          {typeof title === "string" ? title : "Item"}
         </h3>
         {status && (
           <div
@@ -70,48 +66,50 @@ export const DefaultMobileTableItem = <T extends Record<string, any>>(
                       : "bg-baseSecondary/10 text-baseSecondary"
             }`}
           >
-            {typeof status === 'string' ? status.replace("_", " ") : status}
+            {typeof status === "string" ? status.replace("_", " ") : status}
           </div>
         )}
       </div>
-      
+
       {description && (
         <p className="text-sm text-baseSecondary/80 mb-3 line-clamp-2">
           {description}
         </p>
       )}
-      
+
       {item.deadline && (
         <div className="flex items-center text-xs text-baseSecondary/70 mb-1">
           <CalendarBlank size={14} className="mr-1.5" />
-          <span>
-            {new Date(item.deadline).toLocaleDateString()}
-          </span>
+          <span>{new Date(item.deadline).toLocaleDateString()}</span>
         </div>
       )}
-      
-      {item.requiredSkills && Array.isArray(item.requiredSkills) && item.requiredSkills.length > 0 && (
-        <div className="mt-3 border-t border-baseSecondary/10 pt-2">
-          <p className="text-xs font-medium mb-1.5 text-baseSecondary/70">
-            Required Skills:
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            {item.requiredSkills.slice(0, 2).map((skill: string, i: number) => (
-              <span 
-                key={i}
-                className="bg-basePrimary rounded-md px-2 py-0.5 text-xs text-baseSecondary"
-              >
-                {skill}
-              </span>
-            ))}
-            {item.requiredSkills.length > 2 && (
-              <span className="text-xs text-baseSecondary/70">
-                +{item.requiredSkills.length - 2} more
-              </span>
-            )}
+
+      {item.requiredSkills &&
+        Array.isArray(item.requiredSkills) &&
+        item.requiredSkills.length > 0 && (
+          <div className="mt-3 border-t border-baseSecondary/10 pt-2">
+            <p className="text-xs font-medium mb-1.5 text-baseSecondary/70">
+              Required Skills:
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {item.requiredSkills
+                .slice(0, 2)
+                .map((skill: string, i: number) => (
+                  <span
+                    key={i}
+                    className="bg-basePrimary rounded-md px-2 py-0.5 text-xs text-baseSecondary"
+                  >
+                    {skill}
+                  </span>
+                ))}
+              {item.requiredSkills.length > 2 && (
+                <span className="text-xs text-baseSecondary/70">
+                  +{item.requiredSkills.length - 2} more
+                </span>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
     </div>
   );
 };
@@ -389,9 +387,12 @@ export function DataTable<T>({
             tabIndex={handleRowClick ? 0 : undefined}
             role={handleRowClick ? "button" : undefined}
           >
-            {mobileComponent 
+            {mobileComponent
               ? mobileComponent(item, index)
-              : DefaultMobileTableItem(item as unknown as Record<string, any>, index)}
+              : DefaultMobileTableItem(
+                  item as unknown as Record<string, any>,
+                  index,
+                )}
           </div>
         ))}
 

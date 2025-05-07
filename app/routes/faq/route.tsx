@@ -1,5 +1,5 @@
-import { json, MetaFunction } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { MetaFunction } from "react-router";
+import { useLoaderData } from "react-router";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import LandingHeader from "~/components/navigation/LandingHeader";
@@ -20,7 +20,7 @@ export const meta: MetaFunction<typeof loader> = () => {
 
 export const loader = async () => {
   // Organized FAQ sections
-  return json({
+  return {
     categories: [
       {
         title: "For Volunteers",
@@ -163,7 +163,7 @@ export const loader = async () => {
         ],
       },
     ],
-  });
+  };
 };
 
 export default function FAQPage() {

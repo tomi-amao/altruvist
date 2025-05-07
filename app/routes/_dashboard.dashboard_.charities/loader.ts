@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs, json, redirect } from "@remix-run/node";
+import { LoaderFunctionArgs, redirect } from "react-router";
 import { getSession } from "~/services/session.server";
 import { getUserInfo } from "~/models/user2.server";
 import { getCharity, getCharityApplications } from "~/models/charities.server";
@@ -32,10 +32,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
     // Get all charities where the user is an admin for admin functionality
     const adminCharities = userCharities
-      .filter((charity) => charity.roles.includes("admin"))
+      .filter((charity) => 
+      charity.roles.some(role => 
+        ["admin", "creator"].includes(role)
+      )
+      )
       .map((charity) => ({
-        id: charity.id,
-        name: charity.name,
+      id: charity.id,
+      name: charity.name,
       }));
 
     // Data to fetch in parallel
@@ -94,7 +98,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     // Process user applications
     userApplications = userApplicationsResult.applications || [];
 
-    return json({
+    return {
       userInfo,
       userRole,
       userId,
@@ -104,9 +108,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
       pendingApplications,
       userApplications,
       COMPANION_URL: process.env.COMPANION_URL,
-    });
+    };
   } catch (error) {
     console.error("Error in loader function:", error);
-    return json({ error: "An unexpected error occurred" }, { status: 500 });
+    return { error: "An unexpected error occurred" }
   }
 }

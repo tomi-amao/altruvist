@@ -1,4 +1,4 @@
-import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
+import { ActionFunctionArgs, redirect } from "react-router";
 import { getUserInfo, deleteUser, updateUserInfo } from "~/models/user2.server";
 import { getSession } from "~/services/session.server";
 import { z } from "zod";
@@ -41,12 +41,9 @@ export async function action({ request }: ActionFunctionArgs) {
         const charityId = formData.get("charityId") as string;
 
         if (!charityId) {
-          return json(
-            {
-              errors: [{ field: "form", message: "Charity ID is required" }],
-            },
-            { status: 400 },
-          );
+          return {
+            errors: [{ field: "form", message: "Charity ID is required" }],
+          }
         }
 
         // Check if user is admin or creator of the charity
@@ -60,40 +57,34 @@ export async function action({ request }: ActionFunctionArgs) {
         );
 
         if (!creator) {
-          return json(
-            {
-              errors: [
-                {
-                  field: "form",
-                  message: "You don't have permission to delete this charity",
-                },
-              ],
-            },
-            { status: 403 },
-          );
+          return {
+            errors: [
+              {
+                field: "form",
+                message: "You don't have permission to delete this charity",
+              },
+            ],
+          };
         }
 
         // Delete the charity
         const { status, message } = await deleteCharity(charityId);
 
         if (status !== 200) {
-          return json(
-            {
-              errors: [
-                {
-                  field: "form",
-                  message: message || "Failed to delete charity",
-                },
-              ],
-            },
-            { status: 500 },
-          );
+          return {
+            errors: [
+              {
+                field: "form",
+                message: message || "Failed to delete charity",
+              },
+            ],
+          };
         }
 
-        return json({
+        return {
           success: true,
           message: "Charity deleted successfully",
-        });
+        };
       }
 
       case "updateProfile": {
@@ -151,42 +142,33 @@ export async function action({ request }: ActionFunctionArgs) {
             })),
           };
 
-          return json(response, { status: 400 });
+          return response;
         }
 
         const { status } = await updateUserInfo(userInfo.id, updateFields);
 
         if (status !== 200) {
-          return json(
-            {
-              errors: [{ field: "form", message: "Failed to update profile" }],
-            },
-            { status: 500 },
-          );
+          return {
+            errors: [{ field: "form", message: "Failed to update profile" }],
+          }
         }
 
-        return json({
+        return {
           success: true,
           message: "Profile updated successfully",
-        });
+        }
       }
 
       default:
-        return json(
-          {
-            errors: [{ field: "form", message: "Invalid action" }],
-          },
-          { status: 400 },
-        );
+        return {
+          errors: [{ field: "form", message: "Invalid action" }]
+        }
     }
   } catch (error) {
     console.error(`Error occurred in action ${action}:`, error);
 
-    return json(
-      {
-        errors: [{ field: "form", message: "An unexpected error occurred" }],
-      },
-      { status: 500 },
-    );
+    return {
+      errors: [{ field: "form", message: "An unexpected error occurred" }],
+    };
   }
 }

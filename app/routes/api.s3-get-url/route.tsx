@@ -1,4 +1,4 @@
-import { json, LoaderFunctionArgs } from "@remix-run/node";
+import { LoaderFunctionArgs } from "react-router";
 import { deleteS3Object, getSignedUrlForFile } from "~/services/s3.server";
 import { getSession } from "~/services/session.server";
 
@@ -12,26 +12,23 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   // Check for either file or key parameter
   if (!fileUrl && !key) {
-    return json(
-      { error: "Either file URL or key is required" },
-      { status: 400 },
-    );
+    return { error: "Either file URL or key is required" }
   }
 
   // Handle direct key request (for background images)
   if (key) {
     try {
       const signedUrl = await getSignedUrlForFile(key, true);
-      return json({ url: signedUrl });
+      return { url: signedUrl }
     } catch (error) {
       console.error("Error generating signed URL:", error);
-      return json({ error: "Failed to generate signed URL" }, { status: 500 });
+      return { error: "Failed to generate signed URL" };
     }
   }
 
   // Original file URL-based logic
   if (!accessToken) {
-    return json({ error: "Unauthorized" }, { status: 401 });
+    return { error: "Unauthorized" };
   }
 
   switch (action) {
@@ -39,22 +36,22 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       const fileName = fileUrl.startsWith("/") ? fileUrl.slice(1) : fileUrl;
 
       if (!fileName) {
-        return json({ error: "File name is required" }, { status: 400 });
+        return { error: "File name is required" };
       }
 
       const signedUrl = await getSignedUrlForFile(
         decodeURIComponent(fileName),
         true,
       );
-      return json({ message: "Upload successful", url: signedUrl });
+      return { message: "Upload successful", url: signedUrl };
     }
     case "delete": {
       const deleteFile = await deleteS3Object(fileUrl);
       console.log("File deleted:", deleteFile);
 
-      return json({ message: "Delete successful", url: null });
+      return { message: "Delete successful", url: null };
     }
     default:
-      return json({ error: "Invalid action" }, { status: 400 });
+      return { error: "Invalid action" };
   }
 };

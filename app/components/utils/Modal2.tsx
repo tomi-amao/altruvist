@@ -62,13 +62,11 @@ export const Modal: React.FC<ModalProps> = ({
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
+      style={{ 
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      }}
     >
-      <div
-        className="fixed inset-0 bg-basePrimaryDark bg-opacity-30"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-      <div className="relative bg-basePrimaryLight rounded-lg w-fit z-10 max-h-[80vh] overflow-y-auto">
+      <div className="relative bg-basePrimaryLight rounded-lg w-fit z-10 max-h-[80vh] overflow-y-auto shadow-xl">
         <div className="">
           {children}
           <button
@@ -81,7 +79,7 @@ export const Modal: React.FC<ModalProps> = ({
               justifyContent: "center",
             }}
           >
-            <X size={24} weight="bold" />
+            <X size={24} weight="bold"  className="z-50"/>
           </button>
         </div>
       </div>
