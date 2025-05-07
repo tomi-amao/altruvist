@@ -276,17 +276,19 @@ export const getUserTasks = async (
           where: {
             userId,
             roles: {
-              hasSome: ["admin", "creator", "coordinator", "editor"]
-            }
+              hasSome: ["admin", "creator", "coordinator", "editor"],
+            },
           },
           select: {
-            charityId: true
-          }
+            charityId: true,
+          },
         });
 
         // Extract charity IDs from memberships
-        const charityIds = charityMemberships.map(membership => membership.charityId);
-        
+        const charityIds = charityMemberships.map(
+          (membership) => membership.charityId,
+        );
+
         // Find tasks for all these charities + tasks created directly by the user
         const tasks = await prisma.tasks.findMany({
           ...(take && { take }),
@@ -295,11 +297,11 @@ export const getUserTasks = async (
               // Tasks created directly by the user
               { userId },
               // Tasks belonging to charities where the user has appropriate role
-              { 
-                charityId: { 
-                  in: charityIds.length > 0 ? charityIds : undefined 
+              {
+                charityId: {
+                  in: charityIds.length > 0 ? charityIds : undefined,
                 },
-              }
+              },
             ],
             ...(taskStatus && { status: taskStatus as ApplicationStatus }),
             ...(charityId && { charityId }), // If a specific charity ID is provided

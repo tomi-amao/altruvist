@@ -1,5 +1,4 @@
-import { MetaFunction } from "react-router";
-import { useLoaderData } from "react-router";
+import { MetaFunction, useLoaderData } from "react-router";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import Footer from "~/components/navigation/Footer";
@@ -20,7 +19,7 @@ export const meta: MetaFunction<typeof loader> = () => {
 
 export const loader = async () => {
   // Mock data for the guide sections
-  return ({
+  return {
     steps: [
       {
         title: "Create Your Profile",
@@ -126,7 +125,7 @@ export const loader = async () => {
           "Volunteering is a great way to network and build professional relationships. Connect with other volunteers and organization staff on professional networks.",
       },
     ],
-  });
+  };
 };
 
 export default function VolunteerGuide() {

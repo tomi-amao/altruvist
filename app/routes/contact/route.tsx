@@ -1,5 +1,11 @@
-import { ActionFunctionArgs, data, MetaFunction } from "react-router";
-import { useActionData, Form, useNavigation } from "react-router";
+import {
+  ActionFunctionArgs,
+  data,
+  MetaFunction,
+  useActionData,
+  Form,
+  useNavigation,
+} from "react-router";
 import { motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import LandingHeader from "~/components/navigation/LandingHeader";
@@ -173,7 +179,7 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   } catch (error) {
     console.error("Error sending email:", error);
-    return{
+    return {
       success: false,
       message:
         "There was an error sending your message. Please try again later.",
@@ -236,12 +242,15 @@ export default function ContactRoute() {
             transition={{ duration: 0.6 }}
           >
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-baseSecondary/90">
-              Get in <span className="text-baseSecondary text-5xl font-light">Touch</span>
+              Get in{" "}
+              <span className="text-baseSecondary text-5xl font-light">
+                Touch
+              </span>
             </h1>
             <p className="text-lg text-midGrey max-w-xl mx-auto">
               Have questions, feedback, or want to learn more about Altruvist?
-              We're here to help! Fill out the form below, and we'll get back
-              to you as soon as possible.
+              We're here to help! Fill out the form below, and we'll get back to
+              you as soon as possible.
             </p>
           </motion.div>
 

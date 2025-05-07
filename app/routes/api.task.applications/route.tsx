@@ -29,8 +29,7 @@ export async function action({ request }: ActionFunctionArgs) {
           const parsedApplication = JSON.parse(selectedTaskApplication);
 
           if (!parsedApplication.id) {
-            return { error: "Task application ID is required" }
-
+            return { error: "Task application ID is required" };
           }
 
           console.log("Getting Task Application:", parsedApplication.id);
@@ -45,8 +44,8 @@ export async function action({ request }: ActionFunctionArgs) {
         } catch (error) {
           console.error("Error getting task application:", error);
           return {
-              error: "Failed to get task application",
-            }
+            error: "Failed to get task application",
+          };
         }
       }
       case "updateTask": {
@@ -81,7 +80,7 @@ export async function action({ request }: ActionFunctionArgs) {
         console.log("Updated task data:", updatedTaskData);
 
         if (updatedTaskData.error) {
-          return { error: updatedTaskData.message }
+          return { error: updatedTaskData.message };
         }
 
         return { success: true, task: updatedTaskData };
@@ -94,10 +93,10 @@ export async function action({ request }: ActionFunctionArgs) {
         const result = await deleteTask(taskId);
         if (result.error) {
           return {
-              updateTaskData: null,
-              userIds: null,
-              error: result.message,
-            }
+            updateTaskData: null,
+            userIds: null,
+            error: result.message,
+          };
         }
         return {
           updateTaskData: null,
@@ -117,7 +116,7 @@ export async function action({ request }: ActionFunctionArgs) {
         );
 
         if (result.error) {
-          return { error: result.message }
+          return { error: result.message };
         }
 
         return { success: true, application: result.data };
@@ -134,7 +133,7 @@ export async function action({ request }: ActionFunctionArgs) {
         );
 
         if (result.error) {
-          return { error: result.message }
+          return { error: result.message };
         }
 
         return { success: true, application: result.data };
@@ -151,7 +150,7 @@ export async function action({ request }: ActionFunctionArgs) {
         );
 
         if (result.error) {
-          return { error: result.message }
+          return { error: result.message };
         }
 
         return { success: true, application: result.data };
@@ -198,7 +197,7 @@ export async function action({ request }: ActionFunctionArgs) {
         console.log(result);
 
         if (result.error) {
-          return { error: result.message }
+          return { error: result.message };
         }
 
         return { success: true, application: result.data };

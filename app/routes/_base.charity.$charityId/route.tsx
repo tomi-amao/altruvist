@@ -1,5 +1,9 @@
-import {  LoaderFunctionArgs, MetaFunction } from "react-router";
-import { useLoaderData, Link } from "react-router";
+import {
+  LoaderFunctionArgs,
+  MetaFunction,
+  useLoaderData,
+  Link,
+} from "react-router";
 import { useState, useMemo } from "react";
 import { getSession } from "~/services/session.server";
 import { getUserInfo } from "~/models/user2.server";
@@ -19,7 +23,6 @@ import {
   Envelope,
   User,
   Calendar,
-  Plus,
   Clock,
   ClipboardText,
   UsersThree,
@@ -57,7 +60,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { charityId } = params;
 
   if (!charityId) {
-    return { error: "Charity ID is required", charity: null }
+    return { error: "Charity ID is required", charity: null };
   }
 
   // Get charity details
@@ -548,7 +551,6 @@ export default function CharityDetailPage() {
                     Sign In to Join
                   </Link>
                 ) : null}
-
               </div>
             </div>
           </div>

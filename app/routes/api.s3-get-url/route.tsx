@@ -12,14 +12,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   // Check for either file or key parameter
   if (!fileUrl && !key) {
-    return { error: "Either file URL or key is required" }
+    return { error: "Either file URL or key is required" };
   }
 
   // Handle direct key request (for background images)
   if (key) {
     try {
       const signedUrl = await getSignedUrlForFile(key, true);
-      return { url: signedUrl }
+      return { url: signedUrl };
     } catch (error) {
       console.error("Error generating signed URL:", error);
       return { error: "Failed to generate signed URL" };

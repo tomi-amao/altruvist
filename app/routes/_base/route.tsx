@@ -1,5 +1,4 @@
-import { LoaderFunctionArgs } from "react-router";
-import { Outlet, useLoaderData } from "react-router";
+import { LoaderFunctionArgs, Outlet, useLoaderData } from "react-router";
 
 import Navbar from "~/components/navigation/Header2";
 import { getUserInfo } from "~/models/user2.server";

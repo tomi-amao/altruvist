@@ -1,11 +1,16 @@
-import { Link, useLoaderData, useNavigate } from "react-router";
+import {
+  Link,
+  useLoaderData,
+  useNavigate,
+  LoaderFunctionArgs,
+  MetaFunction,
+} from "react-router";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import LandingHeader from "~/components/navigation/LandingHeader";
 import type { Task } from "~/types/tasks";
 import Notification from "~/components/cards/NotificationCard";
-import { commitSession, getSession } from "~/services/session.server";
-import { LoaderFunctionArgs, MetaFunction } from "react-router";
+import { getSession } from "~/services/session.server";
 import { subDays } from "date-fns";
 import { prisma } from "~/services/db.server";
 import { getUserInfo } from "~/models/user2.server";
@@ -88,25 +93,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
     .sort((a, b) => b.popularityScore - a.popularityScore)
     .slice(0, 3);
 
-  // Only commit session if there was a flash message
-  const headers = flashError
-    ? {
-        "Set-Cookie": await commitSession(session),
-      }
-    : undefined;
-
   let userInfoResult = null;
   if (accessToken) {
     const { userInfo } = await getUserInfo(accessToken);
     userInfoResult = userInfo;
   }
 
-  return{
-      message: accessToken ? "User logged in" : "User not logged in",
-      userInfo: userInfoResult,
-      error: flashError,
-      recentTasks: topTasks,
-    }
+  return {
+    message: accessToken ? "User logged in" : "User not logged in",
+    userInfo: userInfoResult,
+    error: flashError,
+    recentTasks: topTasks,
+  };
 }
 
 export default function Index() {

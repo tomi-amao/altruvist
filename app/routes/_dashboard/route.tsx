@@ -1,5 +1,11 @@
-import { LoaderFunctionArgs, redirect } from "react-router";
-import { Link, Outlet, useLoaderData, useLocation } from "react-router";
+import {
+  LoaderFunctionArgs,
+  redirect,
+  Link,
+  Outlet,
+  useLoaderData,
+  useLocation,
+} from "react-router";
 import { SimpleProfileCard } from "~/components/cards/ProfileCard";
 import Navbar from "~/components/navigation/Header2";
 import { getUserInfo } from "~/models/user2.server";

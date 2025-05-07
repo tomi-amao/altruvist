@@ -9,7 +9,6 @@ import {
   Buildings,
   GraduationCap,
 } from "@phosphor-icons/react";
-import { SearchResultCardType } from "../cards/searchResultCard";
 import TaskDetailsCard from "./taskDetailsCard";
 
 export const getUrgencyColor = (urgency: string) => {
@@ -256,93 +255,3 @@ export default function TaskSummaryCard(task: taskAdditionalDetails) {
     </>
   );
 }
-
-export const TaskSummaryCardMobile = (
-  taskData: Omit<SearchResultCardType, "all" | "charities" | "tasks" | "users">,
-) => {
-  // Ensure the data exists and has the expected properties
-  const data = taskData.data || {};
-  const title = data.title || "Untitled Task";
-  const description = data.description || "No description";
-  const urgency = data.urgency || "LOW";
-  const requiredSkills = Array.isArray(data.requiredSkills)
-    ? data.requiredSkills
-    : [];
-  const category = Array.isArray(data.category) ? data.category : [];
-  const deliverables = Array.isArray(data.deliverables)
-    ? data.deliverables
-    : [];
-  const deadline = data.deadline ? new Date(data.deadline) : new Date();
-
-  return (
-    <>
-      <button
-        className="flex text-left items-center bg-basePrimaryDark rounded-md mb-2 hover:bg-basePrimaryLight w-full p-2"
-        onClick={() =>
-          taskData.handleSelectedSearchItem &&
-          taskData.handleSelectedSearchItem(data)
-        }
-      >
-        {/* mobile view component */}
-        <div className="flex text-left items-center m-auto rounded-md space-x-2 hover:bg-basePrimaryLight w-full p-2">
-          <div className="">
-            <p className="font-semibold md:text-lg">{title}</p>
-            <p className="text-xs md:text-sm mb-1">{description}</p>
-            <ul className="flex gap-2 items-start flex-wrap">
-              <li className="text-xs md:text-sm font-semibold">
-                Urgency:
-                <span
-                  className={`inline-block rounded-full px-2 md:px-2 md:py-[2px] ml-1 text-xs font-semibold ${getUrgencyColor(urgency)}`}
-                >
-                  {urgency}
-                </span>
-              </li>
-              {requiredSkills.length > 0 && (
-                <li className="text-xs md:text-sm font-semibold space-x-1">
-                  Skills:
-                  {requiredSkills.map((skill, index) => (
-                    <span
-                      key={`${data.id || "task"}-skill-${index}`}
-                      className="rounded-sm font-semibold bg-basePrimaryLight px-1 text-[12px]"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </li>
-              )}
-              <li className="text-xs flex-wrap md:text-sm font-semibold">
-                Deadline:
-                <span className="font-normal md:text-sm text-xs">
-                  {deadline.toLocaleDateString()}
-                </span>
-              </li>
-              {category.length > 0 && (
-                <li className="text-xs md:text-sm font-semibold">
-                  Tags:
-                  <span className="font-normal md:text-sm text-xs">
-                    {category.map((tag, index) => (
-                      <span
-                        key={`${data.id || "task"}-tag-${index}`}
-                        className="rounded-sm font-semibold bg-basePrimaryLight px-1 text-[12px]"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </span>
-                </li>
-              )}
-              {deliverables.length > 0 && (
-                <li className="text-xs md:text-sm hidden md:flex font-semibold">
-                  Deliverable:
-                  <span className="font-normal md:text-sm text-xs">
-                    {deliverables[0]}
-                  </span>
-                </li>
-              )}
-            </ul>
-          </div>
-        </div>
-      </button>
-    </>
-  );
-};

@@ -1,4 +1,4 @@
-import { ActionFunctionArgs,  } from "react-router";
+import { ActionFunctionArgs } from "react-router";
 import { getSession } from "~/services/session.server";
 import { getUserInfo } from "~/models/user2.server";
 import {
@@ -45,9 +45,7 @@ export async function action({ request }: ActionFunctionArgs) {
     console.error("Action error:", error);
     return {
       error:
-        error instanceof Error
-          ? error.message
-          : "An unexpected error occurred",
+        error instanceof Error ? error.message : "An unexpected error occurred",
     };
   }
 }
@@ -59,7 +57,7 @@ async function handleUpdateCharity(formData: FormData) {
 
   // Validate required fields
   if (!charityId || !charityDataStr) {
-    return { error: "Charity ID and data are required" }
+    return { error: "Charity ID and data are required" };
   }
 
   try {
@@ -67,10 +65,10 @@ async function handleUpdateCharity(formData: FormData) {
     const result = await updateCharity(charityId, charityData);
 
     if (result.status !== 200) {
-      return { error: result.message }
+      return { error: result.message };
     }
 
-    return { success: true, charity: result.charity }
+    return { success: true, charity: result.charity };
   } catch (error) {
     throw new Error(
       `Failed to update charity: ${error instanceof Error ? error.message : "Unknown error"}`,
@@ -84,14 +82,14 @@ async function handleDeleteCharity(formData: FormData) {
 
   // Validate required fields
   if (!charityId) {
-    return { error: "Charity ID is required" }
+    return { error: "Charity ID is required" };
   }
 
   try {
     const result = await deleteCharity(charityId);
 
     if (result.status !== 200) {
-      return { error: result.message }
+      return { error: result.message };
     }
 
     return { success: true };
@@ -110,12 +108,12 @@ async function handleReviewApplication(formData: FormData, userId: string) {
 
   // Validate required fields
   if (!applicationId || !status) {
-    return { error: "Application ID and status are required" }
+    return { error: "Application ID and status are required" };
   }
 
   // Validate status values
   if (status !== "ACCEPTED" && status !== "REJECTED") {
-    return { error: "Invalid status" }
+    return { error: "Invalid status" };
   }
 
   try {
@@ -125,7 +123,7 @@ async function handleReviewApplication(formData: FormData, userId: string) {
     });
 
     if (result.status !== 200) {
-      return { error: result.message }
+      return { error: result.message };
     }
 
     return { success: true, application: result.application };

@@ -23,6 +23,9 @@ export default [
       "**/dist/**",
       "**/.cache/**",
       "**/public/build/**",
+      "**/.react-router/**",
+      ".react-router/**",
+      ".react-router/*",
     ],
     languageOptions: {
       ecmaVersion: "latest",

@@ -1,4 +1,4 @@
-import {  LoaderFunction } from "react-router";
+import { LoaderFunction } from "react-router";
 import { deleteNovuMessage } from "~/services/novu.server";
 import { getSession } from "~/services/session.server";
 

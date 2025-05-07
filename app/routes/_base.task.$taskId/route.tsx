@@ -1,5 +1,10 @@
-import { LoaderFunctionArgs, MetaFunction } from "react-router";
-import { useLoaderData, useNavigation, Link } from "react-router";
+import {
+  LoaderFunctionArgs,
+  MetaFunction,
+  useLoaderData,
+  useNavigation,
+  Link,
+} from "react-router";
 import { getTask } from "~/models/tasks.server";
 import TaskDetailsCard from "~/components/tasks/taskDetailsCard";
 import { getSession } from "~/services/session.server";
@@ -116,7 +121,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
       task: null,
       userAuthenticated: false,
       userRole: [],
-    }
+    };
   }
 }
 

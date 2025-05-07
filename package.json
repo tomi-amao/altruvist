@@ -6,7 +6,7 @@
   "scripts": {
     "build": "react-router build",
     "dev": "react-router dev",
-    "lint": "eslint --ignore-pattern .gitignore --cache --fix --cache-location ./node_modules/.cache/eslint .",
+    "lint": "eslint --ignore-pattern .gitignore --ignore-pattern .react-router --cache --fix --cache-location ./node_modules/.cache/eslint .",
     "start": "react-router-serve ./build/server/index.js",
     "format": "prettier . --write",
     "typecheck": "react-router typegen && tsc",

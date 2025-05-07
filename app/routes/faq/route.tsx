@@ -1,5 +1,4 @@
-import { MetaFunction } from "react-router";
-import { useLoaderData } from "react-router";
+import { MetaFunction, useLoaderData } from "react-router";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import LandingHeader from "~/components/navigation/LandingHeader";

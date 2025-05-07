@@ -1,8 +1,9 @@
 # Altruvist
 
-Altruvist is a dynamic platform that bridges the gap between passionate volunteers and meaningful opportunities at non-profit organizations and charities. Acting as a specialized task board, it enables both skilled professionals and newcomers to find and contribute to projects that create lasting social change. 
+Altruvist is a dynamic platform that bridges the gap between passionate volunteers and meaningful opportunities at non-profit organizations and charities. Acting as a specialized task board, it enables both skilled professionals and newcomers to find and contribute to projects that create lasting social change.
 
 ## Table of Contents
+
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Getting Started](#getting-started)
@@ -74,8 +75,6 @@ Altruvist is a dynamic platform that bridges the gap between passionate voluntee
 
 Copy `.env.example` to `.env` and populate with your configuration:
 
-
-
 ## Service Setup
 
 ### MongoDB Setup
@@ -92,30 +91,35 @@ Copy `.env.example` to `.env` and populate with your configuration:
 ### Meilisearch Setup
 
 1. Ensure Meilisearch is running (via Docker or standalone)
-2. Configure the MEILI_* environment variables
+2. Configure the MEILI\_\* environment variables
 3. The application will automatically set up indexes and settings on startup
 
 ### Zitadel Authentication Setup
 
 1. Run Docker Compose for Zitadel:
+
    ```
    docker-compose -f docker-compose.yaml up zitadel -d
    ```
 
 2. If Zitadel cannot start (repeatedly restarts), it might have trouble with data persistence. Run:
+
    ```
    docker container prune
    ```
+
    to delete stale data in the postgres pod.
 
 3. Access Zitadel behind Traefik at http://127.0.0.1.sslip.io:7200
 
 4. Import organisation config using PAT token (created locally under machinekey folder) through Postman:
+
    - Use Bearer Token authorization
    - Make "Skillanthropy" the default organization
    - Add localhost:5173 as default redirect URI at the bottom of the login behavior and security sections
 
 5. Update client ID application environment variable:
+
    - Find under projects named "skillanthropy"
    - And Zitadel application named "skillanthropy"
 
@@ -124,7 +128,7 @@ Copy `.env.example` to `.env` and populate with your configuration:
 ### S3 File Storage
 
 1. Set up an AWS S3 bucket
-2. Configure the AWS_* environment variables
+2. Configure the AWS\_\* environment variables
 
 ### Notifications
 

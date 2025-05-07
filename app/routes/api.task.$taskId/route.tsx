@@ -32,6 +32,6 @@ export async function loader({ params }: LoaderFunctionArgs) {
     return {
       error: "Failed to fetch task details",
       status: 500,
-    }
+    };
   }
 }

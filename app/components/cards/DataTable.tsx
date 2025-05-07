@@ -1,5 +1,4 @@
 import React, { useState, ReactNode } from "react";
-import { TaskSummaryCardMobile } from "../tasks/taskCard";
 import { CaretRight, CaretLeft, CalendarBlank } from "@phosphor-icons/react";
 
 // Generic type for table data
@@ -28,9 +27,8 @@ export type TableProps<T> = {
 };
 
 // Default mobile component to display table items in a card format on mobile
-export const DefaultMobileTableItem = <T extends Record<string, any>>(
+export const DefaultMobileTableItem = <T extends Record<string, unknown>>(
   item: T,
-  _index: number,
 ) => {
   // Try to determine primary and secondary fields based on column presence
   const title =
@@ -272,7 +270,9 @@ export function DataTable<T>({
                   >
                     {column.render
                       ? column.render(item)
-                      : (item[column.key as keyof T] as ReactNode)}
+                      : (item[
+                          column.key as keyof T
+                        ] as unknown as React.ReactNode)}
                   </td>
                 ))}
               </tr>
@@ -390,8 +390,7 @@ export function DataTable<T>({
             {mobileComponent
               ? mobileComponent(item, index)
               : DefaultMobileTableItem(
-                  item as unknown as Record<string, any>,
-                  index,
+                  item as unknown as Record<string, unknown>,
                 )}
           </div>
         ))}

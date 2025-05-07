@@ -54,7 +54,7 @@ export async function action({ request }: ActionFunctionArgs) {
     return {
       success: false,
       message: "Unauthorized. Please log in.",
-    }
+    };
   }
 
   const userId = userInfo.id;
@@ -121,8 +121,8 @@ export async function action({ request }: ActionFunctionArgs) {
           userInfo,
           workflowId: "charities-feed",
           notification: {
-            subject: `${roles.map(role => role.charAt(0).toUpperCase() + role.slice(1)).join(", ")} Joined`,
-            body: `${userInfo?.name} has joined the charity ${charity?.name} as a ${roles.map(role => role.charAt(0).toUpperCase() + role.slice(1)).join(", ")}`,
+            subject: `${roles.map((role) => role.charAt(0).toUpperCase() + role.slice(1)).join(", ")} Joined`,
+            body: `${userInfo?.name} has joined the charity ${charity?.name} as a ${roles.map((role) => role.charAt(0).toUpperCase() + role.slice(1)).join(", ")}`,
             type: "update",
             charityId: charityId,
           },
@@ -133,7 +133,7 @@ export async function action({ request }: ActionFunctionArgs) {
           success: status === 200,
           message,
           membership,
-        }
+        };
       } catch (error) {
         console.error("Error joining charity:", error);
 
@@ -197,7 +197,7 @@ export async function action({ request }: ActionFunctionArgs) {
           success: status === 200,
           message,
           application,
-        }
+        };
       } catch (error) {
         console.error("Error applying to charity:", error);
 
@@ -206,7 +206,7 @@ export async function action({ request }: ActionFunctionArgs) {
             success: false,
             message: "Validation error",
             errors: error.errors,
-          }
+          };
         }
 
         return {
@@ -250,7 +250,7 @@ export async function action({ request }: ActionFunctionArgs) {
             success: false,
             message: "Validation error",
             errors: error.errors,
-          }
+          };
         }
 
         return {
@@ -298,19 +298,19 @@ export async function action({ request }: ActionFunctionArgs) {
         );
         console.log("Membership deleted:", message);
 
-        return{
-            success: status === 200,
-            message,
-          }
+        return {
+          success: status === 200,
+          message,
+        };
       } catch (error) {
         console.error("Error leaving charity:", error);
 
         if (error instanceof z.ZodError) {
           return {
-              success: false,
-              message: "Validation error",
-              errors: error.errors,
-            };
+            success: false,
+            message: "Validation error",
+            errors: error.errors,
+          };
         }
 
         return {
@@ -406,10 +406,10 @@ export async function action({ request }: ActionFunctionArgs) {
 
         if (error instanceof z.ZodError) {
           return {
-              success: false,
-              message: "Validation error",
-              errors: error.errors,
-            };
+            success: false,
+            message: "Validation error",
+            errors: error.errors,
+          };
         }
 
         return {
@@ -439,20 +439,19 @@ export async function action({ request }: ActionFunctionArgs) {
 
         if (!adminMembership) {
           return {
-              success: false,
-              message:
-                "Unauthorized: You must be a charity admin to remove members",
-            };
+            success: false,
+            message:
+              "Unauthorized: You must be a charity admin to remove members",
+          };
         }
 
         // Check if the member to remove is the only admin
         if (memberUserId === userId) {
           // If removing self, use the 'leave' action logic instead
           return {
-              success: false,
-              message:
-                "Cannot remove yourself. Use the 'leave' action instead.",
-            }
+            success: false,
+            message: "Cannot remove yourself. Use the 'leave' action instead.",
+          };
         }
 
         // Get the membership to check if it's the only admin
@@ -463,9 +462,9 @@ export async function action({ request }: ActionFunctionArgs) {
 
         if (!targetMembership) {
           return {
-              success: false,
-              message: "Member not found",
-            }
+            success: false,
+            message: "Member not found",
+          };
         }
 
         // If the member is an admin, check if they're the only one
@@ -496,23 +495,23 @@ export async function action({ request }: ActionFunctionArgs) {
 
         if (error instanceof z.ZodError) {
           return {
-              success: false,
-              message: "Validation error",
-              errors: error.errors,
-            }
+            success: false,
+            message: "Validation error",
+            errors: error.errors,
+          };
         }
 
         return {
-            success: false,
-            message: "Failed to remove member",
-          }
+          success: false,
+          message: "Failed to remove member",
+        };
       }
     }
 
     default:
-      return{
-          success: false,
-          message: "Invalid action",
-      }
+      return {
+        success: false,
+        message: "Invalid action",
+      };
   }
 }

@@ -328,12 +328,11 @@ export async function action({ request }: ActionFunctionArgs) {
         } catch (error) {
           console.error("Error in sync-all action:", error);
           return {
-              success: false,
-              message: "Failed to sync data",
-              error: error instanceof Error ? error.message : String(error),
-              action,
-            }
-
+            success: false,
+            message: "Failed to sync data",
+            error: error instanceof Error ? error.message : String(error),
+            action,
+          };
         }
       }
 
@@ -343,11 +342,11 @@ export async function action({ request }: ActionFunctionArgs) {
   } catch (error) {
     console.error("Error in search-test action:", error);
     return {
-        success: false,
-        message:
-          error instanceof Error ? error.message : "An unknown error occurred",
-        error: String(error),
-        action,
-      };
+      success: false,
+      message:
+        error instanceof Error ? error.message : "An unknown error occurred",
+      error: String(error),
+      action,
+    };
   }
 }

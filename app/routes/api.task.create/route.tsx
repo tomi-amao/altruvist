@@ -39,11 +39,10 @@ export async function action({ request }: ActionFunctionArgs) {
 
     if (!charityId) {
       return {
-          error: [
-            { path: ["charityId"], message: "Charity selection is required" },
-          ],
-        }
-
+        error: [
+          { path: ["charityId"], message: "Charity selection is required" },
+        ],
+      };
     }
 
     // Check if user has permission to create tasks for this charity
@@ -57,14 +56,14 @@ export async function action({ request }: ActionFunctionArgs) {
 
     if (!charityAdmin) {
       return {
-          error: [
-            {
-              path: ["charityId"],
-              message:
-                "You do not have permission to create tasks for this charity",
-            },
-          ],
-        }
+        error: [
+          {
+            path: ["charityId"],
+            message:
+              "You do not have permission to create tasks for this charity",
+          },
+        ],
+      };
     }
 
     const validatedData = TaskSchema.parse({
@@ -94,12 +93,12 @@ export async function action({ request }: ActionFunctionArgs) {
     const task = await createTask(validatedData, charityId, userInfo.id);
     console.log("New task created", task);
 
-    return { error: null }
+    return { error: null };
   } catch (err) {
     if (err instanceof z.ZodError) {
       console.log(err.errors);
 
-      return { error: err.errors }
+      return { error: err.errors };
     }
     throw err;
   }

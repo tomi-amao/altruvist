@@ -60,7 +60,7 @@ export async function action({ request }: ActionFunctionArgs) {
         console.log("Updated task data:", updatedTaskData);
 
         if (updatedTaskData.error) {
-          return { error: updatedTaskData.message }
+          return { error: updatedTaskData.message };
         }
 
         return { success: true, task: updatedTaskData };

@@ -60,11 +60,11 @@ export async function action({ request }: ActionFunctionArgs) {
         "[API:Subscribe] reCAPTCHA verification failed:",
         recaptchaResult.message,
       );
-      return  {
-          error:
-            recaptchaResult.message ||
-            "Security verification failed. Please try again.",
-        }
+      return {
+        error:
+          recaptchaResult.message ||
+          "Security verification failed. Please try again.",
+      };
     }
 
     // Prepare request to Brevo API

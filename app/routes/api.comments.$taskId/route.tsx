@@ -1,8 +1,4 @@
-import {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  redirect,
-} from "react-router";
+import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from "react-router";
 import {
   createComment,
   getCommentsForTask,
@@ -24,12 +20,6 @@ type PrismaUser = PrismaComment["user"];
 type PrismaReply = PrismaComment["replies"][number];
 
 /** Response type for comment-related actions */
-interface ActionResponse {
-  success: boolean;
-  comment?: CommentWithSignedUrl; // Use updated type
-  comments?: CommentWithSignedUrl[]; // Use updated type
-  error?: string;
-}
 
 // Define the structure for the user with the added signed URL
 interface UserWithSignedUrl extends PrismaUser {
@@ -257,7 +247,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
     // Use a distinct name for taskId in loader scope
     const loaderTaskId = params.taskId;
     if (!loaderTaskId) {
-      return { success: false, error: "Task ID is required." }
+      return { success: false, error: "Task ID is required." };
     }
 
     // Use a distinct name for commentsRaw in loader scope

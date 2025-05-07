@@ -1,28 +1,27 @@
-export const sanitiseUrl = (url: string): string | null => {
-  if (!url) return null;
+export const sanitiseUrl = (input: string): string | null => {
+  if (!input) return null;
 
   try {
-    // Try to create a URL object to validate the URL
-    const urlObject = new URL(url);
+    const url = new URL(input);
 
-    // Only allow https protocol
-    if (urlObject.protocol === "https:") {
-      return url;
-    } else if (urlObject.protocol === "http:") {
-      // Convert HTTP to HTTPS
-      return `https://${urlObject.host}${urlObject.pathname}${urlObject.search}${urlObject.hash}`;
+    if (url.protocol !== "https:" && url.protocol !== "http:") {
+      return null;
     }
-    return null;
-  } catch (e) {
-    // If URL parsing fails, try adding https:// prefix and retry
+
+    // Force HTTPS
+    url.protocol = "https:";
+    return url.toString();
+  } catch {
+    // Retry with https:// prepended
     try {
-      if (!url.match(/^https?:\/\//i)) {
-        const urlWithProtocol = `https://${url}`;
-        const urlObject = new URL(urlWithProtocol);
-        return urlWithProtocol;
+      if (!/^https?:\/\//i.test(input)) {
+        const urlWithHttps = `https://${input}`;
+        const url = new URL(urlWithHttps);
+        url.protocol = "https:";
+        return url.toString();
       }
     } catch {
-      // If it still fails, return null
+      return null;
     }
     return null;
   }

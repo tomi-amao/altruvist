@@ -10,6 +10,7 @@ import { PrimaryButton, SecondaryButton } from "~/components/utils/BasicButton";
 import { getTags } from "~/constants/dropdownOptions";
 import FileUpload from "~/components/utils/FileUpload";
 import { Image } from "@phosphor-icons/react";
+import { sanitiseUrl } from "~/components/utils/SanitiseUrl";
 
 interface CharityFormProps {
   initialData?: {
@@ -164,8 +165,10 @@ export default function CharityForm({
               <div className="w-full h-48 rounded-lg overflow-hidden border border-baseSecondary/20">
                 <img
                   src={
-                    backgroundPicturePreview ||
-                    charityFormData.backgroundPicture
+                    sanitiseUrl(
+                      backgroundPicturePreview ||
+                        charityFormData.backgroundPicture,
+                    ) || "/charity-resources.png" // Fallback to a default image if URL is invalid
                   }
                   alt="Charity Background"
                   className="w-full h-full object-cover"

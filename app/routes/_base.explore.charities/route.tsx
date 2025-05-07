@@ -1,5 +1,4 @@
-import { LoaderFunctionArgs } from "react-router";
-import { useLoaderData, Link } from "react-router";
+import { LoaderFunctionArgs, useLoaderData, Link } from "react-router";
 import { useState, useEffect } from "react";
 import { getSession } from "~/services/session.server";
 import { getUserInfo } from "~/models/user2.server";
@@ -39,11 +38,11 @@ interface ExtendedCharity
   updatedAt: Date | string;
 }
 
-
-
 export const meta = () => {
-  return [{ title: "Explore Charities | Altruvist" }, { name: "viewport", content: "width=device-width,initial-scale=1" },
-  { charSet: "utf-8" },
+  return [
+    { title: "Explore Charities | Altruvist" },
+    { name: "viewport", content: "width=device-width,initial-scale=1" },
+    { charSet: "utf-8" },
   ];
 };
 

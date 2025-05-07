@@ -43,7 +43,7 @@ export async function action({ request }: ActionFunctionArgs) {
         if (!charityId) {
           return {
             errors: [{ field: "form", message: "Charity ID is required" }],
-          }
+          };
         }
 
         // Check if user is admin or creator of the charity
@@ -150,19 +150,19 @@ export async function action({ request }: ActionFunctionArgs) {
         if (status !== 200) {
           return {
             errors: [{ field: "form", message: "Failed to update profile" }],
-          }
+          };
         }
 
         return {
           success: true,
           message: "Profile updated successfully",
-        }
+        };
       }
 
       default:
         return {
-          errors: [{ field: "form", message: "Invalid action" }]
-        }
+          errors: [{ field: "form", message: "Invalid action" }],
+        };
     }
   } catch (error) {
     console.error(`Error occurred in action ${action}:`, error);

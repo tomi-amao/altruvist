@@ -119,7 +119,7 @@ export async function action({ request }: ActionFunctionArgs) {
   );
 
   if (!result.charity) {
-    return { error: result.message }
+    return { error: result.message };
   }
 
   return redirect(`/dashboard/charities`);

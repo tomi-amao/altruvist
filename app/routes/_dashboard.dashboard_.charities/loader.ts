@@ -32,19 +32,20 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
     // Get all charities where the user is an admin for admin functionality
     const adminCharities = userCharities
-      .filter((charity) => 
-      charity.roles.some(role => 
-        ["admin", "creator"].includes(role)
-      )
+      .filter((charity) =>
+        charity.roles.some((role) => ["admin", "creator"].includes(role)),
       )
       .map((charity) => ({
-      id: charity.id,
-      name: charity.name,
+        id: charity.id,
+        name: charity.name,
       }));
 
     // Use charities from memberships directly, instead of fetching them again
-    const charitiesList = charityMemberships?.memberships?.map(membership => membership.charity) || [];
-    
+    const charitiesList =
+      charityMemberships?.memberships?.map(
+        (membership) => membership.charity,
+      ) || [];
+
     let pendingApplications = [];
     let userApplications = [];
 
@@ -95,6 +96,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     };
   } catch (error) {
     console.error("Error in loader function:", error);
-    return { error: "An unexpected error occurred" }
+    return { error: "An unexpected error occurred" };
   }
 }

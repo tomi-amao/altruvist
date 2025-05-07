@@ -5,7 +5,6 @@ import { getUserTasks } from "~/models/tasks.server";
 import { getCompanionVars } from "~/services/env.server";
 import { TaskStatus } from "@prisma/client";
 import { SortOrder } from "../_base.search/route";
-import type { TaskListData } from "~/types/tasks";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request);
@@ -24,10 +23,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   // Extract user's charities from charity memberships for the dropdown
   const userCharities =
     charityMemberships?.memberships
-      ?.filter((membership) => 
-        membership.roles.some(role => 
-          ["admin", "editor"].includes(role)
-        )
+      ?.filter((membership) =>
+        membership.roles.some((role) => ["admin", "editor"].includes(role)),
       )
       .map((membership) => ({
         id: membership.charity.id,

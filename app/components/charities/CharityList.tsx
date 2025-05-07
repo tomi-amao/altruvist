@@ -49,7 +49,9 @@ export function CharityList({
 
   // Helper function to check if current user has a specific role for a charity
   const userHasRoleInCharity = (charityId: string, role: string): boolean => {
-    const userCharity = userCharities.find(charity => charity.id === charityId);
+    const userCharity = userCharities.find(
+      (charity) => charity.id === charityId,
+    );
     return userCharity?.roles.includes(role) || false;
   };
 
@@ -130,14 +132,14 @@ export function CharityList({
                     Admin
                   </span>
                 )}
-                
+
                 {/* Show Editor badge if current user has this role */}
                 {userHasRoleInCharity(charity.id, "editor") && (
                   <span className="inline-flex !text-sm items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-indicator-orange/20 text-indicator-orange leading-none ">
                     Editor
                   </span>
                 )}
-                
+
                 {/* Show Coordinator badge if current user has this role */}
                 {userHasRoleInCharity(charity.id, "coordinator") && (
                   <span className="inline-flex !text-sm items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-accentPrimary/20 text-accentPrimary leading-none ">

@@ -27,7 +27,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     const charityName = charity?.name || "";
 
     // Get tasks for the charity
-    const { tasks, error, status } = await getTasksByCharityId(charityId);
+    const { tasks, error } = await getTasksByCharityId(charityId);
 
     if (error) {
       return { error, tasks: [] };

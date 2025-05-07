@@ -122,10 +122,11 @@ function MemberManageModal({
               </h3>
               <div className="space-y-2">
                 <div
-                  className={`p-3 border rounded-lg cursor-pointer flex items-center ${selectedRoles.includes("admin")
+                  className={`p-3 border rounded-lg cursor-pointer flex items-center ${
+                    selectedRoles.includes("admin")
                       ? "border-baseSecondary bg-basePrimary/40"
                       : "border-baseSecondary/20"
-                    }`}
+                  }`}
                   onClick={() => toggleRole("admin")}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
@@ -138,10 +139,11 @@ function MemberManageModal({
                   tabIndex={0}
                 >
                   <div
-                    className={`w-5 h-5 rounded border mr-3 flex items-center justify-center ${selectedRoles.includes("admin")
+                    className={`w-5 h-5 rounded border mr-3 flex items-center justify-center ${
+                      selectedRoles.includes("admin")
                         ? "border-baseSecondary"
                         : "border-baseSecondary/30"
-                      }`}
+                    }`}
                   >
                     {selectedRoles.includes("admin") && (
                       <Check
@@ -161,10 +163,11 @@ function MemberManageModal({
                 </div>
 
                 <div
-                  className={`p-3 border rounded-lg cursor-pointer flex items-center ${selectedRoles.includes("coordinator")
+                  className={`p-3 border rounded-lg cursor-pointer flex items-center ${
+                    selectedRoles.includes("coordinator")
                       ? "border-baseSecondary bg-basePrimary/40"
                       : "border-baseSecondary/20"
-                    }`}
+                  }`}
                   onClick={() => toggleRole("coordinator")}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
@@ -177,10 +180,11 @@ function MemberManageModal({
                   tabIndex={0}
                 >
                   <div
-                    className={`w-5 h-5 rounded border mr-3 flex items-center justify-center ${selectedRoles.includes("coordinator")
+                    className={`w-5 h-5 rounded border mr-3 flex items-center justify-center ${
+                      selectedRoles.includes("coordinator")
                         ? "border-baseSecondary"
                         : "border-baseSecondary/30"
-                      }`}
+                    }`}
                   >
                     {selectedRoles.includes("coordinator") && (
                       <Check
@@ -200,10 +204,11 @@ function MemberManageModal({
                 </div>
 
                 <div
-                  className={`p-3 border rounded-lg cursor-pointer flex items-center ${selectedRoles.includes("editor")
+                  className={`p-3 border rounded-lg cursor-pointer flex items-center ${
+                    selectedRoles.includes("editor")
                       ? "border-baseSecondary bg-basePrimary/40"
                       : "border-baseSecondary/20"
-                    }`}
+                  }`}
                   onClick={() => toggleRole("editor")}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
@@ -216,10 +221,11 @@ function MemberManageModal({
                   tabIndex={0}
                 >
                   <div
-                    className={`w-5 h-5 rounded border mr-3 flex items-center justify-center ${selectedRoles.includes("editor")
+                    className={`w-5 h-5 rounded border mr-3 flex items-center justify-center ${
+                      selectedRoles.includes("editor")
                         ? "border-baseSecondary"
                         : "border-baseSecondary/30"
-                      }`}
+                    }`}
                   >
                     {selectedRoles.includes("editor") && (
                       <Check
@@ -239,10 +245,11 @@ function MemberManageModal({
                 </div>
 
                 <div
-                  className={`p-3 border rounded-lg cursor-pointer flex items-center ${selectedRoles.includes("volunteer")
+                  className={`p-3 border rounded-lg cursor-pointer flex items-center ${
+                    selectedRoles.includes("volunteer")
                       ? "border-baseSecondary bg-basePrimary/40"
                       : "border-baseSecondary/20"
-                    }`}
+                  }`}
                   onClick={() => toggleRole("volunteer")}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
@@ -255,10 +262,11 @@ function MemberManageModal({
                   tabIndex={0}
                 >
                   <div
-                    className={`w-5 h-5 rounded border mr-3 flex items-center justify-center ${selectedRoles.includes("volunteer")
+                    className={`w-5 h-5 rounded border mr-3 flex items-center justify-center ${
+                      selectedRoles.includes("volunteer")
                         ? "border-baseSecondary"
                         : "border-baseSecondary/30"
-                      }`}
+                    }`}
                   >
                     {selectedRoles.includes("volunteer") && (
                       <Check
@@ -278,10 +286,11 @@ function MemberManageModal({
                 </div>
 
                 <div
-                  className={`p-3 border rounded-lg cursor-pointer flex items-center ${selectedRoles.includes("supporter")
+                  className={`p-3 border rounded-lg cursor-pointer flex items-center ${
+                    selectedRoles.includes("supporter")
                       ? "border-baseSecondary bg-basePrimary/40"
                       : "border-baseSecondary/20"
-                    }`}
+                  }`}
                   onClick={() => toggleRole("supporter")}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
@@ -294,10 +303,11 @@ function MemberManageModal({
                   tabIndex={0}
                 >
                   <div
-                    className={`w-5 h-5 rounded border mr-3 flex items-center justify-center ${selectedRoles.includes("supporter")
+                    className={`w-5 h-5 rounded border mr-3 flex items-center justify-center ${
+                      selectedRoles.includes("supporter")
                         ? "border-baseSecondary"
                         : "border-baseSecondary/30"
-                      }`}
+                    }`}
                   >
                     {selectedRoles.includes("supporter") && (
                       <Check
@@ -512,12 +522,13 @@ export function MembersList({
               <span
                 key={role}
                 className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize
-                ${role === "admin"
+                ${
+                  role === "admin"
                     ? "bg-confirmPrimary/20 text-confirmPrimary"
                     : role === "creator"
                       ? "bg-indicator-orange/20 text-indicator-orange"
                       : "bg-baseSecondary/10 text-baseSecondary"
-                  }`}
+                }`}
               >
                 {role}
               </span>
@@ -536,34 +547,33 @@ export function MembersList({
       },
       ...(isAdmin
         ? [
-          {
-            key: "email",
-            header: "Email",
-            render: (member) => (
-              <div className="text-sm text-baseSecondary/80">
-                {member.user.email}
-              </div>
-            ),
-          },
-          {
-            key: "actions",
-            header: "Actions",
-            render: (member) => (
-              <div className="text-right">
-                <button
-                  className="text-baseSecondary bg-baseSecondary/20 px-2 rounded-lg py-1 hover:text-accentPrimary/50 font-medium"
-                  onClick={(e) => {
-                    e.stopPropagation(); // Prevent row click
-                    handleManageMember(member);
-                  }}
-                >
-                  Manage
-                </button>
-              </div>
-            ),
-          },
-
-        ]
+            {
+              key: "email",
+              header: "Email",
+              render: (member) => (
+                <div className="text-sm text-baseSecondary/80">
+                  {member.user.email}
+                </div>
+              ),
+            },
+            {
+              key: "actions",
+              header: "Actions",
+              render: (member) => (
+                <div className="text-right">
+                  <button
+                    className="text-baseSecondary bg-baseSecondary/20 px-2 rounded-lg py-1 hover:text-accentPrimary/50 font-medium"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent row click
+                      handleManageMember(member);
+                    }}
+                  >
+                    Manage
+                  </button>
+                </div>
+              ),
+            },
+          ]
         : []),
     ],
     [isAdmin],
@@ -591,11 +601,12 @@ export function MembersList({
           <span
             key={role}
             className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium capitalize
-              ${role === "admin"
-                ? "bg-confirmPrimary/20 text-confirmPrimary"
-                : role === "creator"
-                  ? "bg-indicator-orange/20 text-indicator-orange"
-                  : "bg-baseSecondary/10 text-baseSecondary"
+              ${
+                role === "admin"
+                  ? "bg-confirmPrimary/20 text-confirmPrimary"
+                  : role === "creator"
+                    ? "bg-indicator-orange/20 text-indicator-orange"
+                    : "bg-baseSecondary/10 text-baseSecondary"
               }`}
           >
             {role}

@@ -5,7 +5,7 @@ import Footer from "~/components/navigation/Footer";
 
 export const loader = async () => {
   // This could fetch data from your database if needed
-  return ({
+  return {
     stats: [
       { value: "5,000+", label: "Volunteers" },
       { value: "850+", label: "Organizations" },
@@ -87,7 +87,7 @@ export const loader = async () => {
         ],
       },
     ],
-  });
+  };
 };
 
 export default function AboutRoute() {

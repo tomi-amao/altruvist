@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs, } from "react-router";
+import { LoaderFunctionArgs } from "react-router";
 import { searchMultipleIndices } from "~/services/meilisearch.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -14,6 +14,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
       status: 400,
       message: "An error occurred while searching. Please try again later.",
       rawSearchedDocuments: [],
-    }
+    };
   }
 }

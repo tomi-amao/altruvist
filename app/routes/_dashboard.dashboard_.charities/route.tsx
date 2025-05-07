@@ -1,5 +1,5 @@
-import { MetaFunction } from "react-router";
 import {
+  MetaFunction,
   useFetcher,
   useLoaderData,
   useNavigate,
@@ -63,7 +63,7 @@ export default function ManageCharities() {
     userApplications,
     COMPANION_URL,
     userRole,
-    userCharities
+    userCharities,
   } = useLoaderData<typeof loader>();
 
   const navigate = useNavigate();
@@ -425,7 +425,11 @@ export default function ManageCharities() {
                     signedBackgroundUrl={signedBackgroundUrl}
                     charityTasks={charityTasks}
                     onTaskSelect={(task) => {
-                      navigate(userRole[0] === "charity" ? `/dashboard/tasks?taskid=${task.id}` : `/task/${task.id}`);
+                      navigate(
+                        userRole[0] === "charity"
+                          ? `/dashboard/tasks?taskid=${task.id}`
+                          : `/task/${task.id}`,
+                      );
                     }}
                   />
                 </div>

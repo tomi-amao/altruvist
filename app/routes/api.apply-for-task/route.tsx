@@ -28,7 +28,11 @@ export async function action({ request }: ActionFunctionArgs) {
       return { success: false, message: "Missing taskId or charityId" };
     }
     if (!userId) {
-      return { createApplication: null, error: true, message: "User not found" }
+      return {
+        createApplication: null,
+        error: true,
+        message: "User not found",
+      };
     }
 
     const existingApplication = await prisma.taskApplications.findFirst({
@@ -40,7 +44,7 @@ export async function action({ request }: ActionFunctionArgs) {
         createApplication: null,
         error: true,
         message: "User has already applied for this task",
-      }
+      };
     }
     const createApplication = await prisma.taskApplications.create({
       data: { status: "PENDING", userId, taskId, charityId },
@@ -69,10 +73,10 @@ export async function action({ request }: ActionFunctionArgs) {
     });
 
     return {
-        createApplication,
-        error: false,
-        message: "Application submitted successfully",
-      };
+      createApplication,
+      error: false,
+      message: "Application submitted successfully",
+    };
   } catch (error) {
     console.error("Failed to apply for task:", error);
     return { success: false, error: "Failed to apply for task" };

@@ -43,7 +43,7 @@ export default function JoinCharityModal({
       const response = fetcher.data as { success: boolean; message: string };
       if (response.success) {
         setIsSuccess(true);
-        
+
         // Close the modal after a short delay to show success message
         setTimeout(() => {
           onClose();
@@ -109,7 +109,9 @@ export default function JoinCharityModal({
               <Check size={48} className="text-successPrimary" weight="bold" />
             </div>
             <h2 className="text-2xl font-bold text-baseSecondary mb-2">
-              {isCharityUser ? "Application Submitted!" : "Successfully Joined!"}
+              {isCharityUser
+                ? "Application Submitted!"
+                : "Successfully Joined!"}
             </h2>
             <p className="text-center text-baseSecondary/80">
               {isCharityUser

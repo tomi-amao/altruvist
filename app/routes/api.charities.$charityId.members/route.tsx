@@ -5,7 +5,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
   const { charityId } = params;
 
   if (!charityId) {
-    return { error: "Charity ID is required", members: [] }
+    return { error: "Charity ID is required", members: [] };
   }
 
   try {
@@ -15,7 +15,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
     });
 
     if (!result.memberships) {
-      return{ error: "Failed to fetch charity members", members: [] }
+      return { error: "Failed to fetch charity members", members: [] };
     }
 
     return { members: result.memberships };
