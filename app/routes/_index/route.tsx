@@ -4,13 +4,14 @@ import {
   useNavigate,
   LoaderFunctionArgs,
   MetaFunction,
+  data,
 } from "react-router";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import LandingHeader from "~/components/navigation/LandingHeader";
 import type { Task } from "~/types/tasks";
 import Notification from "~/components/cards/NotificationCard";
-import { getSession } from "~/services/session.server";
+import { commitSession, getSession } from "~/services/session.server";
 import { subDays } from "date-fns";
 import { prisma } from "~/services/db.server";
 import { getUserInfo } from "~/models/user2.server";
@@ -99,12 +100,20 @@ export async function loader({ request }: LoaderFunctionArgs) {
     userInfoResult = userInfo;
   }
 
-  return {
-    message: accessToken ? "User logged in" : "User not logged in",
-    userInfo: userInfoResult,
-    error: flashError,
-    recentTasks: topTasks,
+  const headers = {
+    "Set-Cookie": await commitSession(session),
   };
+
+  // Return JSON response with Set-Cookie header to commit session changes
+  return data(
+    {
+      message: accessToken ? "User logged in" : "User not logged in",
+      userInfo: userInfoResult,
+      error: flashError,
+      recentTasks: topTasks,
+    },
+    { headers },
+  );
 }
 
 export default function Index() {
@@ -118,10 +127,8 @@ export default function Index() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Set the error from the server in client-side state
-    if (error) {
-      setClientSideError(error);
-    }
+    // Sync client-side error state with loader error (clears on undefined)
+    setClientSideError(error ?? null);
   }, [error]);
 
   const openTaskDetailsModal = (task: Task) => {
