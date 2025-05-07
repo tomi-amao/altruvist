@@ -19,8 +19,8 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "prettier --write",
-      "eslint --fix"
+      "npm run format",
+      "npm run lint"
     ],
     "*.{json,md,css}": [
       "prettier --write"
