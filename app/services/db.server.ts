@@ -95,6 +95,4 @@ if (process.env.NODE_ENV === "production") {
   prisma = global.__db;
 }
 
-
-
 export { prisma };
