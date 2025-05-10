@@ -176,7 +176,7 @@ export default function AccountSettings() {
 
   const ProfilePictureModal = () => {
     return (
-      <div className="bg-basePrimary p-6 rounded-lg w-[480px]">
+      <div className="bg-basePrimary p-6 rounded-lg w-full">
         <h3 className="text-xl text-baseSecondary mb-4">
           Change Profile Picture
         </h3>

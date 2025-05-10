@@ -424,7 +424,7 @@ const CharityBackgroundPictureStep = ({
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold mb-4">Charity Background Image</h2>
-      <p className="text-sm text-basePrimary mb-4">
+      <p className="text-sm text-baseSecondary mb-4">
         Upload a banner image that represents your charity. This will be
         displayed at the top of your charity page.
       </p>
