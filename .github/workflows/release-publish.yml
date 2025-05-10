@@ -18,7 +18,7 @@ jobs:
     name: Tag and Release
     outputs:
       new_tag: ${{ steps.tag_version.outputs.new_tag }}
-    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
