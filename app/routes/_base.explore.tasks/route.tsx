@@ -22,8 +22,16 @@ import { getExploreTasks, getUserTasks } from "~/models/tasks.server";
 import { getUserInfo } from "~/models/user2.server";
 import { getSession } from "~/services/session.server";
 import type { Task } from "~/types/tasks";
-import { Funnel, FunnelSimple, X } from "@phosphor-icons/react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Funnel,
+  FunnelSimple,
+  X,
+} from "@phosphor-icons/react";
 import { Dropdown } from "~/components/utils/selectDropdown";
+import { prisma } from "~/services/db.server";
+import { getSignedUrlForFile } from "~/services/s3.server";
 
 export const meta: MetaFunction = () => {
   return [
@@ -52,6 +60,53 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const [createdAt] = url.searchParams.get("createdAt")?.split(",") || [];
   const [updatedAt] = url.searchParams.get("updatedAt")?.split(",") || [];
   const [locationType] = url.searchParams.get("locationType")?.split(",") || [];
+
+  // Fetch featured charities (limited to 7)
+  const featuredCharities = await prisma.charities.findMany({
+    take: 7,
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      backgroundPicture: true,
+      tags: true,
+      _count: {
+        select: {
+          tasks: {
+            where: {
+              status: {
+                in: ["IN_PROGRESS", "NOT_STARTED"],
+              },
+            },
+          },
+        },
+      },
+    },
+    orderBy: [
+      {
+        tasks: {
+          _count: "desc",
+        },
+      },
+    ],
+  });
+
+  // Sign all charity background images
+  const charitiesWithSignedImages = await Promise.all(
+    featuredCharities.map(async (charity) => {
+      if (charity.backgroundPicture) {
+        const signedUrl = await getSignedUrlForFile(
+          charity.backgroundPicture,
+          true,
+        );
+        return {
+          ...charity,
+          backgroundPicture: signedUrl || charity.backgroundPicture,
+        };
+      }
+      return charity;
+    }),
+  );
 
   const { tasks, nextCursor } = await getExploreTasks(
     cursor,
@@ -86,6 +141,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       nextCursor,
       taskApplications,
       novuAppId,
+      featuredCharities: charitiesWithSignedImages,
     };
   } else {
     return {
@@ -94,6 +150,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       nextCursor,
       taskApplications: null,
       novuAppId,
+      featuredCharities: charitiesWithSignedImages,
     };
   }
 }
@@ -161,6 +218,7 @@ export default function Explore() {
     tasks: initialTasks,
     nextCursor: initialCursor,
     taskApplications,
+    featuredCharities,
   } = useLoaderData<typeof loader>();
   const fetchTasks = useFetcher();
   const [tasks, setTasks] = useState<Task[]>(initialTasks || []);
@@ -466,44 +524,111 @@ export default function Explore() {
   ];
   return (
     <>
-      <div className="m-auto lg:w-11/12  w-full p-4  ">
-        <h1 className="mt-8 text-3xl lg:text-5xl font-semibold ">
+      <div className="m-auto lg:w-11/12 w-full p-4">
+        <h1 className="mt-8 text-3xl lg:text-5xl font-semibold">
           Make a difference
         </h1>
-        <p className="text-baseSecondary/70">
+        <p className="text-baseSecondary/70 mb-6">
           Help charities innovate and make a lasting impact{" "}
         </p>
-        <div className="flex flex-row gap-4 justify-center items-center border-b-2 border-b-baseSecondary p-4 overflow-x-auto">
-          {/* Added overflow handling and made responsive with flex-shrink-0 */}
-          <div className="w-2/12 min-w-[120px] h-60 flex-shrink-0">
-            <img
-              src="/sewing_charity.png"
-              alt="Sewing charity work"
-              className="w-full h-full rounded-md object-cover"
-            />
-          </div>
-          <div className="w-2/12 min-w-[120px] h-60 flex-shrink-0">
-            <img
-              src="/planting_charity.png"
-              alt="Planting charity work"
-              className="w-full h-full rounded-md object-cover"
-            />
-          </div>
-          <div className="w-2/12 min-w-[120px] h-60 flex-shrink-0">
-            <img
-              src="/Giving_community.png"
-              alt="Giving community"
-              className="w-full h-full rounded-md object-cover"
-            />
-          </div>
-          <div className="w-2/12 min-w-[120px] h-60 flex-shrink-0">
-            <img
-              src="/skill_sharing.png"
-              alt="Skill sharing"
-              className="w-full h-full rounded-md object-cover"
-            />
+
+        {/* Featured Charities Section */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-3 flex justify-between items-center">
+            <span></span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  const container = document.getElementById("charityCarousel");
+                  if (container) {
+                    container.scrollBy({ left: -300, behavior: "smooth" });
+                  }
+                }}
+                className="p-2 rounded-full bg-white border border-basePrimaryLight/30 text-baseSecondary shadow-sm hover:bg-basePrimaryLight/10 transition-all"
+                aria-label="Scroll left"
+              >
+                <ArrowLeft size={20} weight="bold" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  const container = document.getElementById("charityCarousel");
+                  if (container) {
+                    container.scrollBy({ left: 300, behavior: "smooth" });
+                  }
+                }}
+                className="p-2 rounded-full bg-white border border-basePrimaryLight/30 text-baseSecondary shadow-sm hover:bg-basePrimaryLight/10 transition-all"
+                aria-label="Scroll right"
+              >
+                <ArrowRight size={20} weight="bold" />
+              </button>
+            </div>
+          </h2>
+          <div className="relative">
+            <div
+              className="flex overflow-x-auto gap-4 pb-4 no-scrollbar"
+              id="charityCarousel"
+            >
+              {featuredCharities && featuredCharities.length > 0 ? (
+                featuredCharities.map((charity) => (
+                  <div
+                    key={charity.id}
+                    className="min-w-[260px] w-[260px] flex-shrink-0 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow bg-white"
+                  >
+                    <a href={`/charity/${charity.id}`} className="block">
+                      <div className="h-32 bg-gradient-to-r from-basePrimaryLight to-basePrimaryDark relative">
+                        {charity.backgroundPicture ? (
+                          <img
+                            src={charity.backgroundPicture}
+                            alt={charity.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <span className="text-white text-3xl font-bold">
+                              {charity.name.charAt(0)}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-4">
+                        <h3 className="font-semibold text-baseSecondary truncate">
+                          {charity.name}
+                        </h3>
+                        <p className="text-sm text-basePrimaryDark line-clamp-2 h-10 mt-1">
+                          {charity.description}
+                        </p>
+                        <div className="mt-2 flex flex-wrap gap-1">
+                          {charity.tags &&
+                            charity.tags.slice(0, 2).map((tag, index) => (
+                              <span
+                                key={index}
+                                className="text-xs px-2 py-1 bg-basePrimaryLight/30 text-baseSecondary rounded-full"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          {charity._count?.tasks > 0 && (
+                            <span className="text-xs px-2 py-1 bg-baseSecondary/10 text-baseSecondary rounded-full">
+                              {charity._count.tasks} active{" "}
+                              {charity._count.tasks === 1 ? "task" : "tasks"}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </a>
+                  </div>
+                ))
+              ) : (
+                <div className="w-full py-8 text-center text-basePrimaryDark">
+                  No featured charities available at this time.
+                </div>
+              )}
+            </div>
           </div>
         </div>
+
         <div className="flex flex-row gap-2 ">
           <div className="mt-2 flex items-center space-x-2">
             <DropdownCard

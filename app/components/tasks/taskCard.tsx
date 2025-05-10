@@ -130,7 +130,7 @@ export default function TaskSummaryCard(task: taskAdditionalDetails) {
                 </span>
               )}
               {/* Remote/InPerson badge */}
-              <span className="inline-block rounded-full px-3 py-1 text-xs font-semibold bg-basePrimaryDark text-baseSecondary flex items-center">
+              <span className=" rounded-full px-3 py-1 text-xs font-semibold bg-basePrimaryDark text-baseSecondary flex items-center">
                 {isInPerson ? (
                   <>
                     <MapPin className="h-3 w-3 mr-1" weight="fill" />
