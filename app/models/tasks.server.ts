@@ -148,25 +148,24 @@ export async function getExploreTasks(
     cursor = null;
   }
 
-  const whereClause = {
+  let whereClause: Prisma.tasksWhereInput = {
     ...(category[0] && { category: { hasSome: category } }),
     ...(skills[0] && { requiredSkills: { hasSome: skills } }),
     ...(urgency !== "" && { urgency: { equals: urgency as TaskUrgency } }),
     ...(status !== "" && { status: { equals: status as TaskStatus } }),
   };
 
-  // Add location type filter based on whether the location field exists
+  // Add location type filter based on location field
   if (locationType && locationType !== "") {
+    // Create two separate tasks queries - one for remote and one for onsite
+    // based on the filter selection
+
     if (locationType === "REMOTE") {
-      // For REMOTE tasks, the location field doesn't exist
-      whereClause.location = {
-        isSet: false,
-      };
+      // For MongoDB through Prisma, use a raw query parameter
+      whereClause.location = null;
     } else if (locationType === "ONSITE") {
-      // For ONSITE tasks, the location field exists
-      whereClause.location = {
-        isSet: true,
-      };
+      // For MongoDB through Prisma, non-null check
+      whereClause.NOT = { location: null };
     }
   }
 

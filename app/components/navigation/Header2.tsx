@@ -220,10 +220,10 @@ export default function Navbar({
                 />
                 <input
                   type="text"
-                  placeholder={`${searchError ? "Search is unavailable" : "Search"}`}
+                  placeholder={`${searchError ? "Search is unavailable" : "Search tasks, charities, users..."}`}
                   className={`w-full flex-grow bg-basePrimaryLight text-sm lg:text-base ${
                     searchError && "cursor-not-allowed text-dangerPrimary"
-                  }`}
+                  } `}
                   onChange={(e) => {
                     handleSearch(e, "query");
                   }}
