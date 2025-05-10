@@ -9,6 +9,7 @@ import ThumbnailGenerator from "@uppy/thumbnail-generator";
 import ProgressBar from "@uppy/progress-bar";
 import Compressor from "@uppy/compressor";
 import AwsS3 from "@uppy/aws-s3";
+import { useViewport } from "~/hooks/useViewport";
 
 import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
@@ -31,6 +32,7 @@ const FileUpload = ({
 }) => {
   const [uppyInstance, setUppyInstance] = useState<Uppy | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { isMobile } = useViewport();
 
   useEffect(() => {
     async function initializeUppy() {
@@ -135,8 +137,8 @@ const FileUpload = ({
       plugins={["ImageEditor"]}
       theme="light"
       // hideUploadButton
-      height={"250px"}
-      width={"400px"}
+      height={isMobile ? "200px" : "250px"}
+      width={isMobile ? "200px" : "400px"}
     />
   );
 };
