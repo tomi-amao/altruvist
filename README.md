@@ -115,13 +115,13 @@ Copy `.env.example` to `.env` and populate with your configuration:
 4. Import organisation config using PAT token (created locally under machinekey folder) through Postman:
 
    - Use Bearer Token authorization
-   - Make "Skillanthropy" the default organization
+   - Make "Altruvist" the default organization
    - Add localhost:5173 as default redirect URI at the bottom of the login behavior and security sections
 
 5. Update client ID application environment variable:
 
-   - Find under projects named "skillanthropy"
-   - And Zitadel application named "skillanthropy"
+   - Find under projects named "altruvist"
+   - And Zitadel application named "altruvist"
 
 6. For user sign-up functionality, configure an SMTP provider in Zitadel settings
 
