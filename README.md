@@ -93,6 +93,7 @@ Copy `.env.example` to `.env` and populate with your configuration:
 1. Ensure Meilisearch is running (via Docker or standalone)
 2. Configure the MEILI\_\* environment variables
 3. The application will automatically set up indexes and settings on startup
+4. At meilisearch (will need to be admin) delete Meliesaerch indexs and initialise a new MongoDB sync
 
 ### Zitadel Authentication Setup
 

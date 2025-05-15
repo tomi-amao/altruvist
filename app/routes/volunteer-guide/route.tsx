@@ -141,9 +141,9 @@ export default function VolunteerGuide() {
       <LandingHeader />
 
       {/* Hero Section */}
-      <section className="relative w-full overflow-hidden bg-gradient-to-b from-basePrimaryLight to-basePrimary/10">
+      <section className="relative w-full overflow-hidden bg-gradient-to-b from-basePrimaryLight to-basePrimary/10 ">
         <div className="container px-4 sm:px-6 mx-auto py-12 md:py-16 lg:py-24">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto mt-20 ">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
