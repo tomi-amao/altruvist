@@ -13,6 +13,7 @@ env:
 
 permissions:
   contents: write
+  packages: write
 jobs:
   release:
     name: Tag and Release
@@ -99,7 +100,7 @@ jobs:
           provenance: mode=max #create attestation for docker image
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          outputs: type=image,name=target,annotation-index.org.opencontainers.image.description=Date; ${{ env.CURRENT_DATE }} Reposoitory; ${{ github.repository }} Repo URL; ${{github.repositoryUrl}} Commit SHA; ${{github.sha}}
+          outputs: type=image,name=target,annotation-index.org.opencontainers.image.description=Date; ${{ env.CURRENT_DATE }} Repository; ${{ github.repository }} Repo URL; ${{github.server_url}}/${{github.repository}} Commit SHA; ${{github.sha}}
 
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v1
@@ -113,6 +114,8 @@ jobs:
     needs: build_and_push
     permissions:
       contents: read
+      packages: write
+      id-token: write
     steps:
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -127,17 +130,34 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - uses: sigstore/cosign-installer@main
 
       - name: Write signing key to disk
         run: echo "${{ secrets.SIGNING_SECRET }}" > cosign.key
 
-      - name: Sign Docker Hub image
-        env:
-          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
-        run: cosign sign --key cosign.key -a "repo=${{ github.repository }}" -a "ref=${{ github.sha }}" -a "version=${{ needs.build_and_push.outputs.tag }}" --yes theignorantview/altruvist-webapp:${{ needs.build_and_push.outputs.tag }}
+      - name: Get image digest for Docker Hub
+        id: get_dockerhub_digest
+        run: |
+          DIGEST=$(docker buildx imagetools inspect theignorantview/altruvist-webapp:${{ needs.build_and_push.outputs.tag }} --format "{{json .Manifest}}" | jq -r '.digest')
+          echo "::set-output name=digest::$DIGEST"
+          echo "DOCKERHUB_DIGEST=$DIGEST" >> $GITHUB_ENV
 
-      - name: Sign GHCR image
+      - name: Get image digest for GHCR
+        id: get_ghcr_digest
+        run: |
+          DIGEST=$(docker buildx imagetools inspect ghcr.io/${{ github.repository }}:${{ needs.build_and_push.outputs.tag }} --format "{{json .Manifest}}" | jq -r '.digest')
+          echo "::set-output name=digest::$DIGEST"
+          echo "GHCR_DIGEST=$DIGEST" >> $GITHUB_ENV
+
+      - name: Sign Docker Hub image with digest
         env:
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
-        run: cosign sign --key cosign.key -a "repo=${{ github.repository }}" -a "ref=${{ github.sha }}" -a "version=${{ needs.build_and_push.outputs.tag }}" --yes ghcr.io/${{ github.repository }}:${{ needs.build_and_push.outputs.tag }}
+        run: cosign sign --key cosign.key -a "repo=${{ github.repository }}" -a "ref=${{ github.sha }}" -a "version=${{ needs.build_and_push.outputs.tag }}" --yes theignorantview/altruvist-webapp@${DOCKERHUB_DIGEST}
+
+      - name: Sign GHCR image with digest
+        env:
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+        run: cosign sign --key cosign.key -a "repo=${{ github.repository }}" -a "ref=${{ github.sha }}" -a "version=${{ needs.build_and_push.outputs.tag }}" --yes ghcr.io/${{ github.repository }}@${GHCR_DIGEST}
