@@ -255,10 +255,12 @@ export default function Navbar({
           </div>
 
           {/* Notifications and hamburger menu */}
-          <InboxNotifications
-            applicationIdentifier={novuAppId ?? ""}
-            subscriberId={user?.id ?? ""}
-          />
+          {user?.id && (
+            <InboxNotifications
+              applicationIdentifier={novuAppId ?? ""}
+              subscriberId={user?.id ?? ""}
+            />
+          )}
           <button className="flex px-3 py-2 rounded" onClick={toggleDropdown}>
             <List
               size={24}

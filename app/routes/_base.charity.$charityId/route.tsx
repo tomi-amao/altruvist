@@ -53,6 +53,8 @@ export const meta: MetaFunction = ({ data }) => {
         data.charity.description ||
         `Learn more about ${data.charity.name} and get involved.`,
     },
+    { name: "viewport", content: "width=device-width,initial-scale=1" },
+    { charSet: "utf-8" },
   ];
 };
 
