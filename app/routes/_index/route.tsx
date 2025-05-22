@@ -155,7 +155,7 @@ export default function Index() {
         userInfo={userInfo as unknown as users}
         profilePicture={signedProfilePicture || undefined}
       />
-      <section className="relative flex items-center overflow-hidden flex-col py-8 min-h-[100vh] md:py-24 lg:min-h-screen ">
+      <section className="relative flex items-center overflow-hidden flex-col py-8 min-h-[100vh] md:py-24 lg:min-h-screen  ">
         <div className="container mx-auto px-4 sm:px-6 py-8 md:py-16 flex flex-col lg:flex-row items-center justify-center my-auto h-full">
           <motion.div
             className="lg:w-1/2 z-10"
@@ -163,7 +163,7 @@ export default function Index() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold !text-accentPrimary mb-6">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold !text-accentPrimary mb-6 mt-20 md:mt-0">
               Donate Your Skills, Make a Difference
             </h1>
             {clientSideError && (
