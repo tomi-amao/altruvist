@@ -1,7 +1,7 @@
 name: skillanthropy
 services:
   app:
-    image: theignorantview/skillanthropy
+    image: theignorantview/altruvist-webapp
     build:
       context: ./
       dockerfile: Dockerfile
@@ -90,7 +90,7 @@ services:
       ZITADEL_FIRSTINSTANCE_ORG_MACHINE_MACHINE_USERNAME: zitadel-admin-sa
       ZITADEL_FIRSTINSTANCE_ORG_MACHINE_MACHINE_NAME: Admin
       ZITADEL_FIRSTINSTANCE_ORG_MACHINE_MACHINEKEY_TYPE: 1
-      ZITADEL_FIRSTINSTANCE_ORG_MACHINE_PAT_EXPIRATIONDATE: "2025-01-01T00:00:00Z"
+      ZITADEL_FIRSTINSTANCE_ORG_MACHINE_PAT_EXPIRATIONDATE: "2029-01-01T00:00:00Z"
       # for development convenience, set to false
       ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORDCHANGEREQUIRED: false
 
@@ -109,6 +109,8 @@ services:
       POSTGRES_PASSWORD: postgres
     networks:
       - "zitadel"
+    volumes:
+      - zitadel-db-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready", "-d", "zitadel", "-U", "postgres"]
       interval: "10s"
@@ -162,3 +164,4 @@ volumes:
   conn-es-data:
   companion-data:
   meilisearch-data:
+  zitadel-db-data:
