@@ -6,6 +6,7 @@ import { List, MagnifyingGlass } from "@phosphor-icons/react";
 import { InboxNotifications } from "../InboxNotifications";
 import { SimpleProfileCard } from "../cards/ProfileCard";
 import { users } from "@prisma/client";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 export default function Navbar({
   altBackground,
@@ -261,6 +262,8 @@ export default function Navbar({
               subscriberId={user?.id ?? ""}
             />
           )}
+          <WalletMultiButton />
+
           <button className="flex px-3 py-2 rounded" onClick={toggleDropdown}>
             <List
               size={24}
@@ -269,9 +272,11 @@ export default function Navbar({
             />
           </button>
 
-          {/* Auth buttons for large screens */}
+          {/* Auth buttons and Wallet for large screens*/}
           <div className="w-fit min-w-fit lg:flex flex-row items-center gap-4 hidden md:block text-baseSecondary">
-            <NavListAuth altBackground={altBackground} userId={user?.id} />
+            <div className="flex items-center gap-3">
+              <NavListAuth altBackground={altBackground} userId={user?.id} />
+            </div>
           </div>
         </div>
 
@@ -284,6 +289,14 @@ export default function Navbar({
         >
           <nav className="flex flex-col p-4 gap-2 text-baseSecondary">
             <NavListPages userId={user?.id} user={user} />
+
+            {/* Dedicated Wallet Section */}
+            <div className="mt-6 pt-4 border-t border-baseSecondary/20">
+              <div className="mb-4">
+                <WalletMultiButton />
+              </div>
+            </div>
+
             <NavListAuth userId={user?.id} />
           </nav>
 
@@ -336,7 +349,7 @@ export const NavListPages = ({
       </div>
 
       <button
-        className={`p-2 px-4 hover:bg-baseSecondary font-primary hover:text-basePrimary w-full text-left rounded-md transition-colors duration-200 ${
+        className={`px-4 hover:bg-baseSecondary font-primary hover:text-basePrimary w-full text-left rounded-md transition-colors duration-200 ${
           altBackground && "text-accentPrimary"
         }`}
         onClick={toggleExploreDropdown}
@@ -370,7 +383,7 @@ export const NavListPages = ({
       {userId && (
         <>
           <button
-            className={`p-2 px-4 hover:bg-baseSecondary font-primary hover:text-basePrimary w-full text-left rounded-md transition-colors duration-200 ${
+            className={`px-4 hover:bg-baseSecondary font-primary hover:text-basePrimary w-full text-left rounded-md transition-colors duration-200 ${
               altBackground && "text-accentPrimary"
             }`}
             onClick={toggleDashboardDropdown}

@@ -87,3 +87,315 @@ html {
 button {
   @apply cursor-pointer;
 }
+
+.wallet-adapter-button {
+  @apply text-baseSecondary
+         font-primary px-6 py-3 rounded-xl
+         border border-baseSecondary/20 
+         transition-all duration-300 ease-in-out
+         shadow-md hover:shadow-lg flex items-center justify-center
+         transform hover:scale-105 active:scale-95
+         hover:bg-basePrimaryLight hover:border-baseSecondary/40;
+
+  font-family: var(--font-primary);
+}
+
+.wallet-adapter-button[disabled] {
+  @apply bg-alt-mid-grey text-mid-grey cursor-not-allowed opacity-50;
+  transform: none;
+}
+
+.wallet-adapter-button-trigger {
+  @apply text-baseSecondary
+         px-6 py-3 rounded-xl
+         border border-baseSecondary/20 
+         transition-all duration-300 ease-in-out
+         shadow-md hover:shadow-lg 
+         transform hover:scale-105 active:scale-95
+         hover:bg-basePrimaryLight hover:border-baseSecondary/40;
+  font-family: var(--font-primary);
+}
+
+.wallet-adapter-button-start-icon,
+.wallet-adapter-button-end-icon {
+  @apply flex items-center justify-center;
+  width: 20px;
+  height: 20px;
+}
+
+.wallet-adapter-button-start-icon {
+  @apply mr-3;
+}
+
+.wallet-adapter-button-end-icon {
+  @apply ml-3;
+}
+
+/* Dropdown Styles */
+.wallet-adapter-dropdown {
+  @apply relative inline-block text-base  text-baseSecondary;
+}
+
+.wallet-adapter-dropdown-list {
+  @apply absolute z-50 grid gap-2 p-3 top-full mt-2
+          border border-baseSecondary/20 bg-basePrimary
+         rounded-xl shadow-2xl min-w-[200px] max-w-[300px]
+         opacity-0 invisible
+         transition-all duration-300 ease-out
+         transform -translate-y-2;
+
+  /* Default positioning - align to the right edge of the button */
+  right: 0;
+  left: auto;
+}
+
+/* Dynamic positioning classes for edge detection */
+.wallet-adapter-dropdown-list.wallet-adapter-dropdown-list-right {
+  right: 0;
+  left: auto;
+}
+
+.wallet-adapter-dropdown-list.wallet-adapter-dropdown-list-left {
+  left: 0;
+  right: auto;
+}
+
+.wallet-adapter-dropdown-list.wallet-adapter-dropdown-list-center {
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%) translateY(-10px);
+}
+
+/* Active state transforms */
+.wallet-adapter-dropdown-list-active {
+  @apply opacity-100 visible translate-y-0;
+}
+
+.wallet-adapter-dropdown-list-active.wallet-adapter-dropdown-list-center {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Responsive behavior for small screens */
+@media (max-width: 768px) {
+  .wallet-adapter-dropdown-list {
+    /* On mobile, center the dropdown and make it full width with margins */
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) translateY(-10px) !important;
+    min-width: calc(100vw - 2rem);
+    max-width: calc(100vw - 2rem);
+  }
+
+  .wallet-adapter-dropdown-list-active {
+    transform: translateX(-50%) translateY(0) !important;
+  }
+}
+
+/* Ensure dropdown doesn't go off-screen on very small viewports */
+@media (max-width: 480px) {
+  .wallet-adapter-dropdown-list {
+    min-width: calc(100vw - 1rem) !important;
+    max-width: calc(100vw - 1rem) !important;
+  }
+}
+
+.wallet-adapter-dropdown-list-item {
+  @apply flex items-center justify-start
+         bg-transparent text-baseSecondary
+          font-medium px-4 py-3 rounded-lg
+         border-none outline-none cursor-pointer
+         transition-all duration-200 ease-in-out
+         transform hover:scale-[1.02] active:scale-[0.98]
+         hover:bg-basePrimaryLight;
+  font-family: var(--font-primary);
+  font-size: 14px;
+}
+
+.wallet-adapter-dropdown-list-item:not([disabled]):hover {
+  box-shadow: 0 4px 12px rgba(131, 105, 83, 0.15);
+}
+
+.wallet-adapter-dropdown-list-item[disabled] {
+  @apply opacity-50 cursor-not-allowed text-alt-mid-grey;
+  transform: none;
+}
+
+/* Modal Overlay */
+.wallet-adapter-modal {
+  @apply fixed inset-0 z-[1040] overflow-y-auto;
+  background: rgba(46, 49, 48, 0.8);
+  backdrop-filter: blur(6px);
+  animation: var(--animate-fade-in);
+}
+
+.wallet-adapter-modal-overlay {
+  @apply fixed inset-0;
+  background: rgba(46, 49, 48, 0.8);
+  z-index: 1041;
+}
+
+/* Modal Container */
+.wallet-adapter-modal-container {
+  @apply flex items-center justify-center min-h-screen p-6;
+  position: relative;
+  z-index: 1050;
+}
+
+@media (max-width: 480px) {
+  .wallet-adapter-modal-container {
+    @apply p-4;
+  }
+}
+
+/* Modal Wrapper */
+.wallet-adapter-modal-wrapper {
+  @apply relative flex flex-col
+         bg-basePrimary border border-baseSecondary/20
+         rounded-2xl shadow-2xl p-0 max-w-md w-full max-h-[90vh]
+         transform;
+  animation: var(--animate-slide-up);
+  box-shadow:
+    0 25px 50px -12px rgba(131, 105, 83, 0.3),
+    0 0 0 1px rgba(131, 105, 83, 0.1),
+    inset 0 1px 0 rgba(245, 245, 220, 0.1);
+
+  pointer-events: auto;
+  z-index: 1051;
+}
+
+/* Modal Close Button */
+.wallet-adapter-modal-button-close {
+  @apply absolute top-4 right-4 z-10
+         flex items-center justify-center
+         w-10 h-10 p-0
+         bg-accentPrimary text-baseSecondary
+         border border-baseSecondary/20 rounded-full
+         cursor-pointer
+         transition-all duration-200 ease-in-out
+         transform hover:scale-110 active:scale-95
+         hover:bg-basePrimaryLight;
+}
+
+.wallet-adapter-modal-button-close:hover {
+  box-shadow: 0 4px 12px rgba(131, 105, 83, 0.3);
+}
+
+.wallet-adapter-modal-button-close svg {
+  @apply w-4 h-4;
+  fill: #836953;
+  transition: fill 200ms ease;
+}
+
+.wallet-adapter-modal-button-close:hover svg {
+  fill: #836953;
+}
+
+/* Modal Title */
+.wallet-adapter-modal-title {
+  @apply text-baseSecondary text-2xl font-bold text-center
+         pt-12 pb-8 px-8 m-0;
+  font-family: var(--font-header);
+}
+
+@media (max-width: 374px) {
+  .wallet-adapter-modal-title {
+    @apply text-xl pt-10 pb-6 px-6;
+  }
+}
+
+/* Modal List */
+.wallet-adapter-modal-list {
+  @apply m-0 p-0 w-full list-none px-4 pb-6;
+}
+
+.wallet-adapter-modal-list .wallet-adapter-button {
+  @apply w-full bg-accentPrimary text-baseSecondary
+          font-medium px-6 py-4 rounded-xl
+         border border-baseSecondary/20
+         transition-all duration-200 ease-in-out
+         transform hover:scale-[1.02] active:scale-[0.98]
+         mb-3 last:mb-0
+         hover:bg-basePrimaryLight hover:border-baseSecondary/40;
+  font-size: 16px;
+  font-family: var(--font-primary);
+  box-shadow: 0 2px 8px rgba(131, 105, 83, 0.1);
+}
+
+.wallet-adapter-modal-list .wallet-adapter-button:hover {
+  box-shadow:
+    0 4px 16px rgba(131, 105, 83, 0.2),
+    0 0 0 1px rgba(131, 105, 83, 0.3);
+}
+
+.wallet-adapter-modal-list .wallet-adapter-button-start-icon,
+.wallet-adapter-modal-list .wallet-adapter-button-end-icon {
+  @apply w-6 h-6;
+}
+
+.wallet-adapter-modal-list .wallet-adapter-button span {
+  @apply ml-auto text-sm opacity-60 text-baseSecondary;
+  font-family: var(--font-primary);
+}
+
+/* Modal List More Button */
+.wallet-adapter-modal-list-more {
+  @apply cursor-pointer border-none px-6 py-3 mr-4 mb-4
+         self-end flex items-center
+         bg-transparent text-baseSecondary
+         rounded-lg transition-all duration-200 ease-in-out
+         hover:bg-basePrimaryLight;
+  font-family: var(--font-primary);
+}
+
+.wallet-adapter-modal-list-more svg {
+  @apply ml-2 w-4 h-4;
+  fill: #836953;
+  transition: all 0.2s ease;
+}
+
+.wallet-adapter-modal-list-more-icon-rotate {
+  transform: rotate(180deg);
+}
+
+/* Modal Middle Section */
+.wallet-adapter-modal-middle {
+  @apply w-full flex flex-col items-center px-6 pb-6;
+}
+
+.wallet-adapter-modal-middle-button {
+  @apply block cursor-pointer mt-6 w-full
+         bg-confirmPrimary text-txt-secondary
+          font-semibold py-4 px-6
+         border-none rounded-xl
+         transition-all duration-300 ease-in-out
+         transform hover:scale-105 active:scale-95
+         hover:bg-confirmPrimary/90;
+  font-size: 16px;
+  font-family: var(--font-primary);
+  box-shadow:
+    0 4px 16px rgba(39, 176, 139, 0.3),
+    0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.wallet-adapter-modal-middle-button:hover {
+  box-shadow:
+    0 6px 20px rgba(39, 176, 139, 0.4),
+    0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Collapse Button Animation */
+.wallet-adapter-modal-collapse-button svg {
+  @apply self-center;
+  fill: #836953;
+  transition: all 0.3s ease;
+}
+
+.wallet-adapter-modal-collapse-button.wallet-adapter-modal-collapse-button-active
+  svg {
+  transform: rotate(180deg);
+}
+
+/* Modal Fade Animation */
+.wallet-adapter-modal.wallet-adapter-modal-fade-in {
+  opacity: 1;
+}
