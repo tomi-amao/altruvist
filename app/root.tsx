@@ -13,6 +13,7 @@ import type { ActionFunctionArgs, LinksFunction, LoaderFunction, MetaFunction } 
 import stylesheet from "~/styles/tailwind.css?url";
 
 import { ErrorCard } from "./components/utils/ErrorCard";
+import { SolanaProvider } from "./components/common/provider";
 
 declare global {
   interface Window {
@@ -67,7 +68,7 @@ export function Document({
         ></link>
       </head>
       <body className="">
-        {children}
+        <SolanaProvider>{children}</SolanaProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
