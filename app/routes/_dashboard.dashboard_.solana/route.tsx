@@ -3,10 +3,19 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { PrimaryButton, SecondaryButton } from "~/components/utils/BasicButton";
-import { Rocket, CheckCircle, XCircle } from "@phosphor-icons/react";
+import {
+  Rocket,
+  CheckCircle,
+  XCircle,
+  ArrowSquareOut,
+} from "@phosphor-icons/react";
 import { address } from "@solana/kit";
 import { createClient } from "../../services/solana.client";
 import { toast } from "react-toastify";
+import {
+  createStandardToast,
+  createSingleButtonToast,
+} from "~/components/utils/ToastContent";
 
 export const meta: MetaFunction = () => {
   return [
@@ -41,9 +50,24 @@ export default function SolanaPage() {
       console.log(`Balance: ${balance} lamports.`);
 
       toast.success(
-        `Program initialized successfully! Balance: ${balance} lamports`,
+        createSingleButtonToast(
+          "Transaction completed! View details on Solana Explorer",
+          "View Explorer",
+          () => {
+            window.open(
+              `https://explorer.solana.com/address/${account}?cluster=devnet`,
+              "_blank",
+            );
+          },
+          {
+            icon: <CheckCircle size={20} className="text-confirmPrimary" />,
+            buttonIcon: <ArrowSquareOut size={16} />,
+          },
+        ),
         {
           position: "bottom-right",
+          icon: false,
+          autoClose: 8000,
         },
       );
 
@@ -54,9 +78,18 @@ export default function SolanaPage() {
       });
     } catch (error) {
       console.error("Error:", error);
-      toast.error("Failed to initialize program. Please try again.", {
-        position: "bottom-right",
-      });
+
+      // Error toast example
+      toast.error(
+        createStandardToast(
+          "Failed to initialize program. Please try again.",
+          <XCircle size={20} className="text-dangerPrimary" />,
+        ),
+        {
+          position: "bottom-right",
+          icon: false,
+        },
+      );
 
       setLastTransaction({
         signature: "",

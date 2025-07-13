@@ -1,6 +1,6 @@
+import { ReactElement } from "react";
 import { toast as reactToastify, ToastOptions, Id } from "react-toastify";
 
-// Default toast options that match your design system
 const defaultOptions: ToastOptions = {
   position: "bottom-right",
   autoClose: 5000,
@@ -12,39 +12,38 @@ const defaultOptions: ToastOptions = {
   progressClassName: "custom-toast-progress",
 };
 
-// Custom toast utility with your design system
 export const toast = {
-  success: (message: string, options?: ToastOptions): Id => {
-    return reactToastify.success(message, {
+  success: (component: ReactElement, options?: ToastOptions): Id => {
+    return reactToastify.success(component, {
       ...defaultOptions,
       ...options,
     });
   },
 
-  error: (message: string, options?: ToastOptions): Id => {
-    return reactToastify.error(message, {
+  error: (component: ReactElement, options?: ToastOptions): Id => {
+    return reactToastify.error(component, {
       ...defaultOptions,
       ...options,
     });
   },
 
-  info: (message: string, options?: ToastOptions): Id => {
-    return reactToastify.info(message, {
+  info: (component: ReactElement, options?: ToastOptions): Id => {
+    return reactToastify.info(component, {
       ...defaultOptions,
       ...options,
     });
   },
 
-  warning: (message: string, options?: ToastOptions): Id => {
-    return reactToastify.warning(message, {
+  warning: (component: ReactElement, options?: ToastOptions): Id => {
+    return reactToastify.warning(component, {
       ...defaultOptions,
       ...options,
     });
   },
 
   // Generic toast with custom styling
-  default: (message: string, options?: ToastOptions): Id => {
-    return reactToastify(message, {
+  default: (component: ReactElement, options?: ToastOptions): Id => {
+    return reactToastify(component, {
       ...defaultOptions,
       ...options,
     });

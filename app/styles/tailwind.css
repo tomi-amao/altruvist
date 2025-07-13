@@ -470,29 +470,29 @@ button {
 }
 
 /* Toast type variations */
-.Toastify__toast--success.custom-toast {
+/* .Toastify__toast--success.custom-toast {
   border-left: 4px solid var(--color-confirmPrimary);
-}
+} */
 
 .Toastify__toast--success .custom-toast-progress {
   background: var(--color-confirmPrimary);
 }
 
-.Toastify__toast--error.custom-toast {
+/* .Toastify__toast--error.custom-toast {
   border-left: 4px solid var(--color-dangerPrimary);
-}
+} */
 
 .Toastify__toast--error .custom-toast-progress {
   background: var(--color-dangerPrimary);
 }
 
-.Toastify__toast--info.custom-toast {
+/* .Toastify__toast--info.custom-toast {
   border-left: 4px solid var(--color-baseSecondary);
-}
+} */
 
-.Toastify__toast--warning.custom-toast {
+/* .Toastify__toast--warning.custom-toast {
   border-left: 4px solid var(--color-indicator-yellow);
-}
+} */
 
 .Toastify__toast--warning .custom-toast-progress {
   background: var(--color-indicator-yellow);
