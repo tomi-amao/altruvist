@@ -49,7 +49,7 @@ export const ToastContent: React.FC<ToastContentProps> = (props) => {
     return (
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 flex-1">
-          {icon && <span className="flex-shrink-0">{icon}</span>}
+          {icon && <span className="flex-shrink-0 ml-2">{icon}</span>}
           <span className="flex-1 text-xs">{message}</span>
         </div>
         <button
@@ -57,7 +57,7 @@ export const ToastContent: React.FC<ToastContentProps> = (props) => {
             e.stopPropagation();
             buttonAction();
           }}
-          className="flex items-center gap-1 px-3 py-1.5 bg-baseSecondary text-basePrimary rounded-md hover:bg-baseSecondary/80 transition-colors text-xs font-medium whitespace-nowrap"
+          className="flex items-center gap-1 px-3 py-1.5 mr-2 bg-baseSecondary text-basePrimary rounded-md hover:bg-baseSecondary/80 transition-colors text-xs font-medium whitespace-nowrap"
         >
           {buttonIcon && <span className="w-4 h-4">{buttonIcon}</span>}
           {buttonText}

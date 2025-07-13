@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 test.describe("Basic Navigation", () => {
   test("should load the home page", async ({ page }) => {
     await page.goto("/");
-    await expect(page).toHaveTitle(/Skillanthropy/);
+    await expect(page).toHaveTitle(/altruvist/);
   });
 
   test("should display recent tasks", async ({ page }) => {

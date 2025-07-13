@@ -1,8 +1,9 @@
 import { MetaFunction } from "react-router";
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { useWallet } from "@solana/wallet-adapter-react";
+import { useAnchorWallet } from "@solana/wallet-adapter-react";
 import { PrimaryButton, SecondaryButton } from "~/components/utils/BasicButton";
+
 import {
   Rocket,
   CheckCircle,
@@ -10,7 +11,7 @@ import {
   ArrowSquareOut,
 } from "@phosphor-icons/react";
 import { address } from "@solana/kit";
-import { createClient } from "../../services/solana.client";
+import { createClient, SolanaService } from "../../services/solana.client";
 import { toast } from "react-toastify";
 import {
   createStandardToast,
@@ -36,46 +37,61 @@ interface TransactionResult {
 }
 
 export default function SolanaPage() {
-  const { publicKey } = useWallet();
+  const wallet = useAnchorWallet();
   const [isLoading, setIsLoading] = useState(false);
   const [lastTransaction, setLastTransaction] =
     useState<TransactionResult | null>(null);
 
   async function tutorial() {
     try {
+      // Check if wallet is connected
+      if (!wallet || !wallet.publicKey) {
+        toast.error("Please connect your wallet first");
+        return;
+      }
+
       setIsLoading(true);
+      toast(wallet.publicKey?.toBase58() || "No public key found");
+
+      // Create SolanaService instance with the entire wallet context
+      const solanaService = new SolanaService(wallet);
+
       const client = createClient();
       const account = address("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb");
       const { value: balance } = await client.rpc.getBalance(account).send();
       console.log(`Balance: ${balance} lamports.`);
 
-      toast.success(
-        createSingleButtonToast(
-          "Transaction completed! View details on Solana Explorer",
-          "View Explorer",
-          () => {
-            window.open(
-              `https://explorer.solana.com/address/${account}?cluster=devnet`,
-              "_blank",
-            );
-          },
-          {
-            icon: <CheckCircle size={20} className="text-confirmPrimary" />,
-            buttonIcon: <ArrowSquareOut size={16} />,
-          },
-        ),
-        {
-          position: "bottom-right",
-          icon: false,
-          autoClose: 8000,
-        },
-      );
+      const txSignature = await solanaService.initialiseProgram();
 
-      setLastTransaction({
-        signature: "demo-signature-" + Date.now(),
-        status: "success",
-        message: "Program initialized and balance retrieved successfully!",
-      });
+      if (txSignature) {
+        toast.success(
+          createSingleButtonToast(
+            "Transaction completed! View details on Solana Explorer",
+            "View",
+            () => {
+              window.open(
+                `https://explorer.solana.com/tx/${txSignature}?cluster=devnet`,
+                "_blank",
+              );
+            },
+            {
+              icon: <CheckCircle size={20} className="text-confirmPrimary" />,
+              buttonIcon: <ArrowSquareOut size={16} />,
+            },
+          ),
+          {
+            position: "bottom-right",
+            icon: false,
+            autoClose: 8000,
+          },
+        );
+
+        setLastTransaction({
+          signature: txSignature,
+          status: "success",
+          message: "Program initialized and balance retrieved successfully!",
+        });
+      }
     } catch (error) {
       console.error("Error:", error);
 
@@ -151,7 +167,7 @@ export default function SolanaPage() {
                 />
               </div>
 
-              {!publicKey && (
+              {!wallet?.publicKey && (
                 <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                   <p className="text-yellow-800 text-sm">
                     💡 Please connect your Solana wallet to interact with the
