@@ -18,3 +18,8 @@ playwright-report
 .env.test
 docker-compose*
 .react-router
+.anchor
+target
+**/*.rs.bk
+test-ledger
+.yarn

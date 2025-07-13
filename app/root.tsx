@@ -13,7 +13,9 @@ import type { ActionFunctionArgs, LinksFunction, LoaderFunction, MetaFunction } 
 import stylesheet from "~/styles/tailwind.css?url";
 
 import { ErrorCard } from "./components/utils/ErrorCard";
-import { SolanaProvider } from "./components/common/provider";
+import { Bounce, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { SolanaProvider } from "./components/common/solanaProvider";
 
 declare global {
   interface Window {
@@ -23,7 +25,7 @@ declare global {
     };
     ENV: {
       GOOGLE_RECAPTCHA_SITE_KEY: string;
-          };
+    };
   }
 }
 
@@ -89,6 +91,23 @@ export default function App() {
         }}
       />
       <Outlet />
+      <ToastContainer
+        position="bottom-right"
+        autoClose={5000}
+        stacked
+        // hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        transition={Bounce}
+        toastClassName="custom-toast"
+        progressClassName="custom-toast-progress"
+        closeButton={false}
+      />
     </Document>
   );
 }

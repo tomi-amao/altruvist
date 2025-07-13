@@ -1,0 +1,21 @@
+[toolchain]
+package_manager = "yarn"
+
+[features]
+resolution = true
+skip-lint = false
+
+[programs.devnet]
+altruvist = "HUYjKd5pjwfSET1EPexQmj256us1JB2zKs2T97ixRrSz"
+
+[programs.localnet]
+
+[registry]
+url = "https://api.apr.dev"
+
+[provider]
+cluster = "devnet"
+wallet = "~/.config/solana/id.json"
+
+[scripts]
+test = "yarn run ts-mocha -p ./tests/tsconfig.json -t 1000000 tests/blockchain/**/*.ts"

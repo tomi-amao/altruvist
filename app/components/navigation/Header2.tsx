@@ -349,7 +349,7 @@ export const NavListPages = ({
       </div>
 
       <button
-        className={`px-4 hover:bg-baseSecondary font-primary hover:text-basePrimary w-full text-left rounded-md transition-colors duration-200 ${
+        className={`py-2 px-4 hover:bg-baseSecondary font-primary hover:text-basePrimary w-full text-left rounded-md transition-colors duration-200 ${
           altBackground && "text-accentPrimary"
         }`}
         onClick={toggleExploreDropdown}
@@ -383,7 +383,7 @@ export const NavListPages = ({
       {userId && (
         <>
           <button
-            className={`px-4 hover:bg-baseSecondary font-primary hover:text-basePrimary w-full text-left rounded-md transition-colors duration-200 ${
+            className={`py-2 px-4 hover:bg-baseSecondary font-primary hover:text-basePrimary w-full text-left rounded-md transition-colors duration-200 ${
               altBackground && "text-accentPrimary"
             }`}
             onClick={toggleDashboardDropdown}
