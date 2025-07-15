@@ -9,12 +9,12 @@ skip-lint = false
 altruvist = "HUYjKd5pjwfSET1EPexQmj256us1JB2zKs2T97ixRrSz"
 
 [programs.localnet]
-
+altruvist = "nWKuomP36HFtZcUTHASRrhZSRvvzUJwnsenaNiXQqjv"
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "devnet"
+cluster = "localnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]

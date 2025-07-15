@@ -17,6 +17,14 @@ import { Bounce, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { SolanaProvider } from "./components/common/solanaProvider";
 
+// Buffer polyfill for browser compatibility with Solana operations
+// Only run on client-side to avoid SSR issues
+if (typeof window !== 'undefined') {
+  import('buffer').then(({ Buffer }) => {
+    (window as any).Buffer = Buffer; // eslint-disable-line
+  });
+}
+
 declare global {
   interface Window {
     grecaptcha: {

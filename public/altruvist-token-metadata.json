@@ -1,0 +1,60 @@
+{
+  "name": "Altruvist Token",
+  "symbol": "ALTR",
+  "description": "The native utility token for the Altruvist platform - empowering charitable giving, volunteer coordination, and community impact through blockchain technology.",
+  "image": "https://raw.githubusercontent.com/tomi-amao/altruvist/refs/heads/main/public/favicon.ico",
+  "external_url": "https://altruvist.com",
+  "attributes": [
+    {
+      "trait_type": "Token Type",
+      "value": "Utility"
+    },
+    {
+      "trait_type": "Platform",
+      "value": "Altruvist"
+    },
+    {
+      "trait_type": "Blockchain",
+      "value": "Solana"
+    },
+    {
+      "trait_type": "Token Standard",
+      "value": "SPL Token 2022"
+    },
+    {
+      "trait_type": "Use Case",
+      "value": "Charitable Giving & Volunteer Rewards"
+    },
+    {
+      "trait_type": "Decimals",
+      "value": "6"
+    }
+  ],
+  "properties": {
+    "category": "utility",
+    "creators": [
+      {
+        "address": "HUYjKd5pjwfSET1EPexQmj256us1JB2zKs2T97ixRrSz",
+        "share": 100
+      }
+    ],
+    "files": [
+      {
+        "uri": "https://altruvist.org/altruvist-token-logo.png",
+        "type": "image/png"
+      }
+    ]
+  },
+  "collection": {
+    "name": "Altruvist Ecosystem",
+    "family": "Altruvist"
+  },
+  "tags": [
+    "charity",
+    "volunteering",
+    "social-impact",
+    "utility-token",
+    "rewards",
+    "community"
+  ]
+}
