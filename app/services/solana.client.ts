@@ -5,9 +5,11 @@ import {
   SolanaRpcSubscriptionsApi,
   createSolanaRpc,
   createSolanaRpcSubscriptions,
+  address,
 } from "@solana/kit";
 import * as anchor from "@coral-xyz/anchor";
-import { PublicKey, SystemProgram , Connection } from "@solana/web3.js";
+import { PublicKey, SystemProgram, Connection } from "@solana/web3.js";
+import { getBurnCheckedInstruction } from "@solana-program/token-2022";
 import idl from "../../target/idl/altruvist.json";
 import { toast } from "react-toastify";
 
@@ -56,12 +58,17 @@ const TOKEN_2022_PROGRAM_ID = new PublicKey(
 const ASSOCIATED_TOKEN_PROGRAM_ID = new PublicKey(
   "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
 );
-export function getAssociatedTokenAddressSync(mint, owner) {
+
+export function getAssociatedTokenAddressSync(
+  mint: PublicKey,
+  owner: PublicKey,
+) {
   return PublicKey.findProgramAddressSync(
     [owner.toBuffer(), TOKEN_2022_PROGRAM_ID.toBuffer(), mint.toBuffer()],
     ASSOCIATED_TOKEN_PROGRAM_ID,
   )[0];
 }
+
 // Helper function to derive ATA using standard web3.js approach
 async function getAssociatedTokenAddressViaKit(
   mint: PublicKey,
@@ -194,6 +201,19 @@ export class SolanaService {
       return txSignature;
     } catch (error) {
       console.error("Error initializing faucet:", error);
+
+      // Handle wallet unlock error
+      if (
+        error instanceof Error &&
+        (error.message.includes(
+          "WalletSignTransactionError: Unexpected error",
+        ) ||
+          error.name === "WalletSignTransactionError")
+      ) {
+        toast.error("Please unlock your Solana wallet and try again");
+        return undefined;
+      }
+
       toast.error(
         `Failed to initialize faucet: ${error instanceof Error ? error.message : String(error)}`,
       );
@@ -270,6 +290,32 @@ export class SolanaService {
       return txSignature;
     } catch (error) {
       console.error("Error requesting tokens:", error);
+
+      // Handle cooldown error
+      if (
+        error instanceof Error &&
+        (error.message.includes("CooldownNotMet") ||
+          error.message.includes("Error Code: 6016") ||
+          error.message.includes("Cooldown period not met"))
+      ) {
+        toast.error(
+          "You must wait before requesting tokens again. Please try again later.",
+        );
+        return undefined;
+      }
+
+      // Handle unlock error
+      if (
+        error instanceof Error &&
+        (error.message.includes(
+          "WalletSignTransactionError: Unexpected error",
+        ) ||
+          error.name === "WalletSignTransactionError")
+      ) {
+        toast.error("Please unlock your Solana wallet and try again");
+        return undefined;
+      }
+
       toast.error(
         `Failed to request tokens: ${error instanceof Error ? error.message : String(error)}`,
       );
@@ -341,18 +387,19 @@ export class SolanaService {
       // Derive faucet PDA
       const [faucetPda] = PublicKey.findProgramAddressSync(
         [Buffer.from("altru_faucet")],
-        this.program.programId
+        this.program.programId,
       );
 
       // Get faucet account to retrieve mint address
-      const faucetAccount = await (this.program.account as ProgramAccountNamespace).faucet.fetch(faucetPda);
+      const faucetAccount = await (
+        this.program.account as ProgramAccountNamespace
+      ).faucet.fetch(faucetPda);
       const mintPubkey = faucetAccount.mint;
 
       // Derive faucet token account
       const faucetTokenAccount = getAssociatedTokenAddressSync(
         mintPubkey,
         faucetPda,
-        true
       );
 
       const txSignature = await this.program.methods
@@ -372,7 +419,8 @@ export class SolanaService {
       toast.success(`Transaction signature: ${txSignature}`);
 
       // Confirm transaction
-      const latestBlockhash = await this.provider.connection.getLatestBlockhash("confirmed");
+      const latestBlockhash =
+        await this.provider.connection.getLatestBlockhash("confirmed");
       await this.provider.connection.confirmTransaction({
         signature: txSignature,
         blockhash: latestBlockhash.blockhash,
@@ -382,7 +430,9 @@ export class SolanaService {
       return txSignature;
     } catch (error) {
       console.error("Error deleting faucet:", error);
-      toast.error(`Failed to delete faucet: ${error instanceof Error ? error.message : String(error)}`);
+      toast.error(
+        `Failed to delete faucet: ${error instanceof Error ? error.message : String(error)}`,
+      );
       return undefined;
     }
   }
@@ -399,18 +449,19 @@ export class SolanaService {
       // Derive faucet PDA
       const [faucetPda] = PublicKey.findProgramAddressSync(
         [Buffer.from("altru_faucet")],
-        this.program.programId
+        this.program.programId,
       );
 
       // Get faucet account to retrieve mint address
-      const faucetAccount = await (this.program.account as ProgramAccountNamespace).faucet.fetch(faucetPda);
+      const faucetAccount = await (
+        this.program.account as ProgramAccountNamespace
+      ).faucet.fetch(faucetPda);
       const mintPubkey = faucetAccount.mint;
 
       // Derive faucet token account
       const faucetTokenAccount = getAssociatedTokenAddressSync(
         mintPubkey,
         faucetPda,
-        true
       );
 
       const txSignature = await this.program.methods
@@ -430,7 +481,8 @@ export class SolanaService {
       toast.success(`Transaction signature: ${txSignature}`);
 
       // Confirm transaction
-      const latestBlockhash = await this.provider.connection.getLatestBlockhash("confirmed");
+      const latestBlockhash =
+        await this.provider.connection.getLatestBlockhash("confirmed");
       await this.provider.connection.confirmTransaction({
         signature: txSignature,
         blockhash: latestBlockhash.blockhash,
@@ -440,7 +492,114 @@ export class SolanaService {
       return txSignature;
     } catch (error) {
       console.error("Error burning and deleting faucet:", error);
-      toast.error(`Failed to burn and delete faucet: ${error instanceof Error ? error.message : String(error)}`);
+      toast.error(
+        `Failed to burn and delete faucet: ${error instanceof Error ? error.message : String(error)}`,
+      );
+      return undefined;
+    }
+  }
+
+  async burnUserTokens(
+    mintAddress: string,
+    amount: number,
+    decimals: number = 6,
+  ): Promise<string | undefined> {
+    if (!this.wallet || !this.wallet.publicKey) {
+      toast.error("Wallet not connected");
+      return undefined;
+    }
+
+    try {
+      toast.info(`Burning ${amount} tokens...`);
+
+      const mintPubkey = new PublicKey(mintAddress);
+
+      // Get user's token account
+      const userTokenAccount = await getAssociatedTokenAddressViaKit(
+        mintPubkey,
+        this.wallet.publicKey,
+      );
+
+      // Check if token account exists and has balance
+      try {
+        const tokenAccountInfo =
+          await this.provider.connection.getTokenAccountBalance(
+            userTokenAccount,
+          );
+        const currentBalance = parseFloat(
+          tokenAccountInfo.value.uiAmount?.toString() || "0",
+        );
+
+        if (currentBalance < amount) {
+          toast.error(
+            `Insufficient balance. You have ${currentBalance} tokens but tried to burn ${amount}`,
+          );
+          return undefined;
+        }
+
+        console.log(
+          `Current balance: ${currentBalance}, trying to burn: ${amount}`,
+        );
+      } catch (error) {
+        console.error("Token account check failed:", error);
+        toast.error("Token account not found. Please request tokens first.");
+        return undefined;
+      }
+
+      // Calculate amount with decimals
+      const amountWithDecimals = amount * Math.pow(10, decimals);
+
+      // Use getBurnCheckedInstruction to get the correct instruction format
+      const burnIx = getBurnCheckedInstruction({
+        account: address(userTokenAccount.toBase58()),
+        mint: address(mintAddress),
+        authority: address(this.wallet.publicKey.toBase58()),
+        amount: BigInt(amountWithDecimals),
+        decimals: decimals,
+      });
+
+      // Convert to standard TransactionInstruction format
+      const standardBurnIx = new anchor.web3.TransactionInstruction({
+        keys: [
+          { pubkey: userTokenAccount, isSigner: false, isWritable: true },
+          { pubkey: mintPubkey, isSigner: false, isWritable: true },
+          { pubkey: this.wallet.publicKey, isSigner: true, isWritable: false },
+        ],
+        programId: TOKEN_2022_PROGRAM_ID,
+        data: Buffer.from(burnIx.data), // Use the correct instruction data from getBurnCheckedInstruction
+      });
+
+      // Create transaction
+      const transaction = new anchor.web3.Transaction();
+      transaction.add(standardBurnIx);
+
+      // Send using Anchor provider (handles wallet signing automatically)
+      const txSignature = await this.provider.sendAndConfirm(transaction);
+
+      toast.success(`Burned ${amount} tokens successfully!`);
+      toast.success(`Transaction signature: ${txSignature}`);
+
+      return txSignature;
+    } catch (error) {
+      console.error("Error burning tokens:", error);
+
+      // Provide more specific error messages
+      if (error instanceof Error) {
+        if (
+          error.message.includes("insufficient funds") ||
+          error.message.includes("Attempt to debit")
+        ) {
+          toast.error(
+            "Insufficient balance or token account not properly funded. Please check your token balance.",
+          );
+        } else if (error.message.includes("AccountNotFound")) {
+          toast.error("Token account not found. Please request tokens first.");
+        } else {
+          toast.error(`Failed to burn tokens: ${error.message}`);
+        }
+      } else {
+        toast.error(`Failed to burn tokens: ${String(error)}`);
+      }
       return undefined;
     }
   }

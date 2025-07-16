@@ -39,6 +39,7 @@
     "@react-google-maps/api": "^2.20.6",
     "@react-router/node": "^7.0.0",
     "@react-router/serve": "^7.0.0",
+    "@solana-program/token-2022": "^0.4.2",
     "@solana/kit": "^2.3.0",
     "@solana/spl-token": "^0.4.13",
     "@solana/wallet-adapter-base": "^0.9.27",

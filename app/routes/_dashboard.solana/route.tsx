@@ -4,7 +4,7 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { useSolanaService } from "~/hooks/useSolanaService";
 import { PrimaryButton, SecondaryButton } from "~/components/utils/BasicButton";
 import { FormField } from "~/components/utils/FormField";
-import { Coins, PaperPlaneTilt, Info } from "@phosphor-icons/react";
+import { Coins, PaperPlaneTilt, Info, Fire } from "@phosphor-icons/react";
 import { toast } from "react-toastify";
 
 interface FaucetInfo {
@@ -36,9 +36,17 @@ export default function SolanaFaucet() {
     amount: "100",
   });
 
+  // Token burn state
+  const [burnLoading, setBurnLoading] = useState(false);
+  const [burnForm, setBurnForm] = useState({
+    mintAddress: "",
+    amount: "50",
+  });
+
   // Faucet info state
   const [faucetInfo, setFaucetInfo] = useState<FaucetInfo | null>(null);
   const [userTokenBalance, setUserTokenBalance] = useState(0);
+  const [userBurnTokenBalance, setUserBurnTokenBalance] = useState(0);
   const [loadingInfo, setLoadingInfo] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [burnDeleteLoading, setBurnDeleteLoading] = useState(false);
@@ -57,6 +65,13 @@ export default function SolanaFaucet() {
     }
   }, [solanaService, connected, requestForm.mintAddress]);
 
+  // Load user token balance for burn section when mint address changes
+  useEffect(() => {
+    if (solanaService && connected && burnForm.mintAddress) {
+      loadUserBurnTokenBalance();
+    }
+  }, [solanaService, connected, burnForm.mintAddress]);
+
   const loadFaucetInfo = async () => {
     if (!solanaService) return;
 
@@ -66,6 +81,7 @@ export default function SolanaFaucet() {
       setFaucetInfo(info);
       if (info?.mint) {
         setRequestForm((prev) => ({ ...prev, mintAddress: info.mint }));
+        setBurnForm((prev) => ({ ...prev, mintAddress: info.mint }));
       }
     } catch (error) {
       console.error("Error loading faucet info:", error);
@@ -84,6 +100,19 @@ export default function SolanaFaucet() {
       setUserTokenBalance(balance);
     } catch (error) {
       console.error("Error loading user token balance:", error);
+    }
+  };
+
+  const loadUserBurnTokenBalance = async () => {
+    if (!solanaService || !burnForm.mintAddress) return;
+
+    try {
+      const balance = await solanaService.getUserTokenBalance(
+        burnForm.mintAddress,
+      );
+      setUserBurnTokenBalance(balance);
+    } catch (error) {
+      console.error("Error loading user burn token balance:", error);
     }
   };
 
@@ -155,7 +184,7 @@ export default function SolanaFaucet() {
     setDeleteLoading(true);
     try {
       const txSignature = await solanaService.deleteFaucet();
-      
+
       if (txSignature) {
         // Reset faucet info and form
         setFaucetInfo(null);
@@ -183,7 +212,7 @@ export default function SolanaFaucet() {
     setBurnDeleteLoading(true);
     try {
       const txSignature = await solanaService.burnAndDeleteFaucet();
-      
+
       if (txSignature) {
         // Reset faucet info and form
         setFaucetInfo(null);
@@ -199,6 +228,46 @@ export default function SolanaFaucet() {
       console.error("Error burning and deleting faucet:", error);
     } finally {
       setBurnDeleteLoading(false);
+    }
+  };
+
+  const handleBurnTokens = async () => {
+    if (!solanaService) {
+      toast.error("Solana service not available");
+      return;
+    }
+
+    if (!burnForm.mintAddress) {
+      toast.error("Please enter a mint address");
+      return;
+    }
+
+    if (!burnForm.amount || parseFloat(burnForm.amount) <= 0) {
+      toast.error("Please enter a valid amount to burn");
+      return;
+    }
+
+    setBurnLoading(true);
+    try {
+      const txSignature = await solanaService.burnUserTokens(
+        burnForm.mintAddress,
+        parseFloat(burnForm.amount),
+      );
+
+      if (txSignature) {
+        // Reload user token balance after successful burn
+        setTimeout(() => {
+          loadUserBurnTokenBalance();
+          // Also reload request balance if same mint
+          if (requestForm.mintAddress === burnForm.mintAddress) {
+            loadUserTokenBalance();
+          }
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("Error burning tokens:", error);
+    } finally {
+      setBurnLoading(false);
     }
   };
 
@@ -341,21 +410,25 @@ export default function SolanaFaucet() {
           )}
           {faucetInfo && (
             <div className="flex gap-4 mt-6">
-              <SecondaryButton 
+              <SecondaryButton
                 text="Refresh"
                 action={loadFaucetInfo}
                 ariaLabel="Refresh faucet info"
                 type="button"
               />
-              <SecondaryButton 
+              <SecondaryButton
                 text={deleteLoading ? "Deleting..." : "Delete Faucet"}
                 action={handleDeleteFaucet}
                 ariaLabel="Delete faucet"
                 type="button"
                 isDisabled={deleteLoading}
               />
-              <SecondaryButton 
-                text={burnDeleteLoading ? "Burning & Deleting..." : "Burn & Delete Faucet"}
+              <SecondaryButton
+                text={
+                  burnDeleteLoading
+                    ? "Burning & Deleting..."
+                    : "Burn & Delete Faucet"
+                }
                 action={handleBurnAndDeleteFaucet}
                 ariaLabel="Burn and delete faucet"
                 type="button"
@@ -367,7 +440,7 @@ export default function SolanaFaucet() {
       )}
 
       {connected && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Initialize Faucet */}
           <div className="bg-basePrimaryLight p-6 rounded-lg border border-baseSecondary/20">
             <div className="flex items-center gap-2 mb-4">
@@ -500,6 +573,84 @@ export default function SolanaFaucet() {
                 isDisabled={
                   requestLoading || !connected || !requestForm.mintAddress
                 }
+              />
+            </div>
+          </div>
+
+          {/* Burn Tokens */}
+          <div className="bg-basePrimaryLight p-6 rounded-lg border border-baseSecondary/20">
+            <div className="flex items-center gap-2 mb-4">
+              <Fire size={20} className="text-dangerPrimary" />
+              <h2 className="text-xl font-semibold text-baseSecondary">
+                Burn Tokens
+              </h2>
+            </div>
+            <p className="text-baseSecondary/70 mb-6">
+              Permanently destroy your tokens
+            </p>
+
+            <div className="space-y-4">
+              <FormField
+                htmlFor="burn-mint-address"
+                label="Mint Address"
+                value={burnForm.mintAddress}
+                onChange={(e) =>
+                  setBurnForm((prev) => ({
+                    ...prev,
+                    mintAddress: e.target.value,
+                  }))
+                }
+                placeholder="Enter mint address"
+                backgroundColour="bg-basePrimary"
+              />
+
+              <FormField
+                htmlFor="burn-amount"
+                label="Amount to Burn"
+                type="number"
+                value={burnForm.amount}
+                onChange={(e) =>
+                  setBurnForm((prev) => ({
+                    ...prev,
+                    amount: e.target.value,
+                  }))
+                }
+                placeholder="Enter amount to burn"
+                backgroundColour="bg-basePrimary"
+              />
+
+              {burnForm.mintAddress && (
+                <div className="space-y-2">
+                  <span className="text-sm font-medium text-baseSecondary">
+                    Your Token Balance
+                  </span>
+                  <div className="px-3 py-2 bg-baseSecondary/10 rounded-md text-baseSecondary text-sm">
+                    {userBurnTokenBalance.toLocaleString()} tokens
+                  </div>
+                </div>
+              )}
+
+              <div className="bg-dangerPrimary/10 border border-dangerPrimary/20 rounded-md p-4">
+                <p className="text-dangerPrimary text-sm font-medium">
+                  ⚠️ Warning
+                </p>
+                <p className="text-dangerPrimary/80 text-xs mt-1">
+                  Burning tokens is permanent and cannot be undone. Make sure
+                  you want to destroy these tokens.
+                </p>
+              </div>
+
+              <PrimaryButton
+                text={burnLoading ? "Burning..." : "Burn Tokens"}
+                action={handleBurnTokens}
+                ariaLabel="Burn tokens"
+                isDisabled={
+                  burnLoading ||
+                  !connected ||
+                  !burnForm.mintAddress ||
+                  !burnForm.amount
+                }
+                className="bg-dangerPrimary hover:bg-dangerPrimary/90"
               />
             </div>
           </div>
