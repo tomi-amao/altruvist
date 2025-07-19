@@ -147,8 +147,10 @@ export const updateUserInfo = async (
     });
 
     if (!user) {
-      return { message: "No user Found" };
+      return { message: "No user Found", status: 404, error: "User not found" };
     }
+
+    console.log("Updating user with ID:", userId, "Data:", updateUserData);
 
     const updatedUserInfo = await prisma.users.update({
       where: { id: userId },
@@ -163,8 +165,15 @@ export const updateUserInfo = async (
 
     return { updatedUserInfo, status: 200, error: null };
   } catch (error) {
-    console.error(error);
-    return { updatedUserInfo: null, status: 500, error: null };
+    console.error("Error updating user info:", error);
+    return {
+      updatedUserInfo: null,
+      status: 500,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to update user information",
+    };
   }
 };
 

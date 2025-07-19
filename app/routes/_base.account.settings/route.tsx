@@ -67,6 +67,7 @@ export default function AccountSettings() {
     skills: userInfo?.skills || [],
     profilePicture: userInfo?.profilePicture || "",
     preferredCharities: userInfo?.preferredCharities || [],
+    walletPublicKey: userInfo?.walletPublicKey || "", // Add wallet public key
   });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -368,6 +369,21 @@ export default function AccountSettings() {
                         placeholder="Tell us about yourself"
                         serverValidationError={false}
                         resetField={false}
+                      />
+                    </div>
+
+                    {/* Wallet Public Key Field */}
+                    <div className="md:col-span-2">
+                      <FormField
+                        htmlFor="walletPublicKey"
+                        label="Solana Wallet Public Key (Optional)"
+                        type="text"
+                        value={formData.walletPublicKey}
+                        onChange={handleInputChange}
+                        backgroundColour="bg-basePrimaryLight"
+                        helperText="Enter your Solana wallet public key to receive token rewards for completed tasks"
+                        placeholder="Enter your Solana wallet public key (e.g., 11111111111111111111111111111111)"
+                        schema={z.string().optional()}
                       />
                     </div>
 

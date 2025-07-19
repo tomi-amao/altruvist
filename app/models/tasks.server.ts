@@ -47,6 +47,7 @@ export const createTask = async (
         requiredSkills: taskData.requiredSkills,
         resources: taskData.resources,
         status: "NOT_STARTED",
+        rewardAmount: taskData.rewardAmount || null, // Store token reward amount
         ...(charityId && {
           charity: {
             connect: { id: charityId },

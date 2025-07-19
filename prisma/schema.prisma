@@ -20,6 +20,7 @@ model users {
   preferredCharities  String[]
   bio                 String?
   profilePicture      String?
+  walletPublicKey     String? // Solana wallet public key
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
   taskApplications    taskApplications[]
@@ -33,47 +34,49 @@ model users {
 }
 
 model charities {
-  id                 String               @id @default(auto()) @map("_id") @db.ObjectId
-  name               String
-  description        String
-  website            String?
-  contactPerson      String?
-  contactEmail       String?
-  backgroundPicture  String?
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
-  tasks              tasks[]
-  charityMemberships charityMemberships[]
+  id                  String                @id @default(auto()) @map("_id") @db.ObjectId
+  name                String
+  description         String
+  website             String?
+  contactPerson       String?
+  contactEmail        String?
+  backgroundPicture   String?
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  tasks               tasks[]
+  charityMemberships  charityMemberships[]
   charityApplications charityApplications[] // Relation to charity applications
-  tags               String[]
-  taskApplications   taskApplications[]
-  notifyTopicId     String[]
+  tags                String[]
+  taskApplications    taskApplications[]
+  notifyTopicId       String[]
 }
 
 model tasks {
-  id               String             @id @default(auto()) @map("_id") @db.ObjectId
-  title            String
-  description      String
-  impact           String
-  requiredSkills   String[]
-  estimatedHours   Int?
-  category         String[]
-  urgency          TaskUrgency?
-  volunteersNeeded Int
-  deliverables     String[]
-  deadline         DateTime
-  resources        resource[]
-  charity          charities?         @relation(fields: [charityId], references: [id])
-  charityId        String?            @db.ObjectId
-  createdBy        users              @relation(fields: [userId], references: [id])
-  userId           String             @db.ObjectId
-  status           TaskStatus?
-  location         location?          // Location information with address, lat, lng
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  taskApplications taskApplications[]
-  comments         comment[]
-  notifyTopicId    String[]
+  id                   String             @id @default(auto()) @map("_id") @db.ObjectId
+  title                String
+  description          String
+  impact               String
+  requiredSkills       String[]
+  estimatedHours       Int?
+  category             String[]
+  urgency              TaskUrgency?
+  volunteersNeeded     Int
+  deliverables         String[]
+  deadline             DateTime
+  resources            resource[]
+  charity              charities?         @relation(fields: [charityId], references: [id])
+  charityId            String?            @db.ObjectId
+  createdBy            users              @relation(fields: [userId], references: [id])
+  userId               String             @db.ObjectId
+  status               TaskStatus?
+  location             location? // Location information with address, lat, lng
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  taskApplications     taskApplications[]
+  comments             comment[]
+  notifyTopicId        String[]
+  rewardAmount         Int? // Amount of rewarded for completing the task
+  creatorWalletAddress String? // Solana wallet public key of the task creator (for escrow verification)
 }
 
 model taskApplications {
@@ -133,8 +136,8 @@ model charityMemberships {
   userId      String    @db.ObjectId
   charity     charities @relation(fields: [charityId], references: [id], onDelete: Cascade)
   charityId   String    @db.ObjectId
-  roles       String[]  // ["admin", "manager", "volunteer"]
-  permissions String[]  // ["create_task", "approve_volunteers"]
+  roles       String[] // ["admin", "manager", "volunteer"]
+  permissions String[] // ["create_task", "approve_volunteers"]
   joinedAt    DateTime  @default(now())
 
   @@unique([userId, charityId])
@@ -146,13 +149,13 @@ model charityApplications {
   userId          String            @db.ObjectId
   charity         charities         @relation(fields: [charityId], references: [id], onDelete: Cascade)
   charityId       String            @db.ObjectId
-  roles           String[]          // ["admin"] - role being applied for
-  applicationNote String?           // Note provided with the application
+  roles           String[] // ["admin"] - role being applied for
+  applicationNote String? // Note provided with the application
   status          ApplicationStatus @default(PENDING)
   appliedAt       DateTime          @default(now())
-  reviewedAt      DateTime?         // When the application was reviewed
+  reviewedAt      DateTime? // When the application was reviewed
   reviewedBy      String?           @db.ObjectId // User ID of the admin who reviewed the application
-  reviewNote      String?           // Note from the admin who reviewed the application
+  reviewNote      String? // Note from the admin who reviewed the application
 
   @@unique([userId, charityId])
 }

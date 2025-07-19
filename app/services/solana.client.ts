@@ -83,9 +83,9 @@ async function getAssociatedTokenAddressViaKit(
 }
 
 export class SolanaService {
-  private wallet: anchor.Wallet;
-  private program: anchor.Program;
-  private provider!: anchor.AnchorProvider;
+  public wallet: anchor.Wallet;
+  public program: anchor.Program;
+  public provider!: anchor.AnchorProvider;
 
   constructor(wallet: anchor.Wallet) {
     this.wallet = wallet;
@@ -102,8 +102,6 @@ export class SolanaService {
       anchor.AnchorProvider.defaultOptions(),
     );
     anchor.setProvider(this.provider);
-    toast.info(this.provider.connection.rpcEndpoint);
-    // console.log(provider.wallet.publicKey.toBase58());
 
     return new anchor.Program(idl);
   }

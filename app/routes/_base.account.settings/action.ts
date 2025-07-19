@@ -19,13 +19,13 @@ type ActionResponse = {
 
 export async function action({ request }: ActionFunctionArgs) {
   const session = await getSession(request);
-  const { userInfo, zitUserInfo } = await getUserInfo(
-    session.get("accessToken"),
-  );
+  const accessToken = session.get("accessToken");
 
-  if (!userInfo) {
+  if (!accessToken) {
     return redirect("/zitlogin");
   }
+
+  const { userInfo, zitUserInfo } = await getUserInfo(accessToken);
 
   const formData = await request.formData();
   const action = formData.get("_action");
@@ -90,6 +90,7 @@ export async function action({ request }: ActionFunctionArgs) {
       case "updateProfile": {
         const rawFormData = formData.get("formData") as string;
         const updateProfileData = JSON.parse(rawFormData);
+        console.log("Update Profile Data", updateProfileData);
 
         const updateFields = {
           ...updateProfileData,
@@ -114,26 +115,57 @@ export async function action({ request }: ActionFunctionArgs) {
             .max(1000)
             .optional()
             .or(z.literal("")),
-          ...((userInfo.roles[0] === "volunteer" && {
-            preferredCharities: z
-              .array(z.string())
-              .min(1, "At least one charity category is required"),
-          }) ||
-            {}),
-          ...((userInfo.roles[0] === "volunteer" && {
-            skills: z
-              .array(z.string())
-              .min(1, "At least one skill is required"),
-          }) ||
-            {}),
+          walletPublicKey: z
+            .string()
+            .optional()
+            .or(z.literal(""))
+            .refine((val) => {
+              if (!val || val === "") return true; // Optional field
+              // Basic Solana public key validation (44 characters, base58)
+              return /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(val);
+            }, "Invalid Solana wallet public key format"),
+          ...(userInfo.roles[0] === "volunteer"
+            ? {
+                preferredCharities: z
+                  .array(z.string())
+                  .min(1, "At least one charity category is required")
+                  .optional(),
+                skills: z
+                  .array(z.string())
+                  .min(1, "At least one skill is required")
+                  .optional(),
+              }
+            : {}),
           profilePicture: z
             .string()
-            .min(1, "Profile picture is required")
             .optional()
-            .or(z.literal(null)),
+            .or(z.literal(""))
+            .or(z.literal(null))
+            .transform((val) => {
+              // Sanitize the profile picture URL
+              if (!val || val === null) return "";
+              if (typeof val === "string") {
+                const trimmed = val.trim();
+                // Return empty string if it's just whitespace
+                return trimmed === "" ? "" : trimmed;
+              }
+              return "";
+            })
+            .refine((val) => {
+              // Allow empty strings
+              if (!val || val === "") return true;
+              // Basic URL validation for profile pictures
+              try {
+                new URL(val);
+                return true;
+              } catch {
+                return false;
+              }
+            }, "Profile picture must be a valid URL or empty"),
         });
 
         const validationResult = userSchema.safeParse(updateFields);
+
         if (!validationResult.success) {
           const response: ActionResponse = {
             errors: validationResult.error.errors.map((err) => ({
@@ -145,11 +177,19 @@ export async function action({ request }: ActionFunctionArgs) {
           return response;
         }
 
-        const { status } = await updateUserInfo(userInfo.id, updateFields);
+        const { status, error } = await updateUserInfo(
+          userInfo.id,
+          updateFields,
+        );
 
         if (status !== 200) {
           return {
-            errors: [{ field: "form", message: "Failed to update profile" }],
+            errors: [
+              {
+                field: "form",
+                message: error || "Failed to update profile",
+              },
+            ],
           };
         }
 

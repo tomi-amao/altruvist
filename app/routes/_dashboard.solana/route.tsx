@@ -6,6 +6,7 @@ import { PrimaryButton, SecondaryButton } from "~/components/utils/BasicButton";
 import { FormField } from "~/components/utils/FormField";
 import { Coins, PaperPlaneTilt, Info, Fire } from "@phosphor-icons/react";
 import { toast } from "react-toastify";
+import WalletInfo from "~/components/tasks/WalletInfo";
 
 interface FaucetInfo {
   address: string;
@@ -17,7 +18,7 @@ interface FaucetInfo {
 }
 
 export default function SolanaFaucet() {
-  const { connected, publicKey } = useWallet();
+  const { connected } = useWallet();
   const solanaService = useSolanaService();
 
   // Faucet initialization state
@@ -43,10 +44,8 @@ export default function SolanaFaucet() {
     amount: "50",
   });
 
-  // Faucet info state
+  // Simplified state - WalletInfo component handles most wallet data
   const [faucetInfo, setFaucetInfo] = useState<FaucetInfo | null>(null);
-  const [userTokenBalance, setUserTokenBalance] = useState(0);
-  const [userBurnTokenBalance, setUserBurnTokenBalance] = useState(0);
   const [loadingInfo, setLoadingInfo] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [burnDeleteLoading, setBurnDeleteLoading] = useState(false);
@@ -58,19 +57,13 @@ export default function SolanaFaucet() {
     }
   }, [solanaService, connected]);
 
-  // Load user token balance when mint address changes
+  // Update form mint addresses when faucet info changes
   useEffect(() => {
-    if (solanaService && connected && requestForm.mintAddress) {
-      loadUserTokenBalance();
+    if (faucetInfo?.mint) {
+      setRequestForm((prev) => ({ ...prev, mintAddress: faucetInfo.mint }));
+      setBurnForm((prev) => ({ ...prev, mintAddress: faucetInfo.mint }));
     }
-  }, [solanaService, connected, requestForm.mintAddress]);
-
-  // Load user token balance for burn section when mint address changes
-  useEffect(() => {
-    if (solanaService && connected && burnForm.mintAddress) {
-      loadUserBurnTokenBalance();
-    }
-  }, [solanaService, connected, burnForm.mintAddress]);
+  }, [faucetInfo]);
 
   const loadFaucetInfo = async () => {
     if (!solanaService) return;
@@ -79,40 +72,10 @@ export default function SolanaFaucet() {
     try {
       const info = await solanaService.getFaucetInfo();
       setFaucetInfo(info);
-      if (info?.mint) {
-        setRequestForm((prev) => ({ ...prev, mintAddress: info.mint }));
-        setBurnForm((prev) => ({ ...prev, mintAddress: info.mint }));
-      }
     } catch (error) {
       console.error("Error loading faucet info:", error);
     } finally {
       setLoadingInfo(false);
-    }
-  };
-
-  const loadUserTokenBalance = async () => {
-    if (!solanaService || !requestForm.mintAddress) return;
-
-    try {
-      const balance = await solanaService.getUserTokenBalance(
-        requestForm.mintAddress,
-      );
-      setUserTokenBalance(balance);
-    } catch (error) {
-      console.error("Error loading user token balance:", error);
-    }
-  };
-
-  const loadUserBurnTokenBalance = async () => {
-    if (!solanaService || !burnForm.mintAddress) return;
-
-    try {
-      const balance = await solanaService.getUserTokenBalance(
-        burnForm.mintAddress,
-      );
-      setUserBurnTokenBalance(balance);
-    } catch (error) {
-      console.error("Error loading user burn token balance:", error);
     }
   };
 
@@ -163,10 +126,9 @@ export default function SolanaFaucet() {
       );
 
       if (txSignature) {
-        // Reload user token balance after successful request
-        setTimeout(() => {
-          loadUserTokenBalance();
-        }, 2000);
+        toast.success(
+          "Tokens requested successfully! Check your wallet info above for updated balance.",
+        );
       }
     } catch (error) {
       console.error("Error requesting tokens:", error);
@@ -255,14 +217,9 @@ export default function SolanaFaucet() {
       );
 
       if (txSignature) {
-        // Reload user token balance after successful burn
-        setTimeout(() => {
-          loadUserBurnTokenBalance();
-          // Also reload request balance if same mint
-          if (requestForm.mintAddress === burnForm.mintAddress) {
-            loadUserTokenBalance();
-          }
-        }, 2000);
+        toast.success(
+          "Tokens burned successfully! Check your wallet info above for updated balance.",
+        );
       }
     } catch (error) {
       console.error("Error burning tokens:", error);
@@ -285,57 +242,14 @@ export default function SolanaFaucet() {
         <WalletMultiButton />
       </div>
 
-      {/* Connection Status */}
-      <div className="bg-basePrimaryLight p-6 rounded-lg border border-baseSecondary/20">
-        <div className="flex items-center gap-2 mb-4">
-          <Info size={20} className="text-baseSecondary" />
-          <h2 className="text-xl font-semibold text-baseSecondary">
-            Connection Status
-          </h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <span className="text-sm font-medium text-baseSecondary">
-              Network
-            </span>
-            {/* <div className="px-3 py-2 bg-baseSecondary/10 rounded-md text-baseSecondary text-sm">
-              {network}
-            </div> */}
-          </div>
-          <div className="space-y-2">
-            <span className="text-sm font-medium text-baseSecondary">
-              Program ID
-            </span>
-            {/* <code className="text-xs bg-baseSecondary/10 p-2 rounded block break-all text-baseSecondary">
-              {programId}
-            </code> */}
-          </div>
-          <div className="space-y-2">
-            <span className="text-sm font-medium text-baseSecondary">
-              Wallet Status
-            </span>
-            <div
-              className={`px-3 py-2 rounded-md text-sm ${
-                connected
-                  ? "bg-confirmPrimary/20 text-confirmPrimary"
-                  : "bg-dangerPrimary/20 text-dangerPrimary"
-              }`}
-            >
-              {connected ? "Connected" : "Disconnected"}
-            </div>
-          </div>
-        </div>
-        {connected && publicKey && (
-          <div className="space-y-2 mt-4">
-            <span className="text-sm font-medium text-baseSecondary">
-              Wallet Address
-            </span>
-            <code className="text-xs bg-baseSecondary/10 p-2 rounded block break-all text-baseSecondary">
-              {publicKey.toBase58()}
-            </code>
-          </div>
-        )}
-      </div>
+      {/* Wallet Information Component */}
+      {connected && (
+        <WalletInfo
+          className="mb-8"
+          showTransactionHistory={true}
+          maxTransactions={8}
+        />
+      )}
 
       {/* Faucet Information */}
       {connected && (
@@ -343,11 +257,11 @@ export default function SolanaFaucet() {
           <div className="flex items-center gap-2 mb-4">
             <Info size={20} className="text-baseSecondary" />
             <h2 className="text-xl font-semibold text-baseSecondary">
-              Faucet Information
+              Faucet Management
             </h2>
           </div>
           <p className="text-baseSecondary/70 mb-4">
-            Current faucet status and configuration
+            Manage the token faucet configuration and operations
           </p>
 
           {loadingInfo ? (
@@ -375,39 +289,15 @@ export default function SolanaFaucet() {
                   {faucetInfo.mint}
                 </code>
               </div>
-              <div className="space-y-2">
-                <span className="text-sm font-medium text-baseSecondary">
-                  Rate Limit
-                </span>
-                <div className="px-3 py-2 bg-baseSecondary/10 rounded-md text-baseSecondary text-sm">
-                  {(
-                    parseInt(faucetInfo.rateLimit) / Math.pow(10, 6)
-                  ).toLocaleString()}{" "}
-                  tokens
-                </div>
-              </div>
-              <div className="space-y-2">
-                <span className="text-sm font-medium text-baseSecondary">
-                  Cooldown Period
-                </span>
-                <div className="px-3 py-2 bg-baseSecondary/10 rounded-md text-baseSecondary text-sm">
-                  {Math.floor(parseInt(faucetInfo.cooldownPeriod) / 3600)} hours
-                </div>
-              </div>
             </div>
           ) : (
             <div className="text-center p-8">
               <p className="text-baseSecondary/70 mb-4">
                 No faucet found. Initialize one below to get started.
               </p>
-              <SecondaryButton
-                text="Refresh"
-                action={loadFaucetInfo}
-                ariaLabel="Refresh faucet info"
-                type="button"
-              />
             </div>
           )}
+
           {faucetInfo && (
             <div className="flex gap-4 mt-6">
               <SecondaryButton
@@ -555,17 +445,6 @@ export default function SolanaFaucet() {
                 backgroundColour="bg-basePrimary"
               />
 
-              {requestForm.mintAddress && (
-                <div className="space-y-2">
-                  <span className="text-sm font-medium text-baseSecondary">
-                    Your Token Balance
-                  </span>
-                  <div className="px-3 py-2 bg-baseSecondary/10 rounded-md text-baseSecondary text-sm">
-                    {userTokenBalance.toLocaleString()} tokens
-                  </div>
-                </div>
-              )}
-
               <PrimaryButton
                 text={requestLoading ? "Requesting..." : "Request Tokens"}
                 action={handleRequestTokens}
@@ -618,17 +497,6 @@ export default function SolanaFaucet() {
                 placeholder="Enter amount to burn"
                 backgroundColour="bg-basePrimary"
               />
-
-              {burnForm.mintAddress && (
-                <div className="space-y-2">
-                  <span className="text-sm font-medium text-baseSecondary">
-                    Your Token Balance
-                  </span>
-                  <div className="px-3 py-2 bg-baseSecondary/10 rounded-md text-baseSecondary text-sm">
-                    {userBurnTokenBalance.toLocaleString()} tokens
-                  </div>
-                </div>
-              )}
 
               <div className="bg-dangerPrimary/10 border border-dangerPrimary/20 rounded-md p-4">
                 <p className="text-dangerPrimary text-sm font-medium">
