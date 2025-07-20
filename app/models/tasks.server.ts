@@ -43,11 +43,12 @@ export const createTask = async (
         urgency: taskData.urgency,
         deliverables: taskData.deliverables,
         description: taskData.description,
-        volunteersNeeded: taskData.volunteersNeeded || 0,
+        volunteersNeeded: taskData.volunteersNeeded || 1,
         requiredSkills: taskData.requiredSkills,
         resources: taskData.resources,
         status: "NOT_STARTED",
         rewardAmount: taskData.rewardAmount || null, // Store token reward amount
+        creatorWalletAddress: taskData.creatorWalletAddress || null, // Store creator's Solana wallet address
         ...(charityId && {
           charity: {
             connect: { id: charityId },

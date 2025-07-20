@@ -43,7 +43,7 @@ interface TaskFormData {
   deliverables: string[];
   location?: LocationData | null;
   charityId?: string; // Add charityId field
-  tokenRewardAmount?: number; // Add token reward amount field
+  rewardAmount?: number; // Add token reward amount field
 }
 
 interface TaskFormProps {
@@ -111,7 +111,7 @@ export default function TaskForm({
             }
           : null,
         charityId: initialData.charityId || defaultCharityId || "",
-        tokenRewardAmount: initialData.tokenRewardAmount, // Initialize tokenRewardAmount
+        rewardAmount: initialData.rewardAmount, // Initialize rewardAmount
       };
     }
     return {
@@ -143,7 +143,7 @@ export default function TaskForm({
               lng: initialData.location.lng || 0,
             }
           : null,
-        tokenRewardAmount: initialData.tokenRewardAmount, // Update tokenRewardAmount
+        rewardAmount: initialData.rewardAmount, // Update rewardAmount
       });
     }
   }, [initialData, isEditing]);
@@ -483,14 +483,14 @@ export default function TaskForm({
 
         {/* Token Reward Amount Field */}
         <FormField
-          htmlFor="tokenRewardAmount"
+          htmlFor="rewardAmount"
           type="number"
           label="Token Reward Amount (Optional)"
-          value={String(formData.tokenRewardAmount || "")}
+          value={String(formData.rewardAmount || "")}
           onChange={(e) =>
             setFormData((prev) => ({
               ...prev,
-              tokenRewardAmount: e.target.value
+              rewardAmount: e.target.value
                 ? parseInt(e.target.value)
                 : undefined,
             }))
@@ -501,7 +501,7 @@ export default function TaskForm({
           backgroundColour="bg-basePrimary"
           placeholder="Enter token reward amount"
           helperText="Set a token reward for completing this task (requires connected wallet)"
-          serverValidationError={hasServerError("tokenRewardAmount")}
+          serverValidationError={hasServerError("rewardAmount")}
           resetField={resetField}
         />
 

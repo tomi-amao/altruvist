@@ -19,7 +19,7 @@ interface FaucetInfo {
 
 export default function SolanaFaucet() {
   const { connected } = useWallet();
-  const solanaService = useSolanaService();
+  const { solanaService } = useSolanaService();
 
   // Faucet initialization state
   const [initializeLoading, setInitializeLoading] = useState(false);

@@ -15,7 +15,7 @@ import {
   statusOptions,
   applicationStatusOptions,
 } from "~/constants/dropdownOptions";
-import { tasks, TaskUrgency } from "@prisma/client";
+import { tasks } from "@prisma/client";
 import TaskManagementActions from "~/components/tasks/TaskManagementActions";
 import { useEffect, useMemo, useState } from "react";
 import TaskForm from "~/components/tasks/TaskForm";
@@ -23,6 +23,7 @@ import { ArrowLeft } from "@phosphor-icons/react";
 import { useViewport } from "~/hooks/useViewport";
 import { loader } from "./loader";
 import { action } from "./action";
+import { useSolanaService } from "~/hooks/useSolanaService";
 
 export { loader, action };
 
@@ -53,6 +54,10 @@ export default function ManageTasks() {
   const [searchParams] = useSearchParams();
   const { isMobile } = useViewport();
 
+  // Move the Solana service hooks to component level
+  const { solanaService, taskEscrowService } = useSolanaService();
+  const wallet = solanaService?.wallet;
+
   // Local state for UI management
   const [isEditing, setIsEditing] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(() => {
@@ -79,7 +84,7 @@ export default function ManageTasks() {
 
   // Find selected task from tasks array
   const selectedTask = useMemo(() => {
-    return selectedTaskId
+    return selectedTaskId && initialTasks
       ? initialTasks.find((task) => task.id === selectedTaskId)
       : null;
   }, [initialTasks, selectedTaskId]);
@@ -148,36 +153,76 @@ export default function ManageTasks() {
     setShowCreateTask((preValue) => !preValue);
   };
 
-  interface TaskFormData {
-    title: string;
-    description: string;
-    impact: string;
-    requiredSkills: string[];
-    category: string[];
-    urgency: TaskUrgency;
-    volunteersNeeded: number;
-    deadline: Date;
-    deliverables: string[];
-    resources: {
-      name: string;
-      size: number;
-      url: string;
-      extension: string;
-    }[];
-  }
-
-  const handleTaskSubmit = (formData: TaskFormData) => {
+  const handleTaskSubmit = async (formData: tasks) => {
     // Clear previous data to ensure fresh validation
     taskFormFetcher.data = undefined;
 
+    const taskData = {
+      ...formData,
+      creatorWalletAddress: wallet?.publicKey?.toBase58() || null,
+    };
+
+    console.log("Submitting task form data:", taskData);
+
+    // Use fetcher for form submission to get automatic UI updates
     taskFormFetcher.submit(
-      { _action: "createTask", formData: JSON.stringify(formData) },
+      { _action: "createTask", formData: JSON.stringify(taskData) },
       {
         action: "/api/task/create",
         method: "POST",
       },
     );
   };
+
+  // Handle escrow creation after successful task creation
+  useEffect(() => {
+    const createTaskEscrow = async () => {
+      if (
+        taskEscrowService &&
+        taskFormFetcher.data &&
+        !taskFormFetcher.data.error
+      ) {
+        try {
+          console.log("Creating task escrow with data:", taskFormFetcher.data);
+
+          // Check if the response has the expected structure for task creation
+          if ("task" in taskFormFetcher.data && taskFormFetcher.data.task) {
+            const task = taskFormFetcher.data.task;
+
+            // Only create escrow if there's a positive reward amount
+            if (
+              task.rewardAmount &&
+              typeof task.rewardAmount === "number" &&
+              task.rewardAmount > 0
+            ) {
+              const faucetInfo = await solanaService?.getFaucetInfo();
+
+              const txSignature = await taskEscrowService.createTaskEscrow({
+                taskId: task.id || "",
+                rewardAmount: task.rewardAmount || 0,
+                creatorWallet: wallet?.publicKey?.toBase58() || "",
+                mintAddress: faucetInfo?.mint || "",
+              });
+
+              if (txSignature) {
+                console.log("Task escrow created with signature:", txSignature);
+              }
+            } else {
+              console.log(
+                "Skipping escrow creation - no positive reward amount specified",
+              );
+            }
+          }
+        } catch (error) {
+          console.error("Failed to create task escrow:", error);
+          // Note: Task was created successfully, but escrow failed
+          // You might want to show a warning to the user
+        }
+      }
+    };
+
+    createTaskEscrow();
+  }, [taskFormFetcher.data, taskEscrowService, solanaService, wallet]);
 
   const handleTaskEdit = (taskData?: tasks) => {
     if (taskData) {
@@ -315,9 +360,11 @@ export default function ManageTasks() {
                   }
                   onCancel={() => setIsEditing(false)}
                   isEditing={true}
-                  serverValidation={fetcher.data?.error || []}
+                  serverValidation={
+                    Array.isArray(fetcher.data?.error) ? fetcher.data.error : []
+                  }
                   isSubmitting={fetcher.state === "submitting"}
-                  uploadURL={uploadURL}
+                  uploadURL={uploadURL || ""}
                   GCPKey={GCPKey}
                   userCharities={userCharities}
                   defaultCharityId={optimisticTask.charityId}
@@ -332,8 +379,8 @@ export default function ManageTasks() {
                   isEditing={isEditing}
                   error={fetcher.data?.error}
                   isError={Boolean(fetcher.data?.error)}
-                  userName={userName}
-                  uploadURL={uploadURL}
+                  userName={userName || undefined}
+                  uploadURL={uploadURL || ""}
                 />
               )
             ) : (
@@ -353,9 +400,13 @@ export default function ManageTasks() {
               setShowCreateTask(false);
               taskFormFetcher.data = undefined;
             }}
-            serverValidation={taskFormFetcher.data?.error || []}
+            serverValidation={
+              Array.isArray(taskFormFetcher.data?.error)
+                ? taskFormFetcher.data.error
+                : []
+            }
             isSubmitting={taskFormFetcher.state === "submitting"}
-            uploadURL={uploadURL}
+            uploadURL={uploadURL || ""}
             GCPKey={GCPKey}
             userCharities={userCharities}
             defaultCharityId={

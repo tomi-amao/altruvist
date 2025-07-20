@@ -10,6 +10,8 @@ import { TaskApplicants } from "./TaskApplicants";
 import { CommentSection } from "../comment/Comment";
 import { Alert } from "../utils/Alert";
 import { ColorDot } from "../utils/ColourGenerator";
+import { BlockchainInfo } from "../blockchain/BlockchainInfo";
+import { OnChainTaskData, EscrowAccountData } from "~/types/blockchain";
 import {
   Files,
   Info,
@@ -25,6 +27,7 @@ import {
   Clock,
   Fire,
 } from "@phosphor-icons/react";
+import { useSolanaService } from "~/hooks/useSolanaService";
 
 interface TaskDetailsProps {
   task: tasks & {
@@ -63,7 +66,49 @@ export function TaskDetails({
   const [isCommentsExpanded, setIsCommentsExpanded] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [showShareTooltip, setShowShareTooltip] = useState(false);
+  const [escrowInfo, setEscrowInfo] = useState<EscrowAccountData | null>(null);
+  const [onChainTask, setOnChainTask] = useState<OnChainTaskData | null>(null);
+  const [isLoadingEscrow, setIsLoadingEscrow] = useState(false);
+  const { taskEscrowService } = useSolanaService();
 
+  useEffect(() => {
+    console.log("TaskDetails mounted with task:", task);
+
+    // Reset blockchain state when task changes
+    setEscrowInfo(null);
+    setOnChainTask(null);
+    setIsLoadingEscrow(false);
+
+    const getOnChainTask = async () => {
+      if (!task.id || !task.rewardAmount) return;
+
+      try {
+        setIsLoadingEscrow(true);
+        const onChainTaskData = await taskEscrowService?.getTaskInfo(
+          task.id,
+          task?.creatorWalletAddress,
+        );
+
+        if (onChainTaskData) {
+          setOnChainTask(onChainTaskData);
+          const escrowAccount = onChainTaskData.escrowAccount;
+          console.log("On-chain task data:", onChainTaskData);
+
+          if (escrowAccount) {
+            const escrowData =
+              await taskEscrowService?.getEscrowInfo(escrowAccount);
+            console.log("Escrow info:", escrowData);
+            setEscrowInfo(escrowData);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching on-chain task:", error);
+      } finally {
+        setIsLoadingEscrow(false);
+      }
+    };
+    getOnChainTask();
+  }, [task.id, task.rewardAmount, taskEscrowService]); // Added task.id and task.rewardAmount to dependencies
   const handleAcceptApplication = (applicationId: string) => {
     fetcher.submit(
       {
@@ -493,6 +538,14 @@ export function TaskDetails({
                   </div>
                 </section>
               )}
+
+              {/* Blockchain Information Section - In main content area */}
+              <BlockchainInfo
+                onChainTask={onChainTask}
+                escrowInfo={escrowInfo}
+                isLoading={isLoadingEscrow}
+                rewardAmount={displayData.rewardAmount}
+              />
             </div>
 
             {/* Sidebar Column */}

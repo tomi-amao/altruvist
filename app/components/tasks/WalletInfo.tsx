@@ -51,7 +51,7 @@ export default function WalletInfo({
   maxTransactions = 10,
 }: WalletInfoProps) {
   const { connected, publicKey } = useWallet();
-  const solanaService = useSolanaService();
+  const { solanaService } = useSolanaService();
 
   // State for wallet information
   const [faucetInfo, setFaucetInfo] = useState<FaucetInfo | null>(null);

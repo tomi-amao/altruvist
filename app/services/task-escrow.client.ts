@@ -3,6 +3,8 @@ import { toast } from "react-toastify";
 import * as anchor from "@coral-xyz/anchor";
 import { PublicKey } from "@solana/web3.js";
 import { Altruvist } from "../../target/types/altruvist";
+import { fetchToken } from "@solana-program/token-2022";
+import { address, type Address, createSolanaRpc } from "@solana/kit";
 
 export interface TaskEscrowData {
   taskId: string;
@@ -101,7 +103,9 @@ export class TaskEscrowService {
           mint: new PublicKey(mintAddress),
           creator: this.solanaService.wallet.publicKey,
         })
-        .rpc({ commitment: "confirmed" });
+        .rpc();
+
+      console.log(txSignature);
 
       // Confirm the transaction
       //   const latestBlockhash =
@@ -258,13 +262,29 @@ export class TaskEscrowService {
         ],
         this.solanaService.program.programId,
       );
+      console.log("Fetching task info for PDA:", taskPDA.toBase58());
 
       const taskAccount =
         await this.solanaService.program.account.task.fetch(taskPDA);
+
       return taskAccount as TaskAccount;
     } catch (error) {
       console.error("Error fetching task info:", error);
       return null;
     }
+  }
+
+  async getEscrowInfo(escrowAddress: Address) {
+    const rpc = createSolanaRpc("https://api.devnet.solana.com");
+    const escrowAccount = await fetchToken(
+      rpc,
+      address(escrowAddress.toString()),
+    );
+
+    if (!escrowAccount) {
+      console.error("Escrow account not found:", escrowAddress);
+      return null;
+    }
+    return escrowAccount;
   }
 }
