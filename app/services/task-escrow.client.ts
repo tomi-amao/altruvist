@@ -527,4 +527,127 @@ export class TaskEscrowService {
     }
     return escrowAccount;
   }
+
+  /**
+   * Update task reward amount on the blockchain
+   */
+  async updateTaskReward(
+    taskId: string,
+    newRewardAmount: number,
+    options: SimulationOptions = {},
+  ): Promise<string | undefined> {
+    try {
+      toast.info(`Updating task reward: ${taskId}`);
+
+      if (!this.solanaService.wallet?.publicKey) {
+        throw new Error("Wallet not connected");
+      }
+
+      // Convert reward amount to the correct decimal places (6 decimals for SPL tokens)
+      const newRewardAmountWithDecimals = new anchor.BN(
+        newRewardAmount * Math.pow(10, 6),
+      );
+
+      // Get faucet info for mint address
+      const faucetInfo = await this.solanaService.getFaucetInfo();
+      if (!faucetInfo) {
+        throw new Error("Failed to get faucet information");
+      }
+
+      // Build the transaction instruction for simulation
+      if (options.simulate) {
+        const instruction = await this.solanaService.program.methods
+          .updateTaskReward(taskId, newRewardAmountWithDecimals)
+          .accounts({
+            mint: new PublicKey(faucetInfo.mint),
+            creator: this.solanaService.wallet.publicKey,
+          })
+          .instruction();
+
+        const transaction = new Transaction();
+        const latestBlockhash =
+          await this.solanaService.provider.connection.getLatestBlockhash(
+            "confirmed",
+          );
+        transaction.recentBlockhash = latestBlockhash.blockhash;
+        transaction.feePayer = this.solanaService.wallet.publicKey;
+        transaction.add(instruction);
+
+        const simulationSuccess = await this.simulateTransaction(
+          transaction,
+          "Update Task Reward",
+        );
+
+        if (!simulationSuccess) {
+          return undefined;
+        }
+      }
+
+      // Update the task reward
+      const txSignature = await this.solanaService.program.methods
+        .updateTaskReward(taskId, newRewardAmountWithDecimals)
+        .accounts({
+          mint: new PublicKey(faucetInfo.mint),
+          creator: this.solanaService.wallet.publicKey,
+        })
+        .rpc({
+          commitment: "confirmed",
+          preflightCommitment: "confirmed",
+          skipPreflight: false,
+          maxRetries: 0,
+        });
+
+      toast.success(
+        `Task reward updated successfully! Transaction: ${txSignature}`,
+      );
+      return txSignature;
+    } catch (error) {
+      console.error("Error updating task reward:", error);
+
+      // Handle specific case where transaction has already been processed
+      if (
+        error instanceof Error &&
+        error.message.includes("This transaction has already been processed")
+      ) {
+        console.warn(
+          "Update transaction already processed, checking task status...",
+        );
+        toast.info(
+          "Transaction was already processed. Checking task status...",
+        );
+
+        // Check if the task reward was actually updated
+        try {
+          const taskInfo = await this.getTaskInfo(
+            taskId,
+            this.solanaService.wallet.publicKey.toBase58(),
+          );
+          if (
+            taskInfo &&
+            taskInfo.rewardAmount.toString() ===
+              (newRewardAmount * Math.pow(10, 6)).toString()
+          ) {
+            toast.success("Task reward was already updated successfully!");
+            return "already_processed";
+          } else {
+            toast.warning(
+              "Transaction processed but task reward update status unclear",
+            );
+            return "already_processed";
+          }
+        } catch (checkError) {
+          console.error("Error checking task reward update:", checkError);
+          toast.warning(
+            "Transaction already processed but task status unclear",
+          );
+          return "already_processed";
+        }
+      }
+
+      toast.error(
+        `Failed to update task reward: ${error instanceof Error ? error.message : String(error)}`,
+      );
+      return undefined;
+    }
+  }
 }

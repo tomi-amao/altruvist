@@ -51,6 +51,7 @@ export async function action({ request }: ActionFunctionArgs) {
             urgency: parsedUpdateTaskData.urgency,
             status: parsedUpdateTaskData.status,
             location: parsedUpdateTaskData.location,
+            rewardAmount: parsedUpdateTaskData.rewardAmount,
           }).filter(([, value]) => value),
         );
 

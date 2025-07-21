@@ -312,6 +312,7 @@ export default function ManageTasks() {
         urgency: taskData.urgency,
         // Explicitly include location, even when it's null
         location: taskData.location,
+        rewardAmount: taskData.rewardAmount || null,
       };
 
       console.log("Update data being sent:", updateData);

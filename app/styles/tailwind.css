@@ -33,6 +33,100 @@
   --font-primary: "Poppins", sans-serif;
 }
 
+/* Animated Border Effect for Create Blockchain Escrow Button */
+@property --animate-duration {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@property --Color {
+  syntax: "<color>";
+  initial-value: #8b5cf6;
+}
+
+@keyframes rotate-escrow-border {
+  0% {
+    --animate-duration: 0deg;
+    --Color: #8b5cf6;
+  }
+  100% {
+    --animate-duration: 360deg;
+    --Color: #8b5cf6;
+  }
+}
+
+.animated-border-btn {
+  position: relative;
+  overflow: visible;
+  background: transparent !important;
+  padding: 1px !important; /* Thin border width */
+  filter: drop-shadow(0 0 10px #f5f5dc);
+  transition: filter 0.3s ease;
+}
+
+.animated-border-btn:hover {
+  filter: drop-shadow(0 0 20px #8b5cf6);
+}
+
+.animated-border-btn:after,
+.animated-border-btn:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 0.5rem;
+  background: conic-gradient(
+    from var(--animate-duration) at 50% 50%,
+    transparent 0%,
+    transparent 30%,
+    var(--Color) 45%,
+    var(--Color) 55%,
+    transparent 70%,
+    transparent 100%
+  );
+  animation: rotate-escrow-border 3s infinite linear;
+  z-index: -1;
+}
+
+.animated-border-btn:before {
+  filter: blur(8px);
+  z-index: -2;
+  opacity: 0.8;
+}
+
+.animated-border-btn:after {
+  z-index: -1;
+}
+
+.animated-border-btn > span {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--color-baseSecondary);
+  border-radius: calc(0.5rem - 1px);
+  padding: 0.5rem 1rem; /* Independent padding for content */
+  color: white;
+  font-weight: inherit;
+  font-size: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 4px 15px rgba(139, 92, 246, 0.2),
+    0 2px 8px rgba(59, 130, 246, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.animated-border-btn:hover > span {
+  box-shadow:
+    0 6px 25px rgba(139, 92, 246, 0.3),
+    0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
 @layer utilities {
   .no-scrollbar::-webkit-scrollbar {
     display: none;

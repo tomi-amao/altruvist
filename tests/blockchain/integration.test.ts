@@ -464,12 +464,8 @@
 //       const updateTx = await program.methods
 //         .updateTaskReward(taskId, increasedRewardAmount)
 //         .accounts({
-//           task: taskPDA,
-//           escrowTokenAccount,
-//           creatorTokenAccount: aliceTokenAccount,
 //           mint: mintKeypair.publicKey,
 //           creator: alice.publicKey,
-//           tokenProgram: TOKEN_2022_PROGRAM_ID,
 //         })
 //         .signers([alice])
 //         .rpc();

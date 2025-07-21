@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { CaretDown, CaretUp, ArrowSquareOut } from "@phosphor-icons/react";
+import {
+  CaretDown,
+  CaretUp,
+  ArrowSquareOut,
+  Warning,
+  Coins,
+} from "@phosphor-icons/react";
 import { OnChainTaskData, EscrowAccountData } from "~/types/blockchain";
 
 interface BlockchainInfoProps {
@@ -12,6 +18,8 @@ interface BlockchainInfoProps {
   userRole?: string[];
   onRetryEscrow?: () => void;
   isRetrying?: boolean;
+  onUpdateReward?: (newAmount: number) => void;
+  isUpdatingReward?: boolean;
 }
 
 export function BlockchainInfo({
@@ -24,6 +32,8 @@ export function BlockchainInfo({
   userRole,
   onRetryEscrow,
   isRetrying = false,
+  onUpdateReward,
+  isUpdatingReward = false,
 }: BlockchainInfoProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -48,6 +58,15 @@ export function BlockchainInfo({
       ? Object.keys(onChainTask.status)[0]
       : "Unknown";
 
+  // Check if there's a discrepancy between database and blockchain reward amounts
+  const onChainRewardAmount = onChainTask?.rewardAmount
+    ? parseInt(onChainTask.rewardAmount.toString()) / 1000000
+    : 0;
+  const databaseRewardAmount = rewardAmount ? rewardAmount : 0;
+  const hasRewardDiscrepancy =
+    hasBlockchainData &&
+    Math.abs(onChainRewardAmount - databaseRewardAmount) > 0.000001; // Account for floating point precision
+
   // Show retry button if:
   // 1. No blockchain data exists (no escrow created)
   // 2. User is the creator (charity role)
@@ -62,20 +81,26 @@ export function BlockchainInfo({
     creatorWallet &&
     onRetryEscrow;
 
+  // Show update reward button if:
+  // 1. There is blockchain data
+  // 2. There's a discrepancy between database and blockchain amounts
+  // 3. User is the creator (charity role)
+  // 4. We have the required data and callback
+  const showUpdateRewardButton =
+    hasBlockchainData &&
+    hasRewardDiscrepancy &&
+    userRole?.includes("charity") &&
+    taskId &&
+    rewardAmount &&
+    onUpdateReward;
+
   return (
     <div className="bg-basePrimaryLight rounded-xl p-4 border border-baseSecondary/10 transition-all duration-300 hover:shadow-lg">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-600 rounded-lg flex items-center justify-center">
-            <svg
-              className="w-4 h-4 text-white"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 0v12h8V4H6z" />
-              <path d="M8 6h4v2H8V6zm0 4h4v2H8v-2z" />
-            </svg>
+          <div className="w-8 h-8  rounded-lg flex items-center justify-center">
+            <Coins size={24} className="text-baseSecondary" />
           </div>
           <div>
             <h3 className="text-sm font-semibold text-baseSecondary">
@@ -96,6 +121,26 @@ export function BlockchainInfo({
           </div>
         )}
       </div>
+
+      {/* Reward Discrepancy Warning */}
+      {hasRewardDiscrepancy && (
+        <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+          <div className="flex items-center gap-2 mb-2">
+            <Warning className="w-4 h-4 text-amber-600" />
+            <span className="text-sm font-medium text-amber-800">
+              Reward Amount Mismatch
+            </span>
+          </div>
+          <p className="text-xs text-amber-700 mb-2">
+            Database: {databaseRewardAmount.toFixed(6)} ALT | Blockchain:{" "}
+            {onChainRewardAmount.toFixed(6)} ALT
+          </p>
+          <p className="text-xs text-amber-600">
+            The reward amount in the database differs from the blockchain.
+            Update the blockchain to match the database amount.
+          </p>
+        </div>
+      )}
 
       {hasBlockchainData ? (
         <>
@@ -136,6 +181,31 @@ export function BlockchainInfo({
             </div>
           </div>
 
+          {/* Update Reward Button */}
+          {showUpdateRewardButton && (
+            <div className="mb-4">
+              <button
+                onClick={() => onUpdateReward && onUpdateReward(rewardAmount)}
+                disabled={isUpdatingReward}
+                className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
+                  ${
+                    isUpdatingReward
+                      ? "bg-baseSecondary/50 text-basePrimary/50 cursor-not-allowed"
+                      : "bg-gradient-to-r from-amber-500 to-orange-600 text-white hover:from-amber-600 hover:to-orange-700 hover:shadow-md"
+                  }`}
+              >
+                {isUpdatingReward ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    Updating Reward...
+                  </div>
+                ) : (
+                  "Update Blockchain Reward"
+                )}
+              </button>
+            </div>
+          )}
+
           {/* Expand/Collapse Button */}
           <button
             onClick={() => setIsExpanded(!isExpanded)}
@@ -173,9 +243,7 @@ export function BlockchainInfo({
                         Creator
                       </span>
                       <p className="text-baseSecondary font-mono text-xs break-all bg-basePrimaryLight p-1 rounded">
-                        {onChainTask.creator?._bn
-                          ? onChainTask.creator.toString()
-                          : onChainTask.creator || "N/A"}
+                        {onChainTask.creator?.toString() || "N/A"}
                       </p>
                     </div>
 
@@ -283,7 +351,7 @@ export function BlockchainInfo({
                     href={`https://explorer.solana.com/account/${onChainTask.escrowAccount.toString()}?cluster=devnet`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-blue-600 text-white rounded-lg hover:from-purple-600 hover:to-blue-700 transition-all duration-200 text-sm font-medium shadow-md hover:shadow-lg"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r bg-baseSecondary text-white rounded-lg hover:from-purple-600 hover:to-blue-700 transition-all duration-200 text-sm font-medium shadow-md hover:shadow-lg"
                   >
                     <ArrowSquareOut className="w-4 h-4" />
                     View on Solana Explorer
@@ -296,16 +364,6 @@ export function BlockchainInfo({
       ) : (
         // No blockchain data but has reward amount - Show retry option
         <div className="text-center py-4">
-          <div className="w-12 h-12 mx-auto mb-3 bg-gradient-to-br from-purple-100 to-blue-100 rounded-full flex items-center justify-center">
-            <svg
-              className="w-6 h-6 text-purple-600"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 0v12h8V4H6z" />
-              <path d="M8 6h4v2H8V6zm0 4h4v2H8v-2z" />
-            </svg>
-          </div>
           <div className="bg-basePrimary rounded-lg p-4 border border-baseSecondary/10 inline-block max-w-sm">
             <p className="text-sm font-semibold text-baseSecondary mb-1">
               Reward Amount: {rewardAmountFormatted} ALT
@@ -318,21 +376,22 @@ export function BlockchainInfo({
               <button
                 onClick={onRetryEscrow}
                 disabled={isRetrying}
-                className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
-                  ${
-                    isRetrying
-                      ? "bg-baseSecondary/50 text-basePrimary/50 cursor-not-allowed"
-                      : "bg-gradient-to-r from-purple-500 to-blue-600 text-white hover:from-purple-600 hover:to-blue-700 hover:shadow-md"
-                  }`}
+                className={`animated-border-btn w-full rounded-lg text-sm font-medium transition-all duration-200 relative ${
+                  isRetrying
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg"
+                }`}
               >
-                {isRetrying ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    Creating Escrow...
-                  </div>
-                ) : (
-                  "Create Blockchain Escrow"
-                )}
+                <span>
+                  {isRetrying ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      Creating Escrow...
+                    </div>
+                  ) : (
+                    "Create Blockchain Escrow"
+                  )}
+                </span>
               </button>
             )}
 

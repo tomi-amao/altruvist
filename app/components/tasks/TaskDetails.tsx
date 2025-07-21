@@ -70,6 +70,7 @@ export function TaskDetails({
   const [onChainTask, setOnChainTask] = useState<OnChainTaskData | null>(null);
   const [isLoadingEscrow, setIsLoadingEscrow] = useState(false);
   const [isRetryingEscrow, setIsRetryingEscrow] = useState(false);
+  const [isUpdatingReward, setIsUpdatingReward] = useState(false);
   const { taskEscrowService } = useSolanaService();
 
   useEffect(() => {
@@ -297,6 +298,64 @@ export function TaskDetails({
       { method: "POST" },
     );
     console.log("Task status updated", status, task.id);
+  };
+
+  const handleUpdateReward = async (newRewardAmount: number) => {
+    if (!taskEscrowService || !task.id || !newRewardAmount) {
+      console.error("Missing required data for reward update");
+      return;
+    }
+
+    setIsUpdatingReward(true);
+
+    try {
+      const txSignature = await taskEscrowService.updateTaskReward(
+        task.id,
+        newRewardAmount,
+        { simulate: false },
+      );
+
+      if (txSignature) {
+        console.log("Reward update successful:", txSignature);
+        // Refresh the blockchain data after successful update
+        setTimeout(() => {
+          // Re-trigger the useEffect to fetch updated data
+          setIsLoadingEscrow(true);
+          const refreshData = async () => {
+            try {
+              const onChainTaskData = await taskEscrowService.getTaskInfo(
+                task.id,
+                task.creatorWalletAddress ||
+                  "GVv2rNjCVkbLd1kiqytZHNbxWVGwS8tsTcsiJmY6NxLQ",
+              );
+
+              if (onChainTaskData) {
+                setOnChainTask(onChainTaskData);
+                const escrowAccount = onChainTaskData.escrowAccount;
+
+                if (escrowAccount) {
+                  const escrowData =
+                    await taskEscrowService.getEscrowInfo(escrowAccount);
+                  setEscrowInfo(escrowData);
+                }
+              }
+            } catch (error) {
+              console.error(
+                "Error refreshing blockchain data after reward update:",
+                error,
+              );
+            } finally {
+              setIsLoadingEscrow(false);
+            }
+          };
+          refreshData();
+        }, 2000); // Wait 2 seconds for blockchain confirmation
+      }
+    } catch (error) {
+      console.error("Error updating reward:", error);
+    } finally {
+      setIsUpdatingReward(false);
+    }
   };
 
   // Ensure we have valid data
@@ -616,6 +675,8 @@ export function TaskDetails({
                 userRole={userRole}
                 onRetryEscrow={handleRetryEscrow}
                 isRetrying={isRetryingEscrow}
+                onUpdateReward={handleUpdateReward}
+                isUpdatingReward={isUpdatingReward}
               />
             </div>
 
