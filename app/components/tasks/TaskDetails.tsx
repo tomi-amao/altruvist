@@ -69,6 +69,7 @@ export function TaskDetails({
   const [escrowInfo, setEscrowInfo] = useState<EscrowAccountData | null>(null);
   const [onChainTask, setOnChainTask] = useState<OnChainTaskData | null>(null);
   const [isLoadingEscrow, setIsLoadingEscrow] = useState(false);
+  const [isRetryingEscrow, setIsRetryingEscrow] = useState(false);
   const { taskEscrowService } = useSolanaService();
 
   useEffect(() => {
@@ -86,7 +87,8 @@ export function TaskDetails({
         setIsLoadingEscrow(true);
         const onChainTaskData = await taskEscrowService?.getTaskInfo(
           task.id,
-          task?.creatorWalletAddress,
+          task?.creatorWalletAddress ||
+            "GVv2rNjCVkbLd1kiqytZHNbxWVGwS8tsTcsiJmY6NxLQ",
         );
 
         if (onChainTaskData) {
@@ -109,6 +111,70 @@ export function TaskDetails({
     };
     getOnChainTask();
   }, [task.id, task.rewardAmount, taskEscrowService]); // Added task.id and task.rewardAmount to dependencies
+
+  const handleRetryEscrow = async () => {
+    if (!taskEscrowService || !task.id || !task.rewardAmount) {
+      console.error("Missing required data for escrow creation");
+      return;
+    }
+
+    setIsRetryingEscrow(true);
+
+    try {
+      const faucetInfo = await taskEscrowService.solanaService.getFaucetInfo();
+      if (!faucetInfo) {
+        throw new Error("Failed to get faucet information");
+      }
+
+      const txSignature = await taskEscrowService.createTaskEscrow({
+        taskId: task.id,
+        rewardAmount: task.rewardAmount,
+        creatorWallet:
+          task.creatorWalletAddress ||
+          "GVv2rNjCVkbLd1kiqytZHNbxWVGwS8tsTcsiJmY6NxLQ",
+        mintAddress: faucetInfo.mint,
+      });
+
+      if (txSignature) {
+        console.log("Escrow creation successful:", txSignature);
+        // Refresh the blockchain data after successful creation
+        setTimeout(() => {
+          // Re-trigger the useEffect to fetch updated data
+          setIsLoadingEscrow(true);
+          const refreshData = async () => {
+            try {
+              const onChainTaskData = await taskEscrowService.getTaskInfo(
+                task.id,
+                task.creatorWalletAddress ||
+                  "GVv2rNjCVkbLd1kiqytZHNbxWVGwS8tsTcsiJmY6NxLQ",
+              );
+
+              if (onChainTaskData) {
+                setOnChainTask(onChainTaskData);
+                const escrowAccount = onChainTaskData.escrowAccount;
+
+                if (escrowAccount) {
+                  const escrowData =
+                    await taskEscrowService.getEscrowInfo(escrowAccount);
+                  setEscrowInfo(escrowData);
+                }
+              }
+            } catch (error) {
+              console.error("Error refreshing blockchain data:", error);
+            } finally {
+              setIsLoadingEscrow(false);
+            }
+          };
+          refreshData();
+        }, 2000); // Wait 2 seconds for blockchain confirmation
+      }
+    } catch (error) {
+      console.error("Error creating escrow:", error);
+    } finally {
+      setIsRetryingEscrow(false);
+    }
+  };
+
   const handleAcceptApplication = (applicationId: string) => {
     fetcher.submit(
       {
@@ -545,6 +611,11 @@ export function TaskDetails({
                 escrowInfo={escrowInfo}
                 isLoading={isLoadingEscrow}
                 rewardAmount={displayData.rewardAmount}
+                taskId={task.id}
+                creatorWallet={task.creatorWalletAddress}
+                userRole={userRole}
+                onRetryEscrow={handleRetryEscrow}
+                isRetrying={isRetryingEscrow}
               />
             </div>
 

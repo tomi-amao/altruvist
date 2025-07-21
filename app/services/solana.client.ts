@@ -180,7 +180,12 @@ export class SolanaService {
           payer: this.wallet.publicKey,
         })
         .signers([mintKeypair])
-        .rpc();
+        .rpc({
+          commitment: "confirmed", // More reliable than 'processed'
+          preflightCommitment: "confirmed", // Consistent commitment levels
+          skipPreflight: false, // Keep error checking
+          maxRetries: 0, // Disable automatic retries (handle manually)
+        });
 
       toast.success(
         `Faucet initialized! Mint: ${mintKeypair.publicKey.toBase58()}`,
@@ -199,6 +204,35 @@ export class SolanaService {
       return txSignature;
     } catch (error) {
       console.error("Error initializing faucet:", error);
+
+      // Handle specific case where transaction has already been processed
+      if (
+        error instanceof Error &&
+        error.message.includes("This transaction has already been processed")
+      ) {
+        console.warn(
+          "Initialize transaction already processed, checking if faucet exists...",
+        );
+        toast.info(
+          "Transaction was already processed. Checking faucet status...",
+        );
+
+        // Check if the faucet was actually created
+        try {
+          const faucetInfo = await this.getFaucetInfo();
+          if (faucetInfo) {
+            toast.success("Faucet was already initialized successfully!");
+            return "already_processed";
+          }
+        } catch (checkError) {
+          console.error("Error checking faucet existence:", checkError);
+        }
+
+        toast.warning(
+          "Transaction already processed but faucet status unclear",
+        );
+        return "already_processed";
+      }
 
       // Handle wallet unlock error
       if (
@@ -271,7 +305,12 @@ export class SolanaService {
           associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
           systemProgram: SystemProgram.programId,
         })
-        .rpc();
+        .rpc({
+          commitment: "confirmed", // More reliable than 'processed'
+          preflightCommitment: "confirmed", // Consistent commitment levels
+          skipPreflight: false, // Keep error checking
+          maxRetries: 0, // Disable automatic retries (handle manually)
+        });
 
       toast.success(`Requested ${amount} tokens successfully!`);
       toast.success(`Transaction signature: ${txSignature}`);
@@ -288,6 +327,33 @@ export class SolanaService {
       return txSignature;
     } catch (error) {
       console.error("Error requesting tokens:", error);
+
+      // Handle specific case where transaction has already been processed
+      if (
+        error instanceof Error &&
+        error.message.includes("This transaction has already been processed")
+      ) {
+        console.warn(
+          "Request transaction already processed, checking user balance...",
+        );
+        toast.info(
+          "Transaction was already processed. Checking token balance...",
+        );
+
+        // Check if the user's token balance has increased (indicating successful request)
+        try {
+          const currentBalance = await this.getUserTokenBalance(mintAddress);
+          if (currentBalance > 0) {
+            toast.success("Tokens were already requested successfully!");
+            return "already_processed";
+          }
+        } catch (checkError) {
+          console.error("Error checking token balance:", checkError);
+        }
+
+        toast.warning("Transaction already processed but token status unclear");
+        return "already_processed";
+      }
 
       // Handle cooldown error
       if (

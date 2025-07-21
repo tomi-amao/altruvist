@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
-    token_interface::{self, Mint, TokenAccount, TransferChecked},
+    token_interface::{self, Mint, TokenAccount, TransferChecked, CloseAccount},
     token_interface::Token2022,
 };
 
@@ -22,10 +22,16 @@ pub fn create_task(
     // Validate inputs
     require!(task_id.len() <= 50, AltruistError::TaskIdTooLong);
     require!(reward_amount > 0, AltruistError::InvalidRewardAmount);
+    
+    // Validate task_id format (alphanumeric, underscore, hyphen only)
+    require!(
+        task_id.chars().all(|c| c.is_alphanumeric() || c == '_' || c == '-'),
+        AltruistError::InvalidTaskIdFormat
+    );
 
-    // Check creator's token balance
+    // Check creator's token balance (user-friendly error before transfer)
     let creator_balance = ctx.accounts.creator_token_account.amount;
-    require!(creator_balance >= reward_amount, AltruistError::InsufficientEscrowBalance);
+    require!(creator_balance >= reward_amount, AltruistError::InsufficientBalance);
 
     // Initialize task account
     task.task_id = task_id.clone();
@@ -62,21 +68,25 @@ pub fn complete_task(
     ctx: Context<CompleteTask>,
     task_id: String,
 ) -> Result<()> {
-    // Store values we need before borrowing task mutably
-    let can_complete = ctx.accounts.task.can_complete();
-    let task_assignee = ctx.accounts.task.assignee;
-    let reward_amount = ctx.accounts.task.reward_amount;
-    let creator_key = ctx.accounts.task.creator;
-    let task_bump = ctx.accounts.task.bump;
+    let task = &ctx.accounts.task;
+    let clock = Clock::get()?;
+    
+    // CRITICAL FIX: Validate that the signer is actually the assigned user
+    require!(task.can_complete(), AltruistError::InvalidTaskStatus);
+    require!(task.assignee.is_some(), AltruistError::NoAssignee);
+    
+    let assigned_user = task.assignee.unwrap();
+    require!(
+        assigned_user == ctx.accounts.assignee.key(),
+        AltruistError::UnauthorizedAssignee
+    );
 
-    // Validate task can be completed
-    require!(can_complete, AltruistError::InvalidTaskStatus);
-    require!(task_assignee.is_some(), AltruistError::NoAssignee);
+    // Store values we need for CPI calls
+    let reward_amount = task.reward_amount;
+    let creator_key = task.creator;
+    let task_bump = task.bump;
 
-    let assignee = task_assignee.unwrap();
-    require!(assignee == ctx.accounts.assignee.key(), AltruistError::UnauthorizedTaskCreator);
-
-    // Check escrow balance
+    // Check escrow balance (user-friendly error)
     let escrow_balance = ctx.accounts.escrow_token_account.amount;
     require!(escrow_balance >= reward_amount, AltruistError::InsufficientEscrowBalance);
 
@@ -99,30 +109,49 @@ pub fn complete_task(
     
     token_interface::transfer_checked(cpi_ctx, reward_amount, ctx.accounts.mint.decimals)?;
 
-    // Now we can safely borrow task mutably to update status
+    // Close the escrow token account and return lamports to creator
+    let close_escrow_accounts = CloseAccount {
+        account: ctx.accounts.escrow_token_account.to_account_info(),
+        destination: ctx.accounts.creator.to_account_info(),
+        authority: ctx.accounts.task.to_account_info(),
+    };
+    let close_escrow_ctx = CpiContext::new_with_signer(
+        ctx.accounts.token_program.to_account_info(),
+        close_escrow_accounts,
+        signer
+    );
+    token_interface::close_account(close_escrow_ctx)?;
+
+    // Update task status before closing
     let task = &mut ctx.accounts.task;
     task.update_status(TaskStatus::Completed);
+    task.updated_at = clock.unix_timestamp;
 
-    msg!("Task {} completed. Reward transferred to assignee", task_id);
+    msg!("Task {} completed. Reward transferred to assignee and accounts closed", task_id);
 
     Ok(())
 }
 
 /// Cancel a task and refund creator
-pub fn cancel_task(
+pub fn delete_task(
     ctx: Context<CancelTask>,
     task_id: String,
 ) -> Result<()> {
-    // Store values we need before any CPI calls
-    let can_cancel = ctx.accounts.task.can_cancel(&ctx.accounts.creator.key());
-    let reward_amount = ctx.accounts.task.reward_amount;
-    let creator_key = ctx.accounts.task.creator;
-    let task_bump = ctx.accounts.task.bump;
-
+    let task = &ctx.accounts.task;
+    let clock = Clock::get()?;
+    
     // Validate authority and task status
-    require!(can_cancel, AltruistError::UnauthorizedTaskCreator);
+    require!(
+        task.can_cancel(&ctx.accounts.creator.key()),
+        AltruistError::UnauthorizedTaskCreator
+    );
 
-    // Check escrow balance
+    // Store values we need for CPI calls
+    let reward_amount = task.reward_amount;
+    let creator_key = task.creator;
+    let task_bump = task.bump;
+
+    // Check escrow balance (user-friendly error)
     let escrow_balance = ctx.accounts.escrow_token_account.amount;
     require!(escrow_balance >= reward_amount, AltruistError::InsufficientEscrowBalance);
 
@@ -145,11 +174,62 @@ pub fn cancel_task(
     
     token_interface::transfer_checked(cpi_ctx, reward_amount, ctx.accounts.mint.decimals)?;
 
-    // Now we can safely borrow task mutably to update status
+    // Close the escrow token account and return lamports to creator
+    let close_escrow_accounts = CloseAccount {
+        account: ctx.accounts.escrow_token_account.to_account_info(),
+        destination: ctx.accounts.creator.to_account_info(),
+        authority: ctx.accounts.task.to_account_info(),
+    };
+    let close_escrow_ctx = CpiContext::new_with_signer(
+        ctx.accounts.token_program.to_account_info(),
+        close_escrow_accounts,
+        signer
+    );
+    token_interface::close_account(close_escrow_ctx)?;
+
+    // Update task status before closing
     let task = &mut ctx.accounts.task;
     task.update_status(TaskStatus::Cancelled);
+    task.updated_at = clock.unix_timestamp;
 
-    msg!("Task {} cancelled. Tokens refunded to creator", task_id);
+    msg!("Task {} cancelled. Tokens refunded to creator and accounts closed", task_id);
+
+    Ok(())
+}
+
+/// Assign a task to a specific user
+pub fn assign_task(
+    ctx: Context<AssignTask>,
+    _task_id: String,
+    assignee: Pubkey,
+) -> Result<()> {
+    let task = &mut ctx.accounts.task;
+    let clock = Clock::get()?;
+    
+    // Validate authority - only task creator can assign
+    require!(
+        task.creator == ctx.accounts.creator.key(),
+        AltruistError::UnauthorizedTaskCreator
+    );
+    
+    // Validate task status - can only assign Created tasks
+    require!(
+        matches!(task.status, TaskStatus::Created),
+        AltruistError::InvalidTaskStatus
+    );
+    
+    // Validate assignee is not the creator (creators can't assign to themselves)
+    require!(
+        assignee != task.creator,
+        AltruistError::CannotAssignToCreator
+    );
+    
+    // Assign the task
+    task.assignee = Some(assignee);
+    task.status = TaskStatus::InProgress;
+    task.updated_at = clock.unix_timestamp;
+
+    msg!("Task {} assigned to {}", task.task_id, assignee);
 
     Ok(())
 }
@@ -201,7 +281,8 @@ pub struct CompleteTask<'info> {
     #[account(
         mut,
         seeds = [b"task", task_id.as_bytes(), task.creator.as_ref()],
-        bump = task.bump
+        bump = task.bump,
+        close = creator,  // Close task account and send lamports to creator
     )]
     pub task: Account<'info, Task>,
 
@@ -222,6 +303,13 @@ pub struct CompleteTask<'info> {
     )]
     pub assignee_token_account: InterfaceAccount<'info, TokenAccount>,
 
+    /// CHECK: This account receives the closed task account's lamports
+    #[account(
+        mut,
+        constraint = creator.key() == task.creator @ AltruistError::InvalidCreator
+    )]
+    pub creator: UncheckedAccount<'info>,
+
     pub mint: InterfaceAccount<'info, Mint>,
 
     #[account(mut)]
@@ -238,7 +326,9 @@ pub struct CancelTask<'info> {
     #[account(
         mut,
         seeds = [b"task", task_id.as_bytes(), creator.key().as_ref()],
-        bump = task.bump
+        bump = task.bump,
+        close = creator,  // Close task account and send lamports to creator
+        constraint = task.creator == creator.key() @ AltruistError::UnauthorizedTaskCreator
     )]
     pub task: Account<'info, Task>,
 
@@ -260,7 +350,22 @@ pub struct CancelTask<'info> {
 
     pub mint: InterfaceAccount<'info, Mint>,
 
+    #[account(mut)]
     pub creator: Signer<'info>,
 
     pub token_program: Program<'info, Token2022>,
+}
+
+#[derive(Accounts)]
+#[instruction(task_id: String)]
+pub struct AssignTask<'info> {
+    #[account(
+        mut,
+        seeds = [b"task", task_id.as_bytes(), creator.key().as_ref()],
+        bump = task.bump,
+    )]
+    pub task: Account<'info, Task>,
+
+    #[account(mut)]
+    pub creator: Signer<'info>,
 }

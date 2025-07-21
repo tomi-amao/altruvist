@@ -67,4 +67,19 @@ pub enum AltruistError {
     
     #[msg("Cannot delete faucet: token account must be empty")]
     FaucetNotEmpty,
+
+    #[msg("Unauthorized assignee")]
+    UnauthorizedAssignee,
+
+    #[msg("Invalid task ID format")]
+    InvalidTaskIdFormat,
+
+    #[msg("Insufficient balance")]
+    InsufficientBalance,
+
+    #[msg("Invalid creator")]
+    InvalidCreator,
+
+    #[msg("Cannot assign task to creator")]
+    CannotAssignToCreator,
 }

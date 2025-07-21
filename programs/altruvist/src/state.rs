@@ -106,7 +106,7 @@ impl Task {
 
     /// Check if task can be modified by the given authority
     pub fn can_modify(&self, authority: &Pubkey) -> bool {
-        &self.creator == authority && matches!(self.status, TaskStatus::Created)
+        &self.creator == authority && matches!(self.status, TaskStatus::Created | TaskStatus::InProgress)
     }
 
     /// Check if task can be completed

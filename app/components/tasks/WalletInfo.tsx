@@ -219,7 +219,7 @@ export default function WalletInfo({
     }
 
     // Check for task cancellation
-    if (logs.some((log: string) => log.includes("cancel_task"))) {
+    if (logs.some((log: string) => log.includes("delete_task"))) {
       return {
         type: "task_cancel",
         description: "Cancelled task and returned tokens",

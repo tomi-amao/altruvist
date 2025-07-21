@@ -1,7 +1,7 @@
 import { SolanaService } from "./solana.client";
 import { toast } from "react-toastify";
 import * as anchor from "@coral-xyz/anchor";
-import { PublicKey } from "@solana/web3.js";
+import { PublicKey, Transaction } from "@solana/web3.js";
 import { Altruvist } from "../../target/types/altruvist";
 import { fetchToken } from "@solana-program/token-2022";
 import { address, type Address, createSolanaRpc } from "@solana/kit";
@@ -11,6 +11,11 @@ export interface TaskEscrowData {
   rewardAmount: number;
   creatorWallet: string;
   mintAddress: string;
+}
+
+export interface SimulationOptions {
+  simulate?: boolean;
+  logSimulation?: boolean;
 }
 
 // Use types directly from the IDL-generated types
@@ -28,11 +33,64 @@ export class TaskEscrowService {
   }
 
   /**
+   * Simulate a transaction before executing it
+   * This helps identify potential issues and estimate compute units
+   */
+  private async simulateTransaction(
+    transaction: Transaction,
+    description: string = "Transaction",
+  ) {
+    try {
+      console.log(`🔍 Simulating ${description}...`);
+
+      const versionedTransaction = new anchor.web3.VersionedTransaction(
+        transaction.compileMessage(),
+      );
+      const simulation =
+        await this.solanaService.provider.connection.simulateTransaction(
+          versionedTransaction,
+          {
+            sigVerify: false, // Skip signature verification for simulation
+            replaceRecentBlockhash: true, // Use a fresh blockhash
+          },
+        );
+      console.log(JSON.stringify(simulation).replace(/,/g, ",\n"));
+
+      if (simulation.value.err) {
+        console.error(
+          `❌ ${description} simulation failed:`,
+          simulation.value.err,
+        );
+        toast.error(
+          `Transaction simulation failed: ${JSON.stringify(simulation.value.err)}`,
+        );
+        return false;
+      }
+
+      if (simulation.value.logs) {
+        console.log(`📋 ${description} Logs:`, simulation.value.logs);
+      }
+
+      toast.info(
+        `✅ ${description} simulation successful! Compute units: ${simulation.value.unitsConsumed || "N/A"}`,
+      );
+      return true;
+    } catch (error) {
+      console.error(`❌ Error simulating ${description}:`, error);
+      toast.error(
+        `Simulation error: ${error instanceof Error ? error.message : String(error)}`,
+      );
+      return false;
+    }
+  }
+
+  /**
    * Create a task escrow on the Solana blockchain
    * This will transfer tokens from the creator's wallet to the escrow account
    */
   async createTaskEscrow(
     taskData: TaskEscrowData,
+    options: SimulationOptions = {},
   ): Promise<string | undefined> {
     try {
       toast.info(`Creating escrow for task: ${taskData.taskId}`);
@@ -53,6 +111,7 @@ export class TaskEscrowService {
         taskData.taskId,
         new anchor.BN(rewardAmountWithDecimals),
         faucetInfo.mint,
+        options,
       );
 
       if (txSignature) {
@@ -79,6 +138,7 @@ export class TaskEscrowService {
     taskId: string,
     rewardAmount: anchor.BN,
     mintAddress: string,
+    options: SimulationOptions = {},
   ): Promise<string | undefined> {
     try {
       if (!this.solanaService.wallet?.publicKey) {
@@ -96,31 +156,97 @@ export class TaskEscrowService {
       );
       console.log("Creating task with PDA:", taskPDA.toBase58());
 
-      // Create the task with escrow
+      // Build the transaction instruction
+
+      // Create transaction for simulation
+      if (options.simulate) {
+        const instruction = await this.solanaService.program.methods
+          .createTask(taskId, rewardAmount)
+          .accounts({
+            mint: new PublicKey(mintAddress),
+            creator: this.solanaService.wallet.publicKey,
+          })
+          .instruction();
+        const transaction = new Transaction();
+        const latestBlockhash =
+          await this.solanaService.provider.connection.getLatestBlockhash(
+            "confirmed",
+          );
+        transaction.recentBlockhash = latestBlockhash.blockhash;
+        transaction.feePayer = this.solanaService.wallet.publicKey;
+        transaction.add(instruction);
+
+        const simulationSuccess = await this.simulateTransaction(
+          transaction,
+          "Create Task",
+        );
+
+        if (!simulationSuccess) {
+          return undefined;
+        }
+
+        if (options.logSimulation) {
+          console.log("🔍 Create Task Transaction Details:", {
+            taskId,
+            rewardAmount: rewardAmount.toString(),
+            mintAddress,
+            taskPDA: taskPDA.toBase58(),
+            creator: this.solanaService.wallet.publicKey.toBase58(),
+          });
+        }
+      }
+
+      // Execute the actual transaction
       const txSignature = await this.solanaService.program.methods
         .createTask(taskId, rewardAmount)
         .accounts({
           mint: new PublicKey(mintAddress),
           creator: this.solanaService.wallet.publicKey,
         })
-        .rpc();
-
+        .rpc({
+          commitment: "confirmed",
+          preflightCommitment: "confirmed",
+          skipPreflight: false,
+          maxRetries: 0,
+        });
       console.log(txSignature);
 
-      // Confirm the transaction
-      //   const latestBlockhash =
-      //     await this.solanaService.provider.connection.getLatestBlockhash(
-      //       "confirmed",
-      //     );
-      //   await this.solanaService.provider.connection.confirmTransaction({
-      //     signature: txSignature,
-      //     blockhash: latestBlockhash.blockhash,
-      //     lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
-      //   });
       toast.success(`Task created successfully! Transaction: ${txSignature}`);
       return txSignature;
     } catch (error) {
       console.error("Error creating task on chain:", error);
+
+      // Handle specific case where transaction has already been processed
+      if (
+        error instanceof Error &&
+        error.message.includes("This transaction has already been processed")
+      ) {
+        console.warn(
+          "Transaction already processed, checking if task exists...",
+        );
+        toast.info(
+          "Transaction was already processed. Checking task status...",
+        );
+
+        // Check if the task actually exists on-chain
+        try {
+          const taskInfo = await this.getTaskInfo(
+            taskId,
+            this.solanaService.wallet.publicKey.toBase58(),
+          );
+          if (taskInfo) {
+            toast.success("Task already exists on blockchain!");
+            // Return a placeholder signature since we can't get the original one
+            return "already_processed";
+          }
+        } catch (checkError) {
+          console.error("Error checking task existence:", checkError);
+        }
+
+        toast.warning("Transaction already processed but task status unclear");
+        return "already_processed";
+      }
+
       throw error;
     }
   }
@@ -131,6 +257,7 @@ export class TaskEscrowService {
   async completeTask(
     taskId: string,
     assigneeWallet: string,
+    options: SimulationOptions = {},
   ): Promise<string | undefined> {
     try {
       toast.info(`Completing task: ${taskId}`);
@@ -155,6 +282,36 @@ export class TaskEscrowService {
         this.solanaService.program.programId,
       );
 
+      // Build the transaction instruction for simulation
+      if (options.simulate) {
+        const instruction = await this.solanaService.program.methods
+          .completeTask(taskId)
+          .accounts({
+            task: taskPDA,
+            assignee: new PublicKey(assigneeWallet),
+            mint: new PublicKey(faucetInfo.mint),
+          })
+          .instruction();
+
+        const transaction = new Transaction();
+        const latestBlockhash =
+          await this.solanaService.provider.connection.getLatestBlockhash(
+            "confirmed",
+          );
+        transaction.recentBlockhash = latestBlockhash.blockhash;
+        transaction.feePayer = this.solanaService.wallet.publicKey;
+        transaction.add(instruction);
+
+        const simulationSuccess = await this.simulateTransaction(
+          transaction,
+          "Complete Task",
+        );
+
+        if (!simulationSuccess) {
+          return undefined;
+        }
+      }
+
       // Complete the task
       const txSignature = await this.solanaService.program.methods
         .completeTask(taskId)
@@ -163,23 +320,54 @@ export class TaskEscrowService {
           assignee: new PublicKey(assigneeWallet),
           mint: new PublicKey(faucetInfo.mint),
         })
-        .rpc();
-
-      // Confirm the transaction
-      const latestBlockhash =
-        await this.solanaService.provider.connection.getLatestBlockhash(
-          "confirmed",
-        );
-      await this.solanaService.provider.connection.confirmTransaction({
-        signature: txSignature,
-        blockhash: latestBlockhash.blockhash,
-        lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
-      });
+        .rpc({
+          commitment: "confirmed",
+          preflightCommitment: "confirmed",
+          skipPreflight: false,
+          maxRetries: 0,
+        });
 
       toast.success(`Task completed successfully! Transaction: ${txSignature}`);
       return txSignature;
     } catch (error) {
       console.error("Error completing task:", error);
+
+      // Handle specific case where transaction has already been processed
+      if (
+        error instanceof Error &&
+        error.message.includes("This transaction has already been processed")
+      ) {
+        console.warn(
+          "Complete transaction already processed, checking task status...",
+        );
+        toast.info(
+          "Transaction was already processed. Checking task status...",
+        );
+
+        // Check if the task was actually completed
+        try {
+          const taskInfo = await this.getTaskInfo(
+            taskId,
+            this.solanaService.wallet.publicKey.toBase58(),
+          );
+          if (taskInfo && taskInfo.status && "completed" in taskInfo.status) {
+            toast.success("Task was already completed successfully!");
+            return "already_processed";
+          } else {
+            toast.warning(
+              "Transaction processed but task completion status unclear",
+            );
+            return "already_processed";
+          }
+        } catch (checkError) {
+          console.error("Error checking task completion:", checkError);
+          toast.warning(
+            "Transaction already processed but task status unclear",
+          );
+          return "already_processed";
+        }
+      }
+
       toast.error(
         `Failed to complete task: ${error instanceof Error ? error.message : String(error)}`,
       );
@@ -188,9 +376,12 @@ export class TaskEscrowService {
   }
 
   /**
-   * Cancel a task and return tokens to the creator
+   * Delete a task and return tokens to the creator
    */
-  async cancelTask(taskId: string): Promise<string | undefined> {
+  async deleteTask(
+    taskId: string,
+    options: SimulationOptions = {},
+  ): Promise<string | undefined> {
     try {
       toast.info(`Cancelling task: ${taskId}`);
 
@@ -205,40 +396,89 @@ export class TaskEscrowService {
       }
 
       // Derive task PDA
-      const [taskPDA] = PublicKey.findProgramAddressSync(
-        [
-          Buffer.from("task"),
-          Buffer.from(taskId),
-          this.solanaService.wallet.publicKey.toBuffer(),
-        ],
-        this.solanaService.program.programId,
-      );
+
+      // Build the transaction instruction for simulation
+      if (options.simulate) {
+        const instruction = await this.solanaService.program.methods
+          .deleteTask(taskId)
+          .accounts({
+            creator: this.solanaService.wallet.publicKey,
+            mint: new PublicKey(faucetInfo.mint),
+          })
+          .instruction();
+
+        const transaction = new Transaction();
+        const latestBlockhash =
+          await this.solanaService.provider.connection.getLatestBlockhash(
+            "confirmed",
+          );
+        transaction.recentBlockhash = latestBlockhash.blockhash;
+        transaction.feePayer = this.solanaService.wallet.publicKey;
+        transaction.add(instruction);
+
+        const simulationSuccess = await this.simulateTransaction(
+          transaction,
+          "Delete Task",
+        );
+
+        if (!simulationSuccess) {
+          return undefined;
+        }
+      }
 
       // Cancel the task
       const txSignature = await this.solanaService.program.methods
-        .cancelTask(taskId)
+        .deleteTask(taskId)
         .accounts({
-          task: taskPDA,
           creator: this.solanaService.wallet.publicKey,
           mint: new PublicKey(faucetInfo.mint),
         })
-        .rpc();
-
-      // Confirm the transaction
-      const latestBlockhash =
-        await this.solanaService.provider.connection.getLatestBlockhash(
-          "confirmed",
-        );
-      await this.solanaService.provider.connection.confirmTransaction({
-        signature: txSignature,
-        blockhash: latestBlockhash.blockhash,
-        lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
-      });
+        .rpc({
+          commitment: "confirmed",
+          preflightCommitment: "confirmed",
+          skipPreflight: false,
+          maxRetries: 0,
+        });
 
       toast.success(`Task cancelled successfully! Transaction: ${txSignature}`);
       return txSignature;
     } catch (error) {
       console.error("Error cancelling task:", error);
+
+      // Handle specific case where transaction has already been processed
+      if (
+        error instanceof Error &&
+        error.message.includes("This transaction has already been processed")
+      ) {
+        console.warn(
+          "Delete transaction already processed, checking if task still exists...",
+        );
+        toast.info(
+          "Transaction was already processed. Checking task status...",
+        );
+
+        // Check if the task still exists on-chain (it should be deleted if transaction succeeded)
+        try {
+          const taskInfo = await this.getTaskInfo(
+            taskId,
+            this.solanaService.wallet.publicKey.toBase58(),
+          );
+          if (!taskInfo) {
+            toast.success("Task was already deleted successfully!");
+            return "already_processed";
+          } else {
+            toast.warning("Transaction processed but task still exists");
+            return "already_processed";
+          }
+        } catch (checkError) {
+          console.error("Error checking task existence:", checkError);
+          toast.warning(
+            "Transaction already processed but task status unclear",
+          );
+          return "already_processed";
+        }
+      }
+
       toast.error(
         `Failed to cancel task: ${error instanceof Error ? error.message : String(error)}`,
       );

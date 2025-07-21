@@ -7,6 +7,11 @@ interface BlockchainInfoProps {
   escrowInfo?: EscrowAccountData | null;
   isLoading?: boolean;
   rewardAmount?: number;
+  taskId?: string;
+  creatorWallet?: string;
+  userRole?: string[];
+  onRetryEscrow?: () => void;
+  isRetrying?: boolean;
 }
 
 export function BlockchainInfo({
@@ -14,6 +19,11 @@ export function BlockchainInfo({
   escrowInfo,
   isLoading = false,
   rewardAmount,
+  taskId,
+  creatorWallet,
+  userRole,
+  onRetryEscrow,
+  isRetrying = false,
 }: BlockchainInfoProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -37,6 +47,20 @@ export function BlockchainInfo({
     : onChainTask?.status
       ? Object.keys(onChainTask.status)[0]
       : "Unknown";
+
+  // Show retry button if:
+  // 1. No blockchain data exists (no escrow created)
+  // 2. User is the creator (charity role)
+  // 3. There is a reward amount
+  // 4. We have the required data (taskId, creatorWallet)
+  const showRetryButton =
+    !hasBlockchainData &&
+    rewardAmount &&
+    rewardAmount > 0 &&
+    userRole?.includes("charity") &&
+    taskId &&
+    creatorWallet &&
+    onRetryEscrow;
 
   return (
     <div className="bg-basePrimaryLight rounded-xl p-4 border border-baseSecondary/10 transition-all duration-300 hover:shadow-lg">
@@ -270,7 +294,7 @@ export function BlockchainInfo({
           )}
         </>
       ) : (
-        // No blockchain data but has reward amount
+        // No blockchain data but has reward amount - Show retry option
         <div className="text-center py-4">
           <div className="w-12 h-12 mx-auto mb-3 bg-gradient-to-br from-purple-100 to-blue-100 rounded-full flex items-center justify-center">
             <svg
@@ -282,13 +306,41 @@ export function BlockchainInfo({
               <path d="M8 6h4v2H8V6zm0 4h4v2H8v-2z" />
             </svg>
           </div>
-          <div className="bg-basePrimary rounded-lg p-3 border border-baseSecondary/10 inline-block">
+          <div className="bg-basePrimary rounded-lg p-4 border border-baseSecondary/10 inline-block max-w-sm">
             <p className="text-sm font-semibold text-baseSecondary mb-1">
               Reward Amount: {rewardAmountFormatted} ALT
             </p>
-            <p className="text-xs text-baseSecondary/70">
+            <p className="text-xs text-baseSecondary/70 mb-3">
               Escrow not yet created on blockchain
             </p>
+
+            {showRetryButton && (
+              <button
+                onClick={onRetryEscrow}
+                disabled={isRetrying}
+                className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
+                  ${
+                    isRetrying
+                      ? "bg-baseSecondary/50 text-basePrimary/50 cursor-not-allowed"
+                      : "bg-gradient-to-r from-purple-500 to-blue-600 text-white hover:from-purple-600 hover:to-blue-700 hover:shadow-md"
+                  }`}
+              >
+                {isRetrying ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    Creating Escrow...
+                  </div>
+                ) : (
+                  "Create Blockchain Escrow"
+                )}
+              </button>
+            )}
+
+            {!showRetryButton && userRole?.includes("charity") && (
+              <p className="text-xs text-baseSecondary/60 italic">
+                Connect your Solana wallet to create escrow
+              </p>
+            )}
           </div>
         </div>
       )}

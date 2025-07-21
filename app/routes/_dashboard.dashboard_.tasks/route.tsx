@@ -24,6 +24,7 @@ import { useViewport } from "~/hooks/useViewport";
 import { loader } from "./loader";
 import { action } from "./action";
 import { useSolanaService } from "~/hooks/useSolanaService";
+import { toast } from "react-toastify";
 
 export { loader, action };
 
@@ -60,6 +61,7 @@ export default function ManageTasks() {
 
   // Local state for UI management
   const [isEditing, setIsEditing] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(() => {
     // Initialize with URL search param if it exists
     return searchParams.get("taskid") || null;
@@ -143,9 +145,64 @@ export default function ManageTasks() {
     }
   };
 
-  const handleDelete = (taskId: string) => {
-    fetcher.submit({ _action: "deleteTask", taskId }, { method: "POST" });
-    setSelectedTaskId(null);
+  const handleDelete = async (taskId: string) => {
+    if (isProcessing) return; // Prevent double submission
+    console.log(location.state);
+
+    const taskToDelete = initialTasks?.find((task) => task.id === taskId);
+    if (!taskToDelete) {
+      console.error("Task not found for deletion");
+      toast.error("Task not found. Please refresh the page and try again.");
+      return;
+    }
+
+    setIsProcessing(true);
+    toast.info("Starting task deletion...");
+
+    try {
+      // First, try to cancel the task on-chain if it has a reward amount and creator wallet
+      if (
+        taskToDelete.rewardAmount &&
+        taskToDelete.rewardAmount > 0 &&
+        "GVv2rNjCVkbLd1kiqytZHNbxWVGwS8tsTcsiJmY6NxLQ" &&
+        taskEscrowService
+      ) {
+        console.log("Cancelling task on-chain:", taskId);
+        toast.info("Cancelling blockchain escrow...");
+
+        const txSignature = await taskEscrowService.deleteTask(taskId);
+
+        if (!txSignature) {
+          console.error(
+            "Failed to cancel task on-chain, aborting database deletion",
+          );
+          toast.error(
+            "Failed to cancel blockchain escrow. Task deletion aborted to prevent fund loss.",
+          );
+          return;
+        }
+
+        console.log("Task cancelled on-chain successfully:", txSignature);
+        toast.success("Blockchain escrow cancelled successfully!");
+      } else {
+        console.log(
+          "Skipping on-chain cancellation - no reward amount or wallet address",
+        );
+        toast.info("No blockchain escrow to cancel for this task.");
+      }
+
+      // If on-chain cancellation succeeded (or was skipped), proceed with database deletion
+      toast.info("Deleting task from database...");
+      fetcher.submit({ _action: "deleteTask", taskId }, { method: "POST" });
+      setSelectedTaskId(null);
+    } catch (error) {
+      console.error("Error during task deletion:", error);
+      toast.error(
+        `Failed to delete task: ${error instanceof Error ? error.message : "Unknown error occurred"}`,
+      );
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   // task creation related functions
@@ -279,6 +336,19 @@ export default function ManageTasks() {
       setShowCreateTask(false);
     }
   }, [taskFormFetcher.data]);
+
+  // Reset deletion state when fetcher completes
+  useEffect(() => {
+    if (fetcher.state === "idle" && isProcessing) {
+      // Check if the deletion was successful
+      if (fetcher.data && !fetcher.data.error) {
+        toast.success("Task deleted successfully from database!");
+      } else if (fetcher.data?.error) {
+        toast.error(`Database deletion failed: ${fetcher.data.error}`);
+      }
+      setIsProcessing(false);
+    }
+  }, [fetcher.state, fetcher.data, isProcessing]);
 
   return (
     <div className="flex flex-col lg:flex-row w-full lg:min-h-screen p-4 -mt-8">

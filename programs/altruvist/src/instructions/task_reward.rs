@@ -12,6 +12,7 @@ use crate::{
 /// Update the reward amount for an existing task
 pub fn update_task_reward(
     ctx: Context<UpdateTaskReward>,
+    _task_id: String, // Add task_id parameter
     new_reward_amount: u64,
 ) -> Result<()> {
     let clock = Clock::get()?;
@@ -160,10 +161,11 @@ pub fn cancel_pending_decrease(
 // Account validation structs
 
 #[derive(Accounts)]
+#[instruction(task_id: String, new_reward_amount: u64)]
 pub struct UpdateTaskReward<'info> {
     #[account(
         mut,
-        seeds = [b"task", task.task_id.as_bytes(), creator.key().as_ref()],
+        seeds = [b"task", task_id.as_bytes(), creator.key().as_ref()],
         bump = task.bump
     )]
     pub task: Account<'info, Task>,

@@ -55,11 +55,21 @@ pub mod altruvist {
     /// Update task reward amount
     pub fn update_task_reward(
         ctx: Context<UpdateTaskReward>,
+        task_id: String,
         new_reward_amount: u64,
     ) -> Result<()> {
-        instructions::update_task_reward(ctx, new_reward_amount)
+        instructions::update_task_reward(ctx, task_id, new_reward_amount)
     }
 
+    /// Assign a task to a specific user
+    pub fn assign_task(
+        ctx: Context<AssignTask>,
+        task_id: String,
+        assignee: Pubkey,
+    ) -> Result<()> {
+        instructions::assign_task(ctx, task_id, assignee)
+    }
+    
     /// Execute a pending reward decrease after time lock period
     pub fn execute_pending_decrease(
         ctx: Context<ExecutePendingDecrease>,
@@ -85,10 +95,10 @@ pub mod altruvist {
     }
 
     /// Cancel a task and refund creator
-    pub fn cancel_task(
+    pub fn delete_task(
         ctx: Context<CancelTask>,
         task_id: String,
     ) -> Result<()> {
-        instructions::cancel_task(ctx, task_id)
+        instructions::delete_task(ctx, task_id)
     }
 }
