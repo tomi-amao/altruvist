@@ -9,6 +9,7 @@ pub mod errors;
 pub mod utils;
 
 use instructions::*;
+use state::TaskStatus;
 
 #[program]
 pub mod altruvist {
@@ -69,6 +70,15 @@ pub mod altruvist {
     ) -> Result<()> {
         instructions::assign_task(ctx, task_id, assignee)
     }
+
+    /// Assign a task to multiple users at once
+    pub fn assign_task_multiple(
+        ctx: Context<AssignTask>,
+        task_id: String,
+        assignees: Vec<Pubkey>,
+    ) -> Result<()> {
+        instructions::assign_task_multiple(ctx, task_id, assignees)
+    }
     
     /// Execute a pending reward decrease after time lock period
     pub fn execute_pending_decrease(
@@ -86,17 +96,34 @@ pub mod altruvist {
         instructions::cancel_pending_decrease(ctx, task_id)
     }
 
-    /// Complete a task and transfer rewards
-    pub fn complete_task(
-        ctx: Context<CompleteTask>,
+    /// Update task status
+    pub fn update_task_status(
+        ctx: Context<UpdateTaskStatus>,
+        task_id: String,
+        new_status: TaskStatus,
+    ) -> Result<()> {
+        instructions::update_task_status(ctx, task_id, new_status)
+    }
+
+    /// Claim reward as an assignee
+    pub fn claim_reward(
+        ctx: Context<ClaimReward>,
         task_id: String,
     ) -> Result<()> {
-        instructions::complete_task(ctx, task_id)
+        instructions::claim_reward(ctx, task_id)
+    }
+
+    /// Close a completed task account after all assignees have claimed
+    pub fn close_task(
+        ctx: Context<CloseTask>,
+        task_id: String,
+    ) -> Result<()> {
+        instructions::close_task(ctx, task_id)
     }
 
     /// Cancel a task and refund creator
     pub fn delete_task(
-        ctx: Context<CancelTask>,
+        ctx: Context<DeleteTask>,
         task_id: String,
     ) -> Result<()> {
         instructions::delete_task(ctx, task_id)

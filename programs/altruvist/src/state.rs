@@ -1,4 +1,5 @@
 use anchor_lang::prelude::*;
+use crate::errors::AltruistError;
 
 /// Faucet PDA that controls the mint authority
 #[account]
@@ -52,7 +53,7 @@ impl UserRequestRecord {
 }
 
 /// Task status enumeration
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq)]
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq, Debug)]
 pub enum TaskStatus {
     Created,
     InProgress,
@@ -73,8 +74,10 @@ pub struct Task {
     pub creator: Pubkey,
     /// Escrow token account holding rewards
     pub escrow_account: Pubkey,
-    /// Optional assignee public key
-    pub assignee: Option<Pubkey>,
+    /// List of assignees public keys (max 10 assignees)
+    pub assignees: Vec<Pubkey>,
+    /// List of assignees who have claimed their rewards
+    pub claimed_assignees: Vec<Pubkey>,
     /// Creation timestamp
     pub created_at: i64,
     /// Last updated timestamp
@@ -88,13 +91,17 @@ pub struct Task {
 }
 
 impl Task {
+    // Maximum number of assignees allowed
+    pub const MAX_ASSIGNEES: usize = 10;
+    
     pub const LEN: usize = 8 + // discriminator
         4 + 50 + // task_id (String with max 50 chars)
         8 + // reward_amount
         1 + 1 + // status (enum + discriminator)
         32 + // creator
         32 + // escrow_account
-        1 + 32 + // assignee (Option<Pubkey>)
+        4 + (32 * Self::MAX_ASSIGNEES) + // assignees (Vec<Pubkey> with max 10 entries)
+        4 + (32 * Self::MAX_ASSIGNEES) + // claimed_assignees (Vec<Pubkey> with max 10 entries)
         8 + // created_at
         8 + // updated_at
         1 + 8 + // pending_decrease_amount (Option<u64>)
@@ -111,7 +118,7 @@ impl Task {
 
     /// Check if task can be completed
     pub fn can_complete(&self) -> bool {
-        matches!(self.status, TaskStatus::Created | TaskStatus::InProgress)
+        matches!(self.status, TaskStatus::Created | TaskStatus::InProgress) && !self.assignees.is_empty()
     }
 
     /// Check if task can be cancelled
@@ -139,10 +146,54 @@ impl Task {
         self.updated_at = Clock::get().unwrap().unix_timestamp;
     }
 
-    /// Assign task to a user
-    pub fn assign_to(&mut self, assignee: Pubkey) {
-        self.assignee = Some(assignee);
+    /// Assign task to multiple users
+    pub fn assign_to_multiple(&mut self, assignees: Vec<Pubkey>) -> Result<()> {
+        require!(assignees.len() <= Self::MAX_ASSIGNEES, AltruistError::TooManyAssignees);
+        require!(!assignees.is_empty(), AltruistError::NoAssignees);
+        
+        // Check for duplicates
+        for (i, assignee) in assignees.iter().enumerate() {
+            for (j, other) in assignees.iter().enumerate() {
+                if i != j && assignee == other {
+                    return Err(AltruistError::DuplicateAssignee.into());
+                }
+            }
+            // Ensure assignee is not the creator
+            require!(assignee != &self.creator, AltruistError::CannotAssignToCreator);
+        }
+        
+        self.assignees = assignees;
+        Ok(())
+    }
+
+    /// Add a single assignee to the task
+    pub fn assign_to(&mut self, assignee: Pubkey) -> Result<()> {
+        require!(self.assignees.len() < Self::MAX_ASSIGNEES, AltruistError::TooManyAssignees);
+        require!(assignee != self.creator, AltruistError::CannotAssignToCreator);
+        require!(!self.assignees.contains(&assignee), AltruistError::DuplicateAssignee);
+        
+        self.assignees.push(assignee);
         self.update_status(TaskStatus::InProgress);
+        Ok(())
+    }
+
+    /// Check if a user is assigned to this task
+    pub fn is_assignee(&self, user: &Pubkey) -> bool {
+        self.assignees.contains(user)
+    }
+
+    /// Get the number of assignees
+    pub fn assignee_count(&self) -> usize {
+        self.assignees.len()
+    }
+
+    /// Calculate reward per assignee
+    pub fn reward_per_assignee(&self) -> u64 {
+        if self.assignees.is_empty() {
+            0
+        } else {
+            self.reward_amount / self.assignees.len() as u64
+        }
     }
 
     /// Request a decrease in reward amount
@@ -167,5 +218,29 @@ impl Task {
         self.pending_decrease_amount = None;
         self.decrease_requested_at = None;
         self.updated_at = current_time;
+    }
+
+    /// Check if an assignee has already claimed their reward
+    pub fn has_claimed(&self, assignee: &Pubkey) -> bool {
+        self.claimed_assignees.contains(assignee)
+    }
+
+    /// Mark an assignee as having claimed their reward
+    pub fn mark_claimed(&mut self, assignee: Pubkey) -> Result<()> {
+        require!(self.is_assignee(&assignee), AltruistError::UnauthorizedAssignee);
+        require!(!self.has_claimed(&assignee), AltruistError::AlreadyClaimed);
+        
+        self.claimed_assignees.push(assignee);
+        Ok(())
+    }
+
+    /// Check if all assignees have claimed their rewards
+    pub fn all_rewards_claimed(&self) -> bool {
+        !self.assignees.is_empty() && self.claimed_assignees.len() == self.assignees.len()
+    }
+
+    /// Check if the task account can be closed (all rewards claimed and escrow empty)
+    pub fn can_close_account(&self) -> bool {
+        matches!(self.status, TaskStatus::Completed) && self.all_rewards_claimed()
     }
 }

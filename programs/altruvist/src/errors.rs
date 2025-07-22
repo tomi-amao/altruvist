@@ -82,4 +82,16 @@ pub enum AltruistError {
 
     #[msg("Cannot assign task to creator")]
     CannotAssignToCreator,
+
+    #[msg("Too many assignees (max 10 allowed)")]
+    TooManyAssignees,
+
+    #[msg("No assignees provided")]
+    NoAssignees,
+
+    #[msg("Duplicate assignee detected")]
+    DuplicateAssignee,
+
+    #[msg("Assignee has already claimed their reward")]
+    AlreadyClaimed,
 }
