@@ -134,7 +134,7 @@ pub fn complete_task(
 
 /// Cancel a task and refund creator
 pub fn delete_task(
-    ctx: Context<CancelTask>,
+    ctx: Context<DeleteTask>,
     task_id: String,
 ) -> Result<()> {
     let task = &ctx.accounts.task;
@@ -322,7 +322,7 @@ pub struct CompleteTask<'info> {
 
 #[derive(Accounts)]
 #[instruction(task_id: String)]
-pub struct CancelTask<'info> {
+pub struct DeleteTask<'info> {
     #[account(
         mut,
         seeds = [b"task", task_id.as_bytes(), creator.key().as_ref()],

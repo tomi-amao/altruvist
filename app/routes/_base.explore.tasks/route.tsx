@@ -679,6 +679,7 @@ export default function Explore() {
                   volunteerDetails={{ taskApplications, userId: userInfo?.id }}
                   userRole={userInfo?.roles}
                   location={task.location}
+                  rewardAmount={task.rewardAmount}
                 />
               ))
             : !isLoading && (

@@ -1,5 +1,6 @@
 import { IdlAccounts, IdlTypes } from "@coral-xyz/anchor";
 import { Altruvist } from "../../target/types/altruvist";
+import { Token } from "@solana-program/token-2022";
 
 // Export the program type
 export type AltruvistProgram = Altruvist;
@@ -31,7 +32,7 @@ export type OnChainTaskData = TaskAccount;
 // Escrow account data structure
 export interface EscrowAccountData {
   address: string;
-  data: TokenAccountInfo;
+  data: Token;
   executable: boolean;
   exists: boolean;
   lamports: bigint;

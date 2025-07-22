@@ -18,6 +18,10 @@ import {
   Check,
 } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
+import { BlockchainInfo } from "../blockchain/BlockchainInfo";
+import { OnChainTaskData, EscrowAccountData } from "~/types/blockchain";
+import { useSolanaService } from "~/hooks/useSolanaService";
+import { address } from "@solana/kit";
 
 interface Resource {
   name: string;
@@ -57,6 +61,8 @@ interface TaskDetailsData {
     lat?: number;
     lng?: number;
   } | null;
+  rewardAmount?: number;
+  creatorWalletAddress?: string;
 }
 
 // Props that only need taskId
@@ -87,6 +93,14 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showShareTooltip, setShowShareTooltip] = useState(false);
+
+  // Blockchain state
+  const [escrowInfo, setEscrowInfo] = useState<EscrowAccountData | null>(null);
+  const [onChainTask, setOnChainTask] = useState<OnChainTaskData | null>(null);
+  const [isLoadingEscrow, setIsLoadingEscrow] = useState(false);
+  const [isRetryingEscrow, setIsRetryingEscrow] = useState(false);
+  const [isUpdatingReward, setIsUpdatingReward] = useState(false);
+  const { taskEscrowService } = useSolanaService();
 
   // For generating colored dots for category and skills
   const getColorDot = (value: string) => {
@@ -147,6 +161,51 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
     }
   }, [taskFetcher.data, isMinimalProps]);
 
+  // Load blockchain data when task data is available
+  useEffect(() => {
+    const getOnChainTask = async () => {
+      if (!taskData?.id || !taskData?.rewardAmount || !taskEscrowService)
+        return;
+
+      try {
+        setIsLoadingEscrow(true);
+        const onChainTaskData = await taskEscrowService.getTaskInfo(
+          taskData.id,
+          taskData.creatorWalletAddress ||
+            "GVv2rNjCVkbLd1kiqytZHNbxWVGwS8tsTcsiJmY6NxLQ",
+        );
+
+        if (onChainTaskData) {
+          setOnChainTask(onChainTaskData);
+          const escrowAccount = onChainTaskData.escrowAccount;
+
+          if (escrowAccount) {
+            const escrowData = await taskEscrowService.getEscrowInfo(
+              address(escrowAccount.toString()),
+            );
+            if (escrowData) {
+              setEscrowInfo({
+                address: escrowData.address,
+                data: escrowData.data,
+                executable: escrowData.executable,
+                exists: true,
+                lamports: escrowData.lamports,
+                programAddress: escrowData.programAddress,
+                space: escrowData.space,
+              });
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching on-chain task:", error);
+      } finally {
+        setIsLoadingEscrow(false);
+      }
+    };
+
+    getOnChainTask();
+  }, [taskData?.id, taskData?.rewardAmount, taskEscrowService]);
+
   const handleApply = (taskId: string, charityId: string) => {
     fetcher.submit(
       { taskId, charityId },
@@ -181,6 +240,141 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
       .catch((err) => {
         console.error("Failed to copy URL: ", err);
       });
+  };
+
+  const handleRetryEscrow = async () => {
+    if (!taskEscrowService || !taskData?.id || !taskData?.rewardAmount) {
+      console.error("Missing required data for escrow creation");
+      return;
+    }
+
+    setIsRetryingEscrow(true);
+
+    try {
+      // Use the public method instead of accessing private solanaService
+      const txSignature = await taskEscrowService.createTaskEscrow({
+        taskId: taskData.id,
+        rewardAmount: taskData.rewardAmount,
+        creatorWallet:
+          taskData.creatorWalletAddress ||
+          "GVv2rNjCVkbLd1kiqytZHNbxWVGwS8tsTcsiJmY6NxLQ",
+        mintAddress: "", // This will be fetched internally by the service
+      });
+
+      if (txSignature) {
+        console.log("Escrow creation successful:", txSignature);
+        // Refresh the blockchain data after successful creation
+        setTimeout(() => {
+          const refreshData = async () => {
+            try {
+              const onChainTaskData = await taskEscrowService.getTaskInfo(
+                taskData.id,
+                taskData.creatorWalletAddress ||
+                  "GVv2rNjCVkbLd1kiqytZHNbxWVGwS8tsTcsiJmY6NxLQ",
+              );
+
+              if (onChainTaskData) {
+                setOnChainTask(onChainTaskData);
+                const escrowAccount = onChainTaskData.escrowAccount;
+
+                if (escrowAccount) {
+                  const escrowData = await taskEscrowService.getEscrowInfo(
+                    address(escrowAccount.toString()),
+                  );
+                  if (escrowData) {
+                    setEscrowInfo({
+                      address: escrowData.address,
+                      data: escrowData.data,
+                      executable: escrowData.executable,
+                      exists: true,
+                      lamports: escrowData.lamports,
+                      programAddress: escrowData.programAddress,
+                      space: escrowData.space,
+                    });
+                  }
+                }
+              }
+            } catch (error) {
+              console.error("Error refreshing blockchain data:", error);
+            } finally {
+              setIsLoadingEscrow(false);
+            }
+          };
+          refreshData();
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("Error creating escrow:", error);
+    } finally {
+      setIsRetryingEscrow(false);
+    }
+  };
+
+  const handleUpdateReward = async (newRewardAmount: number) => {
+    if (!taskEscrowService || !taskData?.id || !newRewardAmount) {
+      console.error("Missing required data for reward update");
+      return;
+    }
+
+    setIsUpdatingReward(true);
+
+    try {
+      const txSignature = await taskEscrowService.updateTaskReward(
+        taskData.id,
+        newRewardAmount,
+        { simulate: false },
+      );
+
+      if (txSignature) {
+        console.log("Reward update successful:", txSignature);
+        // Refresh the blockchain data after successful update
+        setTimeout(() => {
+          const refreshData = async () => {
+            try {
+              const onChainTaskData = await taskEscrowService.getTaskInfo(
+                taskData.id,
+                taskData.creatorWalletAddress ||
+                  "GVv2rNjCVkbLd1kiqytZHNbxWVGwS8tsTcsiJmY6NxLQ",
+              );
+
+              if (onChainTaskData) {
+                setOnChainTask(onChainTaskData);
+                const escrowAccount = onChainTaskData.escrowAccount;
+
+                if (escrowAccount) {
+                  const escrowData = await taskEscrowService.getEscrowInfo(
+                    address(escrowAccount.toString()),
+                  );
+                  if (escrowData) {
+                    setEscrowInfo({
+                      address: escrowData.address,
+                      data: escrowData.data,
+                      executable: escrowData.executable,
+                      exists: true,
+                      lamports: escrowData.lamports,
+                      programAddress: escrowData.programAddress,
+                      space: escrowData.space,
+                    });
+                  }
+                }
+              }
+            } catch (error) {
+              console.error(
+                "Error refreshing blockchain data after reward update:",
+                error,
+              );
+            } finally {
+              setIsLoadingEscrow(false);
+            }
+          };
+          refreshData();
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("Error updating reward:", error);
+    } finally {
+      setIsUpdatingReward(false);
+    }
   };
 
   // Return loading state if data is not ready yet
@@ -468,12 +662,28 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
                         fileSize={resource.size}
                         fileUrl={resource.uploadURL}
                         fileExtension={resource.extension}
+                        isEditing={false}
                       />
                     ))}
                   </div>
                 </div>
               </section>
             )}
+
+            {/* Blockchain Information Section */}
+            <BlockchainInfo
+              onChainTask={onChainTask}
+              escrowInfo={escrowInfo}
+              isLoading={isLoadingEscrow}
+              rewardAmount={taskData.rewardAmount}
+              taskId={taskData.id}
+              creatorWallet={taskData.creatorWalletAddress}
+              userRole={taskData.userRole}
+              onRetryEscrow={handleRetryEscrow}
+              isRetrying={isRetryingEscrow}
+              onUpdateReward={handleUpdateReward}
+              isUpdatingReward={isUpdatingReward}
+            />
           </div>
 
           {/* Sidebar */}
