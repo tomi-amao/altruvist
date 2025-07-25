@@ -1,10 +1,10 @@
 import { SolanaService } from "./solana.client";
+import { BlockchainReaderService } from "./blockchain-reader.client";
 import { toast } from "react-toastify";
 import * as anchor from "@coral-xyz/anchor";
 import { PublicKey, Transaction } from "@solana/web3.js";
 import { Altruvist } from "../../target/types/altruvist";
-import { fetchToken } from "@solana-program/token-2022";
-import { address, type Address, createSolanaRpc } from "@solana/kit";
+import { type Address } from "@solana/kit";
 
 export interface TaskEscrowData {
   taskId: string;
@@ -27,9 +27,11 @@ export type TaskStatus = anchor.IdlTypes<Altruvist>["TaskStatus"];
 
 export class TaskEscrowService {
   private solanaService: SolanaService;
+  private blockchainReader: BlockchainReaderService;
 
   constructor(solanaService: SolanaService) {
     this.solanaService = solanaService;
+    this.blockchainReader = new BlockchainReaderService();
   }
 
   /**
@@ -99,7 +101,7 @@ export class TaskEscrowService {
       const rewardAmountWithDecimals = taskData.rewardAmount * Math.pow(10, 6);
 
       // Get faucet info to get the mint address
-      const faucetInfo = await this.solanaService.getFaucetInfo();
+      const faucetInfo = await this.blockchainReader.getFaucetInfo();
       if (!faucetInfo) {
         toast.error("Failed to get faucet information");
         return undefined;
@@ -267,7 +269,7 @@ export class TaskEscrowService {
       }
 
       // Get faucet info for mint address
-      const faucetInfo = await this.solanaService.getFaucetInfo();
+      const faucetInfo = await this.blockchainReader.getFaucetInfo();
       if (!faucetInfo) {
         throw new Error("Failed to get faucet information");
       }
@@ -390,7 +392,7 @@ export class TaskEscrowService {
       }
 
       // Get faucet info for mint address
-      const faucetInfo = await this.solanaService.getFaucetInfo();
+      const faucetInfo = await this.blockchainReader.getFaucetInfo();
       if (!faucetInfo) {
         throw new Error("Failed to get faucet information");
       }
@@ -493,39 +495,11 @@ export class TaskEscrowService {
     taskId: string,
     creatorWallet: string,
   ): Promise<TaskAccount | null> {
-    try {
-      const [taskPDA] = PublicKey.findProgramAddressSync(
-        [
-          Buffer.from("task"),
-          Buffer.from(taskId),
-          new PublicKey(creatorWallet).toBuffer(),
-        ],
-        this.solanaService.program.programId,
-      );
-      console.log("Fetching task info for PDA:", taskPDA.toBase58());
-
-      const taskAccount =
-        await this.solanaService.program.account.task.fetch(taskPDA);
-
-      return taskAccount as TaskAccount;
-    } catch (error) {
-      console.error("Error fetching task info:", error);
-      return null;
-    }
+    return this.blockchainReader.getTaskInfo(taskId, creatorWallet);
   }
 
   async getEscrowInfo(escrowAddress: Address) {
-    const rpc = createSolanaRpc("https://api.devnet.solana.com");
-    const escrowAccount = await fetchToken(
-      rpc,
-      address(escrowAddress.toString()),
-    );
-
-    if (!escrowAccount) {
-      console.error("Escrow account not found:", escrowAddress);
-      return null;
-    }
-    return escrowAccount;
+    return this.blockchainReader.getEscrowInfo(escrowAddress);
   }
 
   /**
@@ -549,7 +523,7 @@ export class TaskEscrowService {
       );
 
       // Get faucet info for mint address
-      const faucetInfo = await this.solanaService.getFaucetInfo();
+      const faucetInfo = await this.blockchainReader.getFaucetInfo();
       if (!faucetInfo) {
         throw new Error("Failed to get faucet information");
       }

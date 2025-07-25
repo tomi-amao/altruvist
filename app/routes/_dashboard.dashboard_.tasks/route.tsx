@@ -164,7 +164,6 @@ export default function ManageTasks() {
       if (
         taskToDelete.rewardAmount &&
         taskToDelete.rewardAmount > 0 &&
-        "GVv2rNjCVkbLd1kiqytZHNbxWVGwS8tsTcsiJmY6NxLQ" &&
         taskEscrowService
       ) {
         console.log("Cancelling task on-chain:", taskId);

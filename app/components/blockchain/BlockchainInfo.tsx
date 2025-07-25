@@ -376,16 +376,16 @@ export function BlockchainInfo({
               <button
                 onClick={onRetryEscrow}
                 disabled={isRetrying}
-                className={`animated-border-btn w-full rounded-lg text-sm font-medium transition-all duration-200 relative ${
+                className={`w-full rounded-lg text-sm font-medium transition-all duration-300 ${
                   isRetrying
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg"
+                    ? "opacity-50 cursor-not-allowed bg-baseSecondary/50 text-basePrimary/50 px-4 py-2"
+                    : "animated-border-btn "
                 }`}
               >
                 <span>
                   {isRetrying ? (
                     <div className="flex items-center justify-center gap-2">
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      <div className="w-4 h-4 border-2 border-basePrimary/30 border-t-basePrimary rounded-full animate-spin"></div>
                       Creating Escrow...
                     </div>
                   ) : (

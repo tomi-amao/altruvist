@@ -41,17 +41,17 @@
 }
 @property --Color {
   syntax: "<color>";
-  initial-value: #8b5cf6;
+  initial-value: #cb700ef5;
 }
 
 @keyframes rotate-escrow-border {
   0% {
     --animate-duration: 0deg;
-    --Color: #8b5cf6;
+    --Color: #cb700ef5;
   }
   100% {
     --animate-duration: 360deg;
-    --Color: #8b5cf6;
+    --Color: #cb700ef5;
   }
 }
 
@@ -65,7 +65,7 @@
 }
 
 .animated-border-btn:hover {
-  filter: drop-shadow(0 0 20px #8b5cf6);
+  filter: drop-shadow(0 0 10px #cb700ef5);
 }
 
 .animated-border-btn:after,
@@ -106,10 +106,10 @@
   display: block;
   width: 100%;
   height: 100%;
-  background: var(--color-baseSecondary);
+  background: var(--color-light-grey);
   border-radius: calc(0.5rem - 1px);
   padding: 0.5rem 1rem; /* Independent padding for content */
-  color: white;
+  color: var(--color-baseSecondary);
   font-weight: inherit;
   font-size: inherit;
   display: flex;
@@ -122,9 +122,7 @@
 }
 
 .animated-border-btn:hover > span {
-  box-shadow:
-    0 6px 25px rgba(139, 92, 246, 0.3),
-    0 4px 12px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 6px 20px #cb700ef5;
 }
 
 @layer utilities {

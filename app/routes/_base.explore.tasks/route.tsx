@@ -680,6 +680,7 @@ export default function Explore() {
                   userRole={userInfo?.roles}
                   location={task.location}
                   rewardAmount={task.rewardAmount}
+                  creatorWalletAddress={task.creatorWalletAddress}
                 />
               ))
             : !isLoading && (

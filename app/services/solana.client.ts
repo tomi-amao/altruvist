@@ -12,6 +12,7 @@ import { PublicKey, SystemProgram, Connection } from "@solana/web3.js";
 import { getBurnCheckedInstruction } from "@solana-program/token-2022";
 import idl from "../../target/idl/altruvist.json";
 import { toast } from "react-toastify";
+import { BlockchainReaderService } from "./blockchain-reader.client";
 
 // Define interfaces for type safety
 interface FaucetAccount {
@@ -86,9 +87,11 @@ export class SolanaService {
   public wallet: anchor.Wallet;
   public program: anchor.Program;
   public provider!: anchor.AnchorProvider;
+  private blockchainReader: BlockchainReaderService;
 
   constructor(wallet: anchor.Wallet) {
     this.wallet = wallet;
+    this.blockchainReader = new BlockchainReaderService();
     this.program = this.getProgram();
   }
 
@@ -384,39 +387,6 @@ export class SolanaService {
         `Failed to request tokens: ${error instanceof Error ? error.message : String(error)}`,
       );
       return undefined;
-    }
-  }
-
-  async getFaucetInfo(): Promise<{
-    address: string;
-    mint: string;
-    authority: string;
-    tokenAccount: string;
-    rateLimit: string;
-    cooldownPeriod: string;
-  } | null> {
-    try {
-      // Derive faucet PDA
-      const [faucetPda] = PublicKey.findProgramAddressSync(
-        [Buffer.from("altru_faucet")],
-        this.program.programId,
-      );
-
-      // Use proper typing for the account access
-      const faucetAccount = await (
-        this.program.account as ProgramAccountNamespace
-      ).faucet.fetch(faucetPda);
-      return {
-        address: faucetPda.toBase58(),
-        mint: faucetAccount.mint.toBase58(),
-        authority: faucetAccount.authority.toBase58(),
-        tokenAccount: faucetAccount.tokenAccount.toBase58(),
-        rateLimit: faucetAccount.rateLimit.toString(),
-        cooldownPeriod: faucetAccount.cooldownPeriod.toString(),
-      };
-    } catch (error) {
-      console.error("Error fetching faucet info:", error);
-      return null;
     }
   }
 

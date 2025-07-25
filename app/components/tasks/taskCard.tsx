@@ -77,7 +77,7 @@ export default function TaskSummaryCard(task: taskAdditionalDetails) {
   const [escrowInfo, setEscrowInfo] = useState<EscrowAccountData | null>(null);
   const [onChainTask, setOnChainTask] = useState<OnChainTaskData | null>(null);
   const [isLoadingEscrow, setIsLoadingEscrow] = useState(false);
-  const { taskEscrowService } = useSolanaService();
+  const { blockchainReader } = useSolanaService();
 
   const handleCloseModal = () => {
     setShowModal(false);
@@ -86,14 +86,20 @@ export default function TaskSummaryCard(task: taskAdditionalDetails) {
   // Load blockchain data when component mounts or task changes
   useEffect(() => {
     const getOnChainTask = async () => {
-      if (!task.id || !task.rewardAmount || !taskEscrowService) return;
+      if (
+        !task.id ||
+        !task.rewardAmount ||
+        !task.creatorWalletAddress ||
+        !blockchainReader
+      )
+        return;
 
       try {
         setIsLoadingEscrow(true);
-        const onChainTaskData = await taskEscrowService.getTaskInfo(
+        // Use blockchainReader for read-only operations (no wallet required)
+        const onChainTaskData = await blockchainReader.getTaskInfo(
           task.id,
-          task.creatorWalletAddress ||
-            "GVv2rNjCVkbLd1kiqytZHNbxWVGwS8tsTcsiJmY6NxLQ",
+          task.creatorWalletAddress,
         );
 
         if (onChainTaskData) {
@@ -101,7 +107,8 @@ export default function TaskSummaryCard(task: taskAdditionalDetails) {
           const escrowAccount = onChainTaskData.escrowAccount;
 
           if (escrowAccount) {
-            const escrowData = await taskEscrowService.getEscrowInfo(
+            // Use blockchainReader for read-only escrow info
+            const escrowData = await blockchainReader.getEscrowInfo(
               address(escrowAccount.toString()),
             );
             if (escrowData) {
@@ -125,7 +132,7 @@ export default function TaskSummaryCard(task: taskAdditionalDetails) {
     };
 
     getOnChainTask();
-  }, [task.id, task.rewardAmount, taskEscrowService]);
+  }, [task.id, task.rewardAmount, task.creatorWalletAddress, blockchainReader]);
 
   // Format deadline to a more readable format
   const formattedDeadline = task.deadline

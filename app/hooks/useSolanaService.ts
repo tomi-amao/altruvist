@@ -3,12 +3,25 @@ import { useAnchorWallet } from "@solana/wallet-adapter-react";
 import { useMemo } from "react";
 import { SolanaService } from "~/services/solana.client";
 import { TaskEscrowService } from "~/services/task-escrow.client";
+import { BlockchainReaderService } from "~/services/blockchain-reader.client";
 
 export function useSolanaService(): {
   solanaService: SolanaService | null;
   taskEscrowService: TaskEscrowService | null;
+  blockchainReader: BlockchainReaderService | null;
 } {
   const wallet = useAnchorWallet();
+
+  // Create blockchain reader service - this doesn't require a wallet
+  // But we need to make it SSR-safe
+  const blockchainReader = useMemo(() => {
+    try {
+      return new BlockchainReaderService();
+    } catch (error) {
+      console.error("Failed to create BlockchainReaderService:", error);
+      return null;
+    }
+  }, []);
 
   // Memoize the service instance so it's only recreated when wallet changes
   const solanaService = useMemo(() => {
@@ -28,5 +41,5 @@ export function useSolanaService(): {
     return new TaskEscrowService(solanaService);
   }, [solanaService]);
 
-  return { solanaService, taskEscrowService };
+  return { solanaService, taskEscrowService, blockchainReader };
 }

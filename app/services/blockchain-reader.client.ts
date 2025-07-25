@@ -1,0 +1,184 @@
+import * as anchor from "@coral-xyz/anchor";
+import { PublicKey, Connection } from "@solana/web3.js";
+import { fetchToken } from "@solana-program/token-2022";
+import { address, type Address, createSolanaRpc } from "@solana/kit";
+import idl from "../../target/idl/altruvist.json";
+import { Altruvist } from "../../target/types/altruvist";
+
+// Import types from the existing service
+import type { TaskAccount } from "./task-escrow.client";
+
+/**
+ * Read-only blockchain service for fetching on-chain data without requiring a wallet connection
+ * This service can be used independently to read blockchain state
+ */
+export class BlockchainReaderService {
+  private connection: Connection;
+  private program: anchor.Program<Altruvist>;
+
+  constructor(network: string = "https://api.devnet.solana.com") {
+    this.connection = new Connection(network, "confirmed");
+
+    // Create a provider without wallet for read-only operations
+    const provider = new anchor.AnchorProvider(
+      this.connection,
+      {} as anchor.Wallet, // Empty wallet object since we're only reading
+      anchor.AnchorProvider.defaultOptions(),
+    );
+
+    // Create the program with proper typing
+    this.program = new anchor.Program(idl as Altruvist, provider);
+  }
+
+  /**
+   * Get faucet information from the blockchain
+   */
+  async getFaucetInfo(): Promise<{
+    address: string;
+    mint: string;
+    authority: string;
+    tokenAccount: string;
+    rateLimit: string;
+    cooldownPeriod: string;
+  } | null> {
+    try {
+      // Derive faucet PDA
+      const [faucetPda] = PublicKey.findProgramAddressSync(
+        [Buffer.from("altru_faucet")],
+        this.program.programId,
+      );
+
+      // Use the properly typed program account access
+      const faucetAccount = await this.program.account.faucet.fetch(faucetPda);
+
+      return {
+        address: faucetPda.toBase58(),
+        mint: faucetAccount.mint.toBase58(),
+        authority: faucetAccount.authority.toBase58(),
+        tokenAccount: faucetAccount.tokenAccount.toBase58(),
+        rateLimit: faucetAccount.rateLimit.toString(),
+        cooldownPeriod: faucetAccount.cooldownPeriod.toString(),
+      };
+    } catch (error) {
+      console.error("Error fetching faucet info:", error);
+      return null;
+    }
+  }
+
+  /**
+   * Get task information from the blockchain
+   */
+  async getTaskInfo(
+    taskId: string,
+    creatorWallet: string,
+  ): Promise<TaskAccount | null> {
+    try {
+      const [taskPDA] = PublicKey.findProgramAddressSync(
+        [
+          Buffer.from("task"),
+          Buffer.from(taskId),
+          new PublicKey(creatorWallet).toBuffer(),
+        ],
+        this.program.programId,
+      );
+      console.log("Fetching task info for PDA:", taskPDA.toBase58());
+
+      // Use the properly typed program account access
+      const taskAccount = await this.program.account.task.fetch(taskPDA);
+
+      return taskAccount as TaskAccount;
+    } catch (error) {
+      console.error("Error fetching task info:", error);
+      return null;
+    }
+  }
+
+  /**
+   * Get escrow account information
+   */
+  async getEscrowInfo(escrowAddress: Address) {
+    try {
+      const rpc = createSolanaRpc("https://api.devnet.solana.com");
+      const escrowAccount = await fetchToken(
+        rpc,
+        address(escrowAddress.toString()),
+      );
+
+      if (!escrowAccount) {
+        console.error("Escrow account not found:", escrowAddress);
+        return null;
+      }
+      return escrowAccount;
+    } catch (error) {
+      console.error("Error fetching escrow info:", error);
+      return null;
+    }
+  }
+
+  /**
+   * Get user token balance for a specific mint
+   */
+  async getUserTokenBalance(
+    mintAddress: string,
+    userWallet: string,
+  ): Promise<number> {
+    try {
+      const mintPubkey = new PublicKey(mintAddress);
+      const userPubkey = new PublicKey(userWallet);
+
+      // Derive associated token account
+      const TOKEN_2022_PROGRAM_ID = new PublicKey(
+        "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+      );
+      const ASSOCIATED_TOKEN_PROGRAM_ID = new PublicKey(
+        "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+      );
+
+      const [userTokenAccount] = PublicKey.findProgramAddressSync(
+        [
+          userPubkey.toBuffer(),
+          TOKEN_2022_PROGRAM_ID.toBuffer(),
+          mintPubkey.toBuffer(),
+        ],
+        ASSOCIATED_TOKEN_PROGRAM_ID,
+      );
+
+      const tokenAccountInfo =
+        await this.connection.getTokenAccountBalance(userTokenAccount);
+      return parseFloat(tokenAccountInfo.value.uiAmount?.toString() || "0");
+    } catch (error) {
+      console.error("Error fetching user token balance:", error);
+      return 0;
+    }
+  }
+
+  /**
+   * Get SOL balance for a wallet
+   */
+  async getSolBalance(walletAddress: string): Promise<number> {
+    try {
+      const balance = await this.connection.getBalance(
+        new PublicKey(walletAddress),
+      );
+      return balance / 1000000000; // Convert lamports to SOL
+    } catch (error) {
+      console.error("Error fetching SOL balance:", error);
+      return 0;
+    }
+  }
+
+  /**
+   * Check if an account exists on the blockchain
+   */
+  async accountExists(address: string): Promise<boolean> {
+    try {
+      const accountInfo = await this.connection.getAccountInfo(
+        new PublicKey(address),
+      );
+      return accountInfo !== null;
+    } catch (error) {
+      console.error("Error checking account existence:", error);
+      return false;
+    }
+  }
+}

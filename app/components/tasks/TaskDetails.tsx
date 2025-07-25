@@ -28,6 +28,8 @@ import {
   Fire,
 } from "@phosphor-icons/react";
 import { useSolanaService } from "~/hooks/useSolanaService";
+import { useAnchorWallet } from "@solana/wallet-adapter-react";
+import { toast } from "react-toastify";
 
 interface TaskDetailsProps {
   task: tasks & {
@@ -71,7 +73,8 @@ export function TaskDetails({
   const [isLoadingEscrow, setIsLoadingEscrow] = useState(false);
   const [isRetryingEscrow, setIsRetryingEscrow] = useState(false);
   const [isUpdatingReward, setIsUpdatingReward] = useState(false);
-  const { taskEscrowService } = useSolanaService();
+  const { taskEscrowService, blockchainReader } = useSolanaService();
+  const wallet = useAnchorWallet();
 
   useEffect(() => {
     console.log("TaskDetails mounted with task:", task);
@@ -82,14 +85,20 @@ export function TaskDetails({
     setIsLoadingEscrow(false);
 
     const getOnChainTask = async () => {
-      if (!task.id || !task.rewardAmount) return;
+      if (
+        !task.id ||
+        !task.rewardAmount ||
+        !task.creatorWalletAddress ||
+        !blockchainReader
+      )
+        return;
 
       try {
         setIsLoadingEscrow(true);
-        const onChainTaskData = await taskEscrowService?.getTaskInfo(
+        // Use blockchainReader for read-only operations (no wallet required)
+        const onChainTaskData = await blockchainReader.getTaskInfo(
           task.id,
-          task?.creatorWalletAddress ||
-            "GVv2rNjCVkbLd1kiqytZHNbxWVGwS8tsTcsiJmY6NxLQ",
+          task.creatorWalletAddress,
         );
 
         if (onChainTaskData) {
@@ -98,8 +107,9 @@ export function TaskDetails({
           console.log("On-chain task data:", onChainTaskData);
 
           if (escrowAccount) {
+            // Use blockchainReader for read-only escrow info
             const escrowData =
-              await taskEscrowService?.getEscrowInfo(escrowAccount);
+              await blockchainReader.getEscrowInfo(escrowAccount);
             console.log("Escrow info:", escrowData);
             setEscrowInfo(escrowData);
           }
@@ -111,7 +121,7 @@ export function TaskDetails({
       }
     };
     getOnChainTask();
-  }, [task.id, task.rewardAmount, taskEscrowService]); // Added task.id and task.rewardAmount to dependencies
+  }, [task.id, task.rewardAmount, task.creatorWalletAddress, blockchainReader]);
 
   const handleRetryEscrow = async () => {
     if (!taskEscrowService || !task.id || !task.rewardAmount) {
@@ -122,7 +132,8 @@ export function TaskDetails({
     setIsRetryingEscrow(true);
 
     try {
-      const faucetInfo = await taskEscrowService.solanaService.getFaucetInfo();
+      // Use blockchainReader for faucet info (read-only operation)
+      const faucetInfo = await blockchainReader.getFaucetInfo();
       if (!faucetInfo) {
         throw new Error("Failed to get faucet information");
       }
@@ -130,9 +141,7 @@ export function TaskDetails({
       const txSignature = await taskEscrowService.createTaskEscrow({
         taskId: task.id,
         rewardAmount: task.rewardAmount,
-        creatorWallet:
-          task.creatorWalletAddress ||
-          "GVv2rNjCVkbLd1kiqytZHNbxWVGwS8tsTcsiJmY6NxLQ",
+        creatorWallet: task.creatorWalletAddress,
         mintAddress: faucetInfo.mint,
       });
 
@@ -144,10 +153,10 @@ export function TaskDetails({
           setIsLoadingEscrow(true);
           const refreshData = async () => {
             try {
-              const onChainTaskData = await taskEscrowService.getTaskInfo(
+              // Use blockchainReader for read-only operations
+              const onChainTaskData = await blockchainReader.getTaskInfo(
                 task.id,
-                task.creatorWalletAddress ||
-                  "GVv2rNjCVkbLd1kiqytZHNbxWVGwS8tsTcsiJmY6NxLQ",
+                task.creatorWalletAddress,
               );
 
               if (onChainTaskData) {
@@ -156,7 +165,7 @@ export function TaskDetails({
 
                 if (escrowAccount) {
                   const escrowData =
-                    await taskEscrowService.getEscrowInfo(escrowAccount);
+                    await blockchainReader.getEscrowInfo(escrowAccount);
                   setEscrowInfo(escrowData);
                 }
               }
@@ -301,6 +310,11 @@ export function TaskDetails({
   };
 
   const handleUpdateReward = async (newRewardAmount: number) => {
+    if (!wallet) {
+      console.error("Wallet is not connected");
+      toast.error("Please connect your wallet to update the reward");
+      return;
+    }
     if (!taskEscrowService || !task.id || !newRewardAmount) {
       console.error("Missing required data for reward update");
       return;
@@ -323,10 +337,10 @@ export function TaskDetails({
           setIsLoadingEscrow(true);
           const refreshData = async () => {
             try {
-              const onChainTaskData = await taskEscrowService.getTaskInfo(
+              // Use blockchainReader for read-only operations
+              const onChainTaskData = await blockchainReader.getTaskInfo(
                 task.id,
-                task.creatorWalletAddress ||
-                  "GVv2rNjCVkbLd1kiqytZHNbxWVGwS8tsTcsiJmY6NxLQ",
+                task.creatorWalletAddress,
               );
 
               if (onChainTaskData) {
@@ -335,7 +349,7 @@ export function TaskDetails({
 
                 if (escrowAccount) {
                   const escrowData =
-                    await taskEscrowService.getEscrowInfo(escrowAccount);
+                    await blockchainReader.getEscrowInfo(escrowAccount);
                   setEscrowInfo(escrowData);
                 }
               }
