@@ -1071,6 +1071,39 @@ export function TaskDetails({
                     </div>
                   )}
 
+                  {/* Reward Claim Stats for Charities */}
+                  {userRole.includes("charity") && onChainTask && (
+                    <div className="mt-3 sm:mt-4">
+                      <h3 className="text-xs font-medium tracking-wider text-baseSecondary/70 mb-2 flex items-center gap-1">
+                        <Info
+                          size={16}
+                          weight="regular"
+                          className="text-baseSecondary/70"
+                        />
+                        Reward Claim Status
+                      </h3>
+                      <div className="bg-basePrimary rounded-lg p-3 border border-baseSecondary/10 flex flex-col gap-1">
+                        <span className="text-sm text-baseSecondary">
+                          Claimed:{" "}
+                          <span className="font-semibold">
+                            {onChainTask.claimedAssignees?.length ?? 0}
+                          </span>
+                        </span>
+                        <span className="text-sm text-baseSecondary">
+                          Remaining:{" "}
+                          <span className="font-semibold">
+                            {(onChainTask.assignees?.length ?? 0) -
+                              (onChainTask.claimedAssignees?.length ?? 0)}
+                          </span>
+                        </span>
+                        <span className="text-xs text-baseSecondary/60 mt-1">
+                          (Out of {onChainTask.assignees?.length ?? 0} assigned
+                          volunteers)
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
                   {userRole.includes("charity") && (
                     <div className="mt-3 sm:mt-4">
                       <h3
