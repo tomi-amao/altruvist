@@ -262,7 +262,9 @@ export default function Navbar({
               subscriberId={user?.id ?? ""}
             />
           )}
-          <WalletMultiButton />
+          <div className="w-fit min-w-fit lg:flex flex-row items-center gap-4 hidden md:block text-baseSecondary">
+            <WalletMultiButton />
+          </div>
 
           <button className="flex px-3 py-2 rounded" onClick={toggleDropdown}>
             <List
@@ -292,7 +294,7 @@ export default function Navbar({
 
             {/* Dedicated Wallet Section */}
             <div className="mt-6 pt-4 border-t border-baseSecondary/20">
-              <div className="mb-4">
+              <div className="mb-4 ">
                 <WalletMultiButton />
               </div>
             </div>

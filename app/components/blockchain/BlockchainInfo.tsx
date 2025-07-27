@@ -5,8 +5,12 @@ import {
   ArrowSquareOut,
   Warning,
   Coins,
+  Wallet,
+  Plus,
 } from "@phosphor-icons/react";
 import { OnChainTaskData, EscrowAccountData } from "~/types/blockchain";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 interface BlockchainInfoProps {
   onChainTask?: OnChainTaskData | null;
@@ -20,6 +24,8 @@ interface BlockchainInfoProps {
   isRetrying?: boolean;
   onUpdateReward?: (newAmount: number) => void;
   isUpdatingReward?: boolean;
+  onAddWallet?: (walletAddress: string) => void;
+  isAddingWallet?: boolean;
 }
 
 export function BlockchainInfo({
@@ -34,8 +40,11 @@ export function BlockchainInfo({
   isRetrying = false,
   onUpdateReward,
   isUpdatingReward = false,
+  onAddWallet,
+  isAddingWallet = false,
 }: BlockchainInfoProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const { connected, publicKey } = useWallet();
 
   // Don't render if no blockchain data and no reward amount
   if (!onChainTask && !escrowInfo && !rewardAmount) {
@@ -47,9 +56,9 @@ export function BlockchainInfo({
     ? (Number(escrowInfo.data.amount) / 1000000).toFixed(6)
     : "0";
   const rewardAmountFormatted = onChainTask?.rewardAmount
-    ? (parseInt(onChainTask.rewardAmount.toString()) / 1000000).toFixed(6)
+    ? parseInt(onChainTask.rewardAmount.toString()) / 1000000
     : rewardAmount
-      ? (rewardAmount / 1000000).toFixed(6)
+      ? rewardAmount
       : "0";
 
   const escrowStatus = onChainTask?.status?.created
@@ -66,6 +75,13 @@ export function BlockchainInfo({
   const hasRewardDiscrepancy =
     hasBlockchainData &&
     Math.abs(onChainRewardAmount - databaseRewardAmount) > 0.000001; // Account for floating point precision
+
+  // Check if task needs wallet address to be added
+  const needsWalletAddress =
+    rewardAmount &&
+    rewardAmount > 0 &&
+    !creatorWallet &&
+    userRole?.includes("charity");
 
   // Show retry button if:
   // 1. No blockchain data exists (no escrow created)
@@ -94,6 +110,12 @@ export function BlockchainInfo({
     rewardAmount &&
     onUpdateReward;
 
+  const handleAddWallet = () => {
+    if (connected && publicKey && onAddWallet) {
+      onAddWallet(publicKey.toBase58());
+    }
+  };
+
   return (
     <div className="bg-basePrimaryLight rounded-xl p-4 border border-baseSecondary/10 transition-all duration-300 hover:shadow-lg">
       {/* Header */}
@@ -121,6 +143,53 @@ export function BlockchainInfo({
           </div>
         )}
       </div>
+
+      {/* Wallet Address Required Warning */}
+      {needsWalletAddress && (
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex items-center gap-2 mb-2">
+            <Wallet className="w-4 h-4 text-blue-600" />
+            <span className="text-sm font-medium text-blue-800">
+              Wallet Address Required
+            </span>
+          </div>
+          <p className="text-xs text-blue-700 mb-3">
+            This task has a reward amount but no wallet address associated with
+            it. Add your wallet address to enable blockchain escrow creation.
+          </p>
+
+          {connected && publicKey ? (
+            <button
+              onClick={handleAddWallet}
+              disabled={isAddingWallet}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                isAddingWallet
+                  ? "bg-blue-200 text-blue-600 cursor-not-allowed"
+                  : "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md"
+              }`}
+            >
+              {isAddingWallet ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  Adding Wallet...
+                </>
+              ) : (
+                <>
+                  <Plus className="w-4 h-4" />
+                  Add Connected Wallet
+                </>
+              )}
+            </button>
+          ) : (
+            <div className="space-y-2">
+              <p className="text-xs text-blue-600">
+                Connect your Solana wallet to add it to this task:
+              </p>
+              <WalletMultiButton className="!bg-blue-600 !text-white !rounded-lg !px-3 !py-2 !text-sm hover:!bg-blue-700" />
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Reward Discrepancy Warning */}
       {hasRewardDiscrepancy && (

@@ -8,7 +8,6 @@ import {
 } from "@prisma/client";
 import { prisma } from "~/services/db.server";
 import { SortOrder } from "~/routes/_base.search/route";
-import { transformUserTaskApplications } from "~/components/utils/DataTransformation";
 import { ObjectIdSchema } from "~/services/validators.server";
 import {
   INDICES,
@@ -375,7 +374,27 @@ export const getUserTasks = async (
           ],
         });
 
-        const tasks = transformUserTaskApplications(taskApplications);
+        // Transform task applications into structured format
+        const tasks = taskApplications.map((application) => ({
+          // Spread all task properties
+          ...application.task,
+          // Override taskApplications with the current user's application
+          taskApplications: [
+            {
+              id: application.id,
+              userId: application.userId,
+              status: application.status,
+              createdAt: application.createdAt,
+              updatedAt: application.updatedAt,
+              message: application.message,
+              charityId: application.charityId,
+              taskId: application.taskId,
+              volunteerWalletAddress: application.volunteerWalletAddress,
+            },
+          ],
+          // Add charity information
+          charity: application.charity,
+        }));
 
         return {
           tasks,

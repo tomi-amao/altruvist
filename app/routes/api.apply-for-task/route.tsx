@@ -11,6 +11,10 @@ export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const taskId = formData.get("taskId") as string;
   const charityId = formData.get("charityId") as string;
+  const volunteerWalletAddress = formData.get(
+    "volunteerWalletAddress",
+  ) as string;
+
   const session = await getSession(request);
   const accessToken = session.get("accessToken"); //retrieve access token from session to be used as bearer token
 
@@ -46,8 +50,15 @@ export async function action({ request }: ActionFunctionArgs) {
         message: "User has already applied for this task",
       };
     }
+
     const createApplication = await prisma.taskApplications.create({
-      data: { status: "PENDING", userId, taskId, charityId },
+      data: {
+        status: "PENDING",
+        userId,
+        taskId,
+        charityId,
+        volunteerWalletAddress: volunteerWalletAddress || null,
+      },
     });
 
     console.log("Application created:", createApplication);
@@ -58,12 +69,14 @@ export async function action({ request }: ActionFunctionArgs) {
       task?.notifyTopicId.find((item) => item.includes("volunteers")) ?? "",
     );
 
+    const wantsTokenReward = !!volunteerWalletAddress; // Determine from wallet presence
+
     await triggerNotification({
       userInfo,
       workflowId: "applications-feed",
       notification: {
         subject: "Task Application",
-        body: `${userInfo?.name} has applied to the task ${task?.title}`,
+        body: `${userInfo?.name} has applied to the task ${task?.title}${wantsTokenReward ? " (token opt in)" : ""}`,
         type: "application",
         applicationId: createApplication.id,
         taskId: task?.id,

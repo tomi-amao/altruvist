@@ -30,6 +30,7 @@ import {
 import { useSolanaService } from "~/hooks/useSolanaService";
 import { useAnchorWallet } from "@solana/wallet-adapter-react";
 import { toast } from "react-toastify";
+import { ClaimRewardButton } from "../tasks/ClaimRewardButton";
 
 interface TaskDetailsProps {
   task: tasks & {
@@ -73,8 +74,19 @@ export function TaskDetails({
   const [isLoadingEscrow, setIsLoadingEscrow] = useState(false);
   const [isRetryingEscrow, setIsRetryingEscrow] = useState(false);
   const [isUpdatingReward, setIsUpdatingReward] = useState(false);
-  const { taskEscrowService, blockchainReader } = useSolanaService();
+  const [isAddingWallet, setIsAddingWallet] = useState(false);
+  const { taskEscrowService, blockchainReader, taskRewardService } =
+    useSolanaService();
   const wallet = useAnchorWallet();
+
+  console.log(task, "TaskDetails component task prop");
+
+  // Add optimistic state for volunteer application
+  const [optimisticApplication, setOptimisticApplication] = useState<{
+    id?: string;
+    status?: string;
+    userId?: string;
+  } | null>(null);
 
   useEffect(() => {
     console.log("TaskDetails mounted with task:", task);
@@ -185,7 +197,8 @@ export function TaskDetails({
     }
   };
 
-  const handleAcceptApplication = (applicationId: string) => {
+  const handleAcceptApplication = async (applicationId: string) => {
+    // First submit the database update
     fetcher.submit(
       {
         _action: "acceptTaskApplication",
@@ -195,6 +208,54 @@ export function TaskDetails({
       },
       { method: "POST" },
     );
+
+    // Then handle blockchain assignment if volunteer wants token rewards
+    try {
+      // Find the application to get volunteer wallet info
+      const application = task.taskApplications?.find(
+        (app) => app.id === applicationId,
+      );
+      console.log("Accepting application:", application);
+
+      if (application?.volunteerWalletAddress && task.rewardAmount) {
+        console.log("Assigning task to volunteer on blockchain...");
+        console.log(taskRewardService, "TaskRewardService instance");
+
+        if (!taskRewardService) {
+          console.error(
+            "TaskRewardService not available - wallet may not be connected",
+          );
+          toast.warning(
+            "Application accepted successfully! To enable blockchain rewards, please connect your Solana wallet and try assigning the volunteer again.",
+          );
+          return;
+        }
+
+        if (!task.creatorWalletAddress) {
+          console.error("Task creator wallet address not found");
+          toast.error("Task creator wallet not configured");
+          return;
+        }
+
+        // Call the Solana program to assign the task
+        const txSignature = await taskRewardService.assignTaskToVolunteer(
+          task.id,
+          application.volunteerWalletAddress,
+          task.creatorWalletAddress,
+        );
+
+        if (txSignature) {
+          console.log("Successfully assigned task on blockchain:", txSignature);
+          toast.success("Volunteer assigned to task on blockchain!");
+        }
+      }
+    } catch (error) {
+      console.error("Error assigning task on blockchain:", error);
+      // Don't fail the application acceptance if blockchain assignment fails
+      toast.warning(
+        "Application accepted, but blockchain assignment failed. Please try again later.",
+      );
+    }
   };
 
   const handleRejectApplication = (applicationId: string) => {
@@ -297,7 +358,8 @@ export function TaskDetails({
     onEdit(formData);
   };
 
-  const handleUpdateTaskStatus = (status: string) => {
+  const handleUpdateTaskStatus = async (status: string) => {
+    // First submit the database update
     fetcher.submit(
       {
         _action: "updateTask",
@@ -306,7 +368,44 @@ export function TaskDetails({
       },
       { method: "POST" },
     );
+
     console.log("Task status updated", status, task.id);
+
+    // If task is onchain, update blockchain status for token rewards
+    if (task.rewardAmount && task.creatorWalletAddress) {
+      // Convert status to match blockchain enum
+
+      try {
+        if (!taskRewardService) {
+          console.error("TaskRewardService not available");
+          toast.error("Blockchain service not available");
+          return;
+        }
+
+        // Call the Solana program to update task status
+        const txSignature = await taskRewardService.updateTaskStatus(
+          task.id,
+          status,
+          task.creatorWalletAddress,
+        );
+
+        if (txSignature) {
+          console.log(
+            "Successfully updated task status on blockchain:",
+            txSignature,
+          );
+          toast.success(
+            "Task marked as completed on blockchain! Volunteers can now claim rewards.",
+          );
+        }
+      } catch (error) {
+        console.error("Error updating task status on blockchain:", error);
+        // Don't fail the status update if blockchain update fails
+        toast.warning(
+          "Task status updated in database, but blockchain update failed. Volunteers may need manual reward claim assistance.",
+        );
+      }
+    }
   };
 
   const handleUpdateReward = async (newRewardAmount: number) => {
@@ -372,9 +471,116 @@ export function TaskDetails({
     }
   };
 
+  const handleAddWallet = async (walletAddress: string) => {
+    if (!task.id) {
+      console.error("Task ID is required");
+      toast.error("Task ID is missing");
+      return;
+    }
+
+    setIsAddingWallet(true);
+
+    try {
+      // Use fetcher to submit the wallet update
+      fetcher.submit(
+        {
+          _action: "updateTaskWallet",
+          taskId: task.id,
+          walletAddress: walletAddress,
+        },
+        { method: "POST" },
+      );
+
+      // The form data will be handled by the fetcher's response
+      // Success/error handling will be done through the fetcher.data
+    } catch (error) {
+      console.error("Error adding wallet:", error);
+      toast.error("Failed to add wallet address");
+    } finally {
+      setIsAddingWallet(false);
+    }
+  };
+
+  // Effect to handle successful applications from fetcher
+  useEffect(() => {
+    if (fetcher.data && !fetcher.data.error) {
+      // Handle wallet addition success
+      if (
+        fetcher.data.success &&
+        fetcher.formData?.get("_action") === "updateTaskWallet"
+      ) {
+        toast.success(
+          fetcher.data.message || "Wallet address added successfully!",
+        );
+        // Optionally refresh the page or update local state
+        window.location.reload(); // Simple approach to refresh the data
+        return;
+      }
+
+      // Handle application creation (apply for task)
+      if (fetcher.data.createApplication) {
+        setOptimisticApplication({
+          id: fetcher.data.createApplication.id,
+          status: "PENDING",
+          userId: userId,
+        });
+      }
+      // Handle application withdrawal or deletion
+      else if (fetcher.data.success && fetcher.data.application) {
+        // Check the action type from the fetcher formData
+        const action = fetcher.formData?.get("_action");
+
+        if (action === "withdrawApplication") {
+          setOptimisticApplication({
+            id: fetcher.data.application.id || task.taskApplications?.[0]?.id,
+            status: "WITHDRAWN",
+            userId: userId,
+          });
+        } else if (action === "deleteApplication") {
+          // Clear optimistic application when deleted
+          setOptimisticApplication(null);
+        } else if (action === "undoApplicationStatus") {
+          setOptimisticApplication({
+            id: fetcher.data.application.id || task.taskApplications?.[0]?.id,
+            status: "PENDING",
+            userId: userId,
+          });
+        }
+      }
+      // Handle successful withdrawal/deletion without application data
+      else if (fetcher.data.success && fetcher.formData) {
+        const action = fetcher.formData.get("_action");
+
+        if (action === "withdrawApplication") {
+          setOptimisticApplication({
+            id: task.taskApplications?.[0]?.id,
+            status: "WITHDRAWN",
+            userId: userId,
+          });
+        } else if (action === "deleteApplication") {
+          setOptimisticApplication(null);
+        }
+      }
+    }
+
+    // Handle errors from fetcher
+    if (fetcher.data && fetcher.data.error) {
+      const action = fetcher.formData?.get("_action");
+      if (action === "updateTaskWallet") {
+        toast.error(fetcher.data.error);
+      }
+    }
+  }, [fetcher.data, fetcher.formData, userId, task.taskApplications]);
+
   // Ensure we have valid data
   const displayData = formData || task;
   const requiredSkills = displayData.requiredSkills || [];
+
+  // Determine current application status (use optimistic state if available)
+  const currentApplication =
+    optimisticApplication || task.taskApplications?.[0];
+  const hasApplications =
+    currentApplication || task.taskApplications?.length > 0;
 
   return (
     <motion.div
@@ -691,6 +897,8 @@ export function TaskDetails({
                 isRetrying={isRetryingEscrow}
                 onUpdateReward={handleUpdateReward}
                 isUpdatingReward={isUpdatingReward}
+                onAddWallet={handleAddWallet}
+                isAddingWallet={isAddingWallet}
               />
             </div>
 
@@ -921,55 +1129,102 @@ export function TaskDetails({
                   </>
                 ) : (
                   <>
-                    {task.taskApplications[0].status === "REJECTED" && (
-                      <SecondaryButton
-                        ariaLabel="delete-application"
-                        text="Delete Application"
-                        action={() =>
-                          handleDeleteApplication(task.taskApplications[0].id)
-                        }
-                      />
-                    )}
-                    {task.taskApplications[0].status === "WITHDRAWN" && (
+                    {/* Use optimistic application state */}
+                    {hasApplications && currentApplication && (
                       <>
-                        <PrimaryButton
-                          ariaLabel="reapply"
-                          text="Re-apply for Task"
-                          action={() =>
-                            handleReapply(task.taskApplications[0].id)
-                          }
-                        />
-                        <SecondaryButton
-                          ariaLabel="delete-application"
-                          text="Delete Application"
-                          action={() =>
-                            handleDeleteApplication(task.taskApplications[0].id)
-                          }
-                        />
-                      </>
-                    )}
+                        {currentApplication.status === "REJECTED" && (
+                          <SecondaryButton
+                            ariaLabel="delete-application"
+                            text="Delete Application"
+                            action={() =>
+                              handleDeleteApplication(
+                                currentApplication.id ||
+                                  task.taskApplications[0]?.id,
+                              )
+                            }
+                          />
+                        )}
+                        {currentApplication.status === "WITHDRAWN" && (
+                          <>
+                            <PrimaryButton
+                              ariaLabel="reapply"
+                              text="Re-apply for Task"
+                              action={() =>
+                                handleReapply(
+                                  currentApplication.id ||
+                                    task.taskApplications[0]?.id,
+                                )
+                              }
+                            />
+                            <SecondaryButton
+                              ariaLabel="delete-application"
+                              text="Delete Application"
+                              action={() =>
+                                handleDeleteApplication(
+                                  currentApplication.id ||
+                                    task.taskApplications[0]?.id,
+                                )
+                              }
+                            />
+                          </>
+                        )}
 
-                    {task.taskApplications[0].status === "PENDING" && (
-                      <SecondaryButton
-                        ariaLabel="withdraw"
-                        text="Withdraw Application"
-                        action={() =>
-                          handleWithdrawApplication(task.taskApplications[0].id)
-                        }
-                      />
-                    )}
-                    {task.taskApplications[0].status === "ACCEPTED" && (
-                      <div>
-                        <SecondaryButton
-                          ariaLabel="withdraw"
-                          text="Withdraw From Task"
-                          action={() =>
-                            handleWithdrawApplication(
-                              task.taskApplications[0].id,
-                            )
-                          }
-                        />
-                      </div>
+                        {currentApplication.status === "PENDING" && (
+                          <SecondaryButton
+                            ariaLabel="withdraw"
+                            text="Withdraw Application"
+                            action={() =>
+                              handleWithdrawApplication(
+                                currentApplication.id ||
+                                  task.taskApplications[0]?.id,
+                              )
+                            }
+                          />
+                        )}
+                        {currentApplication.status === "ACCEPTED" && (
+                          <div className="space-y-2">
+                            {/* Show claim reward button if task is completed and volunteer has wallet address */}
+                            {task.status === "COMPLETED" &&
+                              task.taskApplications[0]
+                                ?.volunteerWalletAddress &&
+                              JSON.stringify(onChainTask?.status) ===
+                                JSON.stringify({ completed: {} }) && (
+                                <ClaimRewardButton
+                                  task={{
+                                    id: task.id,
+                                    title: task.title,
+                                    rewardAmount: task.rewardAmount,
+                                    creatorWalletAddress:
+                                      task.creatorWalletAddress,
+                                    status: task.status,
+                                  }}
+                                  taskApplication={{
+                                    id: task.taskApplications[0].id,
+                                    volunteerWalletAddress:
+                                      task.taskApplications[0]
+                                        .volunteerWalletAddress,
+                                    status: task.taskApplications[0].status,
+                                  }}
+                                  onRewardClaimed={() => {
+                                    // Optionally refetch task data or show success message
+                                    console.log("Reward claimed successfully!");
+                                  }}
+                                />
+                              )}
+
+                            <SecondaryButton
+                              ariaLabel="withdraw"
+                              text="Withdraw From Task"
+                              action={() =>
+                                handleWithdrawApplication(
+                                  currentApplication.id ||
+                                    task.taskApplications[0]?.id,
+                                )
+                              }
+                            />
+                          </div>
+                        )}
+                      </>
                     )}
                   </>
                 )}
@@ -980,7 +1235,8 @@ export function TaskDetails({
           {/* Comment Section with Toggle */}
           <div className="mt-3 sm:mt-4">
             {userRole.includes("volunteer") ? (
-              task.taskApplications[0].status === "ACCEPTED" && (
+              hasApplications &&
+              currentApplication?.status === "ACCEPTED" && (
                 <>
                   <div className="flex items-center justify-between mb-2">
                     <SecondaryButton

@@ -59,6 +59,7 @@ pub enum TaskStatus {
     InProgress,
     Completed,
     Cancelled,
+    NotStarted,
 }
 
 /// Task account structure
@@ -173,7 +174,13 @@ impl Task {
         require!(!self.assignees.contains(&assignee), AltruistError::DuplicateAssignee);
         
         self.assignees.push(assignee);
-        self.update_status(TaskStatus::InProgress);
+        Ok(())
+    }
+
+    pub fn remove_assignee(&mut self, assignee: &Pubkey) -> Result<()> {
+        require!(self.is_assignee(assignee), AltruistError::UnauthorizedAssignee);
+        
+        self.assignees.retain(|a| a != assignee);
         Ok(())
     }
 

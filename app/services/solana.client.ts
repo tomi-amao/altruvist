@@ -89,9 +89,21 @@ export class SolanaService {
   public provider!: anchor.AnchorProvider;
   private blockchainReader: BlockchainReaderService;
 
-  constructor(wallet: anchor.Wallet) {
+  constructor(
+    wallet: anchor.Wallet,
+    blockchainReader?: BlockchainReaderService,
+  ) {
     this.wallet = wallet;
-    this.blockchainReader = new BlockchainReaderService();
+    // Use the provided blockchainReader or create a new one (for backwards compatibility)
+    // Only create a new one if we're on the client side
+    if (blockchainReader) {
+      this.blockchainReader = blockchainReader;
+    } else if (typeof window !== "undefined") {
+      this.blockchainReader = new BlockchainReaderService();
+    } else {
+      // For SSR, create a placeholder that will be replaced on the client
+      this.blockchainReader = {} as BlockchainReaderService;
+    }
     this.program = this.getProgram();
   }
 
@@ -222,7 +234,7 @@ export class SolanaService {
 
         // Check if the faucet was actually created
         try {
-          const faucetInfo = await this.getFaucetInfo();
+          const faucetInfo = await this.blockchainReader.getFaucetInfo();
           if (faucetInfo) {
             toast.success("Faucet was already initialized successfully!");
             return "already_processed";

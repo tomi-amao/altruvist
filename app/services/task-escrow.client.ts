@@ -29,9 +29,13 @@ export class TaskEscrowService {
   private solanaService: SolanaService;
   private blockchainReader: BlockchainReaderService;
 
-  constructor(solanaService: SolanaService) {
+  constructor(
+    solanaService: SolanaService,
+    blockchainReader?: BlockchainReaderService,
+  ) {
     this.solanaService = solanaService;
-    this.blockchainReader = new BlockchainReaderService();
+    // Use the provided blockchainReader or create a new one (for backwards compatibility)
+    this.blockchainReader = blockchainReader || new BlockchainReaderService();
   }
 
   /**

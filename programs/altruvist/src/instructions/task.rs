@@ -87,12 +87,17 @@ pub fn update_task_status(
         (TaskStatus::InProgress, TaskStatus::Completed) => {
             require!(!task.assignees.is_empty(), AltruistError::NoAssignee);
         },
+        // Can move from Created directly to Completed (if has assignees)
+        (TaskStatus::Created | TaskStatus::NotStarted, TaskStatus::Completed) => {
+            require!(!task.assignees.is_empty(), AltruistError::NoAssignee);
+        },
+        
         // Can move from Created to InProgress
         (TaskStatus::Created, TaskStatus::InProgress) => {},
         // Cannot change status if already completed or cancelled
-        (TaskStatus::Completed | TaskStatus::Cancelled, _) => {
-            return Err(AltruistError::InvalidTaskStatus.into());
-        },
+        // (TaskStatus::Completed | TaskStatus::Cancelled, _) => {
+        //     return Err(AltruistError::InvalidTaskStatus.into());
+        // },
         // Invalid transitions
         _ => {
             return Err(AltruistError::InvalidTaskStatus.into());
@@ -294,6 +299,30 @@ pub fn assign_task(
 
     msg!("Task {} assigned to {}", task.task_id, assignee);
 
+    Ok(())
+}
+
+/// Remove an assignee from a task
+pub fn remove_assignee_from_task(
+    ctx: Context<AssignTask>,
+    _task_id: String,
+    assignee: Pubkey,
+) -> Result<()> {
+    let task = &mut ctx.accounts.task;
+    
+    // Validate authority - only task creator can remove assignees
+    require!(
+        task.creator == ctx.accounts.creator.key(),
+        AltruistError::UnauthorizedTaskCreator
+    );
+    // Validate task status - can only remove assignees from Created or InProgress tasks
+    require!(
+        matches!(task.status, TaskStatus::Created | TaskStatus::InProgress),
+        AltruistError::InvalidTaskStatus
+    );
+    // Use the new remove_assignee method
+    task.remove_assignee(&assignee)?;
+    msg!("Assignee {} removed from task {}", assignee, task.task_id);
     Ok(())
 }
 

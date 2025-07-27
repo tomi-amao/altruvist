@@ -399,11 +399,22 @@ export default function Explore() {
         setTasks(fetchTasks.data.tasks);
         setIsFilterChange(false);
       } else {
-        setTasks((prev) =>
-          Array.isArray(prev)
-            ? [...prev, ...fetchTasks.data.tasks]
-            : fetchTasks.data.tasks,
-        );
+        // Deduplicate tasks when appending new ones
+        setTasks((prev) => {
+          if (!Array.isArray(prev)) {
+            return fetchTasks.data.tasks;
+          }
+
+          // Create a Set of existing task IDs for O(1) lookup
+          const existingTaskIds = new Set(prev.map((task) => task.id));
+
+          // Filter out tasks that already exist
+          const newTasks = fetchTasks.data.tasks.filter(
+            (task) => !existingTaskIds.has(task.id),
+          );
+
+          return [...prev, ...newTasks];
+        });
       }
       setCursor(fetchTasks.data.nextCursor);
       setIsLoading(false);

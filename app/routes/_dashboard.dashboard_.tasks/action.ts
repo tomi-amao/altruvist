@@ -295,6 +295,39 @@ export async function action({ request }: ActionFunctionArgs) {
         }
       }
 
+      case "updateTaskWallet": {
+        if (!taskId) {
+          throw new Error("Task ID is required");
+        }
+
+        const walletAddress = data.get("walletAddress")?.toString();
+        if (!walletAddress) {
+          throw new Error("Wallet address is required");
+        }
+
+        // Basic validation for Solana wallet address
+        if (!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(walletAddress)) {
+          return { error: "Invalid Solana wallet address format" };
+        }
+
+        const updateData = {
+          creatorWalletAddress: walletAddress,
+        };
+
+        const updatedTaskData = await updateTask(taskId, updateData);
+        console.log("Updated task wallet data:", updatedTaskData);
+
+        if (updatedTaskData.error) {
+          return { error: updatedTaskData.message };
+        }
+
+        return {
+          success: true,
+          task: updatedTaskData,
+          message: "Wallet address added successfully",
+        };
+      }
+
       default:
         return { updateTaskData: null, userIds: null };
     }

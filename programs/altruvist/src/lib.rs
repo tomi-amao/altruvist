@@ -71,6 +71,14 @@ pub mod altruvist {
         instructions::assign_task(ctx, task_id, assignee)
     }
 
+    pub fn remove_assignee_from_task(
+        ctx: Context<AssignTask>,
+        task_id: String,
+        assignee: Pubkey,
+    ) -> Result<()> {
+        instructions::remove_assignee_from_task(ctx, task_id, assignee)
+    }
+
     /// Assign a task to multiple users at once
     pub fn assign_task_multiple(
         ctx: Context<AssignTask>,

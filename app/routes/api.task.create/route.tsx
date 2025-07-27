@@ -85,8 +85,8 @@ export async function action({ request }: ActionFunctionArgs) {
         size: upload.size || null,
         uploadURL: upload.uploadURL || null,
       })),
-      tokenRewardAmount: formData.tokenRewardAmount || undefined, // Include token reward amount
-      creatorWalletAddress: formData.creatorWalletAddress || null, // Include creator's Solana wallet address
+      tokenRewardAmount: formData.tokenRewardAmount,
+      creatorWalletAddress: formData.creatorWalletAddress,
     });
 
     console.log("Validated Task Data", validatedData);

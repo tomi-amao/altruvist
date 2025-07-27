@@ -317,7 +317,7 @@
 
 //     const tx = await program.methods
 //       .updateTaskStatus(taskId, { inProgress: {} })
-//       .accounts({
+//       .accountsStrict({
 //         task: taskPDA,
 //         creator: alice.publicKey,
 //       })
