@@ -161,6 +161,18 @@ export default function Navbar({
     }
   };
 
+  // Memoize InboxNotifications to avoid re-initialization on every render
+  const inboxNotifications = useMemo(
+    () =>
+      user?.id ? (
+        <InboxNotifications
+          applicationIdentifier={novuAppId ?? ""}
+          subscriberId={user?.id ?? ""}
+        />
+      ) : null,
+    [user?.id, novuAppId],
+  );
+
   return (
     <>
       <div
@@ -256,12 +268,7 @@ export default function Navbar({
           </div>
 
           {/* Notifications and hamburger menu */}
-          {user?.id && (
-            <InboxNotifications
-              applicationIdentifier={novuAppId ?? ""}
-              subscriberId={user?.id ?? ""}
-            />
-          )}
+          {inboxNotifications}
           <div className="w-fit min-w-fit lg:flex flex-row items-center gap-4 hidden md:block text-baseSecondary">
             <WalletMultiButton />
           </div>

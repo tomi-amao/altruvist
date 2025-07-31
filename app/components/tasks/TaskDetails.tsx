@@ -145,7 +145,7 @@ export function TaskDetails({
 
     try {
       // Use blockchainReader for faucet info (read-only operation)
-      const faucetInfo = await blockchainReader.getFaucetInfo();
+      const faucetInfo = await blockchainReader?.getFaucetInfo();
       if (!faucetInfo) {
         throw new Error("Failed to get faucet information");
       }
@@ -197,12 +197,12 @@ export function TaskDetails({
     }
   };
 
-  const handleAcceptApplication = async (applicationId: string) => {
+  const handleAcceptApplication = async (application: taskApplications) => {
     // First submit the database update
     fetcher.submit(
       {
         _action: "acceptTaskApplication",
-        selectedTaskApplication: JSON.stringify({ id: applicationId }),
+        selectedTaskApplication: JSON.stringify(application),
         userId: userId ?? null,
         taskId: task.id,
       },
@@ -212,10 +212,6 @@ export function TaskDetails({
     // Then handle blockchain assignment if volunteer wants token rewards
     try {
       // Find the application to get volunteer wallet info
-      const application = task.taskApplications?.find(
-        (app) => app.id === applicationId,
-      );
-      console.log("Accepting application:", application);
 
       if (application?.volunteerWalletAddress && task.rewardAmount) {
         console.log("Assigning task to volunteer on blockchain...");
@@ -258,11 +254,11 @@ export function TaskDetails({
     }
   };
 
-  const handleRejectApplication = (applicationId: string) => {
+  const handleRejectApplication = (application: taskApplications) => {
     fetcher.submit(
       {
         _action: "rejectTaskApplication",
-        selectedTaskApplication: JSON.stringify({ id: applicationId }),
+        selectedTaskApplication: JSON.stringify(application),
         userId: userId ?? null,
         taskId: task.id,
       },
@@ -270,21 +266,11 @@ export function TaskDetails({
     );
   };
 
-  const handleRemoveVolunteer = (applicationId: string) => {
-    fetcher.submit(
-      {
-        _action: "removeVolunteer",
-        selectedTaskApplication: JSON.stringify({ id: applicationId }),
-      },
-      { method: "POST" },
-    );
-  };
-
-  const handleUndoStatus = (applicationId: string) => {
+  const handleUndoStatus = (application: taskApplications) => {
     fetcher.submit(
       {
         _action: "undoApplicationStatus",
-        selectedTaskApplication: JSON.stringify({ id: applicationId }),
+        selectedTaskApplication: JSON.stringify(application),
       },
       { method: "POST" },
     );
@@ -829,7 +815,6 @@ export function TaskDetails({
                         }
                         onAccept={handleAcceptApplication}
                         onReject={handleRejectApplication}
-                        onRemoveVolunteer={handleRemoveVolunteer}
                         onUndoStatus={handleUndoStatus}
                       />
                     </div>

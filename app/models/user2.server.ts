@@ -122,12 +122,16 @@ export const getUserInfo = async (
   }
 };
 
-export const getUserById = async (userId: string) => {
-  console.log("User ID acs:", userId);
+export const getUserById = async (
+  userId: string,
+  include?: Prisma.usersInclude,
+) => {
+  console.log("User ID:", userId);
 
   try {
     const user = await prisma.users.findUnique({
       where: { id: userId },
+      ...(include && { include }),
     });
     return { user };
   } catch (error) {

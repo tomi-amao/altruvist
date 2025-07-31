@@ -1,9 +1,9 @@
+import { taskApplications } from "@prisma/client";
 import { ActionFunctionArgs } from "react-router";
 import {
   deleteTask,
   deleteUserTaskApplication,
   getTask,
-  removeVolunteerFromTask,
   updateTask,
   updateTaskApplicationStatus,
 } from "~/models/tasks.server";
@@ -106,7 +106,7 @@ export async function action({ request }: ActionFunctionArgs) {
       case "acceptTaskApplication": {
         const taskApplication =
           data.get("selectedTaskApplication")?.toString() || "";
-        const parsedApplication = JSON.parse(taskApplication);
+        const parsedApplication: taskApplications = JSON.parse(taskApplication);
 
         const result = await updateTaskApplicationStatus(
           parsedApplication.id,
@@ -114,27 +114,25 @@ export async function action({ request }: ActionFunctionArgs) {
         );
 
         console.log("task application:", parsedApplication.id);
+        console.log("Parsed Application", parsedApplication.userId);
 
-        const { user: userInfo } = await getUserById(userId);
-        console.log("taskID:", taskApplication.id);
+        const { user: receiver } = await getUserById(parsedApplication.userId);
+        const { user: sender } = await getUserById(userId);
 
         const task = await getTask(taskId);
         console.log("task:", task);
 
         await triggerNotification({
-          userInfo,
+          userInfo: receiver,
           workflowId: "applications-feed",
           notification: {
             subject: "Application Accepted",
-            body: `${userInfo?.name} has accepted your application for the task ${task?.title}`,
+            body: `${sender?.name} from ${task?.charity?.name} has accepted your application for the task ${task?.title}`,
             type: "application",
             applicationId: parsedApplication.id,
             taskId: task?.id,
           },
-          type: "Topic",
-          topicKey: task?.notifyTopicId.find((item) =>
-            item.includes("volunteers"),
-          ),
+          type: "Subscriber",
         });
 
         if (result.error) {
@@ -156,26 +154,23 @@ export async function action({ request }: ActionFunctionArgs) {
 
         console.log("task application:", parsedApplication.id);
 
-        const { user: userInfo } = await getUserById(userId);
-        console.log("taskID:", taskApplication.id);
+        const { user: receiver } = await getUserById(parsedApplication.userId);
+        const { user: sender } = await getUserById(userId);
 
         const task = await getTask(taskId);
         console.log("task:", task);
 
         await triggerNotification({
-          userInfo,
+          userInfo: receiver,
           workflowId: "applications-feed",
           notification: {
-            subject: "Task Application",
-            body: `${userInfo?.name} has rejected your application for the task ${task?.title}`,
+            subject: "Application Rejected",
+            body: `${sender?.name} from ${task?.charity?.name} has rejected your application for the task ${task?.title}`,
             type: "application",
             applicationId: parsedApplication.id,
             taskId: task?.id,
           },
-          type: "Topic",
-          topicKey: task?.notifyTopicId.find((item) =>
-            item.includes("volunteers"),
-          ),
+          type: "Subscriber",
         });
 
         if (result.error) {
@@ -183,21 +178,6 @@ export async function action({ request }: ActionFunctionArgs) {
         }
 
         return { success: true, application: result.data };
-      }
-
-      case "removeVolunteer": {
-        const taskApplication =
-          data.get("selectedTaskApplication")?.toString() || "";
-        console.log(
-          "Task Application Server Action",
-          JSON.parse(taskApplication),
-        );
-        const updatedTaskApplication = await removeVolunteerFromTask(
-          JSON.parse(taskApplication),
-        );
-        console.log("Removed Volunteer from Task ", updatedTaskApplication);
-
-        return { updatedTaskApplication };
       }
 
       case "undoApplicationStatus": {
@@ -209,28 +189,6 @@ export async function action({ request }: ActionFunctionArgs) {
           "PENDING",
         );
         console.log("task application:", parsedApplication.id);
-
-        const { user: userInfo } = await getUserById(userId);
-        console.log("taskID:", taskApplication.id);
-
-        const task = await getTask(taskId);
-        console.log("task:", task);
-
-        await triggerNotification({
-          userInfo,
-          workflowId: "applications-feed",
-          notification: {
-            subject: "Task Application",
-            body: `${userInfo?.name} has applied to the task ${task?.title}`,
-            type: "application",
-            applicationId: parsedApplication.id,
-            taskId: task?.id,
-          },
-          type: "Topic",
-          topicKey: task?.notifyTopicId.find((item) =>
-            item.includes("charities"),
-          ),
-        });
 
         if (result.error) {
           return { error: result.message };

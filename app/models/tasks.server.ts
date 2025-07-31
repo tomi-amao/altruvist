@@ -697,25 +697,6 @@ export const removeVolunteerFromTask = async (
       updatedTaskApplication,
     );
 
-    // Update task volunteers needed -> code for this is only necessary when decrementing/incrementing volunteers needed
-
-    // const originalTask = await prisma.tasks.findUnique({
-    //   where: { id: taskApplication.taskId },
-    // });
-
-    // if (!originalTask) {
-    //   return { error: "Task not found", status: 404 };
-    // }
-
-    // const initialVolunteersNeeded = originalTask.volunteersNeeded;
-
-    // if (initialVolunteersNeeded <= 0) {
-    //   return {
-    //     error: "Cannot add more volunteers to this task",
-    //     status: 400,
-    //   };
-    // }
-
     return { updatedTaskApplication, status: 200, error: null };
   } catch (error) {
     return { updatedTaskApplication: null, status: 500, error };

@@ -16,10 +16,9 @@ interface TaskApplicantsProps {
   }[];
   volunteersNeeded: number;
   acceptedCount: number;
-  onAccept: (applicationId: string) => void;
-  onReject: (applicationId: string) => void;
-  onRemoveVolunteer: (applicationId: string) => void;
-  onUndoStatus: (applicationId: string) => void; // New prop for undoing status
+  onAccept: (application: taskApplications) => void;
+  onReject: (application: taskApplications) => void;
+  onUndoStatus: (application: taskApplications) => void; // New prop for undoing status
 }
 
 export function TaskApplicants({
@@ -42,19 +41,25 @@ export function TaskApplicants({
     );
   };
 
-  const handleAccept = (applicationId: string) => {
-    setOptimisticStatuses((prev) => ({ ...prev, [applicationId]: "ACCEPTED" }));
-    onAccept(applicationId);
+  const handleAccept = (application: taskApplications) => {
+    setOptimisticStatuses((prev) => ({
+      ...prev,
+      [application.id]: "ACCEPTED",
+    }));
+    onAccept(application);
   };
 
-  const handleReject = (applicationId: string) => {
-    setOptimisticStatuses((prev) => ({ ...prev, [applicationId]: "REJECTED" }));
-    onReject(applicationId);
+  const handleReject = (application: taskApplications) => {
+    setOptimisticStatuses((prev) => ({
+      ...prev,
+      [application.id]: "REJECTED",
+    }));
+    onReject(application);
   };
 
-  const handleUndoStatus = (applicationId: string) => {
-    setOptimisticStatuses((prev) => ({ ...prev, [applicationId]: "PENDING" }));
-    onUndoStatus(applicationId);
+  const handleUndoStatus = (application: taskApplications) => {
+    setOptimisticStatuses((prev) => ({ ...prev, [application.id]: "PENDING" }));
+    onUndoStatus(application);
   };
 
   const getStatusColor = (status: ApplicationStatus) => {
@@ -81,7 +86,7 @@ export function TaskApplicants({
           <div className={`flex ${isMobile ? "flex-col w-full" : "gap-2"}`}>
             <SecondaryButton
               text="Undo Accept"
-              action={() => handleUndoStatus(application.id)}
+              action={() => handleUndoStatus(application)}
               ariaLabel="undo accept status"
             />
           </div>
@@ -101,12 +106,12 @@ export function TaskApplicants({
           >
             <SecondaryButton
               text="Accept"
-              action={() => handleAccept(application.id)}
+              action={() => handleAccept(application)}
               ariaLabel="accept application"
             />
             <SecondaryButton
               text="Reject"
-              action={() => handleReject(application.id)}
+              action={() => handleReject(application)}
               ariaLabel="reject application"
             />
           </div>
