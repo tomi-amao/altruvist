@@ -251,9 +251,9 @@ export default function Navbar({
             )}
 
             {/* Search Results Dropdown */}
-            <div className="z-10 mt-2 absolute w-96 bg-basePrimaryDark rounded">
+            <div className="z-10 mt-2 absolute md:w-96 w-60 bg-basePrimaryDark rounded">
               {isVisible && (
-                <div className="z-10 mt-2 absolute w-96 bg-basePrimaryDark rounded -ml-2">
+                <div className="z-10 mt-2 absolute md:w-96 w-60 bg-basePrimaryDark rounded -ml-2">
                   {searchError && (
                     <div className="p-4 text-sm">{searchError}</div>
                   )}
@@ -268,8 +268,9 @@ export default function Navbar({
           </div>
 
           {/* Notifications and hamburger menu */}
-          {inboxNotifications}
           <div className="w-fit min-w-fit lg:flex flex-row items-center gap-4 hidden md:block text-baseSecondary">
+            {/* InboxNotifications only on desktop */}
+            <span className="hidden md:inline">{inboxNotifications}</span>
             <WalletMultiButton />
           </div>
 
@@ -298,6 +299,12 @@ export default function Navbar({
         >
           <nav className="flex flex-col p-4 gap-2 text-baseSecondary">
             <NavListPages userId={user?.id} user={user} />
+            {/* Inbox Notifications only on mobile */}
+            {user?.id && (
+              <div className="mt-4 block md:hidden absolute top-8 right-6">
+                {inboxNotifications}
+              </div>
+            )}
 
             {/* Dedicated Wallet Section */}
             <div className="mt-6 pt-4 border-t border-baseSecondary/20">

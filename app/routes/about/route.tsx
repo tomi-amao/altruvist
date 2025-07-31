@@ -1,7 +1,20 @@
-import { useLoaderData } from "react-router";
+import { MetaFunction, useLoaderData } from "react-router";
 import { motion } from "framer-motion";
 import LandingHeader from "~/components/navigation/LandingHeader";
 import Footer from "~/components/navigation/Footer";
+
+export const meta: MetaFunction<typeof loader> = () => {
+  return [
+    { title: "Charity Resources | Altruvist" },
+    {
+      name: "description",
+      content:
+        "Resources, guides and best practices for nonprofits and charitable organizations using Altruvist to find skilled volunteers.",
+    },
+    { name: "viewport", content: "width=device-width,initial-scale=1" },
+    { charSet: "utf-8" },
+  ];
+};
 
 export const loader = async () => {
   // This could fetch data from your database if needed
@@ -95,7 +108,7 @@ export default function AboutRoute() {
   // const [activeTestimonial, setActiveTestimonial] = useState(0);
 
   return (
-    <div className="bg-basePrimaryLight">
+    <div className="bg-basePrimaryLight min-h-screen">
       <LandingHeader />
 
       {/* Hero Section - About Page Focused */}
@@ -114,7 +127,7 @@ export default function AboutRoute() {
               transition={{ duration: 0.6 }}
               className="text-center mb-8"
             >
-              <h1 className="inline-block text-baseSecondary text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mt-4">
+              <h1 className="inline-block text-baseSecondary text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mt-14">
                 About Altruvist
               </h1>
             </motion.div>
@@ -296,7 +309,7 @@ export default function AboutRoute() {
               </div>
             </motion.div>
             <motion.div
-              initial={{ opacity: 0, x: 50 }}
+              initial={{ opacity: 0, x: 30 }} // or x: 0 for no horizontal movement
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
               viewport={{ once: true }}
@@ -317,10 +330,12 @@ export default function AboutRoute() {
                         viewport={{ once: true }}
                         className="p-4 bg-basePrimaryLight rounded-lg shadow-sm"
                       >
-                        <p className="text-3xl font-bold text-baseSecondary">
+                        <p className="md:text-2xl text-xl font-bold text-baseSecondary">
                           {stat.value}
                         </p>
-                        <p className="text-sm text-midGrey">{stat.label}</p>
+                        <p className="text-xs md:text-sm text-midGrey">
+                          {stat.label}
+                        </p>
                       </motion.div>
                     ))}
                   </div>

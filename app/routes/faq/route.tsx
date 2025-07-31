@@ -193,7 +193,7 @@ export default function FAQPage() {
               transition={{ duration: 0.6 }}
               className="text-center"
             >
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-baseSecondary">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-baseSecondary mt-16">
                 <span className="inline-block">Frequently Asked</span>
                 <span className="ml-2 font-light">Questions</span>
               </h1>

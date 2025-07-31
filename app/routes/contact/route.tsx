@@ -241,7 +241,7 @@ export default function ContactRoute() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-baseSecondary/90">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 mt-14 text-baseSecondary/90">
               Get in{" "}
               <span className="text-baseSecondary text-5xl font-light">
                 Touch
