@@ -8,7 +8,6 @@ import {
   Clock,
   Wallet,
 } from "@phosphor-icons/react";
-import { PrimaryButton } from "../utils/BasicButton";
 
 interface ClaimRewardButtonProps {
   task: {
@@ -192,12 +191,14 @@ export function ClaimRewardButton({
         .
       </p>
 
-      <PrimaryButton
-        text={isClaimingReward ? "Claiming..." : "Claim Reward"}
-        action={handleClaimReward}
-        ariaLabel="Claim token reward"
-        isDisabled={isClaimingReward || canClaim === false}
-      />
+      <button
+        onClick={handleClaimReward}
+        disabled={isClaimingReward || canClaim === false}
+        aria-label="Claim token reward"
+        className={`w-fit  rounded-lg text-sm font-medium transition-all  animated-border-btn duration-300 `}
+      >
+        <span>{isClaimingReward ? "Claiming..." : "Claim Reward"}</span>
+      </button>
 
       {canClaim === null && (
         <p className="text-xs text-baseSecondary/60 mt-2">

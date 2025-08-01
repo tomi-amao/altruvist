@@ -355,7 +355,7 @@ export default function ManageTasks() {
       <AnimatePresence mode="wait">
         {!isDetailsView && (
           <motion.div
-            className="lg:w-1/3 w-full p-4  space-y-4 rounded-md border border-basePrimaryDark overflow-auto"
+            className="lg:w-1/3 w-full p-4  space-y-4 rounded-md border border-basePrimaryDark"
             initial={{ opacity: 0, x: isMobile ? -40 : 0 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -40 }}

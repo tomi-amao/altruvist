@@ -211,8 +211,6 @@ export function TaskDetails({
 
     // Then handle blockchain assignment if volunteer wants token rewards
     try {
-      // Find the application to get volunteer wallet info
-
       if (application?.volunteerWalletAddress && task.rewardAmount) {
         console.log("Assigning task to volunteer on blockchain...");
         console.log(taskRewardService, "TaskRewardService instance");
@@ -234,7 +232,7 @@ export function TaskDetails({
         }
 
         // Call the Solana program to assign the task
-        const txSignature = await taskRewardService.assignTaskToVolunteer(
+        const txSignature = await taskRewardService.assignVolunteerToTask(
           task.id,
           application.volunteerWalletAddress,
           task.creatorWalletAddress,
@@ -254,7 +252,7 @@ export function TaskDetails({
     }
   };
 
-  const handleRejectApplication = (application: taskApplications) => {
+  const handleRejectApplication = async (application: taskApplications) => {
     fetcher.submit(
       {
         _action: "rejectTaskApplication",
@@ -266,7 +264,7 @@ export function TaskDetails({
     );
   };
 
-  const handleUndoStatus = (application: taskApplications) => {
+  const handleUndoStatus = async (application: taskApplications) => {
     fetcher.submit(
       {
         _action: "undoApplicationStatus",
@@ -274,6 +272,47 @@ export function TaskDetails({
       },
       { method: "POST" },
     );
+
+    try {
+      if (application?.volunteerWalletAddress && task.rewardAmount) {
+        console.log("Assigning task to volunteer on blockchain...");
+        console.log(taskRewardService, "TaskRewardService instance");
+
+        if (!taskRewardService) {
+          console.error(
+            "TaskRewardService not available - wallet may not be connected",
+          );
+          toast.warning(
+            "Application accepted successfully! To enable blockchain rewards, please connect your Solana wallet and try assigning the volunteer again.",
+          );
+          return;
+        }
+
+        if (!task.creatorWalletAddress) {
+          console.error("Task creator wallet address not found");
+          toast.error("Task creator wallet not configured");
+          return;
+        }
+
+        // Call the Solana program to assign the task
+        const txSignature = await taskRewardService.removeVolunteerFromTask(
+          task.id,
+          application.volunteerWalletAddress,
+          task.creatorWalletAddress,
+        );
+
+        if (txSignature) {
+          console.log("Successfully assigned task on blockchain:", txSignature);
+          toast.success("Volunteer assigned to task on blockchain!");
+        }
+      }
+    } catch (error) {
+      console.error("Error assigning task on blockchain:", error);
+      // Don't fail the application acceptance if blockchain assignment fails
+      toast.warning(
+        "Application accepted, but blockchain assignment failed. Please try again later.",
+      );
+    }
   };
 
   const handleDeleteApplication = (applicationId: string) => {
@@ -813,6 +852,7 @@ export function TaskDetails({
                             (app) => app.status === "ACCEPTED",
                           ).length
                         }
+                        taskWalletAddress={displayData.creatorWalletAddress}
                         onAccept={handleAcceptApplication}
                         onReject={handleRejectApplication}
                         onUndoStatus={handleUndoStatus}
@@ -1230,16 +1270,18 @@ export function TaskDetails({
                                 />
                               )}
 
-                            <SecondaryButton
-                              ariaLabel="withdraw"
-                              text="Withdraw From Task"
-                              action={() =>
-                                handleWithdrawApplication(
-                                  currentApplication.id ||
-                                    task.taskApplications[0]?.id,
-                                )
-                              }
-                            />
+                            {task.status !== "COMPLETED" && (
+                              <SecondaryButton
+                                ariaLabel="withdraw"
+                                text="Withdraw From Task"
+                                action={() =>
+                                  handleWithdrawApplication(
+                                    currentApplication.id ||
+                                      task.taskApplications[0]?.id,
+                                  )
+                                }
+                              />
+                            )}
                           </div>
                         )}
                       </>

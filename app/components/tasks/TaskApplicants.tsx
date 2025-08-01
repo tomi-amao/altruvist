@@ -6,8 +6,14 @@ import type {
   taskApplications,
   ApplicationStatus,
 } from "@prisma/client";
-import { CaretDown, UsersThree } from "@phosphor-icons/react";
-import { useViewport } from "~/hooks/useViewport"; // Import useViewport hook
+import { CaretDown, UsersThree, Info, Wallet } from "@phosphor-icons/react";
+import { useViewport } from "~/hooks/useViewport";
+import { useWallet } from "@solana/wallet-adapter-react";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "~/components/ui/hover-card";
 
 interface TaskApplicantsProps {
   applicants: {
@@ -16,6 +22,7 @@ interface TaskApplicantsProps {
   }[];
   volunteersNeeded: number;
   acceptedCount: number;
+  taskWalletAddress?: string | null; // Optional prop for task wallet address
   onAccept: (application: taskApplications) => void;
   onReject: (application: taskApplications) => void;
   onUndoStatus: (application: taskApplications) => void; // New prop for undoing status
@@ -25,6 +32,7 @@ export function TaskApplicants({
   applicants,
   volunteersNeeded,
   acceptedCount,
+  taskWalletAddress,
   onAccept,
   onReject,
   onUndoStatus,
@@ -34,6 +42,7 @@ export function TaskApplicants({
     Record<string, ApplicationStatus>
   >({});
   const { isMobile } = useViewport(); // Use the viewport hook
+  const { connected, publicKey } = useWallet();
 
   const toggleExpand = (id: string) => {
     setExpandedIds((prev) =>
@@ -75,20 +84,93 @@ export function TaskApplicants({
     }
   };
 
+  const getWalletValidationState = (application: taskApplications) => {
+    // If no volunteer wallet address is required, no validation needed
+    if (!application.volunteerWalletAddress) {
+      return { isValid: true, message: null };
+    }
+
+    // Check if user has connected their wallet
+    if (!connected || !publicKey) {
+      return {
+        isValid: false,
+        message:
+          "Please connect your wallet to accept applications with blockchain requirements",
+      };
+    }
+
+    // Check if connected wallet matches the task wallet address
+    if (taskWalletAddress && publicKey.toBase58() !== taskWalletAddress) {
+      return {
+        isValid: false,
+        message:
+          "You must connect the task creator wallet to accept blockchain applications",
+      };
+    }
+
+    return { isValid: true, message: null };
+  };
+
   const renderActionButtons = (application: taskApplications) => {
     const noSpotsLeft = volunteersNeeded - acceptedCount === 0;
     const currentStatus =
       optimisticStatuses[application.id] || application.status;
+    const walletValidation = getWalletValidationState(application);
+    const hasBlockchainRequirement = !!application.volunteerWalletAddress;
 
     switch (currentStatus) {
       case "ACCEPTED":
         return (
-          <div className={`flex ${isMobile ? "flex-col w-full" : "gap-2"}`}>
-            <SecondaryButton
-              text="Undo Accept"
-              action={() => handleUndoStatus(application)}
-              ariaLabel="undo accept status"
-            />
+          <div
+            className={`flex items-center ${isMobile ? "flex-col w-full" : "gap-2"}`}
+          >
+            <div className="flex items-center gap-2">
+              <SecondaryButton
+                text="Undo Accept"
+                action={() => handleUndoStatus(application)}
+                ariaLabel="undo accept status"
+                isDisabled={
+                  hasBlockchainRequirement && !walletValidation.isValid
+                }
+              />
+              {hasBlockchainRequirement && !walletValidation.isValid && (
+                <HoverCard>
+                  <HoverCardTrigger>
+                    <Info
+                      size={16}
+                      className="text-dangerPrimary cursor-help hover:text-dangerPrimary/80 transition-colors"
+                      weight="fill"
+                    />
+                  </HoverCardTrigger>
+                  <HoverCardContent className="w-auto max-w-xs p-4 text-sm rounded-lg shadow-lg bg-baseSecondary/50 text-txt-secondary">
+                    <div className="space-y-2">
+                      <div className="text-dangerPrimary">
+                        {walletValidation.message}
+                      </div>
+                      {!connected && (
+                        <div className="text-txt-secondary/80">
+                          No wallet connected
+                        </div>
+                      )}
+                      {connected && publicKey && (
+                        <div className="space-y-1">
+                          <div className="text-txt-secondary/80">
+                            Connected: {publicKey.toBase58().slice(0, 8)}...
+                            {publicKey.toBase58().slice(-8)}
+                          </div>
+                          {taskWalletAddress && (
+                            <div className="text-txt-secondary/80">
+                              Required: {taskWalletAddress.slice(0, 8)}...
+                              {taskWalletAddress.slice(-8)}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </HoverCardContent>
+                </HoverCard>
+              )}
+            </div>
           </div>
         );
 
@@ -101,19 +183,73 @@ export function TaskApplicants({
           );
         }
         return (
-          <div
-            className={`flex ${isMobile ? "flex-col w-full gap-2" : "gap-2"}`}
-          >
-            <SecondaryButton
-              text="Accept"
-              action={() => handleAccept(application)}
-              ariaLabel="accept application"
-            />
-            <SecondaryButton
-              text="Reject"
-              action={() => handleReject(application)}
-              ariaLabel="reject application"
-            />
+          <div className="space-y-3">
+            <div
+              className={`flex items-center ${isMobile ? "flex-col w-full gap-2" : "gap-2"}`}
+            >
+              <div className="flex items-center gap-2">
+                <SecondaryButton
+                  text="Accept"
+                  action={() => handleAccept(application)}
+                  ariaLabel="accept application"
+                  isDisabled={
+                    hasBlockchainRequirement && !walletValidation.isValid
+                  }
+                />
+                {hasBlockchainRequirement && !walletValidation.isValid && (
+                  <HoverCard>
+                    <HoverCardTrigger>
+                      <button>
+                        <Info
+                          size={16}
+                          className="text-dangerPrimary cursor-help hover:text-dangerPrimary transition-colors"
+                          weight="fill"
+                        />
+                      </button>
+                    </HoverCardTrigger>
+                    <HoverCardContent className="w-auto max-w-xs p-4 text-sm rounded-lg shadow-lg bg-red-500 text-txt-secondary border border-dangerPrimary">
+                      <div className="space-y-2">
+                        {!connected && (
+                          <div className="text-txt-secondary/80 font-semibold">
+                            No wallet connected
+                          </div>
+                        )}
+                        <div className="text-txt-secondary/80">
+                          {walletValidation.message}
+                        </div>
+                        {connected && publicKey && (
+                          <div className="space-y-1">
+                            <div className="text-txt-secondary/80">
+                              Connected: {publicKey.toBase58().slice(0, 8)}...
+                              {publicKey.toBase58().slice(-8)}
+                            </div>
+                            {taskWalletAddress && (
+                              <div className="text-txt-secondary/80">
+                                Required: {taskWalletAddress.slice(0, 8)}...
+                                {taskWalletAddress.slice(-8)}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </HoverCardContent>
+                  </HoverCard>
+                )}
+              </div>
+              <SecondaryButton
+                text="Reject"
+                action={() => handleReject(application)}
+                ariaLabel="reject application"
+              />
+            </div>
+            {hasBlockchainRequirement && walletValidation.isValid && (
+              <div className="flex items-center gap-2 text-xs text-confirmPrimary">
+                <span>
+                  <Wallet size={20} className="text-confirmPrimary" /> Wallet
+                  Connected & Verified
+                </span>
+              </div>
+            )}
           </div>
         );
 

@@ -7,7 +7,19 @@ export interface TaskRewardService {
   /**
    * Assign task to volunteer on the blockchain when charity accepts their application
    */
-  assignTaskToVolunteer(
+  assignVolunteerToTask(
+    taskId: string,
+    volunteerWalletAddress: string,
+    creatorWalletAddress: string,
+  ): Promise<string | undefined>;
+
+  /**
+   * Remove volunteer from task on the blockchain
+   * @param taskId - The ID of the task
+   * @param volunteerWalletAddress - The wallet address of the volunteer to remove
+   * @param creatorWalletAddress - The wallet address of the task creator
+   */
+  removeVolunteerFromTask?(
     taskId: string,
     volunteerWalletAddress: string,
     creatorWalletAddress: string,
@@ -18,7 +30,7 @@ export interface TaskRewardService {
    */
   updateTaskStatus(
     taskId: string,
-    newStatus: "InProgress" | "Completed" | "Cancelled",
+    newStatus: "IN_PROGRESS" | "COMPLETED" | "CANCELLED" | "NOT_STARTED",
     creatorWalletAddress: string,
   ): Promise<string | undefined>;
 
@@ -46,7 +58,7 @@ export class TaskRewardServiceImpl implements TaskRewardService {
     private blockchainReader: BlockchainReaderService,
   ) {}
 
-  async assignTaskToVolunteer(
+  async assignVolunteerToTask(
     taskId: string,
     volunteerWalletAddress: string,
     creatorWalletAddress: string,
@@ -157,6 +169,94 @@ export class TaskRewardServiceImpl implements TaskRewardService {
       );
 
       return undefined;
+    }
+  }
+
+  async removeVolunteerFromTask(
+    taskId: string,
+    volunteerWalletAddress: string,
+    creatorWalletAddress: string,
+  ): Promise<string | undefined> {
+    try {
+      if (!this.solanaService.wallet?.publicKey) {
+        throw new Error("Creator wallet not connected");
+      }
+
+      // Verify the caller is the task creator
+      if (
+        this.solanaService.wallet.publicKey.toBase58() !== creatorWalletAddress
+      ) {
+        throw new Error(
+          "Only task creator can remove volunteers. Please check your connected wallet account.",
+        );
+      }
+
+      toast.info(`Removing volunteer from task...`);
+
+      const volunteerPubkey = new PublicKey(volunteerWalletAddress);
+
+      const txSignature = await this.solanaService.program.methods
+        .removeAssigneeFromTask(taskId, volunteerPubkey)
+        .accounts({
+          creator: this.solanaService.wallet.publicKey,
+        })
+        .rpc({
+          commitment: "confirmed",
+          preflightCommitment: "confirmed",
+          skipPreflight: false,
+          maxRetries: 0,
+        });
+
+      toast.success(
+        `Volunteer removed successfully! Transaction: ${txSignature}`,
+      );
+      return txSignature;
+    } catch (error) {
+      console.error("Error removing volunteer from task:", error);
+
+      // Handle specific case where transaction has already been processed
+      if (
+        error instanceof Error &&
+        error.message.includes("This transaction has already been processed")
+      ) {
+        console.warn(
+          "Removal transaction already processed, checking task status...",
+        );
+        toast.info(
+          "Transaction was already processed. Checking removal status...",
+        );
+
+        // Check if the volunteer was actually removed from the task
+        try {
+          const taskInfo = await this.blockchainReader.getTaskInfo(
+            taskId,
+            creatorWalletAddress,
+          );
+          if (taskInfo) {
+            const volunteerPubkey = new PublicKey(volunteerWalletAddress);
+            const isAssigned = taskInfo.assignees.some(
+              (assignee) => assignee.toBase58() === volunteerPubkey.toBase58(),
+            );
+            if (!isAssigned) {
+              toast.success(
+                "Volunteer was already removed from this task successfully!",
+              );
+              return "already_processed";
+            } else {
+              toast.warning(
+                "Transaction processed but volunteer removal status unclear",
+              );
+              return "already_processed";
+            }
+          }
+        } catch (checkError) {
+          console.error("Error checking task removal:", checkError);
+          toast.warning(
+            "Transaction already processed but removal status unclear",
+          );
+          return "already_processed";
+        }
+      }
     }
   }
 

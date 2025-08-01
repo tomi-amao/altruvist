@@ -312,6 +312,74 @@
 //     console.log(`  Assignees: ${taskAccount.assignees.map(pk => pk.toString().slice(0, 8) + "...").join(", ")}`);
 //   });
 
+//   it("Should remove an assignee from the task and prevent reward claim", async () => {
+//     console.log("\n🚀 Removing Bob as assignee...");
+
+//     // Remove Bob from assignees
+//     const tx = await program.methods
+//       .removeAssigneeFromTask(taskId, bob.publicKey)
+//       .accounts({
+//         task: taskPDA,
+//         creator: alice.publicKey,
+//       })
+//       .signers([alice])
+//       .rpc();
+
+//     await logTransactionTiming(provider.connection, tx, "Remove Assignee (Bob)");
+
+//     // Verify Bob is no longer in the assignees list
+//     const taskAccount = await program.account.task.fetch(taskPDA);
+//     expect(taskAccount.assignees.map(pk => pk.toString())).to.not.include(bob.publicKey.toString());
+//     expect(taskAccount.assignees).to.have.length(2);
+//     console.log("✅ Bob successfully removed from assignees");
+
+//     // Try to claim reward as Bob (should fail)
+//     try {
+//       await program.methods
+//         .claimReward(taskId)
+//         .accounts({
+//           task: taskPDA,
+//           escrowTokenAccount,
+//           assigneeTokenAccount: bobTokenAccount,
+//           creator: alice.publicKey,
+//           mint: mintKeypair.publicKey,
+//           assignee: bob.publicKey,
+//           tokenProgram: TOKEN_2022_PROGRAM_ID,
+//           associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+//           systemProgram: SystemProgram.programId,
+//         })
+//         .signers([bob])
+//         .rpc();
+//       expect.fail("Should have thrown an error for unauthorized assignee");
+//     } catch (error) {
+//       const errorMessage = error.message || "";
+//       console.log("Full error:", error);
+
+//       const hasCorrectError = errorMessage.includes("InvalidTaskStatus");
+//       expect(hasCorrectError).to.be.true;
+//       console.log("✅ Bob cannot claim reward after removal");
+//     }
+//   });
+
+//   it("Should reassign Bob to the task", async () => {
+//     console.log("\n🚀 Reassigning Bob to the task...");
+
+//     const tx = await program.methods
+//       .assignTask(taskId, bob.publicKey)
+//       .accounts({
+//         task: taskPDA,
+//         creator: alice.publicKey,
+//       })
+//       .signers([alice])
+//       .rpc();
+
+//     await logTransactionTiming(provider.connection, tx, "Reassign Task to Bob");
+
+//     // Verify Bob is back in the assignees list
+//     const taskAccount = await program.account.task.fetch(taskPDA);
+//     expect(taskAccount.assignees.map(pk => pk.toString())).to.include(bob.publicKey.toString());
+//   })
+
 //   it("Should allow Alice (creator) to update task status to InProgress", async () => {
 //     console.log("\n🚀 Alice updating task status to InProgress...");
 
@@ -755,4 +823,5 @@
 //     console.log("  - Escrow account auto-closed ✓");
 //     console.log("  - Task account manually closed ✓");
 //   });
+
 // });
