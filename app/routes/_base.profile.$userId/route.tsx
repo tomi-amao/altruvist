@@ -220,14 +220,14 @@ export default function ProfilePage() {
           {/* Charity Memberships Card */}
           {(isMyProfile || charityMemberships.memberships?.length > 0) && (
             <div className="bg-basePrimaryLight rounded-xl shadow-md overflow-hidden">
-              <div className="px-6 py-5 border-b border-baseSecondary/10 flex justify-between items-center">
+              <div className="px-6 py-5 border-b border-baseSecondary/10 flex-col justify-between">
                 <h2 className="text-7xl font-semibold  text-baseSecondary flex items-center gap-2">
                   Charity Memberships
                 </h2>
                 {isMyProfile && isVolunteer && (
                   <Link
                     to="/explore/charities"
-                    className="text-sm text-baseSecondary font-medium hover:text-baseSecondary/80 hover:underline transition-colors"
+                    className="text-sm  text-baseSecondary font-medium hover:text-baseSecondary/80 hover:underline transition-colors"
                   >
                     Find Charities
                   </Link>

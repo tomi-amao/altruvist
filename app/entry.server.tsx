@@ -11,8 +11,12 @@ import { createReadableStreamFromReadable } from "@react-router/node";
 import { ServerRouter } from "react-router";
 import { isbot } from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
+import { checkEnvVars } from "./utils/checkEnv";
 
 const ABORT_DELAY = 5_000;
+
+// Check environment variables before starting the server
+checkEnvVars();
 
 export default function handleRequest(
   request: Request,

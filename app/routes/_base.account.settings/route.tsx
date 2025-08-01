@@ -21,6 +21,8 @@ import { Modal } from "~/components/utils/Modal2";
 import { Alert } from "~/components/utils/Alert";
 import { z } from "zod";
 import { Bell, ShieldCheck, UserCircle, Warning } from "@phosphor-icons/react";
+import { toast } from "~/lib/toast";
+import { createStandardToast } from "~/components/utils/ToastContent";
 
 // Import the loader and action functions
 import { loader } from "./loader";
@@ -126,6 +128,11 @@ export default function AccountSettings() {
         }
       }
     }
+    console.log(
+      "Fetching signed URL for profile picture:",
+      formData.profilePicture,
+    );
+
     fetchSignedUrl();
   }, [formData.profilePicture]);
 
@@ -207,6 +214,21 @@ export default function AccountSettings() {
       </div>
     );
   };
+
+  // Toast feedback for form submission
+  useEffect(() => {
+    if (actionData?.success && actionData.message) {
+      toast.success(actionData?.message, { position: "bottom-center" });
+    }
+    if (actionData?.errors?.length) {
+      const formError = actionData.errors.find(
+        (error) => error.field === "form",
+      );
+      if (formError?.message) {
+        toast.error(createStandardToast(formError.message));
+      }
+    }
+  }, [actionData]);
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
@@ -445,36 +467,19 @@ export default function AccountSettings() {
                     )}
                   </div>
 
-                  <div className="flex justify-between items-center">
-                    {actionData?.success && (
-                      <p className="text-confirmPrimary">
-                        ✓ {actionData.message}
-                      </p>
-                    )}
-                    {actionData?.errors?.find((error) => error.field === "form")
-                      ?.message && (
-                      <p className="text-dangerPrimary">
-                        ⚠
-                        {
-                          actionData.errors.find(
-                            (error) => error.field === "form",
-                          )?.message
-                        }
-                      </p>
-                    )}
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className={`px-4 py-2 bg-baseSecondary text-basePrimary rounded-md transition-colors
-                        ${
-                          isSubmitting
-                            ? "opacity-70 cursor-not-allowed"
-                            : "hover:bg-baseSecondary/90"
-                        }`}
-                    >
-                      {isSubmitting ? "Saving..." : "Save Changes"}
-                    </button>
-                  </div>
+                  {/* Remove inline feedback, just keep the submit button */}
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className={`px-4 py-2 bg-baseSecondary text-basePrimary rounded-md transition-colors
+                      ${
+                        isSubmitting
+                          ? "opacity-70 cursor-not-allowed"
+                          : "hover:bg-baseSecondary/90"
+                      }`}
+                  >
+                    {isSubmitting ? "Saving..." : "Save Changes"}
+                  </button>
                 </Form>
 
                 <Modal

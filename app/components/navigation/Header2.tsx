@@ -219,9 +219,9 @@ export default function Navbar({
           </div>
 
           {/* Search bar */}
-          <div className="w-full p-4">
+          <div className="w-full md:max-w-96 p-4">
             <Form
-              className="flex items-center bg-basePrimaryLight lg:max-w-96 m-auto -ml-2 rounded-md"
+              className="flex items-center bg-basePrimaryLight md:max-w-96 m-auto -ml-2 rounded-md"
               onSubmit={handleSearchSubmit}
             >
               <div className="p-1 flex gap-2 items-center flex-grow">
@@ -271,7 +271,9 @@ export default function Navbar({
           <div className="w-fit min-w-fit lg:flex flex-row items-center gap-4 hidden md:block text-baseSecondary">
             {/* InboxNotifications only on desktop */}
             <span className="hidden md:inline">{inboxNotifications}</span>
-            <WalletMultiButton />
+            <span className="hidden lg:inline">
+              <WalletMultiButton />
+            </span>
           </div>
 
           <button className="flex px-3 py-2 rounded" onClick={toggleDropdown}>

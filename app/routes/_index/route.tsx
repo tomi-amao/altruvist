@@ -192,7 +192,7 @@ export default function Index() {
                   navigate("/explore/tasks");
                 }}
               >
-                Browse Projects
+                Browse Tasks
               </motion.button>
             </div>
           </motion.div>

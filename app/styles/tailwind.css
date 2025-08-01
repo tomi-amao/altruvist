@@ -176,7 +176,7 @@
 
 /* Typography */
 h1 {
-  @apply font-header text-5xl text-baseSecondary;
+  @apply font-header md:text-5xl text-4xl text-baseSecondary;
 }
 
 h2 {

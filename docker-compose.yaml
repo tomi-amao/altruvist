@@ -147,7 +147,7 @@ services:
 
   companion:
     container_name: "companion"
-    image: docker.io/transloadit/companion:latest
+    image: docker.io/transloadit/companion:5.8.0
     ports:
       - "3020:3020"
     env_file:
