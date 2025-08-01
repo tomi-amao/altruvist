@@ -82,12 +82,13 @@
 
 //   // Test data
 //   const testRunId = Date.now().toString();
-//   const taskId = `multi-assignee-task-`;
+//   const faucetSeed = `test_faucet`; // Use configurable faucet seed with unique ID
+//   const taskId = `multi-assignee-task`; // Make task ID unique too
 //   const tokenName = `Test Token ${testRunId}`;
 //   const tokenSymbol = "TEST";
 //   const tokenUri = `https://example.com/metadata-${testRunId}.json`;
 //   const initialSupply = new anchor.BN(1_000_000 * 10**6); // 1M tokens with 6 decimals
-//   const rewardAmount = new anchor.BN(300 * 10**6); // 3000 tokens (will be split 3 ways = 1000 each)
+//   const rewardAmount = new anchor.BN(300 * 10**6); // 300 tokens (will be split 3 ways = 1000 each)
 
 //   before(async () => {
 //     console.log(`\n🎯 Setting up Multiple Assignees Test Environment (Run ID: ${testRunId})...`);
@@ -122,7 +123,7 @@
 //     // Derive PDAs
 //     console.log("\n🔑 Deriving PDAs...");
 //     [faucetPDA] = PublicKey.findProgramAddressSync(
-//       [Buffer.from("altru_faucet")],
+//       [Buffer.from(faucetSeed)], // Use configurable seed instead of hardcoded
 //       program.programId
 //     );
 //     console.log(`🏭 Faucet PDA: ${faucetPDA.toString()}`);
@@ -188,7 +189,7 @@
 //     console.log("\n🚀 Initializing faucet...");
 
 //     const tx = await program.methods
-//       .initializeFaucet(tokenName, tokenSymbol, tokenUri, initialSupply)
+//       .initializeFaucet(faucetSeed, tokenName, tokenSymbol, tokenUri, initialSupply)
 //       .accounts({
 //         faucet: faucetPDA,
 //         mint: mintKeypair.publicKey,
@@ -215,7 +216,7 @@
 //     );
 
 //     const tx = await program.methods
-//       .requestTokens(requestAmount)
+//       .requestTokens(faucetSeed, requestAmount)
 //       .accounts({
 //         faucet: faucetPDA,
 //         faucetTokenAccount,

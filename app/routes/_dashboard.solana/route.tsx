@@ -7,6 +7,7 @@ import { FormField } from "~/components/utils/FormField";
 import { Coins, PaperPlaneTilt, Info, Fire } from "@phosphor-icons/react";
 import { toast } from "react-toastify";
 import WalletInfo from "~/components/tasks/WalletInfo";
+import { getSolanaConfig } from "~/lib/solana-config";
 
 interface FaucetInfo {
   address: string;
@@ -19,7 +20,10 @@ interface FaucetInfo {
 
 export default function SolanaFaucet() {
   const { connected } = useWallet();
-  const { solanaService } = useSolanaService();
+  const { solanaService, blockchainReader } = useSolanaService();
+
+  // Get faucet seed from environment configuration
+  const faucetSeed = getSolanaConfig().FAUCET_SEED;
 
   // Faucet initialization state
   const [initializeLoading, setInitializeLoading] = useState(false);
@@ -70,7 +74,7 @@ export default function SolanaFaucet() {
 
     setLoadingInfo(true);
     try {
-      const info = await solanaService.getFaucetInfo();
+      const info = await blockchainReader?.getFaucetInfo(faucetSeed);
       setFaucetInfo(info);
     } catch (error) {
       console.error("Error loading faucet info:", error);
@@ -88,6 +92,7 @@ export default function SolanaFaucet() {
     setInitializeLoading(true);
     try {
       const txSignature = await solanaService.initializeFaucet(
+        faucetSeed,
         faucetForm.name,
         faucetForm.symbol,
         faucetForm.uri,
@@ -121,6 +126,7 @@ export default function SolanaFaucet() {
     setRequestLoading(true);
     try {
       const txSignature = await solanaService.requestTokens(
+        faucetSeed,
         requestForm.mintAddress,
         parseInt(requestForm.amount) || 0,
       );
@@ -145,7 +151,7 @@ export default function SolanaFaucet() {
 
     setDeleteLoading(true);
     try {
-      const txSignature = await solanaService.deleteFaucet();
+      const txSignature = await solanaService.deleteFaucet(faucetSeed);
 
       if (txSignature) {
         // Reset faucet info and form
@@ -173,7 +179,7 @@ export default function SolanaFaucet() {
 
     setBurnDeleteLoading(true);
     try {
-      const txSignature = await solanaService.burnAndDeleteFaucet();
+      const txSignature = await solanaService.burnAndDeleteFaucet(faucetSeed);
 
       if (txSignature) {
         // Reset faucet info and form

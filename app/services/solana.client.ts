@@ -13,6 +13,7 @@ import { getBurnCheckedInstruction } from "@solana-program/token-2022";
 import idl from "../../target/idl/altruvist.json";
 import { toast } from "react-toastify";
 import { BlockchainReaderService } from "./blockchain-reader.client";
+import { getSolanaConfig } from "~/lib/solana-config";
 
 // Define interfaces for type safety
 interface FaucetAccount {
@@ -152,6 +153,7 @@ export class SolanaService {
   }
 
   async initializeFaucet(
+    faucetSeed: string,
     name: string,
     symbol: string,
     uri: string,
@@ -165,9 +167,9 @@ export class SolanaService {
     try {
       toast.info("Initializing faucet...");
 
-      // Derive faucet PDA using standard web3.js approach
+      // Derive faucet PDA using configurable seed
       const [faucetPda] = PublicKey.findProgramAddressSync(
-        [Buffer.from("altru_faucet")],
+        [Buffer.from(faucetSeed)],
         this.program.programId,
       );
 
@@ -185,6 +187,7 @@ export class SolanaService {
 
       const txSignature = await this.program.methods
         .initializeFaucet(
+          faucetSeed,
           name,
           symbol,
           uri,
@@ -196,10 +199,10 @@ export class SolanaService {
         })
         .signers([mintKeypair])
         .rpc({
-          commitment: "confirmed", // More reliable than 'processed'
-          preflightCommitment: "confirmed", // Consistent commitment levels
-          skipPreflight: false, // Keep error checking
-          maxRetries: 0, // Disable automatic retries (handle manually)
+          commitment: "confirmed",
+          preflightCommitment: "confirmed",
+          skipPreflight: false,
+          maxRetries: 0,
         });
 
       toast.success(
@@ -234,7 +237,8 @@ export class SolanaService {
 
         // Check if the faucet was actually created
         try {
-          const faucetInfo = await this.blockchainReader.getFaucetInfo();
+          const faucetInfo =
+            await this.blockchainReader.getFaucetInfo(faucetSeed);
           if (faucetInfo) {
             toast.success("Faucet was already initialized successfully!");
             return "already_processed";
@@ -269,6 +273,7 @@ export class SolanaService {
   }
 
   async requestTokens(
+    faucetSeed: string,
     mintAddress: string,
     amount: number,
   ): Promise<string | undefined> {
@@ -282,9 +287,9 @@ export class SolanaService {
 
       const mintPubkey = new PublicKey(mintAddress);
 
-      // Derive faucet PDA
+      // Derive faucet PDA using configurable seed
       const [faucetPda] = PublicKey.findProgramAddressSync(
-        [Buffer.from("altru_faucet")],
+        [Buffer.from(faucetSeed)],
         this.program.programId,
       );
 
@@ -308,7 +313,7 @@ export class SolanaService {
       const amountWithDecimals = amount * Math.pow(10, 6); // 6 decimals
 
       const txSignature = await this.program.methods
-        .requestTokens(new anchor.BN(amountWithDecimals))
+        .requestTokens(faucetSeed, new anchor.BN(amountWithDecimals))
         .accounts({
           faucet: faucetPda,
           faucetTokenAccount: faucetTokenAccount,
@@ -421,7 +426,7 @@ export class SolanaService {
     }
   }
 
-  async deleteFaucet(): Promise<string | undefined> {
+  async deleteFaucet(faucetSeed?: string): Promise<string | undefined> {
     if (!this.wallet || !this.wallet.publicKey) {
       toast.error("Wallet not connected");
       return undefined;
@@ -430,9 +435,12 @@ export class SolanaService {
     try {
       toast.info("Deleting faucet...");
 
-      // Derive faucet PDA
+      // Use environment-based faucet seed if not provided
+      const seed = faucetSeed || getSolanaConfig().FAUCET_SEED;
+
+      // Derive faucet PDA using configurable seed
       const [faucetPda] = PublicKey.findProgramAddressSync(
-        [Buffer.from("altru_faucet")],
+        [Buffer.from(seed)],
         this.program.programId,
       );
 
@@ -449,7 +457,7 @@ export class SolanaService {
       );
 
       const txSignature = await this.program.methods
-        .deleteFaucet()
+        .deleteFaucet(seed)
         .accounts({
           faucet: faucetPda,
           faucetTokenAccount: faucetTokenAccount,
@@ -483,7 +491,7 @@ export class SolanaService {
     }
   }
 
-  async burnAndDeleteFaucet(): Promise<string | undefined> {
+  async burnAndDeleteFaucet(faucetSeed?: string): Promise<string | undefined> {
     if (!this.wallet || !this.wallet.publicKey) {
       toast.error("Wallet not connected");
       return undefined;
@@ -492,9 +500,12 @@ export class SolanaService {
     try {
       toast.info("Burning tokens and deleting faucet...");
 
-      // Derive faucet PDA
+      // Use environment-based faucet seed if not provided
+      const seed = faucetSeed || getSolanaConfig().FAUCET_SEED;
+
+      // Derive faucet PDA using configurable seed
       const [faucetPda] = PublicKey.findProgramAddressSync(
-        [Buffer.from("altru_faucet")],
+        [Buffer.from(seed)],
         this.program.programId,
       );
 
@@ -511,7 +522,7 @@ export class SolanaService {
       );
 
       const txSignature = await this.program.methods
-        .burnAndDeleteFaucet()
+        .burnAndDeleteFaucet(seed)
         .accounts({
           faucet: faucetPda,
           faucetTokenAccount: faucetTokenAccount,

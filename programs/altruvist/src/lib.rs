@@ -18,30 +18,32 @@ pub mod altruvist {
     /// Initialize the faucet system with Token 2022 mint
     pub fn initialize_faucet(
         ctx: Context<InitializeFaucet>,
+        faucet_seed: String,
         name: String,
         symbol: String,
         uri: String,
         initial_supply: u64,
     ) -> Result<()> {
-        instructions::initialize_faucet(ctx, name, symbol, uri, initial_supply)
+        instructions::initialize_faucet(ctx, faucet_seed, name, symbol, uri, initial_supply)
     }
 
     /// Allow users to request tokens from the faucet
     pub fn request_tokens(
         ctx: Context<RequestTokens>,
+        faucet_seed: String,
         amount: u64,
     ) -> Result<()> {
-        instructions::request_tokens(ctx, amount)
+        instructions::request_tokens(ctx, faucet_seed, amount)
     }
 
     /// Delete the faucet and close all associated accounts
-    pub fn delete_faucet(ctx: Context<DeleteFaucet>) -> Result<()> {
-        instructions::delete_faucet(ctx)
+    pub fn delete_faucet(ctx: Context<DeleteFaucet>, faucet_seed: String) -> Result<()> {
+        instructions::delete_faucet(ctx, faucet_seed)
     }
 
     /// Burn all remaining tokens and delete the faucet
-    pub fn burn_and_delete_faucet(ctx: Context<BurnAndDeleteFaucet>) -> Result<()> {
-        instructions::burn_and_delete_faucet(ctx)
+    pub fn burn_and_delete_faucet(ctx: Context<BurnAndDeleteFaucet>, faucet_seed: String) -> Result<()> {
+        instructions::burn_and_delete_faucet(ctx, faucet_seed)
     }
 
     /// Create a new task with escrow

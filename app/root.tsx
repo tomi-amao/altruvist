@@ -33,6 +33,7 @@ declare global {
     };
     ENV: {
       GOOGLE_RECAPTCHA_SITE_KEY: string;
+      SOLANA_FAUCET_SEED: string;
     };
   }
 }
@@ -45,6 +46,7 @@ export const loader: LoaderFunction = () => {
   return ({
     ENV: {
       GOOGLE_RECAPTCHA_SITE_KEY: process.env.GOOGLE_RECAPTCHA_SITE_KEY,
+      SOLANA_FAUCET_SEED: process.env.SOLANA_FAUCET_SEED,
     },
   });
 };

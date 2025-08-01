@@ -21,6 +21,7 @@ use crate::{
 /// Initialize the faucet system with Token 2022 mint and metadata
 pub fn initialize_faucet(
     ctx: Context<InitializeFaucet>,
+    faucet_seed: String,
     name: String,
     symbol: String,
     uri: String,
@@ -30,6 +31,7 @@ pub fn initialize_faucet(
     require!(name.len() <= 32, AltruistError::DescriptionTooLong);
     require!(symbol.len() <= 10, AltruistError::DescriptionTooLong);
     require!(uri.len() <= 200, AltruistError::DescriptionTooLong);
+    require!(faucet_seed.len() <= 32, AltruistError::DescriptionTooLong);
 
     // Store values we need before borrowing faucet mutably
     let faucet_key = ctx.accounts.faucet.key();
@@ -46,7 +48,7 @@ pub fn initialize_faucet(
     faucet.cooldown_period = 86400; // 24 hours in seconds
     faucet.bump = faucet_bump;
 
-    let seeds = &[b"altru_faucet".as_ref(), &[faucet_bump]];
+    let seeds = &[faucet_seed.as_bytes(), &[faucet_bump]];
     let signer = &[&seeds[..]];
 
     let cpi_accounts = TokenMetadataInitialize {
@@ -92,7 +94,7 @@ pub fn initialize_faucet(
 }
 
 /// Allow users to request tokens from the faucet with rate limiting
-pub fn request_tokens(ctx: Context<RequestTokens>, amount: u64) -> Result<()> {
+pub fn request_tokens(ctx: Context<RequestTokens>, faucet_seed: String, amount: u64) -> Result<()> {
     let faucet = &ctx.accounts.faucet;
     let user_record = &mut ctx.accounts.user_request_record;
     let clock = Clock::get()?;
@@ -122,7 +124,7 @@ pub fn request_tokens(ctx: Context<RequestTokens>, amount: u64) -> Result<()> {
         authority: ctx.accounts.faucet.to_account_info(),
     };
     let faucet_bump = faucet.bump;
-    let seeds = &[b"altru_faucet".as_ref(), &[faucet_bump]];
+    let seeds = &[faucet_seed.as_bytes(), &[faucet_bump]];
     let signer = &[&seeds[..]];
     let cpi_program = ctx.accounts.token_program.to_account_info();
     let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
@@ -144,7 +146,7 @@ pub fn request_tokens(ctx: Context<RequestTokens>, amount: u64) -> Result<()> {
 }
 
 /// Delete the faucet and close all associated accounts
-pub fn delete_faucet(ctx: Context<DeleteFaucet>) -> Result<()> {
+pub fn delete_faucet(ctx: Context<DeleteFaucet>, faucet_seed: String) -> Result<()> {
     let faucet = &ctx.accounts.faucet;
     
     // Only allow deletion if faucet token account is empty
@@ -153,7 +155,7 @@ pub fn delete_faucet(ctx: Context<DeleteFaucet>) -> Result<()> {
 
     // Get faucet PDA seeds for signing
     let faucet_bump = faucet.bump;
-    let seeds = &[b"altru_faucet".as_ref(), &[faucet_bump]];
+    let seeds = &[faucet_seed.as_bytes(), &[faucet_bump]];
     let signer = &[&seeds[..]];
 
     // Close the faucet token account first (returns rent to payer)
@@ -189,13 +191,13 @@ pub fn delete_faucet(ctx: Context<DeleteFaucet>) -> Result<()> {
 }
 
 /// Burn all remaining tokens in the faucet and then delete all associated accounts
-pub fn burn_and_delete_faucet(ctx: Context<BurnAndDeleteFaucet>) -> Result<()> {
+pub fn burn_and_delete_faucet(ctx: Context<BurnAndDeleteFaucet>, faucet_seed: String) -> Result<()> {
     let faucet = &ctx.accounts.faucet;
     let faucet_balance = ctx.accounts.faucet_token_account.amount;
 
     // Get faucet PDA seeds for signing
     let faucet_bump = faucet.bump;
-    let seeds = &[b"altru_faucet".as_ref(), &[faucet_bump]];
+    let seeds = &[faucet_seed.as_bytes(), &[faucet_bump]];
     let signer = &[&seeds[..]];
 
     // If there are tokens remaining, burn them all
@@ -252,12 +254,13 @@ pub fn burn_and_delete_faucet(ctx: Context<BurnAndDeleteFaucet>) -> Result<()> {
 // Account validation structs
 
 #[derive(Accounts)]
+#[instruction(faucet_seed: String)]
 pub struct InitializeFaucet<'info> {
     #[account(
         init,
         payer = payer,
         space = Faucet::LEN,
-        seeds = [b"altru_faucet"],
+        seeds = [faucet_seed.as_bytes()],
         bump
     )]
     pub faucet: Account<'info, Faucet>,
@@ -292,9 +295,10 @@ pub struct InitializeFaucet<'info> {
 }
 
 #[derive(Accounts)]
+#[instruction(faucet_seed: String)]
 pub struct RequestTokens<'info> {
     #[account(
-        seeds = [b"altru_faucet"],
+        seeds = [faucet_seed.as_bytes()],
         bump = faucet.bump
     )]
     pub faucet: Account<'info, Faucet>,
@@ -339,10 +343,11 @@ pub struct RequestTokens<'info> {
 }
 
 #[derive(Accounts)]
+#[instruction(faucet_seed: String)]
 pub struct DeleteFaucet<'info> {
     #[account(
         mut,
-        seeds = [b"altru_faucet"],
+        seeds = [faucet_seed.as_bytes()],
         bump = faucet.bump,
         close = payer
     )]
@@ -372,10 +377,11 @@ pub struct DeleteFaucet<'info> {
 }
 
 #[derive(Accounts)]
+#[instruction(faucet_seed: String)]
 pub struct BurnAndDeleteFaucet<'info> {
     #[account(
         mut,
-        seeds = [b"altru_faucet"],
+        seeds = [faucet_seed.as_bytes()],
         bump = faucet.bump,
         close = payer
     )]

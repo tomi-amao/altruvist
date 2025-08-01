@@ -4,6 +4,7 @@ import { fetchToken } from "@solana-program/token-2022";
 import { address, type Address, createSolanaRpc } from "@solana/kit";
 import idl from "../../target/idl/altruvist.json";
 import { Altruvist } from "../../target/types/altruvist";
+import { getSolanaConfig } from "~/lib/solana-config";
 
 // Import types from the existing service
 import type { TaskAccount } from "./task-escrow.client";
@@ -33,7 +34,7 @@ export class BlockchainReaderService {
   /**
    * Get faucet information from the blockchain
    */
-  async getFaucetInfo(): Promise<{
+  async getFaucetInfo(faucetSeed?: string): Promise<{
     address: string;
     mint: string;
     authority: string;
@@ -42,9 +43,12 @@ export class BlockchainReaderService {
     cooldownPeriod: string;
   } | null> {
     try {
-      // Derive faucet PDA
+      // Use environment-based faucet seed if not provided
+      const seed = faucetSeed || getSolanaConfig().FAUCET_SEED;
+
+      // Derive faucet PDA with configurable seed
       const [faucetPda] = PublicKey.findProgramAddressSync(
-        [Buffer.from("altru_faucet")],
+        [Buffer.from(seed)],
         this.program.programId,
       );
 
