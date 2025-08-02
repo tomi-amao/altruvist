@@ -34,7 +34,7 @@ jobs:
         run: npx prettier . --check
 
       - name: Run ESLint
-        run: npx eslint --ignore-pattern .gitignore --ignore-pattern .react-router --fix 
+        run: npx eslint --ignore-pattern .gitignore --ignore-pattern .react-router --fix
 
         continue-on-error: false
 
