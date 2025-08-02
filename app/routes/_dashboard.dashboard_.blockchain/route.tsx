@@ -161,9 +161,6 @@ export default function BlockchainDashboard() {
                 Manage your Altruvist tokens and blockchain interactions
               </p>
             </div>
-            <div className="flex items-center gap-4">
-              <WalletMultiButton className="!bg-accentPrimary hover:!bg-accentPrimary/90 !rounded-xl !px-6 !py-3 !font-medium" />
-            </div>
           </div>
         </motion.div>
 
