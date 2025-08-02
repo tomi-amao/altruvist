@@ -10,8 +10,7 @@ import {
 import * as anchor from "@coral-xyz/anchor";
 import { PublicKey, SystemProgram, Connection } from "@solana/web3.js";
 import { getBurnCheckedInstruction } from "@solana-program/token-2022";
- 
-import idl from "../../target/idl/altruvist.json";
+import idl from "../../target/idl/altruvist.json"; // eslint-disable-line
 import { toast } from "react-toastify";
 import { BlockchainReaderService } from "./blockchain-reader.client";
 import { getSolanaConfig } from "~/lib/solana-config";

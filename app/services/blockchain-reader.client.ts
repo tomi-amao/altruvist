@@ -2,10 +2,8 @@ import * as anchor from "@coral-xyz/anchor";
 import { PublicKey, Connection } from "@solana/web3.js";
 import { fetchToken } from "@solana-program/token-2022";
 import { address, type Address, createSolanaRpc } from "@solana/kit";
- 
-import idl from "../../target/idl/altruvist.json";
- 
-import { Altruvist } from "../../target/types/altruvist";
+import idl from "../../target/idl/altruvist.json"; // eslint-disable-line
+import { Altruvist } from "../../target/types/altruvist"; // eslint-disable-line
 import { getSolanaConfig } from "~/lib/solana-config";
 
 // Import types from the existing service

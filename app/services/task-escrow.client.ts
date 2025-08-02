@@ -3,8 +3,7 @@ import { BlockchainReaderService } from "./blockchain-reader.client";
 import { toast } from "react-toastify";
 import * as anchor from "@coral-xyz/anchor";
 import { PublicKey, Transaction } from "@solana/web3.js";
- 
-import { Altruvist } from "../../target/types/altruvist";
+import { Altruvist } from "../../target/types/altruvist"; // eslint-disable-line
 import { type Address } from "@solana/kit";
 
 export interface TaskEscrowData {

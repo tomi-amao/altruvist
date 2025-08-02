@@ -1,6 +1,5 @@
 import { IdlAccounts, IdlTypes } from "@coral-xyz/anchor";
- 
-import { Altruvist } from "../../target/types/altruvist";
+import { Altruvist } from "../../target/types/altruvist"; // eslint-disable-line
 import { Token } from "@solana-program/token-2022";
 
 // Export the program type
