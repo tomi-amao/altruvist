@@ -2,7 +2,9 @@ import * as anchor from "@coral-xyz/anchor";
 import { PublicKey, Connection } from "@solana/web3.js";
 import { fetchToken } from "@solana-program/token-2022";
 import { address, type Address, createSolanaRpc } from "@solana/kit";
+ 
 import idl from "../../target/idl/altruvist.json";
+ 
 import { Altruvist } from "../../target/types/altruvist";
 import { getSolanaConfig } from "~/lib/solana-config";
 

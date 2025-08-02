@@ -1,4 +1,5 @@
 import { IdlAccounts, IdlTypes } from "@coral-xyz/anchor";
+ 
 import { Altruvist } from "../../target/types/altruvist";
 import { Token } from "@solana-program/token-2022";
 
