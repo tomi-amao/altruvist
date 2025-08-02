@@ -337,80 +337,87 @@ export default function SolanaFaucet() {
 
       {connected && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Initialize Faucet */}
-          <div className="bg-basePrimaryLight p-6 rounded-lg border border-baseSecondary/20">
-            <div className="flex items-center gap-2 mb-4">
-              <Coins size={20} className="text-baseSecondary" />
-              <h2 className="text-xl font-semibold text-baseSecondary">
-                Initialize Faucet
-              </h2>
+          {/* Initialize Faucet - Only show if no faucet exists */}
+          {!faucetInfo && (
+            <div className="bg-basePrimaryLight p-6 rounded-lg border border-baseSecondary/20">
+              <div className="flex items-center gap-2 mb-4">
+                <Coins size={20} className="text-baseSecondary" />
+                <h2 className="text-xl font-semibold text-baseSecondary">
+                  Initialize Faucet
+                </h2>
+              </div>
+              <p className="text-baseSecondary/70 mb-6">
+                Create a new token faucet with initial supply
+              </p>
+
+              <div className="space-y-4">
+                <FormField
+                  htmlFor="token-name"
+                  label="Token Name"
+                  value={faucetForm.name}
+                  onChange={(e) =>
+                    setFaucetForm((prev) => ({ ...prev, name: e.target.value }))
+                  }
+                  placeholder="Enter token name"
+                  backgroundColour="bg-basePrimary"
+                />
+
+                <FormField
+                  htmlFor="token-symbol"
+                  label="Token Symbol"
+                  value={faucetForm.symbol}
+                  onChange={(e) =>
+                    setFaucetForm((prev) => ({
+                      ...prev,
+                      symbol: e.target.value,
+                    }))
+                  }
+                  placeholder="Enter token symbol"
+                  backgroundColour="bg-basePrimary"
+                />
+
+                <FormField
+                  htmlFor="token-uri"
+                  label="Metadata URI"
+                  value={faucetForm.uri}
+                  onChange={(e) =>
+                    setFaucetForm((prev) => ({ ...prev, uri: e.target.value }))
+                  }
+                  placeholder="Enter metadata URI"
+                  backgroundColour="bg-basePrimary"
+                />
+
+                <FormField
+                  htmlFor="initial-supply"
+                  label="Initial Supply"
+                  type="number"
+                  value={faucetForm.initialSupply}
+                  onChange={(e) =>
+                    setFaucetForm((prev) => ({
+                      ...prev,
+                      initialSupply: e.target.value,
+                    }))
+                  }
+                  placeholder="Enter initial supply"
+                  backgroundColour="bg-basePrimary"
+                />
+
+                <PrimaryButton
+                  text={
+                    initializeLoading ? "Initializing..." : "Initialize Faucet"
+                  }
+                  action={handleInitializeFaucet}
+                  ariaLabel="Initialize faucet"
+                  isDisabled={initializeLoading || !connected}
+                />
+              </div>
             </div>
-            <p className="text-baseSecondary/70 mb-6">
-              Create a new token faucet with initial supply
-            </p>
+          )}
 
-            <div className="space-y-4">
-              <FormField
-                htmlFor="token-name"
-                label="Token Name"
-                value={faucetForm.name}
-                onChange={(e) =>
-                  setFaucetForm((prev) => ({ ...prev, name: e.target.value }))
-                }
-                placeholder="Enter token name"
-                backgroundColour="bg-basePrimary"
-              />
-
-              <FormField
-                htmlFor="token-symbol"
-                label="Token Symbol"
-                value={faucetForm.symbol}
-                onChange={(e) =>
-                  setFaucetForm((prev) => ({ ...prev, symbol: e.target.value }))
-                }
-                placeholder="Enter token symbol"
-                backgroundColour="bg-basePrimary"
-              />
-
-              <FormField
-                htmlFor="token-uri"
-                label="Metadata URI"
-                value={faucetForm.uri}
-                onChange={(e) =>
-                  setFaucetForm((prev) => ({ ...prev, uri: e.target.value }))
-                }
-                placeholder="Enter metadata URI"
-                backgroundColour="bg-basePrimary"
-              />
-
-              <FormField
-                htmlFor="initial-supply"
-                label="Initial Supply"
-                type="number"
-                value={faucetForm.initialSupply}
-                onChange={(e) =>
-                  setFaucetForm((prev) => ({
-                    ...prev,
-                    initialSupply: e.target.value,
-                  }))
-                }
-                placeholder="Enter initial supply"
-                backgroundColour="bg-basePrimary"
-              />
-
-              <PrimaryButton
-                text={
-                  initializeLoading ? "Initializing..." : "Initialize Faucet"
-                }
-                action={handleInitializeFaucet}
-                ariaLabel="Initialize faucet"
-                isDisabled={initializeLoading || !connected}
-              />
-            </div>
-          </div>
-
-          {/* Request Tokens */}
-          <div className="bg-basePrimaryLight p-6 rounded-lg border border-baseSecondary/20">
+          {/* Request Tokens - Adjust grid columns based on whether faucet exists */}
+          <div
+            className={`bg-basePrimaryLight p-6 rounded-lg border border-baseSecondary/20 ${!faucetInfo ? "lg:col-span-2" : ""}`}
+          >
             <div className="flex items-center gap-2 mb-4">
               <PaperPlaneTilt size={20} className="text-baseSecondary" />
               <h2 className="text-xl font-semibold text-baseSecondary">

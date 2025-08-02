@@ -3,7 +3,6 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { useSolanaService } from "~/hooks/useSolanaService";
 import {
   Wallet,
-  CurrencyCircleDollar,
   Clock,
   ArrowRight,
   CheckCircle,
@@ -12,7 +11,9 @@ import {
   Coins,
   Fire,
   HandCoins,
+  Warning,
 } from "@phosphor-icons/react";
+import { Message } from "@solana/web3.js";
 
 interface FaucetInfo {
   address: string;
@@ -51,7 +52,7 @@ export default function WalletInfo({
   maxTransactions = 10,
 }: WalletInfoProps) {
   const { connected, publicKey } = useWallet();
-  const { solanaService } = useSolanaService();
+  const { solanaService, blockchainReader } = useSolanaService();
 
   // State for wallet information
   const [faucetInfo, setFaucetInfo] = useState<FaucetInfo | null>(null);
@@ -74,6 +75,8 @@ export default function WalletInfo({
     setFaucetInfo(null);
     setTokenBalance(0);
     setSolBalance(0);
+    setMintSupply(0);
+    setFaucetTokenBalance(0);
     setTransactions([]);
     setLastUpdated(null);
   };
@@ -83,19 +86,29 @@ export default function WalletInfo({
 
     setIsLoading(true);
     try {
-      // Load faucet information
-      const faucet = await solanaService.getFaucetInfo();
-      setFaucetInfo(faucet);
+      // Load faucet information using blockchainReader instead of solanaService
+      const faucet = await blockchainReader?.getFaucetInfo();
+      setFaucetInfo(faucet || null);
 
       // Load SOL balance
       const solBalance =
         await solanaService.provider.connection.getBalance(publicKey);
       setSolBalance(solBalance / 1_000_000_000); // Convert lamports to SOL
 
-      // Load token balance if faucet exists
+      // Load token balance and additional mint/faucet info if faucet exists
       if (faucet?.mint) {
         const balance = await solanaService.getUserTokenBalance(faucet.mint);
         setTokenBalance(balance);
+
+        // Load mint supply
+        const supply = await blockchainReader?.getMintSupply(faucet.mint);
+        setMintSupply(supply || 0);
+
+        // Load faucet token account balance
+        const faucetBalance = await blockchainReader?.getFaucetTokenBalance(
+          faucet.tokenAccount,
+        );
+        setFaucetTokenBalance(faucetBalance || 0);
       }
 
       // Load transaction history if enabled
@@ -142,7 +155,7 @@ export default function WalletInfo({
           );
 
           if (isOurProgram) {
-            const txType = identifyTransactionType(tx, sigInfo.signature);
+            const txType = identifyTransactionType(tx);
             if (txType) {
               programTransactions.push({
                 signature: sigInfo.signature,
@@ -171,9 +184,21 @@ export default function WalletInfo({
     }
   };
 
-  const identifyTransactionType = (
-    tx: anyg,
-  ): {
+  const identifyTransactionType = (tx: {
+    slot?: number;
+    transaction?: { message: Message; signatures: string[] };
+    meta:
+      | {
+          err?: string;
+          fee?: number;
+          preBalances?: number[];
+          postBalances?: number[];
+          logMessages?: string[];
+        }
+      | null
+      | undefined;
+    blockTime?: number | null | undefined;
+  }): {
     type: ProgramTransaction["type"];
     amount?: number;
     description: string;
@@ -352,6 +377,33 @@ export default function WalletInfo({
               <span className="text-xs font-medium text-baseSecondary/70">
                 SOL BALANCE
               </span>
+              {/* Show warning if SOL balance is 0 and on devnet */}
+              {solBalance === 0 && !isLoading && (
+                <div className="group relative">
+                  <Warning size={14} className="text-yellow-500 cursor-help" />
+                  <div className="invisible group-hover:visible absolute z-10 w-64 p-3 bg-white border border-gray-200 rounded-lg shadow-lg -top-2 left-6 transform -translate-y-full">
+                    <div className="text-xs text-gray-800">
+                      <p className="font-medium mb-2">
+                        Need SOL for transactions?
+                      </p>
+                      <p className="mb-3">
+                        You need SOL to pay for transaction fees on Solana.
+                      </p>
+                      <a
+                        href="https://faucet.solana.com/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium"
+                      >
+                        Get SOL from Solana Faucet
+                        <ArrowRight size={12} />
+                      </a>
+                    </div>
+                    {/* Arrow pointing down */}
+                    <div className="absolute top-full left-2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-200"></div>
+                  </div>
+                </div>
+              )}
             </div>
             <p className="text-xl font-bold text-baseSecondary">
               {isLoading ? "..." : solBalance.toFixed(4)} SOL
@@ -361,7 +413,7 @@ export default function WalletInfo({
           {/* Token Balance */}
           <div className="bg-basePrimaryLight rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <CurrencyCircleDollar size={12} className="text-confirmPrimary" />
+              <Coins size={12} className="text-confirmPrimary" />
               <span className="text-xs font-medium text-baseSecondary/70">
                 {faucetInfo ? "ALTR TOKENS" : "NO FAUCET"}
               </span>
@@ -376,30 +428,6 @@ export default function WalletInfo({
             </p>
           </div>
         </div>
-
-        {faucetInfo && (
-          <div className="mt-4 p-3 bg-baseSecondary/5 rounded-lg">
-            <div className="flex items-center gap-2 mb-2">
-              <Info size={14} className="text-baseSecondary/70" />
-              <span className="text-xs font-medium text-baseSecondary/70">
-                FAUCET INFO
-              </span>
-            </div>
-            <div className="text-xs text-baseSecondary/80 space-y-1">
-              <p>
-                Rate Limit:{" "}
-                {(
-                  parseInt(faucetInfo.rateLimit) / Math.pow(10, 6)
-                ).toLocaleString()}{" "}
-                tokens
-              </p>
-              <p>
-                Cooldown:{" "}
-                {Math.floor(parseInt(faucetInfo.cooldownPeriod) / 3600)} hours
-              </p>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Transaction History */}

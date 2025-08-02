@@ -1,6 +1,5 @@
 import { MetaFunction, useLoaderData } from "react-router";
 import { motion } from "framer-motion";
-import LandingHeader from "~/components/navigation/LandingHeader";
 import Footer from "~/components/navigation/Footer";
 
 export const meta: MetaFunction<typeof loader> = () => {
@@ -109,8 +108,6 @@ export default function AboutRoute() {
 
   return (
     <div className="bg-basePrimaryLight min-h-screen">
-      <LandingHeader />
-
       {/* Hero Section - About Page Focused */}
       <section className="relative w-full overflow-hidden bg-gradient-to-b from-basePrimaryLight to-basePrimary/10">
         {/* Subtle background pattern */}
@@ -127,7 +124,7 @@ export default function AboutRoute() {
               transition={{ duration: 0.6 }}
               className="text-center mb-8"
             >
-              <h1 className="inline-block text-baseSecondary text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mt-14">
+              <h1 className="inline-block text-baseSecondary text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
                 About Altruvist
               </h1>
             </motion.div>

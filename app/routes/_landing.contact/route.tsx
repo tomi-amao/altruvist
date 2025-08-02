@@ -8,7 +8,6 @@ import {
 } from "react-router";
 import { motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
-import LandingHeader from "~/components/navigation/LandingHeader";
 import Footer from "~/components/navigation/Footer";
 import ReCaptcha from "~/components/utils/ReCaptcha";
 import { verifyReCaptchaToken } from "~/services/recaptcha.server";
@@ -223,8 +222,6 @@ export default function ContactRoute() {
 
   return (
     <div className="min-h-screen bg-basePrimaryLight">
-      <LandingHeader />
-
       {/* Hidden reCAPTCHA component */}
       <ReCaptcha
         action="contact_form"
@@ -241,7 +238,7 @@ export default function ContactRoute() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 mt-14 text-baseSecondary/90">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-baseSecondary/90">
               Get in{" "}
               <span className="text-baseSecondary text-5xl font-light">
                 Touch

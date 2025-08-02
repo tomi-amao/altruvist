@@ -2,7 +2,6 @@ import { MetaFunction, useLoaderData } from "react-router";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import Footer from "~/components/navigation/Footer";
-import LandingHeader from "~/components/navigation/LandingHeader";
 
 export const meta: MetaFunction<typeof loader> = () => {
   return [
@@ -138,12 +137,10 @@ export default function VolunteerGuide() {
 
   return (
     <div className="min-h-screen bg-basePrimaryLight">
-      <LandingHeader />
-
       {/* Hero Section */}
       <section className="relative w-full overflow-hidden bg-gradient-to-b from-basePrimaryLight to-basePrimary/10 ">
         <div className="container px-4 sm:px-6 mx-auto py-12 md:py-16 lg:py-24">
-          <div className="max-w-4xl mx-auto mt-20 ">
+          <div className="max-w-4xl mx-auto mt-8 ">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

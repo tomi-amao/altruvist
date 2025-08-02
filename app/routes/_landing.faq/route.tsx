@@ -1,7 +1,6 @@
 import { MetaFunction, useLoaderData } from "react-router";
 import { motion } from "framer-motion";
 import { useState } from "react";
-import LandingHeader from "~/components/navigation/LandingHeader";
 import Footer from "~/components/navigation/Footer";
 
 export const meta: MetaFunction<typeof loader> = () => {
@@ -181,8 +180,6 @@ export default function FAQPage() {
 
   return (
     <div className="bg-basePrimaryLight min-h-screen">
-      <LandingHeader />
-
       {/* Hero Section */}
       <section className="relative w-full overflow-hidden bg-gradient-to-b from-basePrimaryLight to-basePrimary/10">
         <div className="container px-4 sm:px-6 mx-auto py-12 md:py-16 lg:py-24">

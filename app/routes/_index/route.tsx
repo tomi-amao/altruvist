@@ -26,6 +26,7 @@ import {
   Target,
 } from "@phosphor-icons/react";
 import { users } from "@prisma/client";
+import { getSignedUrlForFile } from "~/services/s3.server";
 
 export const meta: MetaFunction = () => {
   return [
@@ -95,9 +96,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
     .slice(0, 3);
 
   let userInfoResult = null;
+  let signedProfilePicture = null;
   if (accessToken) {
     const { userInfo } = await getUserInfo(accessToken);
     userInfoResult = userInfo;
+    if (userInfo?.profilePicture) {
+      signedProfilePicture = await getSignedUrlForFile(
+        userInfo.profilePicture,
+        true,
+      );
+    }
   }
 
   const headers = {
@@ -109,6 +117,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     {
       message: accessToken ? "User logged in" : "User not logged in",
       userInfo: userInfoResult,
+      signedProfilePicture,
       error: flashError,
       recentTasks: topTasks,
     },
@@ -117,12 +126,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function Index() {
-  const { userInfo, error, recentTasks } = useLoaderData<typeof loader>();
+  const { userInfo, error, recentTasks, signedProfilePicture } =
+    useLoaderData<typeof loader>();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [signedProfilePicture, setSignedProfilePicture] = useState<
-    string | null
-  >(null);
   const [clientSideError, setClientSideError] = useState<string | null>(null);
   const navigate = useNavigate();
 
@@ -136,18 +143,6 @@ export default function Index() {
     setModalOpen(true);
   };
 
-  useEffect(() => {
-    async function fetchSignedUrl() {
-      const res = await fetch(
-        `/api/s3-get-url?file=${userInfo?.profilePicture}&action=upload`,
-      );
-      const data = await res.json();
-      if (data.url) {
-        setSignedProfilePicture(data.url);
-      }
-    }
-    fetchSignedUrl();
-  }, [userInfo?.profilePicture]);
   return (
     <div className="bg-gradient-to-b from-baseSecondary ">
       <LandingHeader

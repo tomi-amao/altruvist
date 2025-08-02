@@ -185,4 +185,85 @@ export class BlockchainReaderService {
       return false;
     }
   }
+
+  /**
+   * Get total supply of a token mint
+   */
+  async getMintSupply(mintAddress: string): Promise<number> {
+    try {
+      const mintPubkey = new PublicKey(mintAddress);
+      const mintInfo = await this.connection.getTokenSupply(mintPubkey);
+      return parseFloat(mintInfo.value.uiAmount?.toString() || "0");
+    } catch (error) {
+      console.error("Error fetching mint supply:", error);
+      return 0;
+    }
+  }
+
+  /**
+   * Get faucet token account balance
+   */
+  async getFaucetTokenBalance(faucetTokenAccount: string): Promise<number> {
+    try {
+      const tokenAccountPubkey = new PublicKey(faucetTokenAccount);
+      const tokenAccountInfo =
+        await this.connection.getTokenAccountBalance(tokenAccountPubkey);
+      return parseFloat(tokenAccountInfo.value.uiAmount?.toString() || "0");
+    } catch (error) {
+      console.error("Error fetching faucet token balance:", error);
+      return 0;
+    }
+  }
+
+  /**
+   * Get count of completed on-chain tasks
+   */
+  async getCompletedTasksCount(): Promise<number> {
+    try {
+      // Get all program accounts for tasks
+      const taskAccounts = await this.connection.getProgramAccounts(
+        this.program.programId,
+        {
+          filters: [
+            {
+              memcmp: {
+                offset: 0, // Discriminator offset for task accounts
+                bytes: "task", // This would be the actual discriminator, needs to match your program
+              },
+            },
+          ],
+        },
+      );
+
+      let completedCount = 0;
+
+      // Check each task account to see if it's completed
+      for (const accountInfo of taskAccounts) {
+        try {
+          // Deserialize the account data to check task status
+          const taskData = this.program.coder.accounts.decode(
+            "task",
+            accountInfo.account.data,
+          );
+
+          // Check if task is completed (assuming there's a status field)
+          // This will depend on your task account structure
+          if (taskData.isCompleted || taskData.status === 2) {
+            // Adjust based on your enum values
+            completedCount++;
+          }
+        } catch (error) {
+          // Skip accounts that can't be deserialized as tasks
+          console.log("Skipping account due to deserialization error:", error);
+
+          continue;
+        }
+      }
+
+      return completedCount;
+    } catch (error) {
+      console.error("Error fetching completed tasks count:", error);
+      return 0;
+    }
+  }
 }
