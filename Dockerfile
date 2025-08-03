@@ -3,8 +3,18 @@ FROM node:22.6-bookworm-slim AS base
 # set for base and all layer that inherit from it
 ENV NODE_ENV=production
 
-# Install openssl for Prisma
-RUN apt-get update && apt-get install -y openssl
+# Install system dependencies including those needed for Rust and Solana
+RUN apt-get update && apt-get install -y \
+    openssl \
+    curl \
+    build-essential \
+    pkg-config \
+    libudev-dev \
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Rust
+RUN curl --proto '=https' --tlsv1.2 -sSfL https://solana-install.solana.workers.dev | bash
 
 
 # Install all node_modules, including dev dependencies
@@ -32,8 +42,16 @@ WORKDIR /myapp
 
 COPY --from=deps /myapp/node_modules /myapp/node_modules
 
-ADD prisma .
+# Copy Anchor and Rust related files
+ADD Anchor.toml Cargo.toml Cargo.lock ./
+ADD programs ./programs
+
+# Generate Prisma client
+ADD prisma ./prisma
 RUN npx prisma generate
+
+# Build Anchor programs
+RUN anchor build
 
 ADD . .
 RUN npm run build
