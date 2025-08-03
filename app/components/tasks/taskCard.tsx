@@ -1,5 +1,5 @@
 import { tasks } from "@prisma/client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Modal } from "../utils/Modal2";
 import {
   CalendarBlank,
@@ -8,8 +8,14 @@ import {
   Desktop,
   Buildings,
   GraduationCap,
+  Coins,
+  CheckCircle,
+  Warning,
 } from "@phosphor-icons/react";
 import TaskDetailsCard from "./taskDetailsCard";
+import { OnChainTaskData, EscrowAccountData } from "~/types/blockchain";
+import { useSolanaService } from "~/hooks/useSolanaService";
+import { address } from "@solana/kit";
 
 export const getUrgencyColor = (urgency: string) => {
   switch (urgency) {
@@ -68,10 +74,65 @@ interface volunteerDetails {
 
 export default function TaskSummaryCard(task: taskAdditionalDetails) {
   const [showModal, setShowModal] = useState(false);
+  const [escrowInfo, setEscrowInfo] = useState<EscrowAccountData | null>(null);
+  const [onChainTask, setOnChainTask] = useState<OnChainTaskData | null>(null);
+  const [isLoadingEscrow, setIsLoadingEscrow] = useState(false);
+  const { blockchainReader } = useSolanaService();
 
   const handleCloseModal = () => {
     setShowModal(false);
   };
+
+  // Load blockchain data when component mounts or task changes
+  useEffect(() => {
+    const getOnChainTask = async () => {
+      if (
+        !task.id ||
+        !task.rewardAmount ||
+        !task.creatorWalletAddress ||
+        !blockchainReader
+      )
+        return;
+
+      try {
+        setIsLoadingEscrow(true);
+        // Use blockchainReader for read-only operations (no wallet required)
+        const onChainTaskData = await blockchainReader.getTaskInfo(
+          task.id,
+          task.creatorWalletAddress,
+        );
+
+        if (onChainTaskData) {
+          setOnChainTask(onChainTaskData);
+          const escrowAccount = onChainTaskData.escrowAccount;
+
+          if (escrowAccount) {
+            // Use blockchainReader for read-only escrow info
+            const escrowData = await blockchainReader.getEscrowInfo(
+              address(escrowAccount.toString()),
+            );
+            if (escrowData) {
+              setEscrowInfo({
+                address: escrowData.address,
+                data: escrowData.data,
+                executable: escrowData.executable,
+                exists: true,
+                lamports: escrowData.lamports,
+                programAddress: escrowData.programAddress,
+                space: escrowData.space,
+              });
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching on-chain task:", error);
+      } finally {
+        setIsLoadingEscrow(false);
+      }
+    };
+
+    getOnChainTask();
+  }, [task.id, task.rewardAmount, task.creatorWalletAddress, blockchainReader]);
 
   // Format deadline to a more readable format
   const formattedDeadline = task.deadline
@@ -101,6 +162,17 @@ export default function TaskSummaryCard(task: taskAdditionalDetails) {
   const category = task.category || [];
   const status = task.status || "NOT_STARTED";
   const urgency = task.urgency || "LOW";
+
+  // Format reward amount for display
+  const rewardAmountFormatted = task.rewardAmount ? task.rewardAmount : null;
+
+  // Check escrow status
+  const hasBlockchainData = onChainTask || escrowInfo;
+  const escrowStatus = onChainTask?.status?.created
+    ? "Active"
+    : onChainTask?.status
+      ? Object.keys(onChainTask.status)[0]
+      : null;
 
   return (
     <>
@@ -145,6 +217,39 @@ export default function TaskSummaryCard(task: taskAdditionalDetails) {
               </span>
             </div>
           </div>
+
+          {/* Reward Amount Display */}
+          {rewardAmountFormatted && (
+            <div className="mb-3 p-2 bg-basePrimary rounded-lg border border-baseSecondary/10">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Coins className="h-4 w-4 text-baseSecondary" />
+                  <span className="text-sm font-medium text-baseSecondary">
+                    Reward: {rewardAmountFormatted} ALT
+                  </span>
+                </div>
+                <div className="flex items-center gap-1">
+                  {isLoadingEscrow ? (
+                    <div className="w-3 h-3 border border-baseSecondary/30 border-t-baseSecondary rounded-full animate-spin"></div>
+                  ) : hasBlockchainData ? (
+                    <div className="flex items-center gap-1">
+                      <CheckCircle className="h-3 w-3 text-confirmPrimary" />
+                      <span className="text-xs text-confirmPrimary font-medium">
+                        {escrowStatus || "Verified"}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1">
+                      <Warning className="h-3 w-3 text-accentPrimary" />
+                      <span className="text-xs text-accentPrimary font-medium">
+                        Pending
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Description - limited to 3 lines */}
           <div className="mb-3 text-left">
@@ -244,11 +349,33 @@ export default function TaskSummaryCard(task: taskAdditionalDetails) {
             deadline={task.deadline ? new Date(task.deadline) : new Date()}
             userId={task.userId || ""}
             status={status}
-            resources={task.resources || []}
+            resources={
+              task.resources
+                ?.filter(
+                  (r) =>
+                    r.name && r.extension && r.uploadURL && r.size !== null,
+                )
+                .map((r) => ({
+                  name: r.name!,
+                  extension: r.extension!,
+                  uploadURL: r.uploadURL!,
+                  size: r.size!,
+                })) || []
+            }
             userRole={task.userRole || []}
-            volunteerDetails={task.volunteerDetails}
+            volunteerDetails={
+              task.volunteerDetails?.userId
+                ? {
+                    userId: task.volunteerDetails.userId,
+                    taskApplications:
+                      task.volunteerDetails.taskApplications || undefined,
+                  }
+                : undefined
+            }
             taskApplications={task.taskApplications || []}
             location={task.location}
+            rewardAmount={task.rewardAmount || undefined}
+            creatorWalletAddress={task.creatorWalletAddress || undefined}
           />
         </Modal>
       )}

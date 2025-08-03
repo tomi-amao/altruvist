@@ -53,11 +53,11 @@ export default function DashboardBanner({
                   </div>
                 </div>
                 <div>
-                  <h1 className="text-2xl font-header font-semibold text-baseSecondary">
-                    Welcome Back
+                  <h1 className="font-header font-semibold text-baseSecondary">
+                    Welcome back!
                   </h1>
                   <p
-                    className="text-altMidGrey text-sm"
+                    className="text-altMidGrey text-sm mt-1"
                     data-testid="date-display"
                   >
                     {date}

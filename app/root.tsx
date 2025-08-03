@@ -13,7 +13,17 @@ import type { ActionFunctionArgs, LinksFunction, LoaderFunction, MetaFunction } 
 import stylesheet from "~/styles/tailwind.css?url";
 
 import { ErrorCard } from "./components/utils/ErrorCard";
-import { SolanaProvider } from "./components/common/provider";
+import { Bounce, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { SolanaProvider } from "./components/common/solanaProvider";
+
+// Buffer polyfill for browser compatibility with Solana operations
+// Only run on client-side to avoid SSR issues
+if (typeof window !== 'undefined') {
+  import('buffer').then(({ Buffer }) => {
+    (window as any).Buffer = Buffer; // eslint-disable-line
+  });
+}
 
 declare global {
   interface Window {
@@ -23,7 +33,8 @@ declare global {
     };
     ENV: {
       GOOGLE_RECAPTCHA_SITE_KEY: string;
-          };
+      SOLANA_FAUCET_SEED: string;
+    };
   }
 }
 
@@ -35,6 +46,7 @@ export const loader: LoaderFunction = () => {
   return ({
     ENV: {
       GOOGLE_RECAPTCHA_SITE_KEY: process.env.GOOGLE_RECAPTCHA_SITE_KEY,
+      SOLANA_FAUCET_SEED: process.env.SOLANA_FAUCET_SEED,
     },
   });
 };
@@ -89,6 +101,23 @@ export default function App() {
         }}
       />
       <Outlet />
+      <ToastContainer
+        position="bottom-right"
+        autoClose={5000}
+        stacked
+        // hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        transition={Bounce}
+        toastClassName="custom-toast"
+        progressClassName="custom-toast-progress"
+        closeButton={false}
+      />
     </Document>
   );
 }

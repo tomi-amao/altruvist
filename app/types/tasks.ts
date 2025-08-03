@@ -52,6 +52,7 @@ export interface Task {
   charity?: Partial<charities>;
   createdBy?: Partial<users>;
   taskApplications?: Partial<taskApplications>[];
+  rewardAmount?: number | null;
 }
 
 export interface TaskDetailsProps {

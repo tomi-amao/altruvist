@@ -85,19 +85,29 @@ export async function action({ request }: ActionFunctionArgs) {
         size: upload.size || null,
         uploadURL: upload.uploadURL || null,
       })),
+      tokenRewardAmount: formData.tokenRewardAmount,
+      creatorWalletAddress: formData.creatorWalletAddress,
     });
 
     console.log("Validated Task Data", validatedData);
 
-    // Use the charity ID from the form data instead of userInfo.charityId
+    // Create the task in the database
     const task = await createTask(validatedData, charityId, userInfo.id);
     console.log("New task created", task);
 
-    return { error: null };
+    // Note: Token escrow creation will be handled on the client-side
+    // The frontend will use the WalletIntegration component to create the escrow
+    // after the task is successfully created in the database
+
+    return {
+      error: null,
+      task: task.task,
+      message:
+        "Task created successfully. You can now create the token escrow using your connected wallet.",
+    };
   } catch (err) {
     if (err instanceof z.ZodError) {
       console.log(err.errors);
-
       return { error: err.errors };
     }
     throw err;

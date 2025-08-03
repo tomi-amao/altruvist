@@ -130,6 +130,8 @@ export const TaskSchema = z.object({
       }),
     )
     .optional(),
+  rewardAmount: z.number().int().optional(),
+  creatorWalletAddress: z.string().optional().nullable(),
 });
 
 export const ObjectIdSchema = z.string().refine(

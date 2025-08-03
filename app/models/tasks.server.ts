@@ -7,8 +7,7 @@ import {
   TaskUrgency,
 } from "@prisma/client";
 import { prisma } from "~/services/db.server";
-import { SortOrder } from "~/routes/_base.search/route";
-import { transformUserTaskApplications } from "~/components/utils/DataTransformation";
+import { SortOrder } from "~/routes/_app.search/route";
 import { ObjectIdSchema } from "~/services/validators.server";
 import {
   INDICES,
@@ -43,10 +42,12 @@ export const createTask = async (
         urgency: taskData.urgency,
         deliverables: taskData.deliverables,
         description: taskData.description,
-        volunteersNeeded: taskData.volunteersNeeded || 0,
+        volunteersNeeded: taskData.volunteersNeeded || 1,
         requiredSkills: taskData.requiredSkills,
         resources: taskData.resources,
         status: "NOT_STARTED",
+        rewardAmount: taskData.rewardAmount || null, // Store token reward amount
+        creatorWalletAddress: taskData.creatorWalletAddress || null, // Store creator's Solana wallet address
         ...(charityId && {
           charity: {
             connect: { id: charityId },
@@ -373,7 +374,27 @@ export const getUserTasks = async (
           ],
         });
 
-        const tasks = transformUserTaskApplications(taskApplications);
+        // Transform task applications into structured format
+        const tasks = taskApplications.map((application) => ({
+          // Spread all task properties
+          ...application.task,
+          // Override taskApplications with the current user's application
+          taskApplications: [
+            {
+              id: application.id,
+              userId: application.userId,
+              status: application.status,
+              createdAt: application.createdAt,
+              updatedAt: application.updatedAt,
+              message: application.message,
+              charityId: application.charityId,
+              taskId: application.taskId,
+              volunteerWalletAddress: application.volunteerWalletAddress,
+            },
+          ],
+          // Add charity information
+          charity: application.charity,
+        }));
 
         return {
           tasks,
@@ -675,25 +696,6 @@ export const removeVolunteerFromTask = async (
       "Successfully removed volunteer from task",
       updatedTaskApplication,
     );
-
-    // Update task volunteers needed -> code for this is only necessary when decrementing/incrementing volunteers needed
-
-    // const originalTask = await prisma.tasks.findUnique({
-    //   where: { id: taskApplication.taskId },
-    // });
-
-    // if (!originalTask) {
-    //   return { error: "Task not found", status: 404 };
-    // }
-
-    // const initialVolunteersNeeded = originalTask.volunteersNeeded;
-
-    // if (initialVolunteersNeeded <= 0) {
-    //   return {
-    //     error: "Cannot add more volunteers to this task",
-    //     status: 400,
-    //   };
-    // }
 
     return { updatedTaskApplication, status: 200, error: null };
   } catch (error) {

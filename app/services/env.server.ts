@@ -51,3 +51,9 @@ export function getEmailServiceVars() {
     BREVO_API_KEY: process.env.SMTP_API_KEY ?? "", // Use the same key for both properties
   };
 }
+
+export function getSolanaVars() {
+  return {
+    FAUCET_SEED: process.env.SOLANA_FAUCET_SEED ?? "altru_faucet",
+  };
+}

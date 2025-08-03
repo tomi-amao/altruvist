@@ -24,10 +24,10 @@ interface ValidationError {
 }
 
 interface Resource {
-  name: string;
-  size: number;
-  uploadURL: string;
-  extension: string;
+  name: string | null;
+  size: number | null;
+  uploadURL: string | null;
+  extension: string | null;
 }
 
 interface TaskFormData {
@@ -43,6 +43,7 @@ interface TaskFormData {
   deliverables: string[];
   location?: LocationData | null;
   charityId?: string; // Add charityId field
+  rewardAmount?: number; // Add token reward amount field
 }
 
 interface TaskFormProps {
@@ -110,6 +111,7 @@ export default function TaskForm({
             }
           : null,
         charityId: initialData.charityId || defaultCharityId || "",
+        rewardAmount: initialData.rewardAmount, // Initialize rewardAmount
       };
     }
     return {
@@ -141,6 +143,7 @@ export default function TaskForm({
               lng: initialData.location.lng || 0,
             }
           : null,
+        rewardAmount: initialData.rewardAmount, // Update rewardAmount
       });
     }
   }, [initialData, isEditing]);
@@ -476,6 +479,30 @@ export default function TaskForm({
           serverValidationError={hasServerError("volunteersNeeded")}
           resetField={resetField}
           label="Number of volunteers"
+        />
+
+        {/* Token Reward Amount Field */}
+        <FormField
+          htmlFor="rewardAmount"
+          type="number"
+          label="Token Reward Amount (Optional)"
+          value={String(formData.rewardAmount || "")}
+          onChange={(e) =>
+            setFormData((prev) => ({
+              ...prev,
+              rewardAmount: e.target.value
+                ? parseInt(e.target.value)
+                : undefined,
+            }))
+          }
+          min={0}
+          max={1000000}
+          isInteger={true}
+          backgroundColour="bg-basePrimary"
+          placeholder="Enter token reward amount"
+          helperText="Set a token reward for completing this task (requires connected wallet)"
+          serverValidationError={hasServerError("rewardAmount")}
+          resetField={resetField}
         />
 
         <DropdownField

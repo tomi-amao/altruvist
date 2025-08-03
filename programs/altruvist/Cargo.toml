@@ -1,0 +1,27 @@
+[package]
+name = "altruvist"
+version = "0.1.0"
+description = "Created with Anchor"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "altruvist"
+
+[features]
+default = []
+cpi = ["no-entrypoint"]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
+
+
+[dependencies]
+anchor-lang = { version = "0.31.1", features = ["init-if-needed"] }
+anchor-spl = "0.31.1"
+bytemuck = "1.23.1"
+spl-pod = "0.5.1"
+spl-tlv-account-resolution = "0.10.0"
+spl-transfer-hook-interface = "0.10.0"
+spl-type-length-value = "0.7.0"

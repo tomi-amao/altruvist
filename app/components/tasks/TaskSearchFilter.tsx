@@ -26,39 +26,68 @@ export function TaskSearchFilter({
   applicationStatusOptions,
   filterType = "APPLICATIONS",
 }: TaskSearchFilterProps) {
+  // Helper function to get current sort selection for the dropdown
+  const getCurrentSortSelection = () => {
+    const sortMapping = {
+      "createdAt-desc": "Newest First",
+      "createdAt-asc": "Oldest First",
+      "deadline-asc": "Deadline Soon",
+      "deadline-desc": "Deadline Later",
+      "updatedAt-desc": "Recently Updated",
+      "updatedAt-asc": "Least Recently Updated",
+    };
+
+    for (const [field, directions] of Object.entries(filterSort)) {
+      if (
+        ["createdAt", "deadline", "updatedAt"].includes(field) &&
+        directions.length > 0
+      ) {
+        const key = `${field}-${directions[0]}` as keyof typeof sortMapping;
+        return [sortMapping[key]];
+      }
+    }
+    return [];
+  };
+
   const sortOptions = [
     <Dropdown
-      key="createdAt"
-      options={["asc", "desc"]}
-      placeholder="Created At"
-      onSelect={(option, selected) =>
-        onFilterChange("createdAt", option, selected)
-      }
+      key="sort"
+      options={[
+        "Newest First",
+        "Oldest First",
+        "Deadline Soon",
+        "Deadline Later",
+        "Recently Updated",
+        "Least Recently Updated",
+      ]}
+      placeholder="Sort by"
+      onSelect={(option, selected) => {
+        // Clear all existing sorts first
+        Object.keys(filterSort).forEach((field) => {
+          if (
+            ["createdAt", "deadline", "updatedAt"].includes(field) &&
+            filterSort[field].length > 0
+          ) {
+            onFilterChange(field, filterSort[field][0], false);
+          }
+        });
+
+        if (selected) {
+          const mapping: Record<string, [string, string]> = {
+            "Newest First": ["createdAt", "desc"],
+            "Oldest First": ["createdAt", "asc"],
+            "Deadline Soon": ["deadline", "asc"],
+            "Deadline Later": ["deadline", "desc"],
+            "Recently Updated": ["updatedAt", "desc"],
+            "Least Recently Updated": ["updatedAt", "asc"],
+          };
+          const [field, direction] = mapping[option];
+          onFilterChange(field, direction, true);
+        }
+      }}
       multipleSelect={false}
       horizontal={true}
-      defaultSelected={filterSort.createdAt}
-    />,
-    <Dropdown
-      key="deadline"
-      options={["asc", "desc"]}
-      placeholder="Deadline"
-      onSelect={(option, selected) =>
-        onFilterChange("deadline", option, selected)
-      }
-      multipleSelect={false}
-      horizontal={true}
-      defaultSelected={filterSort.deadline}
-    />,
-    <Dropdown
-      key="updatedAt"
-      options={["asc", "desc"]}
-      placeholder="Updated At"
-      onSelect={(option, selected) =>
-        onFilterChange("updatedAt", option, selected)
-      }
-      multipleSelect={false}
-      horizontal={true}
-      defaultSelected={filterSort.updatedAt}
+      defaultSelected={getCurrentSortSelection()}
     />,
   ];
 

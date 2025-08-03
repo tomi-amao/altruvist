@@ -237,7 +237,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
             </div>
           )}
 
-          <div className="py-1 max-h-60 overflow-y-auto" role="none">
+          <div className="py-1 max-h-60 overflow-y-auto " role="none">
             {filteredOptions.length > 0 ? (
               filteredOptions.map((option, index) => {
                 const isSelected = internalSelectedOptions.includes(option);

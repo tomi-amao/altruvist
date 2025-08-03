@@ -18,6 +18,13 @@ import {
   Check,
 } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
+import { BlockchainInfo } from "../blockchain/BlockchainInfo";
+import { OnChainTaskData, EscrowAccountData } from "~/types/blockchain";
+import { useSolanaService } from "~/hooks/useSolanaService";
+import { address } from "@solana/kit";
+import { toast } from "react-toastify";
+import { useAnchorWallet } from "@solana/wallet-adapter-react";
+import { TokenRewardOptIn } from "./TokenRewardOptIn";
 
 interface Resource {
   name: string;
@@ -46,6 +53,9 @@ interface TaskDetailsData {
   volunteerDetails?: {
     userId: string;
     taskApplications?: string[];
+    user?: {
+      walletPublicKey?: string;
+    };
   };
   taskApplications?: {
     id: string;
@@ -57,6 +67,8 @@ interface TaskDetailsData {
     lat?: number;
     lng?: number;
   } | null;
+  rewardAmount?: number;
+  creatorWalletAddress?: string;
 }
 
 // Props that only need taskId
@@ -66,6 +78,9 @@ interface TaskDetailsCardProps {
   volunteerDetails?: {
     userId: string;
     taskApplications?: string[];
+    user?: {
+      walletPublicKey?: string;
+    };
   };
 }
 
@@ -80,6 +95,7 @@ type CombinedTaskDetailsCardProps =
 export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
   const fetcher = useFetcher();
   const taskFetcher = useFetcher();
+  const walletFetcher = useFetcher(); // Add dedicated fetcher for wallet operations
   const navigate = useNavigate();
   const [showMessage, setShowMessage] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -88,12 +104,312 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
   const [error, setError] = useState<string | null>(null);
   const [showShareTooltip, setShowShareTooltip] = useState(false);
 
-  // For generating colored dots for category and skills
+  // Token reward state - simplified to just store wallet address
+  const [tokenRewardWalletAddress, setTokenRewardWalletAddress] = useState<
+    string | undefined
+  >(undefined);
+
+  // Add optimistic state for volunteer application
+  const [optimisticApplication, setOptimisticApplication] = useState<{
+    id?: string;
+    status?: string;
+    userId?: string;
+  } | null>(null);
+
+  // Blockchain state
+  const [escrowInfo, setEscrowInfo] = useState<EscrowAccountData | null>(null);
+  const [onChainTask, setOnChainTask] = useState<OnChainTaskData | null>(null);
+  const [isLoadingEscrow, setIsLoadingEscrow] = useState(false);
+  const [isRetryingEscrow, setIsRetryingEscrow] = useState(false);
+  const [isUpdatingReward, setIsUpdatingReward] = useState(false);
+  const [isAddingWallet, setIsAddingWallet] = useState(false);
+  const { taskEscrowService, blockchainReader } = useSolanaService();
+  const wallet = useAnchorWallet();
+
+  // Check if we're using the minimal props version with just taskId
+  const isMinimalProps = "taskId" in props && !("title" in props);
+  const taskId = isMinimalProps ? (props as TaskDetailsCardProps).taskId : "";
+
+  // Helper functions
   const getColorDot = (value: string) => {
     const color = getColorValue(value);
-
-    return color; // Return the direct hex color value
+    return color;
   };
+
+  const handleTokenRewardOptIn = (walletAddress?: string) => {
+    setTokenRewardWalletAddress(walletAddress);
+  };
+
+  const handleApply = (taskId: string, charityId: string) => {
+    fetcher.submit(
+      {
+        taskId,
+        charityId,
+        volunteerWalletAddress: tokenRewardWalletAddress || "",
+      },
+      { method: "post", action: "/api/apply-for-task" },
+    );
+  };
+
+  const handleWithdraw = (taskId: string, userId: string) => {
+    fetcher.submit(
+      {
+        _action: "deleteApplication",
+        taskId,
+        userId,
+      },
+      { method: "POST", action: "/dashboard/tasks" },
+    );
+  };
+
+  const handleShare = () => {
+    // Create a URL for the task
+    const taskUrl = `${window.location.origin}/task/${taskData?.id}`;
+
+    // Copy to clipboard
+    navigator.clipboard
+      .writeText(taskUrl)
+      .then(() => {
+        // Show success tooltip
+        setShowShareTooltip(true);
+        // Hide it after 2 seconds
+        setTimeout(() => setShowShareTooltip(false), 2000);
+      })
+      .catch((err) => {
+        console.error("Failed to copy URL: ", err);
+      });
+  };
+
+  const handleRetryEscrow = async () => {
+    if (
+      !taskEscrowService ||
+      !taskData?.id ||
+      !taskData?.rewardAmount ||
+      !blockchainReader
+    ) {
+      console.error("Missing required data for escrow creation");
+      return;
+    }
+
+    setIsRetryingEscrow(true);
+
+    try {
+      // Use blockchainReader for faucet info (read-only operation)
+      const faucetInfo = await blockchainReader.getFaucetInfo();
+      if (!faucetInfo) {
+        throw new Error("Failed to get faucet information");
+      }
+
+      const txSignature = await taskEscrowService.createTaskEscrow({
+        taskId: taskData.id,
+        rewardAmount: taskData.rewardAmount,
+        creatorWallet: taskData.creatorWalletAddress || "",
+        mintAddress: faucetInfo.mint,
+      });
+
+      if (txSignature) {
+        console.log("Escrow creation successful:", txSignature);
+        // Refresh the blockchain data after successful creation
+        setTimeout(() => {
+          const refreshData = async () => {
+            try {
+              if (!blockchainReader || !taskData.creatorWalletAddress) return;
+
+              // Use blockchainReader for read-only operations
+              const onChainTaskData = await blockchainReader.getTaskInfo(
+                taskData.id,
+                taskData.creatorWalletAddress,
+              );
+
+              if (onChainTaskData) {
+                setOnChainTask(onChainTaskData);
+                const escrowAccount = onChainTaskData.escrowAccount;
+
+                if (escrowAccount) {
+                  const escrowData = await blockchainReader.getEscrowInfo(
+                    address(escrowAccount.toString()),
+                  );
+                  if (escrowData) {
+                    setEscrowInfo({
+                      address: escrowData.address,
+                      data: escrowData.data,
+                      executable: escrowData.executable,
+                      exists: true,
+                      lamports: escrowData.lamports,
+                      programAddress: escrowData.programAddress,
+                      space: escrowData.space,
+                    });
+                  }
+                }
+              }
+            } catch (error) {
+              console.error("Error refreshing blockchain data:", error);
+            } finally {
+              setIsLoadingEscrow(false);
+            }
+          };
+          refreshData();
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("Error creating escrow:", error);
+    } finally {
+      setIsRetryingEscrow(false);
+    }
+  };
+
+  const handleUpdateReward = async (newRewardAmount: number) => {
+    if (!wallet) {
+      console.error("Wallet is not connected");
+      toast.error("Please connect your wallet to update the reward");
+      return;
+    }
+
+    if (
+      !taskEscrowService ||
+      !taskData?.id ||
+      !newRewardAmount ||
+      !blockchainReader
+    ) {
+      console.error("Missing required data for reward update");
+      return;
+    }
+
+    setIsUpdatingReward(true);
+
+    try {
+      const txSignature = await taskEscrowService.updateTaskReward(
+        taskData.id,
+        newRewardAmount,
+        { simulate: false },
+      );
+
+      if (txSignature) {
+        console.log("Reward update successful:", txSignature);
+        // Refresh the blockchain data after successful update
+        setTimeout(() => {
+          const refreshData = async () => {
+            try {
+              if (!blockchainReader || !taskData.creatorWalletAddress) return;
+
+              // Use blockchainReader for read-only operations
+              const onChainTaskData = await blockchainReader.getTaskInfo(
+                taskData.id,
+                taskData.creatorWalletAddress,
+              );
+
+              if (onChainTaskData) {
+                setOnChainTask(onChainTaskData);
+                const escrowAccount = onChainTaskData.escrowAccount;
+
+                if (escrowAccount) {
+                  const escrowData = await blockchainReader.getEscrowInfo(
+                    address(escrowAccount.toString()),
+                  );
+                  if (escrowData) {
+                    setEscrowInfo({
+                      address: escrowData.address,
+                      data: escrowData.data,
+                      executable: escrowData.executable,
+                      exists: true,
+                      lamports: escrowData.lamports,
+                      programAddress: escrowData.programAddress,
+                      space: escrowData.space,
+                    });
+                  }
+                }
+              }
+            } catch (error) {
+              console.error(
+                "Error refreshing blockchain data after reward update:",
+                error,
+              );
+            } finally {
+              setIsLoadingEscrow(false);
+            }
+          };
+          refreshData();
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("Error updating reward:", error);
+    } finally {
+      setIsUpdatingReward(false);
+    }
+  };
+
+  const handleAddWallet = async (walletAddress: string) => {
+    if (!taskData?.id) {
+      console.error("Task ID is required");
+      toast.error("Task ID is missing");
+      return;
+    }
+
+    setIsAddingWallet(true);
+
+    // Use walletFetcher to submit the wallet update
+    walletFetcher.submit(
+      {
+        _action: "updateTaskWallet",
+        taskId: taskData.id,
+        walletAddress: walletAddress,
+      },
+      { method: "POST", action: "/dashboard/tasks" },
+    );
+  };
+
+  // Effect to handle successful applications from fetcher
+  useEffect(() => {
+    if (fetcher.data && !fetcher.data.error) {
+      const volunteerUserId = isMinimalProps
+        ? (props as TaskDetailsCardProps).volunteerDetails?.userId
+        : taskData?.volunteerDetails?.userId;
+
+      // Handle application creation (apply for task)
+      if (fetcher.data.createApplication) {
+        setOptimisticApplication({
+          id: fetcher.data.createApplication.id,
+          status: "PENDING",
+          userId: volunteerUserId,
+        });
+      }
+      // Handle application withdrawal or deletion
+      else if (fetcher.data.success && fetcher.data.application) {
+        // Check the action type from the fetcher formData
+        const action = fetcher.formData?.get("_action");
+
+        if (action === "withdrawApplication") {
+          setOptimisticApplication({
+            id: fetcher.data.application.id,
+            status: "WITHDRAWN",
+            userId: volunteerUserId,
+          });
+        } else if (action === "deleteApplication") {
+          // Clear optimistic application when deleted
+          setOptimisticApplication(null);
+        } else if (action === "undoApplicationStatus") {
+          setOptimisticApplication({
+            id: fetcher.data.application.id,
+            status: "PENDING",
+            userId: volunteerUserId,
+          });
+        }
+      }
+      // Handle successful withdrawal/deletion without application data
+      else if (fetcher.data.success && fetcher.formData) {
+        const action = fetcher.formData.get("_action");
+
+        if (action === "deleteApplication") {
+          setOptimisticApplication(null);
+        }
+      }
+    }
+  }, [
+    fetcher.data,
+    fetcher.formData,
+    isMinimalProps,
+    taskData?.volunteerDetails?.userId,
+  ]);
 
   // Effect to automatically hide success/error messages after 5 seconds
   useEffect(() => {
@@ -104,10 +420,6 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
       return () => clearTimeout(timer);
     }
   }, [fetcher.data, showMessage]);
-
-  // Check if we're using the minimal props version with just taskId
-  const isMinimalProps = "taskId" in props && !("title" in props);
-  const taskId = isMinimalProps ? (props as TaskDetailsCardProps).taskId : "";
 
   // If minimal props, fetch the task data
   useEffect(() => {
@@ -147,41 +459,61 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
     }
   }, [taskFetcher.data, isMinimalProps]);
 
-  const handleApply = (taskId: string, charityId: string) => {
-    fetcher.submit(
-      { taskId, charityId },
-      { method: "post", action: "/api/apply-for-task" },
-    );
-  };
+  // Load blockchain data when task data is available
+  useEffect(() => {
+    const getOnChainTask = async () => {
+      if (
+        !taskData?.id ||
+        !taskData?.rewardAmount ||
+        !taskData?.creatorWalletAddress ||
+        !blockchainReader
+      )
+        return;
 
-  const handleWithdraw = (taskId: string, userId: string) => {
-    fetcher.submit(
-      {
-        _action: "deleteApplication",
-        taskId,
-        userId,
-      },
-      { method: "POST", action: "/dashboard/tasks" },
-    );
-  };
+      try {
+        setIsLoadingEscrow(true);
+        // Use blockchainReader for read-only operations (no wallet required)
+        const onChainTaskData = await blockchainReader.getTaskInfo(
+          taskData.id,
+          taskData.creatorWalletAddress,
+        );
 
-  const handleShare = () => {
-    // Create a URL for the task
-    const taskUrl = `${window.location.origin}/task/${taskData?.id}`;
+        if (onChainTaskData) {
+          setOnChainTask(onChainTaskData);
+          const escrowAccount = onChainTaskData.escrowAccount;
 
-    // Copy to clipboard
-    navigator.clipboard
-      .writeText(taskUrl)
-      .then(() => {
-        // Show success tooltip
-        setShowShareTooltip(true);
-        // Hide it after 2 seconds
-        setTimeout(() => setShowShareTooltip(false), 2000);
-      })
-      .catch((err) => {
-        console.error("Failed to copy URL: ", err);
-      });
-  };
+          if (escrowAccount) {
+            // Use blockchainReader for read-only escrow info
+            const escrowData = await blockchainReader.getEscrowInfo(
+              address(escrowAccount.toString()),
+            );
+            if (escrowData) {
+              setEscrowInfo({
+                address: escrowData.address,
+                data: escrowData.data,
+                executable: escrowData.executable,
+                exists: true,
+                lamports: escrowData.lamports,
+                programAddress: escrowData.programAddress,
+                space: escrowData.space,
+              });
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching on-chain task:", error);
+      } finally {
+        setIsLoadingEscrow(false);
+      }
+    };
+
+    getOnChainTask();
+  }, [
+    taskData?.id,
+    taskData?.rewardAmount,
+    taskData?.creatorWalletAddress,
+    blockchainReader,
+  ]);
 
   // Return loading state if data is not ready yet
   if (isLoading || (!taskData && !error)) {
@@ -210,10 +542,12 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
   // If we have data, render the card
   if (!taskData) return null;
 
-  // Check if user has already applied
-  const hasApplied = taskData.volunteerDetails?.taskApplications?.includes(
-    taskData.id,
-  );
+  // Check if user has already applied (use optimistic state if available)
+  const hasAppliedOptimistic =
+    optimisticApplication && optimisticApplication.status === "PENDING";
+  const hasApplied =
+    hasAppliedOptimistic ||
+    taskData.volunteerDetails?.taskApplications?.includes(taskData.id);
 
   // Count accepted applications
   const acceptedApplications =
@@ -254,7 +588,11 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
             action={() => navigate(`/dashboard/tasks?taskid=${taskData.id}`)}
           />
           <SecondaryButton
-            text="Withdraw"
+            text={
+              hasAppliedOptimistic
+                ? "Withdraw Application"
+                : "Withdraw Application"
+            }
             ariaLabel="withdraw application"
             action={() =>
               handleWithdraw(
@@ -274,6 +612,22 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
       />
     );
   };
+
+  // Check if user can apply for token rewards AND is a volunteer (use optimistic state)
+  const canApplyForTokenRewards =
+    taskData?.rewardAmount &&
+    taskData.rewardAmount > 0 &&
+    !hasApplied &&
+    taskData.userRole?.includes("volunteer"); // Add volunteer role check
+
+  // Get user's wallet address from their profile
+  const userWalletAddress = isMinimalProps
+    ? (props as TaskDetailsCardProps).volunteerDetails?.user?.walletPublicKey
+    : undefined;
+
+  // Determine if user should see apply functionality
+  const showApplyButton =
+    taskData.userRole?.includes("volunteer") && !hasApplied && !isTaskFull;
 
   return (
     <article className="bg-basePrimary rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl border border-baseSecondary/10">
@@ -468,12 +822,30 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
                         fileSize={resource.size}
                         fileUrl={resource.uploadURL}
                         fileExtension={resource.extension}
+                        isEditing={false}
                       />
                     ))}
                   </div>
                 </div>
               </section>
             )}
+
+            {/* Blockchain Information Section */}
+            <BlockchainInfo
+              onChainTask={onChainTask}
+              escrowInfo={escrowInfo}
+              isLoading={isLoadingEscrow}
+              rewardAmount={taskData.rewardAmount}
+              taskId={taskData.id}
+              creatorWallet={taskData.creatorWalletAddress}
+              userRole={taskData.userRole}
+              onRetryEscrow={handleRetryEscrow}
+              isRetrying={isRetryingEscrow}
+              onUpdateReward={handleUpdateReward}
+              isUpdatingReward={isUpdatingReward}
+              onAddWallet={handleAddWallet}
+              isAddingWallet={isAddingWallet}
+            />
           </div>
 
           {/* Sidebar */}
@@ -630,9 +1002,33 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
         </div>
       )}
 
+      {/* Token Reward Section - only show if task has rewards and user hasn't applied */}
+      {canApplyForTokenRewards && (
+        <div className="px-6 pb-4">
+          <TokenRewardOptIn
+            taskRewardAmount={taskData.rewardAmount}
+            onOptInChange={handleTokenRewardOptIn}
+            userWalletAddress={userWalletAddress}
+          />
+        </div>
+      )}
+
       {/* Footer with CTA */}
       <div className="bg-basePrimaryDark p-6 border-t border-baseSecondary/10">
-        <div>{renderActionButton()}</div>
+        {/* Show apply button for volunteers (regardless of token rewards) */}
+        {showApplyButton && (
+          <PrimaryButton
+            text={
+              fetcher.state === "submitting" ? "Applying..." : "Apply for Task"
+            }
+            action={() => handleApply(taskData.id, taskData.charityId || "")}
+            ariaLabel="Apply for this task"
+            isDisabled={fetcher.state === "submitting"}
+          />
+        )}
+
+        {/* Show regular action button for non-volunteers or other states */}
+        {!showApplyButton && renderActionButton()}
 
         {/* Processing state */}
         {fetcher.state !== "idle" && (
@@ -659,6 +1055,8 @@ export default function TaskDetailsCard(props: CombinedTaskDetailsCardProps) {
           </div>
         )}
       </div>
+
+      {/* Effect to handle wallet addition response */}
     </article>
   );
 }

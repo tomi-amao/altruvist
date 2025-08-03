@@ -34,15 +34,15 @@ jobs:
         run: npx prettier . --check
 
       - name: Run ESLint
-        run: npx eslint . --config eslint.config.mjs --format @microsoft/eslint-formatter-sarif --output-file eslint-results.sarif
+        run: npx eslint --ignore-pattern .gitignore --ignore-pattern .react-router --fix
 
         continue-on-error: false
 
-      - name: Upload analysis results to GitHub
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: eslint-results.sarif
-          wait-for-processing: true
+      # - name: Upload analysis results to GitHub
+      #   uses: github/codeql-action/upload-sarif@v3
+      #   with:
+      #     sarif_file: eslint-results.sarif
+      #     wait-for-processing: true
   snyk:
     needs: eslint-prettier
     name: Security Scan

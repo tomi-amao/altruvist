@@ -15,7 +15,7 @@ import {
   statusOptions,
   applicationStatusOptions,
 } from "~/constants/dropdownOptions";
-import { tasks, TaskUrgency } from "@prisma/client";
+import { tasks } from "@prisma/client";
 import TaskManagementActions from "~/components/tasks/TaskManagementActions";
 import { useEffect, useMemo, useState } from "react";
 import TaskForm from "~/components/tasks/TaskForm";
@@ -23,6 +23,8 @@ import { ArrowLeft } from "@phosphor-icons/react";
 import { useViewport } from "~/hooks/useViewport";
 import { loader } from "./loader";
 import { action } from "./action";
+import { useSolanaService } from "~/hooks/useSolanaService";
+import { toast } from "react-toastify";
 
 export { loader, action };
 
@@ -53,8 +55,13 @@ export default function ManageTasks() {
   const [searchParams] = useSearchParams();
   const { isMobile } = useViewport();
 
+  // Move the Solana service hooks to component level
+  const { solanaService, taskEscrowService } = useSolanaService();
+  const wallet = solanaService?.wallet;
+
   // Local state for UI management
   const [isEditing, setIsEditing] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(() => {
     // Initialize with URL search param if it exists
     return searchParams.get("taskid") || null;
@@ -79,7 +86,7 @@ export default function ManageTasks() {
 
   // Find selected task from tasks array
   const selectedTask = useMemo(() => {
-    return selectedTaskId
+    return selectedTaskId && initialTasks
       ? initialTasks.find((task) => task.id === selectedTaskId)
       : null;
   }, [initialTasks, selectedTaskId]);
@@ -138,9 +145,63 @@ export default function ManageTasks() {
     }
   };
 
-  const handleDelete = (taskId: string) => {
-    fetcher.submit({ _action: "deleteTask", taskId }, { method: "POST" });
-    setSelectedTaskId(null);
+  const handleDelete = async (taskId: string) => {
+    if (isProcessing) return; // Prevent double submission
+    console.log(location.state);
+
+    const taskToDelete = initialTasks?.find((task) => task.id === taskId);
+    if (!taskToDelete) {
+      console.error("Task not found for deletion");
+      toast.error("Task not found. Please refresh the page and try again.");
+      return;
+    }
+
+    setIsProcessing(true);
+    toast.info("Starting task deletion...");
+
+    try {
+      // First, try to cancel the task on-chain if it has a reward amount and creator wallet
+      if (
+        taskToDelete.rewardAmount &&
+        taskToDelete.rewardAmount > 0 &&
+        taskEscrowService
+      ) {
+        console.log("Cancelling task on-chain:", taskId);
+        toast.info("Cancelling blockchain escrow...");
+
+        const txSignature = await taskEscrowService.deleteTask(taskId);
+
+        if (!txSignature) {
+          console.error(
+            "Failed to cancel task on-chain, aborting database deletion",
+          );
+          toast.error(
+            "Failed to cancel blockchain escrow. Task deletion aborted to prevent fund loss.",
+          );
+          return;
+        }
+
+        console.log("Task cancelled on-chain successfully:", txSignature);
+        toast.success("Blockchain escrow cancelled successfully!");
+      } else {
+        console.log(
+          "Skipping on-chain cancellation - no reward amount or wallet address",
+        );
+        toast.info("No blockchain escrow to cancel for this task.");
+      }
+
+      // If on-chain cancellation succeeded (or was skipped), proceed with database deletion
+      toast.info("Deleting task from database...");
+      fetcher.submit({ _action: "deleteTask", taskId }, { method: "POST" });
+      setSelectedTaskId(null);
+    } catch (error) {
+      console.error("Error during task deletion:", error);
+      toast.error(
+        `Failed to delete task: ${error instanceof Error ? error.message : "Unknown error occurred"}`,
+      );
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   // task creation related functions
@@ -148,36 +209,76 @@ export default function ManageTasks() {
     setShowCreateTask((preValue) => !preValue);
   };
 
-  interface TaskFormData {
-    title: string;
-    description: string;
-    impact: string;
-    requiredSkills: string[];
-    category: string[];
-    urgency: TaskUrgency;
-    volunteersNeeded: number;
-    deadline: Date;
-    deliverables: string[];
-    resources: {
-      name: string;
-      size: number;
-      url: string;
-      extension: string;
-    }[];
-  }
-
-  const handleTaskSubmit = (formData: TaskFormData) => {
+  const handleTaskSubmit = async (formData: tasks) => {
     // Clear previous data to ensure fresh validation
     taskFormFetcher.data = undefined;
 
+    const taskData = {
+      ...formData,
+      creatorWalletAddress: wallet?.publicKey?.toBase58() || null,
+    };
+
+    console.log("Submitting task form data:", taskData);
+
+    // Use fetcher for form submission to get automatic UI updates
     taskFormFetcher.submit(
-      { _action: "createTask", formData: JSON.stringify(formData) },
+      { _action: "createTask", formData: JSON.stringify(taskData) },
       {
         action: "/api/task/create",
         method: "POST",
       },
     );
   };
+
+  // Handle escrow creation after successful task creation
+  useEffect(() => {
+    const createTaskEscrow = async () => {
+      if (
+        taskEscrowService &&
+        taskFormFetcher.data &&
+        !taskFormFetcher.data.error
+      ) {
+        try {
+          console.log("Creating task escrow with data:", taskFormFetcher.data);
+
+          // Check if the response has the expected structure for task creation
+          if ("task" in taskFormFetcher.data && taskFormFetcher.data.task) {
+            const task = taskFormFetcher.data.task;
+
+            // Only create escrow if there's a positive reward amount
+            if (
+              task.rewardAmount &&
+              typeof task.rewardAmount === "number" &&
+              task.rewardAmount > 0
+            ) {
+              const faucetInfo = await solanaService?.getFaucetInfo();
+
+              const txSignature = await taskEscrowService.createTaskEscrow({
+                taskId: task.id || "",
+                rewardAmount: task.rewardAmount || 0,
+                creatorWallet: wallet?.publicKey?.toBase58() || "",
+                mintAddress: faucetInfo?.mint || "",
+              });
+
+              if (txSignature) {
+                console.log("Task escrow created with signature:", txSignature);
+              }
+            } else {
+              console.log(
+                "Skipping escrow creation - no positive reward amount specified",
+              );
+            }
+          }
+        } catch (error) {
+          console.error("Failed to create task escrow:", error);
+          // Note: Task was created successfully, but escrow failed
+          // You might want to show a warning to the user
+        }
+      }
+    };
+
+    createTaskEscrow();
+  }, [taskFormFetcher.data, taskEscrowService, solanaService, wallet]);
 
   const handleTaskEdit = (taskData?: tasks) => {
     if (taskData) {
@@ -210,6 +311,7 @@ export default function ManageTasks() {
         urgency: taskData.urgency,
         // Explicitly include location, even when it's null
         location: taskData.location,
+        rewardAmount: taskData.rewardAmount || null,
       };
 
       console.log("Update data being sent:", updateData);
@@ -235,12 +337,25 @@ export default function ManageTasks() {
     }
   }, [taskFormFetcher.data]);
 
+  // Reset deletion state when fetcher completes
+  useEffect(() => {
+    if (fetcher.state === "idle" && isProcessing) {
+      // Check if the deletion was successful
+      if (fetcher.data && !fetcher.data.error) {
+        toast.success("Task deleted successfully from database!");
+      } else if (fetcher.data?.error) {
+        toast.error(`Database deletion failed: ${fetcher.data.error}`);
+      }
+      setIsProcessing(false);
+    }
+  }, [fetcher.state, fetcher.data, isProcessing]);
+
   return (
     <div className="flex flex-col lg:flex-row w-full lg:min-h-screen p-4 -mt-8">
       <AnimatePresence mode="wait">
         {!isDetailsView && (
           <motion.div
-            className="lg:w-1/3 w-full p-4  space-y-4 rounded-md border border-basePrimaryDark overflow-auto"
+            className="lg:w-1/3 w-full p-4  space-y-4 rounded-md border border-basePrimaryDark"
             initial={{ opacity: 0, x: isMobile ? -40 : 0 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -40 }}
@@ -315,9 +430,11 @@ export default function ManageTasks() {
                   }
                   onCancel={() => setIsEditing(false)}
                   isEditing={true}
-                  serverValidation={fetcher.data?.error || []}
+                  serverValidation={
+                    Array.isArray(fetcher.data?.error) ? fetcher.data.error : []
+                  }
                   isSubmitting={fetcher.state === "submitting"}
-                  uploadURL={uploadURL}
+                  uploadURL={uploadURL || ""}
                   GCPKey={GCPKey}
                   userCharities={userCharities}
                   defaultCharityId={optimisticTask.charityId}
@@ -332,8 +449,8 @@ export default function ManageTasks() {
                   isEditing={isEditing}
                   error={fetcher.data?.error}
                   isError={Boolean(fetcher.data?.error)}
-                  userName={userName}
-                  uploadURL={uploadURL}
+                  userName={userName || undefined}
+                  uploadURL={uploadURL || ""}
                 />
               )
             ) : (
@@ -353,9 +470,13 @@ export default function ManageTasks() {
               setShowCreateTask(false);
               taskFormFetcher.data = undefined;
             }}
-            serverValidation={taskFormFetcher.data?.error || []}
+            serverValidation={
+              Array.isArray(taskFormFetcher.data?.error)
+                ? taskFormFetcher.data.error
+                : []
+            }
             isSubmitting={taskFormFetcher.state === "submitting"}
-            uploadURL={uploadURL}
+            uploadURL={uploadURL || ""}
             GCPKey={GCPKey}
             userCharities={userCharities}
             defaultCharityId={

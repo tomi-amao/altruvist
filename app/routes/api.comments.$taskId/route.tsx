@@ -113,7 +113,6 @@ export async function action({ params, request }: ActionFunctionArgs) {
           formData.get("newCommentData") as string,
         );
         const createdComment = await createComment(newCommentData);
-        // Rename commentsRaw to avoid conflict in loader scope
         const actionCommentsRaw = await getCommentsForTask(routeTaskId);
         const updatedCommentsWithUrls =
           await addSignedUrlsToComments(actionCommentsRaw);

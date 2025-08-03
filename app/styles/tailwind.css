@@ -1,6 +1,27 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
+@custom-variant dark (&:is(.dark *));
+
+@layer base {
+  :root {
+    --chart-1: oklch(0.646 0.222 41.116);
+    --chart-2: oklch(0.6 0.118 184.704);
+    --chart-3: oklch(0.398 0.07 227.392);
+    --chart-4: oklch(0.828 0.189 84.429);
+    --chart-5: oklch(0.769 0.188 70.08);
+  }
+
+  .dark {
+    --chart-1: oklch(0.488 0.243 264.376);
+    --chart-2: oklch(0.696 0.17 162.48);
+    --chart-3: oklch(0.769 0.188 70.08);
+    --chart-4: oklch(0.627 0.265 303.9);
+    --chart-5: oklch(0.645 0.246 16.439);
+  }
+}
 @theme {
+  /* Custom Design System Colors */
   --color-basePrimary: #dddddd;
   --color-basePrimaryDark: #cccccc;
   --color-basePrimaryLight: #e8e8e8;
@@ -27,8 +48,101 @@
   --color-indicator-teal: #2dd4bf;
   --color-indicator-cyan: #22d3ee;
 
+  /* Typography */
   --font-header: "Poppins", sans-serif;
   --font-primary: "Poppins", sans-serif;
+}
+
+/* Animated Border Effect for Create Blockchain Escrow Button */
+@property --animate-duration {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@property --Color {
+  syntax: "<color>";
+  initial-value: #cb700ef5;
+}
+
+@keyframes rotate-escrow-border {
+  0% {
+    --animate-duration: 0deg;
+    --Color: #cb700ef5;
+  }
+  100% {
+    --animate-duration: 360deg;
+    --Color: #cb700ef5;
+  }
+}
+
+.animated-border-btn {
+  position: relative;
+  overflow: visible;
+  background: transparent !important;
+  padding: 1px !important; /* Thin border width */
+  filter: drop-shadow(0 0 10px #f5f5dc);
+  transition: filter 0.3s ease;
+}
+
+.animated-border-btn:hover {
+  filter: drop-shadow(0 0 10px #cb700ef5);
+}
+
+.animated-border-btn:after,
+.animated-border-btn:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 0.5rem;
+  background: conic-gradient(
+    from var(--animate-duration) at 50% 50%,
+    transparent 0%,
+    transparent 30%,
+    var(--Color) 45%,
+    var(--Color) 55%,
+    transparent 70%,
+    transparent 100%
+  );
+  animation: rotate-escrow-border 3s infinite linear;
+  z-index: -1;
+}
+
+.animated-border-btn:before {
+  filter: blur(8px);
+  z-index: -2;
+  opacity: 0.8;
+}
+
+.animated-border-btn:after {
+  z-index: -1;
+}
+
+.animated-border-btn > span {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--color-light-grey);
+  border-radius: calc(0.5rem - 1px);
+  padding: 0.5rem 1rem; /* Independent padding for content */
+  color: var(--color-baseSecondary);
+  font-weight: inherit;
+  font-size: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 4px 15px rgba(139, 92, 246, 0.2),
+    0 2px 8px rgba(59, 130, 246, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.animated-border-btn:hover > span {
+  box-shadow: 0 6px 20px #cb700ef5;
 }
 
 @layer utilities {
@@ -39,14 +153,31 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  .hide-number-spinner {
+    &::-webkit-inner-spin-button {
+      display: none;
+    }
+    &::-webkit-outer-spin-button {
+      display: none;
+    }
+    -moz-appearance: textfield;
+  }
+
+  .font-header {
+    font-family: var(--font-header);
+  }
+
+  .font-primary {
+    font-family: var(--font-primary);
+  }
 }
 
-/* app/styles/scrollbar.css */
+/* Scrollbar styles */
 .scrollbar-custom {
-  scrollbar-width: thin; /* For Firefox */
+  scrollbar-width: thin;
   scrollbar-color: #836953 #dddddd;
 
-  /* Chrome, Edge, Safari */
   &::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -63,9 +194,11 @@
   }
 }
 
+/* Typography */
 h1 {
-  @apply font-header text-5xl text-baseSecondary;
+  @apply font-header md:text-5xl text-4xl text-baseSecondary;
 }
+
 h2 {
   @apply text-2xl font-semibold text-baseSecondary;
 }
@@ -75,11 +208,13 @@ h5,
 h6 {
   @apply text-base font-primary font-semibold text-baseSecondary;
 }
+
 li,
 p,
 span {
   @apply font-primary;
 }
+
 html {
   @apply bg-basePrimary;
 }
@@ -88,6 +223,7 @@ button {
   @apply cursor-pointer;
 }
 
+/* Wallet Adapter Styles */
 .wallet-adapter-button {
   @apply text-baseSecondary
          font-primary px-6 py-3 rounded-xl
@@ -96,12 +232,17 @@ button {
          shadow-md hover:shadow-lg flex items-center justify-center
          transform hover:scale-105 active:scale-95
          hover:bg-basePrimaryLight hover:border-baseSecondary/40;
+}
 
-  font-family: var(--font-primary);
+.wallet-adapter-button:active {
+  transform: scale(0.95);
 }
 
 .wallet-adapter-button[disabled] {
-  @apply bg-alt-mid-grey text-mid-grey cursor-not-allowed opacity-50;
+  background-color: var(--color-alt-mid-grey);
+  color: var(--color-mid-grey);
+  cursor: not-allowed;
+  opacity: 0.5;
   transform: none;
 }
 
@@ -173,30 +314,6 @@ button {
 
 .wallet-adapter-dropdown-list-active.wallet-adapter-dropdown-list-center {
   transform: translateX(-50%) translateY(0);
-}
-
-/* Responsive behavior for small screens */
-@media (max-width: 768px) {
-  .wallet-adapter-dropdown-list {
-    /* On mobile, center the dropdown and make it full width with margins */
-    left: 50% !important;
-    right: auto !important;
-    transform: translateX(-50%) translateY(-10px) !important;
-    min-width: calc(100vw - 2rem);
-    max-width: calc(100vw - 2rem);
-  }
-
-  .wallet-adapter-dropdown-list-active {
-    transform: translateX(-50%) translateY(0) !important;
-  }
-}
-
-/* Ensure dropdown doesn't go off-screen on very small viewports */
-@media (max-width: 480px) {
-  .wallet-adapter-dropdown-list {
-    min-width: calc(100vw - 1rem) !important;
-    max-width: calc(100vw - 1rem) !important;
-  }
 }
 
 .wallet-adapter-dropdown-list-item {
@@ -398,4 +515,212 @@ button {
 /* Modal Fade Animation */
 .wallet-adapter-modal.wallet-adapter-modal-fade-in {
   opacity: 1;
+}
+
+/* Custom Toast Styles */
+.Toastify__toast-container {
+  width: auto;
+  min-width: 320px;
+  max-width: 400px;
+  font-family: var(--font-primary);
+}
+
+.custom-toast {
+  background-color: var(--color-basePrimary);
+  border: 1px solid
+    color-mix(in srgb, var(--color-baseSecondary) 20%, transparent);
+  border-radius: 0.75rem;
+  box-shadow:
+    0 10px 15px -3px rgba(131, 105, 83, 0.1),
+    0 4px 6px -4px rgba(131, 105, 83, 0.1),
+    0 0 0 1px rgba(131, 105, 83, 0.05);
+  padding: 0;
+  margin-bottom: 0.75rem;
+  min-height: 64px;
+}
+
+.custom-toast-body {
+  padding: 1rem 1.25rem;
+  color: var(--color-baseSecondary);
+  font-family: var(--font-primary);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.custom-toast-progress {
+  background: linear-gradient(
+    90deg,
+    var(--color-accentPrimary) 0%,
+    var(--color-baseSecondary) 100%
+  );
+  height: 3px;
+}
+
+/* Toast type variations */
+/* .Toastify__toast--success.custom-toast {
+  border-left: 4px solid var(--color-confirmPrimary);
+} */
+
+.Toastify__toast--success .custom-toast-progress {
+  background: var(--color-confirmPrimary);
+}
+
+/* .Toastify__toast--error.custom-toast {
+  border-left: 4px solid var(--color-dangerPrimary);
+} */
+
+.Toastify__toast--error .custom-toast-progress {
+  background: var(--color-dangerPrimary);
+}
+
+/* .Toastify__toast--info.custom-toast {
+  border-left: 4px solid var(--color-baseSecondary);
+} */
+
+/* .Toastify__toast--warning.custom-toast {
+  border-left: 4px solid var(--color-indicator-yellow);
+} */
+
+.Toastify__toast--warning .custom-toast-progress {
+  background: var(--color-indicator-yellow);
+}
+
+/* Close button styles */
+.Toastify__close-button {
+  color: var(--color-baseSecondary);
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.Toastify__close-button:hover {
+  opacity: 1;
+}
+
+/* Animation overrides */
+.Toastify__bounce-enter--bottom-right,
+.Toastify__bounce-enter--bottom-left {
+  animation-name: Toastify__bounceInRight;
+}
+
+.Toastify__bounce-exit--bottom-right,
+.Toastify__bounce-exit--bottom-left {
+  animation-name: Toastify__bounceOutRight;
+}
+
+/* Dark mode support */
+.dark .custom-toast {
+  background-color: var(--color-mid-grey);
+  border-color: color-mix(in srgb, var(--color-alt-mid-grey) 30%, transparent);
+}
+
+.dark .custom-toast-body {
+  color: var(--color-basePrimary);
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
 }

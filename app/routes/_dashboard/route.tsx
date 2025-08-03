@@ -80,11 +80,18 @@ export default function Dashboard() {
   const getSideBarMenu = (role: string) => {
     switch (role) {
       case "charity":
-        return ["Dashboard", "Tasks", "Charities"];
+        return ["Dashboard", "Tasks", "Charities", "Blockchain"];
       case "volunteer":
-        return ["Dashboard", "Tasks", "Charities"];
+        return ["Dashboard", "Tasks", "Charities", "Blockchain"];
       default:
-        return ["Dashboard", "Tasks", "Messages", "Feeds", "Explore"];
+        return [
+          "Dashboard",
+          "Tasks",
+          "Messages",
+          "Feeds",
+          "Explore",
+          "Blockchain",
+        ];
     }
   };
 

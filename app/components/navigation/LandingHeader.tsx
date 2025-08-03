@@ -20,11 +20,13 @@ export default function LandingHeader({
   const [isScrolled, setIsScrolled] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [resourcesMenuOpen, setResourcesMenuOpen] = useState(false);
+  const [aboutMenuOpen, setAboutMenuOpen] = useState(false);
   const [prevScrollY, setPrevScrollY] = useState(0); // Track previous scroll position
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const toggleUserMenu = () => setUserMenuOpen(!userMenuOpen);
   const toggleResourcesMenu = () => setResourcesMenuOpen(!resourcesMenuOpen);
+  const toggleAboutMenu = () => setAboutMenuOpen(!aboutMenuOpen);
   const navigate = useNavigate();
 
   // Close dropdown menus when clicking outside
@@ -37,13 +39,16 @@ export default function LandingHeader({
       if (!target.closest(".user-menu-container") && userMenuOpen) {
         setUserMenuOpen(false);
       }
+      if (!target.closest(".about-menu-container") && aboutMenuOpen) {
+        setAboutMenuOpen(false);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [resourcesMenuOpen, userMenuOpen]);
+  }, [resourcesMenuOpen, userMenuOpen, aboutMenuOpen]);
 
   // Handle scroll effect with direction detection
   useEffect(() => {
@@ -110,16 +115,54 @@ export default function LandingHeader({
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-1">
-              <Link
-                to="/about"
-                className={`px-4 py-2 rounded-lg transition-all font-medium hover:scale-105 active:scale-95 ${
-                  isScrolled
-                    ? "text-basePrimaryDark hover:text-accentPrimary"
-                    : "text-accentPrimary hover:bg-baseSecondary/50"
-                }`}
-              >
-                <span className="text-accentPrimary font-medium">About</span>
-              </Link>
+              {/* About Dropdown */}
+              <div className="relative about-menu-container">
+                <motion.button
+                  onClick={toggleAboutMenu}
+                  className={`px-4 py-2 rounded-lg transition-all font-medium hover:scale-105 active:scale-95 flex items-center gap-1 ${
+                    isScrolled
+                      ? "text-basePrimaryDark hover:text-accentPrimary"
+                      : "text-accentPrimary hover:bg-baseSecondary/50"
+                  }`}
+                  whileHover={{ scale: 1.02 }}
+                >
+                  <span className="text-accentPrimary font-medium">About</span>
+                  <CaretDown
+                    size={16}
+                    className={`transition-transform ${aboutMenuOpen ? "rotate-180" : ""} ${
+                      isScrolled ? "text-basePrimaryDark" : "text-accentPrimary"
+                    }`}
+                    style={{ marginTop: 2 }} // slight vertical alignment tweak
+                  />
+                </motion.button>
+                {aboutMenuOpen && (
+                  <motion.div
+                    className={`absolute left-0 mt-2 w-48 rounded-lg shadow-lg overflow-hidden border z-50 ${
+                      isScrolled
+                        ? "border-basePrimary"
+                        : "bg-baseSecondary border-accentPrimary/30"
+                    }`}
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                  >
+                    <div className="py-1 bg-baseSecondary/90">
+                      <Link
+                        to="/about"
+                        className={`block px-4 py-2 text-sm ${isScrolled ? "text-basePrimaryDark" : "text-accentPrimary hover:bg-baseSecondary/70"}`}
+                      >
+                        About Altruvist
+                      </Link>
+                      <Link
+                        to="/blockchain"
+                        className={`block px-4 py-2 text-sm ${isScrolled ? "text-basePrimaryDark" : "text-accentPrimary hover:bg-baseSecondary/70"}`}
+                      >
+                        Blockchain
+                      </Link>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
 
               <Link
                 to="/explore/tasks"
