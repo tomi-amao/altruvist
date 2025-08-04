@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router";
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { List, X, SignOut, CaretDown } from "@phosphor-icons/react";
 import { users } from "@prisma/client";
 import { Avatar } from "../cards/ProfileCard";
@@ -21,26 +21,61 @@ export default function LandingHeader({
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [resourcesMenuOpen, setResourcesMenuOpen] = useState(false);
   const [aboutMenuOpen, setAboutMenuOpen] = useState(false);
+  const [exploreMenuOpen, setExploreMenuOpen] = useState(false);
   const [prevScrollY, setPrevScrollY] = useState(0); // Track previous scroll position
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const toggleUserMenu = () => setUserMenuOpen(!userMenuOpen);
   const toggleResourcesMenu = () => setResourcesMenuOpen(!resourcesMenuOpen);
   const toggleAboutMenu = () => setAboutMenuOpen(!aboutMenuOpen);
+  const toggleExploreMenu = () => setExploreMenuOpen(!exploreMenuOpen);
   const navigate = useNavigate();
+
+  // Refs for dropdown buttons and dropdowns
+  const userDropdownBtnRef = useRef<HTMLButtonElement>(null);
+  const userDropdownRef = useRef<HTMLDivElement>(null);
+  const resourcesDropdownBtnRef = useRef<HTMLButtonElement>(null);
+  const resourcesDropdownRef = useRef<HTMLDivElement>(null);
+  const aboutDropdownBtnRef = useRef<HTMLButtonElement>(null);
+  const aboutDropdownRef = useRef<HTMLDivElement>(null);
+  const exploreDropdownBtnRef = useRef<HTMLButtonElement>(null);
+  const exploreDropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown menus when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (!target.closest(".resources-menu-container") && resourcesMenuOpen) {
-        setResourcesMenuOpen(false);
-      }
-      if (!target.closest(".user-menu-container") && userMenuOpen) {
+      const target = event.target as Node;
+      // User dropdown
+      if (
+        userMenuOpen &&
+        !userDropdownRef.current?.contains(target) &&
+        !userDropdownBtnRef.current?.contains(target)
+      ) {
         setUserMenuOpen(false);
       }
-      if (!target.closest(".about-menu-container") && aboutMenuOpen) {
+      // Resources dropdown
+      if (
+        resourcesMenuOpen &&
+        !resourcesDropdownRef.current?.contains(target) &&
+        !resourcesDropdownBtnRef.current?.contains(target)
+      ) {
+        setResourcesMenuOpen(false);
+      }
+      // About dropdown
+      if (
+        aboutMenuOpen &&
+        !aboutDropdownRef.current?.contains(target) &&
+        !aboutDropdownBtnRef.current?.contains(target)
+      ) {
         setAboutMenuOpen(false);
+      }
+      // Explore dropdown
+      if (
+        exploreMenuOpen &&
+        !exploreDropdownRef.current?.contains(target) &&
+        !exploreDropdownBtnRef.current?.contains(target)
+      ) {
+        setExploreMenuOpen(false);
       }
     };
 
@@ -48,7 +83,7 @@ export default function LandingHeader({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [resourcesMenuOpen, userMenuOpen, aboutMenuOpen]);
+  }, [userMenuOpen, resourcesMenuOpen, aboutMenuOpen, exploreMenuOpen]);
 
   // Handle scroll effect with direction detection
   useEffect(() => {
@@ -118,7 +153,11 @@ export default function LandingHeader({
               {/* About Dropdown */}
               <div className="relative about-menu-container">
                 <motion.button
-                  onClick={toggleAboutMenu}
+                  ref={aboutDropdownBtnRef}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleAboutMenu();
+                  }}
                   className={`px-4 py-2 rounded-lg transition-all font-medium hover:scale-105 active:scale-95 flex items-center gap-1 ${
                     isScrolled
                       ? "text-basePrimaryDark hover:text-accentPrimary"
@@ -137,6 +176,7 @@ export default function LandingHeader({
                 </motion.button>
                 {aboutMenuOpen && (
                   <motion.div
+                    ref={aboutDropdownRef}
                     className={`absolute left-0 mt-2 w-48 rounded-lg shadow-lg overflow-hidden border z-50 ${
                       isScrolled
                         ? "border-basePrimary"
@@ -149,12 +189,14 @@ export default function LandingHeader({
                     <div className="py-1 bg-baseSecondary/90">
                       <Link
                         to="/about"
+                        onClick={(e) => e.stopPropagation()}
                         className={`block px-4 py-2 text-sm ${isScrolled ? "text-basePrimaryDark" : "text-accentPrimary hover:bg-baseSecondary/70"}`}
                       >
                         About Altruvist
                       </Link>
                       <Link
                         to="/blockchain"
+                        onClick={(e) => e.stopPropagation()}
                         className={`block px-4 py-2 text-sm ${isScrolled ? "text-basePrimaryDark" : "text-accentPrimary hover:bg-baseSecondary/70"}`}
                       >
                         Blockchain
@@ -164,21 +206,72 @@ export default function LandingHeader({
                 )}
               </div>
 
-              <Link
-                to="/explore/tasks"
-                className={`px-4 py-2 rounded-lg transition-all font-medium hover:scale-105 active:scale-95 ${
-                  isScrolled
-                    ? "text-basePrimaryDark hover:text-accentPrimary"
-                    : "text-accentPrimary hover:bg-baseSecondary/50"
-                }`}
-              >
-                <span className="text-accentPrimary font-medium">Explore</span>
-              </Link>
+              {/* Explore Dropdown */}
+              <div className="relative">
+                <motion.button
+                  ref={exploreDropdownBtnRef}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleExploreMenu();
+                  }}
+                  className={`px-4 py-2 rounded-lg transition-all font-medium hover:scale-105 active:scale-95 flex items-center gap-1 ${
+                    isScrolled
+                      ? "text-basePrimaryDark hover:text-accentPrimary"
+                      : "text-accentPrimary hover:bg-baseSecondary/50"
+                  }`}
+                  whileHover={{ scale: 1.02 }}
+                >
+                  <span className="text-accentPrimary font-medium">
+                    Explore
+                  </span>
+                  <CaretDown
+                    size={16}
+                    className={`transition-transform ${exploreMenuOpen ? "rotate-180" : ""} ${
+                      isScrolled ? "text-basePrimaryDark" : "text-accentPrimary"
+                    }`}
+                    style={{ marginTop: 2 }}
+                  />
+                </motion.button>
+                {exploreMenuOpen && (
+                  <motion.div
+                    ref={exploreDropdownRef}
+                    className={`absolute left-0 mt-2 w-48 rounded-lg shadow-lg overflow-hidden border z-50 ${
+                      isScrolled
+                        ? "border-basePrimary"
+                        : "bg-baseSecondary border-accentPrimary/30"
+                    }`}
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                  >
+                    <div className="py-1 bg-baseSecondary/90">
+                      <Link
+                        to="/explore/tasks"
+                        onClick={(e) => e.stopPropagation()}
+                        className={`block px-4 py-2 text-sm ${isScrolled ? "text-basePrimaryDark" : "text-accentPrimary hover:bg-baseSecondary/70"}`}
+                      >
+                        Tasks
+                      </Link>
+                      <Link
+                        to="/explore/charities"
+                        onClick={(e) => e.stopPropagation()}
+                        className={`block px-4 py-2 text-sm ${isScrolled ? "text-basePrimaryDark" : "text-accentPrimary hover:bg-baseSecondary/70"}`}
+                      >
+                        Charities
+                      </Link>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
 
               {/* Resources Dropdown */}
               <div className="relative resources-menu-container">
                 <motion.button
-                  onClick={toggleResourcesMenu}
+                  ref={resourcesDropdownBtnRef}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleResourcesMenu();
+                  }}
                   className={`flex items-center space-x-1 px-4 py-2 rounded-lg transition-all font-medium hover:scale-105 active:scale-95 ${
                     isScrolled
                       ? "text-basePrimaryDark hover:text-accentPrimary"
@@ -200,6 +293,7 @@ export default function LandingHeader({
                 {/* Resources dropdown menu */}
                 {resourcesMenuOpen && (
                   <motion.div
+                    ref={resourcesDropdownRef}
                     className={`absolute left-0 mt-2 w-48 rounded-lg shadow-lg overflow-hidden border ${
                       isScrolled
                         ? "border-basePrimary"
@@ -212,18 +306,21 @@ export default function LandingHeader({
                     <div className="py-1 bg-baseSecondary/90">
                       <Link
                         to="/volunteer-guide"
+                        onClick={(e) => e.stopPropagation()}
                         className={`block px-4 py-2 text-sm ${isScrolled ? "text-basePrimaryDark" : "text-accentPrimary hover:bg-baseSecondary/70"}`}
                       >
                         Volunteer Guide
                       </Link>
                       <Link
                         to="/charity-resources"
+                        onClick={(e) => e.stopPropagation()}
                         className={`block px-4 py-2 text-sm ${isScrolled ? "text-basePrimaryDark" : "text-accentPrimary hover:bg-baseSecondary/70"}`}
                       >
                         Charity Resources
                       </Link>
                       <Link
                         to="/faq"
+                        onClick={(e) => e.stopPropagation()}
                         className={`block px-4 py-2 text-sm ${isScrolled ? "text-basePrimaryDark" : "text-accentPrimary hover:bg-baseSecondary/70"}`}
                       >
                         FAQ
@@ -289,6 +386,7 @@ export default function LandingHeader({
                     {/* User dropdown menu */}
                     {userMenuOpen && (
                       <motion.div
+                        ref={userDropdownRef}
                         className={`absolute right-0 mt-2 w-48  rounded-lg shadow-lg overflow-hidden border ${
                           isScrolled
                             ? " border-basePrimary"
@@ -301,18 +399,21 @@ export default function LandingHeader({
                         <div className="py-1 bg-baseSecondary/90">
                           <Link
                             to={`/profile/${userId}`}
+                            onClick={(e) => e.stopPropagation()}
                             className={`block px-4 py-2 text-sm ${isScrolled ? "text-basePrimaryDark " : "text-accentPrimary hover:bg-baseSecondary/70"}`}
                           >
                             Profile
                           </Link>
                           <Link
                             to="/dashboard"
+                            onClick={(e) => e.stopPropagation()}
                             className={`block px-4 py-2 text-sm ${isScrolled ? "text-basePrimaryDark " : "text-accentPrimary hover:bg-baseSecondary/70"}`}
                           >
                             Dashboard
                           </Link>
                           <Link
                             to="/account/settings"
+                            onClick={(e) => e.stopPropagation()}
                             className={`block px-4 py-2 text-sm ${isScrolled ? "text-basePrimaryDark " : "text-accentPrimary hover:bg-baseSecondary/70"}`}
                           >
                             Settings
@@ -322,6 +423,7 @@ export default function LandingHeader({
                           ></div>
                           <Link
                             to="/zitlogout"
+                            onClick={(e) => e.stopPropagation()}
                             className={`flex items-center px-4 py-2 text-sm ${isScrolled ? "text-dangerPrimary " : "text-dangerPrimary hover:bg-baseSecondary/70"}`}
                           >
                             <SignOut size={16} className="mr-2" />
@@ -369,6 +471,92 @@ export default function LandingHeader({
               transition={{ duration: 0.3 }}
             >
               <div className="px-2 py-3 space-y-1 bg-baseSecondary/90">
+                {/* Profile Card Dropdown at Top */}
+                {userId && (
+                  <div className="mb-2">
+                    <motion.button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setUserMenuOpen((open) => !open);
+                      }}
+                      className={`w-full px-4 py-3 flex items-center space-x-3 rounded-lg ${
+                        isScrolled
+                          ? "bg-basePrimaryLight/50"
+                          : "bg-baseSecondary/70"
+                      }`}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <div className="w-10 h-10 rounded-full bg-accentPrimary/20 flex items-center justify-center">
+                        <Avatar
+                          name={userInfo?.name}
+                          src={profilePicture || ""}
+                        />
+                      </div>
+                      <div className="flex-1 text-left">
+                        <p
+                          className={`font-medium ${isScrolled ? "text-basePrimaryDark" : "text-accentPrimary"}`}
+                        >
+                          {userInfo?.name}
+                        </p>
+                        <p className="text-sm text-basePrimaryDark">
+                          {userInfo?.email}
+                        </p>
+                      </div>
+                      <CaretDown
+                        size={20}
+                        className={
+                          isScrolled
+                            ? "text-basePrimaryDark"
+                            : "text-accentPrimary"
+                        }
+                      />
+                    </motion.button>
+                    {userMenuOpen && (
+                      <motion.div
+                        ref={userDropdownRef}
+                        className={`mt-1 rounded-lg shadow-lg overflow-hidden border ${isScrolled ? "border-basePrimary" : "bg-baseSecondary border-accentPrimary/30"}`}
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                      >
+                        <Link
+                          to={`/profile/${userId}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className={`block px-4 py-3 ${isScrolled ? "text-basePrimaryDark" : "text-accentPrimary hover:bg-baseSecondary/70"}`}
+                        >
+                          Profile
+                        </Link>
+                        <Link
+                          to="/dashboard"
+                          onClick={(e) => e.stopPropagation()}
+                          className={`block px-4 py-3 ${isScrolled ? "text-basePrimaryDark" : "text-accentPrimary hover:bg-baseSecondary/70"}`}
+                        >
+                          Dashboard
+                        </Link>
+                        <Link
+                          to="/account/settings"
+                          onClick={(e) => e.stopPropagation()}
+                          className={`block px-4 py-3 ${isScrolled ? "text-basePrimaryDark" : "text-accentPrimary hover:bg-baseSecondary/70"}`}
+                        >
+                          Settings
+                        </Link>
+                        <div
+                          className={`border-t my-1 ${isScrolled ? "border-basePrimary" : "border-accentPrimary/20"}`}
+                        ></div>
+                        <Link
+                          to="/zitlogout"
+                          onClick={(e) => e.stopPropagation()}
+                          className={`flex items-center px-4 py-3 w-fit ${isScrolled ? "text-dangerPrimary" : "text-dangerPrimary hover:bg-baseSecondary/50"}`}
+                        >
+                          <SignOut size={20} className="mr-2" />
+                          Sign out
+                        </Link>
+                      </motion.div>
+                    )}
+                  </div>
+                )}
+
+                {/* Home Link */}
                 <Link
                   to="/"
                   className={`block px-4 py-2 rounded-lg transition-all font-medium hover:scale-105 active:scale-95 ${
@@ -379,70 +567,156 @@ export default function LandingHeader({
                 >
                   Home
                 </Link>
-                <Link
-                  to="/about"
-                  className={`block px-4 py-2 rounded-lg transition-all font-medium hover:scale-105 active:scale-95 ${
-                    isScrolled
-                      ? "text-basePrimaryDark hover:text-accentPrimary"
-                      : "text-accentPrimary hover:bg-baseSecondary/50"
-                  }`}
-                >
-                  About
-                </Link>
-                <Link
-                  to="/explore/tasks"
-                  className={`block px-4 py-2 rounded-lg transition-all font-medium hover:scale-105 active:scale-95 ${
-                    isScrolled
-                      ? "text-basePrimaryDark hover:text-accentPrimary"
-                      : "text-accentPrimary hover:bg-baseSecondary/50"
-                  }`}
-                >
-                  Explore
-                </Link>
 
-                {/* Resources section for mobile */}
-                <div className="mt-2">
-                  <div
-                    className={`px-4 py-2 font-medium ${
-                      isScrolled ? "text-basePrimaryDark" : "text-accentPrimary"
+                {/* About Dropdown */}
+                <div className="relative">
+                  <motion.button
+                    ref={aboutDropdownBtnRef}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setAboutMenuOpen((open) => !open);
+                    }}
+                    className={`w-full flex items-center justify-between px-4 py-2 rounded-lg font-medium transition-all hover:scale-105 active:scale-95 ${
+                      isScrolled
+                        ? "text-basePrimaryDark hover:text-accentPrimary"
+                        : "text-accentPrimary hover:bg-baseSecondary/50"
                     }`}
+                    whileTap={{ scale: 0.98 }}
                   >
-                    Resources
-                  </div>
-                  <div className="pl-4 border-l-2 ml-4 border-accentPrimary/20 space-y-1 mt-1">
-                    <Link
-                      to="/volunteer-guide"
-                      className={`block px-4 py-2 rounded-lg text-sm transition-all ${
-                        isScrolled
-                          ? "text-basePrimaryDark hover:text-accentPrimary"
-                          : "text-accentPrimary hover:bg-baseSecondary/50"
-                      }`}
+                    <span>About</span>
+                    <CaretDown
+                      size={16}
+                      className={aboutMenuOpen ? "rotate-180" : ""}
+                    />
+                  </motion.button>
+                  {aboutMenuOpen && (
+                    <motion.div
+                      ref={aboutDropdownRef}
+                      className={`mt-1 rounded-lg shadow-lg overflow-hidden border ${isScrolled ? "border-basePrimary" : "bg-baseSecondary border-accentPrimary/30"}`}
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
                     >
-                      Volunteer Guide
-                    </Link>
-                    <Link
-                      to="/charity-resources"
-                      className={`block px-4 py-2 rounded-lg text-sm transition-all ${
-                        isScrolled
-                          ? "text-basePrimaryDark hover:text-accentPrimary"
-                          : "text-accentPrimary hover:bg-baseSecondary/50"
-                      }`}
-                    >
-                      Charity Resources
-                    </Link>
-                    <Link
-                      to="/faq"
-                      className={`block px-4 py-2 rounded-lg text-sm transition-all ${
-                        isScrolled
-                          ? "text-basePrimaryDark hover:text-accentPrimary"
-                          : "text-accentPrimary hover:bg-baseSecondary/50"
-                      }`}
-                    >
-                      FAQ
-                    </Link>
-                  </div>
+                      <Link
+                        to="/about"
+                        onClick={(e) => e.stopPropagation()}
+                        className={`block px-4 py-2 text-sm ${isScrolled ? "text-basePrimaryDark" : "text-accentPrimary hover:bg-baseSecondary/70"}`}
+                      >
+                        About Altruvist
+                      </Link>
+                      <Link
+                        to="/blockchain"
+                        onClick={(e) => e.stopPropagation()}
+                        className={`block px-4 py-2 text-sm ${isScrolled ? "text-basePrimaryDark" : "text-accentPrimary hover:bg-baseSecondary/70"}`}
+                      >
+                        Blockchain
+                      </Link>
+                    </motion.div>
+                  )}
                 </div>
 
+                {/* Explore Dropdown */}
+                <div className="relative">
+                  <motion.button
+                    ref={exploreDropdownBtnRef}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setExploreMenuOpen((open) => !open);
+                    }}
+                    className={`w-full flex items-center justify-between px-4 py-2 rounded-lg font-medium transition-all hover:scale-105 active:scale-95 ${
+                      isScrolled
+                        ? "text-basePrimaryDark hover:text-accentPrimary"
+                        : "text-accentPrimary hover:bg-baseSecondary/50"
+                    }`}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <span>Explore</span>
+                    <CaretDown
+                      size={16}
+                      className={exploreMenuOpen ? "rotate-180" : ""}
+                    />
+                  </motion.button>
+                  {exploreMenuOpen && (
+                    <motion.div
+                      ref={exploreDropdownRef}
+                      className={`mt-1 rounded-lg shadow-lg overflow-hidden border ${isScrolled ? "border-basePrimary" : "bg-baseSecondary border-accentPrimary/30"}`}
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                    >
+                      <Link
+                        to="/explore/tasks"
+                        onClick={(e) => e.stopPropagation()}
+                        className={`block px-4 py-2 text-sm ${isScrolled ? "text-basePrimaryDark" : "text-accentPrimary hover:bg-baseSecondary/70"}`}
+                      >
+                        Tasks
+                      </Link>
+                      <Link
+                        to="/explore/charities"
+                        onClick={(e) => e.stopPropagation()}
+                        className={`block px-4 py-2 text-sm ${isScrolled ? "text-basePrimaryDark" : "text-accentPrimary hover:bg-baseSecondary/70"}`}
+                      >
+                        Charities
+                      </Link>
+                    </motion.div>
+                  )}
+                </div>
+
+                {/* Resources Dropdown */}
+                <div className="relative">
+                  <motion.button
+                    ref={resourcesDropdownBtnRef}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setResourcesMenuOpen((open) => !open);
+                    }}
+                    className={`w-full flex items-center justify-between px-4 py-2 rounded-lg font-medium transition-all hover:scale-105 active:scale-95 ${
+                      isScrolled
+                        ? "text-basePrimaryDark hover:text-accentPrimary"
+                        : "text-accentPrimary hover:bg-baseSecondary/50"
+                    }`}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <span>Resources</span>
+                    <CaretDown
+                      size={16}
+                      className={resourcesMenuOpen ? "rotate-180" : ""}
+                    />
+                  </motion.button>
+                  {resourcesMenuOpen && (
+                    <motion.div
+                      ref={resourcesDropdownRef}
+                      className={`mt-1 rounded-lg shadow-lg overflow-hidden border ${isScrolled ? "border-basePrimary" : "bg-baseSecondary border-accentPrimary/30"}`}
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                    >
+                      <Link
+                        to="/volunteer-guide"
+                        onClick={(e) => e.stopPropagation()}
+                        className={`block px-4 py-2 text-sm ${isScrolled ? "text-basePrimaryDark" : "text-accentPrimary hover:bg-baseSecondary/70"}`}
+                      >
+                        Volunteer Guide
+                      </Link>
+                      <Link
+                        to="/charity-resources"
+                        onClick={(e) => e.stopPropagation()}
+                        className={`block px-4 py-2 text-sm ${isScrolled ? "text-basePrimaryDark" : "text-accentPrimary hover:bg-baseSecondary/70"}`}
+                      >
+                        Charity Resources
+                      </Link>
+                      <Link
+                        to="/faq"
+                        onClick={(e) => e.stopPropagation()}
+                        className={`block px-4 py-2 text-sm ${isScrolled ? "text-basePrimaryDark" : "text-accentPrimary hover:bg-baseSecondary/70"}`}
+                      >
+                        FAQ
+                      </Link>
+                    </motion.div>
+                  )}
+                </div>
+
+                {/* Contact Link */}
                 <Link
                   to="/contact"
                   className={`block px-4 py-2 rounded-lg transition-all font-medium hover:scale-105 active:scale-95 ${
@@ -454,8 +728,8 @@ export default function LandingHeader({
                   Contact
                 </Link>
 
-                {/* Mobile login/signup or user menu */}
-                {!userId ? (
+                {/* Mobile login button if not logged in */}
+                {!userId && (
                   <div className="grid grid-cols-2 gap-2 pt-2">
                     <motion.button
                       className={`px-4 py-3 rounded-lg border font-medium ${
@@ -468,80 +742,6 @@ export default function LandingHeader({
                     >
                       Login
                     </motion.button>
-                  </div>
-                ) : (
-                  // User profile menu for mobile
-                  <div className="pt-2 space-y-1">
-                    <div
-                      className={`px-4 py-3 flex items-center space-x-3 ${
-                        isScrolled
-                          ? "bg-basePrimaryLight/50"
-                          : "bg-baseSecondary/70"
-                      } rounded-lg`}
-                    >
-                      <div className="w-10 h-10 rounded-full bg-accentPrimary/20 flex items-center justify-center">
-                        {
-                          <Avatar
-                            name={userInfo?.name}
-                            src={profilePicture || ""}
-                          />
-                        }
-                      </div>
-                      <div className="flex-1">
-                        <p
-                          className={`font-medium ${isScrolled ? "text-basePrimaryDark" : "text-accentPrimary"}`}
-                        >
-                          {userInfo?.name}
-                        </p>
-                        <p className="text-sm text-basePrimaryDark">
-                          {userInfo?.email}
-                        </p>
-                      </div>
-                    </div>
-                    <Link
-                      to={`/profile/${userId}`}
-                      className={`block px-4 py-3 rounded-lg ${
-                        isScrolled
-                          ? "text-basePrimaryDark "
-                          : "text-accentPrimary hover:bg-baseSecondary/70"
-                      }`}
-                    >
-                      Profile
-                    </Link>
-                    <Link
-                      to="/dashboard"
-                      className={`block px-4 py-3 rounded-lg ${
-                        isScrolled
-                          ? "text-basePrimaryDark "
-                          : "text-accentPrimary hover:bg-baseSecondary/70"
-                      }`}
-                    >
-                      Dashboard
-                    </Link>
-                    <Link
-                      to="/account/settings"
-                      className={`block px-4 py-3 rounded-lg ${
-                        isScrolled
-                          ? "text-basePrimaryDark "
-                          : "text-accentPrimary hover:bg-baseSecondary/70"
-                      }`}
-                    >
-                      Settings
-                    </Link>
-                    <div
-                      className={`border-t my-1 ${isScrolled ? "border-basePrimary" : "border-accentPrimary/20"}`}
-                    ></div>
-                    <Link
-                      to="/zitlogout"
-                      className={`flex items-center px-4 py-3 rounded-lg  w-fit  ${
-                        isScrolled
-                          ? "text-dangerPrimary "
-                          : "text-dangerPrimary hover:bg-baseSecondary/50"
-                      }`}
-                    >
-                      <SignOut size={20} className="mr-2" />
-                      Sign out
-                    </Link>
                   </div>
                 )}
               </div>
