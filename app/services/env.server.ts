@@ -30,6 +30,8 @@ export function getMeiliVars() {
   return {
     MEILI_HOST: process.env.MEILI_HOST ?? "",
     MEILI_MASTER_KEY: process.env.MEILI_MASTER_KEY ?? "",
+    MEILI_ADMIN_KEY: process.env.MEILI_ADMIN_KEY ?? "",
+    MEILI_SEARCH_KEY: process.env.MEILI_SEARCH_KEY ?? "",
   };
 }
 
