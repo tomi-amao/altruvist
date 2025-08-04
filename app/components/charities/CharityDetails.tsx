@@ -104,7 +104,7 @@ export function CharityDetails({
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-baseSecondary/10">
+        <div className="flex border-b border-baseSecondary/10 overflow-scroll">
           <button
             className={`px-6 py-3 text-sm font-medium ${
               activeTab === "details"
