@@ -105,7 +105,7 @@ export default function ReCaptcha({
   // Load reCAPTCHA script on mount
   useEffect(() => {
     loadReCaptchaScript();
-  }, [loadReCaptchaScript]);
+  }, []);
 
   // Execute reCAPTCHA when script is ready
   useEffect(() => {

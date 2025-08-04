@@ -3,6 +3,7 @@ import { useFetcher } from "react-router";
 import { motion } from "framer-motion";
 import { Modal } from "../utils/Modal2";
 import ReCaptcha from "../utils/ReCaptcha";
+import { toast } from "react-toastify";
 
 // Define type for the subscription response
 type SubscriptionResponse = {
@@ -21,7 +22,6 @@ export default function SubscriptionModal({
   const [email, setEmail] = useState("");
   const [gdprConsent, setGdprConsent] = useState(false);
   const [recaptchaToken, setRecaptchaToken] = useState("");
-  const [recaptchaError, setRecaptchaError] = useState<string | null>(null);
 
   // Create a new fetcher instance with a unique key to solve the issue
   // Using a key allows us to control when the fetcher instance is created or replaced
@@ -41,7 +41,6 @@ export default function SubscriptionModal({
     setEmail("");
     setGdprConsent(false);
     setRecaptchaToken("");
-    setRecaptchaError(null);
 
     // Generate a new key for the fetcher to effectively reset its state
     // This creates a new fetcher instance without the old data
@@ -62,7 +61,6 @@ export default function SubscriptionModal({
 
     if (!recaptchaToken) {
       console.log("[Subscription] No reCAPTCHA token available");
-      setRecaptchaError("Please wait for security verification to complete");
       return;
     }
 
@@ -92,15 +90,6 @@ export default function SubscriptionModal({
       token.substring(0, 10) + "...",
     );
     setRecaptchaToken(token);
-    setRecaptchaError(null);
-  };
-
-  // Handle reCAPTCHA errors
-  const handleRecaptchaError = (error: Error | string) => {
-    const errorMessage =
-      typeof error === "string" ? error : error.message || "reCAPTCHA error";
-    console.error("[Subscription] reCAPTCHA error:", errorMessage);
-    setRecaptchaError(errorMessage);
   };
 
   // Close modal after successful submission
@@ -122,6 +111,12 @@ export default function SubscriptionModal({
       }
     }
   }, [isOpen, isSuccess, fetcher.data]);
+
+  useEffect(() => {
+    if (errorMessage) {
+      toast.error(`${errorMessage} Please refresh the page and try again.`);
+    }
+  }, [errorMessage]);
 
   return (
     <div className="">
@@ -188,11 +183,6 @@ export default function SubscriptionModal({
           {isSuccess && (
             <div className="text-green-500 text-sm p-2 bg-green-50 rounded-md">
               {fetcher.data?.message || "Successfully subscribed!"}
-            </div>
-          )}
-          {(errorMessage || recaptchaError) && (
-            <div className="text-red-500 text-sm p-2 bg-red-50 rounded-md">
-              {errorMessage || recaptchaError}
             </div>
           )}
 
