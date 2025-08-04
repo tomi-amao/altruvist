@@ -137,8 +137,8 @@ const FileUpload = ({
       plugins={["ImageEditor"]}
       theme="light"
       // hideUploadButton
-      height={isMobile ? "200px" : "250px"}
-      width={isMobile ? "200px" : "400px"}
+      height={isMobile ? "350px" : "350px"}
+      width={isMobile ? "384px" : "600px"}
     />
   );
 };

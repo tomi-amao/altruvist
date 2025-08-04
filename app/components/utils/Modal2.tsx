@@ -7,6 +7,7 @@ type ModalProps = {
   onClose: () => void;
   children: React.ReactNode;
   portalContainer?: HTMLElement; // Optional custom portal container
+  className?: string; // Optional className for additional styling
 };
 
 export const Modal: React.FC<ModalProps> = ({
@@ -14,6 +15,7 @@ export const Modal: React.FC<ModalProps> = ({
   onClose,
   children,
   portalContainer,
+  className = "w-fit",
 }) => {
   const [mounted, setMounted] = useState(false);
   const [portalNode, setPortalNode] = useState<HTMLElement | null>(null);
@@ -66,7 +68,12 @@ export const Modal: React.FC<ModalProps> = ({
         backgroundColor: "rgba(0, 0, 0, 0.5)",
       }}
     >
-      <div className="relative bg-basePrimaryLight rounded-lg w-fit z-10 max-h-[80vh] overflow-y-auto shadow-xl">
+      <div
+        className={
+          `relative bg-basePrimaryLight rounded-lg z-10 max-h-[80vh] overflow-y-auto shadow-xl ` +
+          className
+        }
+      >
         <div className="">
           {children}
           <button
