@@ -8,21 +8,19 @@ RUN apt-get update && apt-get install -y openssl
 
 # Build Anchor programs using the official Anchor image
 FROM solanafoundation/anchor:v0.31.1 AS anchor-build
-
 WORKDIR /myapp
 
 # Copy only the files needed for Anchor build
-ADD Anchor.toml Cargo.toml Cargo.lock ./
-ADD programs ./programs
+COPY Anchor.toml Cargo.toml Cargo.lock ./
+COPY programs ./programs
 
 RUN anchor build
 
 # Install all node_modules, including dev dependencies
 FROM base AS deps
-
 WORKDIR /myapp
 
-ADD package.json package-lock.json ./
+COPY package.json package-lock.json ./
 RUN npm ci --include=dev
 
 # Setup production node_modules

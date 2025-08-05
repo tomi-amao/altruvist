@@ -3,7 +3,7 @@ import { getUserInfo } from "~/models/user2.server";
 import { prisma } from "~/services/db.server";
 import {
   isMeilisearchConnected,
-  client,
+  adminClient,
   INDICES,
 } from "~/services/meilisearch.server";
 import { getSession } from "~/services/session.server";
@@ -58,7 +58,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       const statsPromises = Object.values(INDICES).map(async (indexUid) => {
         try {
           console.log(`Getting stats for index: ${indexUid}`);
-          const index = await client.index(indexUid);
+          const index = await adminClient.index(indexUid);
           const stats = await index.getStats();
           console.log(`Stats for ${indexUid}:`, stats);
           return {
