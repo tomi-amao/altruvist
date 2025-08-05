@@ -37,6 +37,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (userInfo?.roles[0]) {
     return redirect("/dashboard");
   }
+  if (!userInfo) {
+    return redirect("/zitlogin");
+  }
+
   // Redirect non-new users to dashboard
   if (!isNew) {
     return redirect("/dashboard");
