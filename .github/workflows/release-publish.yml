@@ -98,8 +98,8 @@ jobs:
           annotations: ${{ steps.meta.outputs.annotations }} #needed for multi-arch images
           attests: type=provenance
           provenance: mode=max #create attestation for docker image
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=build
+          cache-to: type=gha,mode=min,scope=build
           outputs: type=image,name=target,annotation-index.org.opencontainers.image.description=Date; ${{ env.CURRENT_DATE }} Repository; ${{ github.repository }} Repo URL; ${{github.server_url}}/${{github.repository}} Commit SHA; ${{github.sha}}
 
       - name: Generate artifact attestation

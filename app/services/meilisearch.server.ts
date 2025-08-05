@@ -4,10 +4,15 @@ import { getMeiliVars } from "./env.server";
 // Get Meilisearch configuration from environment variables
 const meiliVars = getMeiliVars();
 
-// Initialize Meilisearch client
-export const client = new MeiliSearch({
+// Initialize Meilisearch clients
+export const adminClient = new MeiliSearch({
   host: meiliVars.MEILI_HOST,
-  apiKey: meiliVars.MEILI_MASTER_KEY,
+  apiKey: meiliVars.MEILI_ADMIN_KEY,
+});
+
+export const searchClient = new MeiliSearch({
+  host: meiliVars.MEILI_HOST,
+  apiKey: meiliVars.MEILI_SEARCH_KEY,
 });
 
 // Define the indices we'll be using
@@ -23,7 +28,7 @@ export const INDICES = {
  */
 export const isMeilisearchConnected = async (): Promise<boolean> => {
   try {
-    await client.health();
+    await adminClient.health();
     return true;
   } catch (error) {
     console.error("Meilisearch connection error:", error);
@@ -75,14 +80,14 @@ export const prepareDocumentForMeilisearch = <
 };
 
 /**
- * Index a single document to Meilisearch
+ * Index a single document to Meilisearch (admin key)
  */
 export const indexDocument = async <T extends { id: string }>(
   indexName: string,
   document: T,
 ): Promise<boolean> => {
   try {
-    const index = client.index(indexName);
+    const index = adminClient.index(indexName);
     const preparedDoc = prepareDocumentForMeilisearch(document);
 
     await index.addDocuments([preparedDoc]);
@@ -95,7 +100,7 @@ export const indexDocument = async <T extends { id: string }>(
 };
 
 /**
- * Index multiple documents to Meilisearch
+ * Index multiple documents to Meilisearch (admin key)
  */
 export const indexDocuments = async <T extends { id: string }>(
   indexName: string,
@@ -116,7 +121,7 @@ export const indexDocuments = async <T extends { id: string }>(
       JSON.stringify(preparedDocs[0], null, 2),
     );
 
-    const index = client.index(indexName);
+    const index = adminClient.index(indexName);
 
     // Split into smaller batches to avoid potential payload size issues
     const batchSize = 100;
@@ -140,14 +145,14 @@ export const indexDocuments = async <T extends { id: string }>(
 };
 
 /**
- * Delete a document from an index by ID
+ * Delete a document from an index by ID (admin key)
  */
 export const deleteDocument = async (
   indexName: string,
   documentId: string,
 ): Promise<boolean> => {
   try {
-    const index = client.index(indexName);
+    const index = adminClient.index(indexName);
     await index.deleteDocument(documentId);
     return true;
   } catch (error) {
@@ -160,13 +165,13 @@ export const deleteDocument = async (
 };
 
 /**
- * Delete all documents from an index
+ * Delete all documents from an index (admin key)
  */
 export const deleteAllDocuments = async (
   indexName: string,
 ): Promise<boolean> => {
   try {
-    const index = client.index(indexName);
+    const index = adminClient.index(indexName);
     await index.delete();
     return true;
   } catch (error) {
@@ -176,7 +181,7 @@ export const deleteAllDocuments = async (
 };
 
 /**
- * Search across multiple indices (tasks, users, charities)
+ * Search across multiple indices (search key)
  */
 export const searchMultipleIndices = async (query: string) => {
   try {
@@ -203,9 +208,9 @@ export const searchMultipleIndices = async (query: string) => {
 
     // Perform searches across all indices in parallel
     const [tasksResults, usersResults, charitiesResults] = await Promise.all([
-      client.index(INDICES.TASKS).search(query),
-      client.index(INDICES.USERS).search(query),
-      client.index(INDICES.CHARITIES).search(query),
+      searchClient.index(INDICES.TASKS).search(query),
+      searchClient.index(INDICES.USERS).search(query),
+      searchClient.index(INDICES.CHARITIES).search(query),
     ]);
 
     // Format the results for easier consumption
@@ -256,7 +261,7 @@ export const searchMultipleIndices = async (query: string) => {
 };
 
 /**
- * Initialize Meilisearch indices with proper settings
+ * Initialize Meilisearch indices with proper settings (admin key)
  */
 export const initializeMeilisearch = async () => {
   try {
@@ -273,10 +278,12 @@ export const initializeMeilisearch = async () => {
     try {
       console.log("Creating indices if they don't exist...");
       await Promise.all([
-        client.createIndex(INDICES.TASKS, { primaryKey: "id" }),
-        client.createIndex(INDICES.USERS, { primaryKey: "id" }),
-        client.createIndex(INDICES.CHARITIES, { primaryKey: "id" }),
-        client.createIndex(INDICES.TASK_APPLICATIONS, { primaryKey: "id" }),
+        adminClient.createIndex(INDICES.TASKS, { primaryKey: "id" }),
+        adminClient.createIndex(INDICES.USERS, { primaryKey: "id" }),
+        adminClient.createIndex(INDICES.CHARITIES, { primaryKey: "id" }),
+        adminClient.createIndex(INDICES.TASK_APPLICATIONS, {
+          primaryKey: "id",
+        }),
       ]);
     } catch {
       // Ignore errors if indices already exist
@@ -285,7 +292,7 @@ export const initializeMeilisearch = async () => {
       );
     }
 
-    const taskApplicationsIndex = client.index(INDICES.TASK_APPLICATIONS);
+    const taskApplicationsIndex = adminClient.index(INDICES.TASK_APPLICATIONS);
     await taskApplicationsIndex.updateSettings({
       searchableAttributes: ["taskId", "userId", "status"],
       filterableAttributes: ["id", "taskId", "userId", "status"],
@@ -293,7 +300,7 @@ export const initializeMeilisearch = async () => {
     });
     console.log("Task applications index configured successfully");
 
-    const tasksIndex = client.index(INDICES.TASKS);
+    const tasksIndex = adminClient.index(INDICES.TASKS);
     await tasksIndex.updateSettings({
       searchableAttributes: [
         "title",
@@ -329,7 +336,7 @@ export const initializeMeilisearch = async () => {
 
     // Configure users index
     console.log("Configuring users index...");
-    const usersIndex = client.index(INDICES.USERS);
+    const usersIndex = adminClient.index(INDICES.USERS);
     await usersIndex.updateSettings({
       searchableAttributes: [
         "name",
@@ -354,7 +361,7 @@ export const initializeMeilisearch = async () => {
 
     // Configure charities index
     console.log("Configuring charities index...");
-    const charitiesIndex = client.index(INDICES.CHARITIES);
+    const charitiesIndex = adminClient.index(INDICES.CHARITIES);
     await charitiesIndex.updateSettings({
       searchableAttributes: [
         "name",

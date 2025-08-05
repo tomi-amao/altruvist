@@ -555,7 +555,7 @@ const MobileNavigation = ({ user }: { user: users | null }) => {
       {/* Explore Section */}
       <div>
         <button
-          onClick={() => setExploreOpen(!exploreOpen)}
+          onClick={() => setExploreOpen((open) => !open)}
           className="w-full flex items-center justify-between p-3 text-left rounded-lg text-baseSecondary hover:bg-baseSecondary/10 transition-colors"
           aria-expanded={exploreOpen}
         >
@@ -585,7 +585,7 @@ const MobileNavigation = ({ user }: { user: users | null }) => {
       {user && (
         <div>
           <button
-            onClick={() => setDashboardOpen(!dashboardOpen)}
+            onClick={() => setDashboardOpen((open) => !open)}
             className="w-full flex items-center justify-between p-3 text-left rounded-lg text-baseSecondary hover:bg-baseSecondary/10 transition-colors"
             aria-expanded={dashboardOpen}
           >
@@ -615,6 +615,12 @@ const MobileNavigation = ({ user }: { user: users | null }) => {
                 className="block p-2 text-sm text-baseSecondary/80 hover:text-baseSecondary hover:bg-baseSecondary/5 rounded transition-colors"
               >
                 Charities
+              </Link>
+              <Link
+                to="/dashboard/blockchain"
+                className="block p-2 text-sm text-baseSecondary/80 hover:text-baseSecondary hover:bg-baseSecondary/5 rounded transition-colors"
+              >
+                Blockchain
               </Link>
             </div>
           )}
