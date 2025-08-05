@@ -150,7 +150,7 @@ export default function Index() {
   const [clientSideError, setClientSideError] = useState<string | null>(null);
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
-  const [expanded, setExpanded] = useState(false);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   useEffect(() => {
     setClientSideError(error ?? null);
@@ -347,9 +347,11 @@ export default function Index() {
                 position: "md:bottom-10 bottom-55 right-30",
               },
             ].map((card, index) => (
-              <div
+              <motion.div
                 key={index}
                 className={`absolute ${card.position} bg-transparent backdrop-blur-lg border border-baseSecondary/20 z-50 rounded-xl md:p-3 p-1 shadow-xl`}
+                variants={floatingVariants}
+                animate="animate"
               >
                 <div className="flex items-center gap-2 text-baseSecondary">
                   <span className="text-accentPrimary hidden md:block">
@@ -359,7 +361,7 @@ export default function Index() {
                     {card.text}
                   </span>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -531,12 +533,15 @@ export default function Index() {
                       "Immutable impact records",
                     ],
                   },
-                ].map((feature) => {
+                ].map((feature, index) => {
+                  const isExpanded = expandedIndex === index;
                   return (
                     <motion.div
                       key={feature.title}
                       className="relative flex items-start group cursor-pointer"
-                      onClick={() => setExpanded((prev) => !prev)}
+                      onClick={() =>
+                        setExpandedIndex(isExpanded ? null : index)
+                      }
                     >
                       <div className="absolute left-1/2 lg:left-0 transform -translate-x-1/2 lg:translate-x-0">
                         <div className="w-10 h-10 rounded-full bg-baseSecondary flex items-center justify-center shadow-lg z-10">
@@ -544,20 +549,20 @@ export default function Index() {
                         </div>
                       </div>
                       <motion.div
-                        className={`ml-0 md:ml-16 w-full bg-basePrimary/90 backdrop-blur-md rounded-2xl p-8 shadow-xl border border-baseSecondary/10 transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl ${expanded ? "ring-4 ring-amber-600" : ""}`}
+                        className={`ml-0 md:ml-16 w-full bg-basePrimary/90 backdrop-blur-md rounded-2xl p-8 shadow-xl border border-baseSecondary/10 transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl ${isExpanded ? "ring-4 ring-amber-600" : ""}`}
                       >
                         <h3 className="text-2xl font-bold mb-2 text-baseSecondary flex items-center gap-2">
                           {feature.title}
                           <motion.span
                             initial={false}
-                            animate={{ rotate: expanded ? 90 : 0 }}
+                            animate={{ rotate: isExpanded ? 90 : 0 }}
                             className="ml-2 text-amber-600"
                           >
                             <ArrowRight size={20} />
                           </motion.span>
                         </h3>
                         <AnimatePresence>
-                          {expanded && (
+                          {isExpanded && (
                             <motion.div
                               initial={{ opacity: 0, height: 0 }}
                               animate={{ opacity: 1, height: "auto" }}
