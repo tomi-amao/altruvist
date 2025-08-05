@@ -22,6 +22,7 @@ export default function SubscriptionModal({
   const [email, setEmail] = useState("");
   const [gdprConsent, setGdprConsent] = useState(false);
   const [recaptchaToken, setRecaptchaToken] = useState("");
+  const [recaptchaError, setRecaptchaError] = useState<string | null>(null);
 
   // Create a new fetcher instance with a unique key to solve the issue
   // Using a key allows us to control when the fetcher instance is created or replaced
@@ -41,6 +42,7 @@ export default function SubscriptionModal({
     setEmail("");
     setGdprConsent(false);
     setRecaptchaToken("");
+    setRecaptchaError(null);
 
     // Generate a new key for the fetcher to effectively reset its state
     // This creates a new fetcher instance without the old data
@@ -61,6 +63,8 @@ export default function SubscriptionModal({
 
     if (!recaptchaToken) {
       console.log("[Subscription] No reCAPTCHA token available");
+      setRecaptchaError("Please wait for security verification to complete");
+
       return;
     }
 
@@ -90,6 +94,14 @@ export default function SubscriptionModal({
       token.substring(0, 10) + "...",
     );
     setRecaptchaToken(token);
+    setRecaptchaError(null);
+  };
+
+  const handleRecaptchaError = (error: Error | string) => {
+    const errorMessage =
+      typeof error === "string" ? error : error.message || "reCAPTCHA error";
+    console.error("[Subscription] reCAPTCHA error:", errorMessage);
+    setRecaptchaError(errorMessage);
   };
 
   // Close modal after successful submission
@@ -115,6 +127,9 @@ export default function SubscriptionModal({
   useEffect(() => {
     if (errorMessage) {
       toast.error(`${errorMessage} Please refresh the page and try again.`);
+    }
+    if (recaptchaError) {
+      toast.error(recaptchaError);
     }
   }, [errorMessage]);
 
