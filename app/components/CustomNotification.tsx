@@ -23,6 +23,7 @@ interface NotificationBody {
   taskId?: string;
   userId?: string;
   charityId?: string;
+  announcementId?: string;
 }
 
 export const CustomNotification = ({

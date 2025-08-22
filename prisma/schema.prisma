@@ -31,6 +31,7 @@ model users {
   charityApplications charityApplications[] // Relation to charity applications
   tasks               tasks[]
   comments            comment[]
+  announcements       announcements[]
 }
 
 model charities {
@@ -49,6 +50,7 @@ model charities {
   tags                String[]
   taskApplications    taskApplications[]
   notifyTopicId       String[]
+  announcements       announcements[]
 }
 
 model tasks {
@@ -205,4 +207,16 @@ enum ApplicationStatus {
   ACCEPTED
   REJECTED
   WITHDRAWN
+}
+
+model announcements {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  content   String
+  charity   charities @relation(fields: [charityId], references: [id], onDelete: Cascade)
+  charityId String    @db.ObjectId
+  author    users     @relation(fields: [authorId], references: [id])
+  authorId  String    @db.ObjectId
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }

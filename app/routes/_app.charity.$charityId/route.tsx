@@ -32,6 +32,8 @@ import {
 } from "@phosphor-icons/react";
 import { formatDistanceToNow, format } from "date-fns";
 import { sanitiseUrl } from "~/components/utils/SanitiseUrl";
+import { AnnouncementsSection } from "~/components/announcements/AnnouncementsSection";
+import { canUserManageAnnouncements } from "~/models/announcements.server";
 
 export const meta: MetaFunction = ({ data }) => {
   if (!data?.charity) {
@@ -135,6 +137,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     taskApplications = userTasks?.map((task) => task.id) || [];
   }
 
+  // Check if user can manage announcements for this charity
+  let userCanManageAnnouncements = false;
+  if (userInfo?.id) {
+    userCanManageAnnouncements = await canUserManageAnnouncements(userInfo.id, charityId);
+  }
+
   return {
     charity,
     charityTasks,
@@ -143,6 +151,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     userMembership,
     FEATURE_FLAG,
     taskApplications,
+    userCanManageAnnouncements,
     stats: {
       activeTasks: activeTasks.length,
       completedTasks: completedTasks.length,
@@ -162,6 +171,7 @@ export default function CharityDetailPage() {
     stats,
     taskApplications,
     signedBackgroundPicture,
+    userCanManageAnnouncements,
   } = useLoaderData<typeof loader>();
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [showTaskModal, setShowTaskModal] = useState(false);
@@ -518,6 +528,14 @@ export default function CharityDetailPage() {
             </div>
           </div>
         ) : null}
+
+        {/* Announcements Section */}
+        <AnnouncementsSection
+          charityId={charity.id}
+          charityName={charity.name}
+          canManageAnnouncements={userCanManageAnnouncements || false}
+          userInfo={userInfo}
+        />
 
         {/* Tasks Section */}
         <CharityTasksSection
